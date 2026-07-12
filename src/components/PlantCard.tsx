@@ -2,10 +2,14 @@ import type { PlantStory } from '../types'
 
 interface PlantCardProps {
   plant: PlantStory
+  onOpen: (plantId: string) => void
 }
 
-export default function PlantCard({ plant }: PlantCardProps) {
-  const plantedDate = new Date(plant.plantedDate)
+export default function PlantCard({
+  plant,
+  onOpen,
+}: PlantCardProps) {
+  const plantedDate = new Date(`${plant.plantedDate}T00:00:00`)
   const today = new Date()
 
   const daysGrowing = Math.max(
@@ -17,16 +21,23 @@ export default function PlantCard({ plant }: PlantCardProps) {
   )
 
   const emoji =
-    plant.plantName === 'Potato'
+    plant.plantName.toLowerCase() === 'potato'
       ? '🥔'
-      : plant.plantName === 'Broccoli'
-      ? '🥦'
-      : plant.plantName === 'Tomato'
-      ? '🍅'
-      : '🌱'
+      : plant.plantName.toLowerCase() === 'broccoli'
+        ? '🥦'
+        : plant.plantName.toLowerCase() === 'tomato'
+          ? '🍅'
+          : plant.plantName.toLowerCase() === 'cauliflower'
+            ? '🥬'
+            : '🌱'
 
   return (
-    <article className="plant-card">
+    <button
+      type="button"
+      className="plant-card plant-card-button"
+      onClick={() => onOpen(plant.id)}
+      aria-label={`Open the story for ${plant.displayName}`}
+    >
       <div className="plant-card-top">
         <span className="plant-emoji">{emoji}</span>
 
@@ -42,7 +53,7 @@ export default function PlantCard({ plant }: PlantCardProps) {
       <h3>{plant.displayName}</h3>
 
       <p className="plant-personality">
-        {plant.personality}
+        {plant.personality ?? 'A story still unfolding'}
       </p>
 
       <div className="plant-details">
@@ -56,6 +67,10 @@ export default function PlantCard({ plant }: PlantCardProps) {
 
         <strong>{daysGrowing} days growing</strong>
       </div>
-    </article>
+
+      <span className="open-story">
+        Open story →
+      </span>
+    </button>
   )
 }
