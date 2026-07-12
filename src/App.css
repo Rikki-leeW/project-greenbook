@@ -1,0 +1,383 @@
+#root {
+  min-height: 100vh;
+}
+
+.welcome-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(174, 198, 152, 0.35),
+      transparent 38%
+    ),
+    linear-gradient(155deg, #fbf6e9 0%, #edf3e5 100%);
+}
+
+.welcome-card {
+  width: min(100%, 520px);
+  padding: 52px 34px 42px;
+  text-align: center;
+  background: rgba(255, 253, 247, 0.96);
+  border: 1px solid rgba(66, 91, 57, 0.16);
+  border-radius: 32px;
+  box-shadow: 0 24px 70px rgba(55, 77, 48, 0.14);
+}
+
+.leaf-mark {
+  margin-bottom: 14px;
+  font-size: 58px;
+}
+
+.app-name {
+  margin: 0 0 10px;
+  color: #718064;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #304a32;
+  font-size: clamp(2.4rem, 10vw, 4.2rem);
+  line-height: 1;
+}
+
+.welcome-message {
+  margin: 30px 0 10px;
+  color: #466148;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.intro {
+  max-width: 360px;
+  margin: 0 auto;
+  color: #657064;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.enter-button {
+  width: 100%;
+  margin-top: 34px;
+  padding: 16px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: #527047;
+  color: #fffdf7;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(82, 112, 71, 0.23);
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.enter-button:hover {
+  transform: translateY(-2px);
+  background: #405d3d;
+  box-shadow: 0 16px 30px rgba(82, 112, 71, 0.28);
+}
+
+.enter-button:focus-visible {
+  outline: 4px solid rgba(199, 157, 58, 0.32);
+  outline-offset: 4px;
+}
+
+.keeper-note {
+  margin: 24px 0 0;
+  color: #88785f;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .welcome-page {
+    padding: 14px;
+  }
+
+  .welcome-card {
+    padding: 42px 24px 34px;
+    border-radius: 26px;
+  }
+}
+.garden-page {
+  width: min(100%, 1180px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 42px 28px 120px;
+}
+
+.garden-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 34px;
+}
+
+.garden-title {
+  max-width: 720px;
+  margin-top: 8px;
+  font-size: clamp(2.1rem, 6vw, 4rem);
+  line-height: 1.05;
+}
+
+.garden-subtitle {
+  margin: 14px 0 0;
+  color: #687267;
+  font-size: 1.08rem;
+}
+
+.keeper-avatar {
+  display: grid;
+  flex: 0 0 auto;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid rgba(66, 91, 57, 0.16);
+  border-radius: 50%;
+  background: #fffdf7;
+  font-size: 1.55rem;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(55, 77, 48, 0.1);
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 42px;
+}
+
+.quick-action {
+  display: flex;
+  min-height: 78px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid rgba(66, 91, 57, 0.13);
+  border-radius: 22px;
+  background: rgba(255, 253, 247, 0.86);
+  color: #3d583f;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(55, 77, 48, 0.08);
+}
+
+.quick-action span {
+  font-size: 1.4rem;
+}
+
+.dashboard-section {
+  margin-bottom: 38px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.section-label {
+  margin: 0 0 5px;
+  color: #7a896f;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.section-heading h2,
+.keeper-card h2 {
+  margin: 0;
+  color: #304a32;
+  font-size: 1.65rem;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: #527047;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.plant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.plant-card {
+  min-height: 260px;
+  padding: 22px;
+  border: 1px solid rgba(66, 91, 57, 0.13);
+  border-radius: 25px;
+  background: rgba(255, 253, 247, 0.9);
+  box-shadow: 0 16px 38px rgba(55, 77, 48, 0.09);
+}
+
+.plant-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plant-emoji {
+  font-size: 2rem;
+}
+
+.status-pill {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #e2ecda;
+  color: #456148;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.status-pill.watch {
+  background: #f2e4c6;
+  color: #775f2d;
+}
+
+.plant-type {
+  margin: 24px 0 5px;
+  color: #83907b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.plant-card h3 {
+  margin: 0;
+  color: #304a32;
+  font-size: 1.55rem;
+}
+
+.plant-personality {
+  margin: 7px 0 22px;
+  color: #756d5e;
+  font-style: italic;
+}
+
+.plant-details {
+  display: grid;
+  gap: 5px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(66, 91, 57, 0.1);
+  color: #6d776b;
+  font-size: 0.86rem;
+}
+
+.plant-details strong {
+  color: #3e5941;
+}
+
+.keeper-card {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 28px;
+  border: 1px solid rgba(142, 105, 61, 0.13);
+  border-radius: 27px;
+  background: #f3e8d8;
+}
+
+.keeper-card p:last-child {
+  margin: 9px 0 0;
+  color: #766b5c;
+}
+
+.keeper-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 70px;
+  height: 70px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.7);
+  font-size: 2rem;
+}
+
+.bottom-navigation {
+  position: fixed;
+  right: 50%;
+  bottom: 18px;
+  z-index: 10;
+  display: flex;
+  width: min(calc(100% - 28px), 620px);
+  justify-content: space-around;
+  padding: 10px;
+  border: 1px solid rgba(66, 91, 57, 0.15);
+  border-radius: 24px;
+  background: rgba(255, 253, 247, 0.94);
+  box-shadow: 0 20px 50px rgba(55, 77, 48, 0.18);
+  backdrop-filter: blur(16px);
+  transform: translateX(50%);
+}
+
+.nav-item {
+  display: grid;
+  gap: 3px;
+  min-width: 74px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: #788073;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nav-item span {
+  font-size: 1.25rem;
+}
+
+.nav-item.active {
+  background: #e5eddf;
+  color: #405d3d;
+}
+
+@media (max-width: 760px) {
+  .garden-page {
+    padding: 28px 16px 112px;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-action {
+    justify-content: flex-start;
+  }
+
+  .plant-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .keeper-card {
+    align-items: flex-start;
+  }
+
+  .nav-item {
+    min-width: auto;
+    padding: 8px;
+  }
+}
