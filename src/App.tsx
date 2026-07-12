@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { loadGardenData } from './services/storage'
+import PlantCard from './components/PlantCard'
 
 function App() {
   const [gardenData] = useState(loadGardenData)
@@ -92,57 +93,12 @@ function App() {
         </div>
 
         <div className="plant-grid">
-          {gardenData.plantStories.map((plant) => {
-            const plantedDate = new Date(plant.plantedDate)
-            const today = new Date()
-
-            const daysGrowing = Math.max(
-              0,
-              Math.floor(
-                (today.getTime() - plantedDate.getTime()) /
-                  (1000 * 60 * 60 * 24),
-              ),
-            )
-
-            const plantEmoji =
-              plant.plantName === 'Potato'
-                ? '🥔'
-                : plant.plantName === 'Broccoli'
-                  ? '🥦'
-                  : plant.plantName === 'Tomato'
-                    ? '🍅'
-                    : '🌱'
-
-            return (
-              <article className="plant-card" key={plant.id}>
-                <div className="plant-card-top">
-                  <span className="plant-emoji">{plantEmoji}</span>
-
-                  <span className="status-pill">{plant.status}</span>
-                </div>
-
-                <p className="plant-type">{plant.plantName} story</p>
-
-                <h3>{plant.displayName}</h3>
-
-                <p className="plant-personality">
-                  {plant.personality ?? 'A story still unfolding'}
-                </p>
-
-                <div className="plant-details">
-                  <span>
-                    Planted{' '}
-                    {plantedDate.toLocaleDateString('en-AU', {
-                      day: 'numeric',
-                      month: 'long',
-                    })}
-                  </span>
-
-                  <strong>{daysGrowing} days growing</strong>
-                </div>
-              </article>
-            )
-          })}
+         {gardenData.plantStories.map((plant) => (
+            <PlantCard
+              key={plant.id}
+              plant={plant}
+           />
+        ))}
         </div>
       </section>
 
