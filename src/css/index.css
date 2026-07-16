@@ -1,0 +1,39 @@
+@import './variables.css';
+
+:root {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--parchment);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  scrollbar-gutter: stable;
+}
+
+bbody {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+
+  background-color: var(--parchment);
+  background-image: url('../images/backgrounds/woodland-frame.png');
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

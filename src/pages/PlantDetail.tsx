@@ -10,6 +10,9 @@ import type {
     events: GardenEvent[]
     onBack: () => void
     onAddEvent: () => void
+    onDeleteEvent: (eventId: string) => void
+    onDeletePlant: (plantId: string) => void
+    onUpdatePlant: (plant: PlantStory) => void
   }
   
   function formatLabel(value: string): string {
@@ -39,9 +42,13 @@ import type {
     events,
     onBack,
     onAddEvent,
+    onDeleteEvent,
+    onDeletePlant,
+    onUpdatePlant,
   }: PlantDetailProps) {
     const plantedDate = new Date(`${plant.plantedDate}T00:00:00`)
     const today = new Date()
+    
   
     const daysGrowing = Math.max(
       0,
@@ -52,9 +59,11 @@ import type {
     )
   
     const plantEvents = [...events]
-      .filter((event) =>
-        event.plantStoryIds.includes(plant.id),
-      )
+  .filter(
+    (event) =>
+      event.plantStoryIds.length === 0 ||
+      event.plantStoryIds.includes(plant.id),
+  )
       .sort(
         (first, second) =>
           new Date(second.date).getTime() -
@@ -63,13 +72,13 @@ import type {
   
     return (
       <main className="plant-story-page">
-        <button
-          type="button"
-          className="back-button"
-          onClick={onBack}
-        >
-          ← Back to the garden
-        </button>
+       <button
+  type="button"
+  className="garden-return-button"
+  onClick={onBack}
+>
+  ← Back to the garden
+</button>
   
         <header className="plant-story-header">
           <p className="section-label">
@@ -90,7 +99,40 @@ import type {
             <span>{daysGrowing} days growing</span>
           </div>
         </header>
-  
+        <button
+  type="button"
+  className="text-button"
+  onClick={() => {
+    const confirmed = window.confirm(
+      'Remove this plant from your garden? 🌿'
+    )
+    if (confirmed) {
+      onDeletePlant(plant.id)
+    }
+  }}
+>
+  🗑️ Remove this story
+</button> 
+<button
+  type="button"
+  className="text-button"
+  onClick={() => {
+    const newNotes = prompt(
+      'Update your notes for this plant 🌿',
+      plant.notes ?? ''
+    )
+
+    if (newNotes !== null) {
+      onUpdatePlant({
+        ...plant,
+        notes: newNotes,
+      })
+    }
+  }}
+>
+  ✏️ Edit notes
+</button>
+<br /><br />
         <section className="story-information-grid">
           <article className="story-info-card">
             <p className="section-label">The beginning</p>
@@ -181,27 +223,59 @@ import type {
                     {getEventEmoji(event.type)}
                   </div>
   
-                  <div>
-                    <time>
-                      {new Date(
-                        `${event.date}T00:00:00`,
-                      ).toLocaleDateString('en-AU', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </time>
-  
-                    <h3>{event.title}</h3>
-  
-                    {event.productUsed && (
-                      <p className="event-product">
-                        Used: {event.productUsed}
-                      </p>
-                    )}
-  
-                    {event.notes && <p>{event.notes}</p>}
-                  </div>
+                  <div className="timeline-entry-header">
+  <div className="timeline-entry-meta">
+    <time>
+      {new Date(
+        `${event.date}T00:00:00`,
+      ).toLocaleDateString('en-AU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })}
+    </time>
+
+    <span
+      className={
+        event.plantStoryIds.length === 0
+          ? 'entry-scope-label garden-entry-label'
+          : 'entry-scope-label plant-entry-label'
+      }
+    >
+      {event.plantStoryIds.length === 0
+        ? '🌍 Garden entry'
+        : '🌱 Plant entry'}
+    </span>
+  </div>
+
+  <button
+    type="button"
+    className="timeline-delete-button"
+    onClick={() => {
+      const confirmed = window.confirm(
+        'Remove this entry from the garden journal?'
+      )
+
+      if (confirmed) {
+        onDeleteEvent(event.id)
+      }
+    }}
+  >
+    🗑️
+  </button>
+</div>
+
+  <h3>{event.title}</h3>
+
+{event.productUsed && (
+  <p className="event-product">
+    Used: {event.productUsed}
+  </p>
+)}
+
+{event.notes && (
+  <p>{event.notes}</p>
+)}
                 </article>
               ))
             ) : (

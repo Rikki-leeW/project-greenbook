@@ -1,4 +1,4 @@
-import type { PlantStory } from '../types'
+import type { PlantStory } from '../../types'
 
 interface PlantCardProps {
   plant: PlantStory

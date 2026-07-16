@@ -3,7 +3,7 @@ import type {
   GrowingSpace,
   PlantStory,
   StartMethod,
-} from '../types'
+} from '../../types'
 
 interface AddPlantFormProps {
   growingSpaces: GrowingSpace[]

@@ -1,0 +1,21 @@
+:root {
+    /* Woodland colours */
+    --sprig-green: #304a32;
+    --sprig-green-light: #425b39;
+  
+    /* Backgrounds */
+    --parchment: #fbf6e9;
+    --paper: #fffdf7;
+  
+    /* Text */
+    --text-primary: #304a32;
+  
+    /* Borders */
+    --border-soft: rgba(66, 91, 57, 0.16);
+  
+    /* Shadows */
+    --shadow-soft: 0 8px 20px rgba(48, 74, 50, 0.08);
+  
+    /* Typography */
+    --font-body: Georgia, 'Times New Roman', serif;
+  }

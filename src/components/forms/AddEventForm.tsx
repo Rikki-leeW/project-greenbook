@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { GardenEvent } from '../types'
+import type { GardenEvent } from '../../types'
 
 interface AddEventFormProps {
   plantId: string
@@ -25,16 +25,16 @@ export default function AddEventForm({
     e.preventDefault()
 
     onAddEvent({
-      id: crypto.randomUUID(),
-      plantStoryIds: [plantId],
-      type,
-      date,
-      title:
-        title.trim() ||
-        type.charAt(0).toUpperCase() + type.slice(1),
-      productUsed: productUsed.trim() || undefined,
-      notes: notes.trim() || undefined,
-    })
+        id: crypto.randomUUID(),
+        plantStoryIds: plantId ? [plantId] : [],  // ← ADD THIS COMMA
+        type,
+        date,
+        title:
+          title.trim() ||
+          type.charAt(0).toUpperCase() + type.slice(1),
+        productUsed: productUsed.trim() || undefined,
+        notes: notes.trim() || undefined,
+      })
   }
 
   return (
@@ -69,6 +69,8 @@ export default function AddEventForm({
               <option value="observation">
                 Observation
               </option>
+              <option value="">🌍 Whole garden</option>
+
               <option value="watered">Watered</option>
               <option value="fed">Fed</option>
               <option value="sprouted">
