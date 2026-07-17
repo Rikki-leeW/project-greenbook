@@ -1,4 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+} from 'react'
+
 import type {
   GrowingSpace,
   PlantStory,
@@ -36,7 +41,31 @@ export default function AddPlantForm({
   const [plantedDate, setPlantedDate] = useState(today)
   const [growingSpaceId, setGrowingSpaceId] =
     useState(growingSpaces[0]?.id ?? '')
-  const [notes, setNotes] = useState('')
+    const [notes, setNotes] = useState('')
+
+    useEffect(() => {
+      const scrollY = window.scrollY
+    
+      const previousOverflow = document.body.style.overflow
+      const previousPosition = document.body.style.position
+      const previousTop = document.body.style.top
+      const previousWidth = document.body.style.width
+    
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+    
+      return () => {
+        document.body.style.overflow = previousOverflow
+        document.body.style.position = previousPosition
+        document.body.style.top = previousTop
+        document.body.style.width = previousWidth
+    
+        window.scrollTo(0, scrollY)
+      }
+    }, [])
+    
 
   function handleSubmit(
     event: FormEvent<HTMLFormElement>,

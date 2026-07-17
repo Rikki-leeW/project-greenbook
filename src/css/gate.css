@@ -61,7 +61,7 @@
   
   .keeper-content {
     position: relative;
-    z-index: 1;
+    z-index: 10;
   }
 
   .keeper-heading{
@@ -157,4 +157,28 @@
   position: absolute;
   top: 0;
   right: 0;
+}
+
+@media (max-width: 620px) {
+  .gate-page .garden-header {
+    min-height: 170px;
+    padding-right: 0;
+  }
+  
+  .gate-page .keeper-avatar {
+    top: -20px;
+    right: -35px;
+  
+    width: 250px;
+    height: 250px;
+  
+    z-index: 1;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  
+  .gate-page .garden-header > :not(.keeper-avatar) {
+    position: relative;
+    z-index: 2;
+  }
 }
