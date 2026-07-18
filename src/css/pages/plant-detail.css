@@ -1,0 +1,227 @@
+
+/* PLANT STORY */
+
+.back-button {
+    margin-bottom: 34px;
+    padding: 10px 0;
+    border: 0;
+    background: transparent;
+    color: var(--moss);
+    font-weight: 800;
+    cursor: pointer;
+  }
+  
+  .plant-story-header {
+    margin-bottom: 34px;
+  }
+  
+  .plant-story-header h1 {
+    margin: 8px 0 0;
+    font-size: clamp(2.8rem, 9vw, 5.4rem);
+    line-height: 0.98;
+  }
+  
+  .story-personality {
+    margin: 14px 0 20px;
+    color: #756d5e;
+    font-size: 1.2rem;
+    font-style: italic;
+  }
+  
+  .story-status-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    color: #667263;
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+  
+  .story-information-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 42px;
+  }
+  
+  .story-info-card {
+    padding: 22px;
+    border: 1px solid rgba(66, 91, 57, 0.13);
+    border-radius: 24px 18px 26px 20px;
+    background: rgba(255, 253, 247, 0.9);
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .story-info-card h2 {
+    margin: 7px 0 6px;
+    color: var(--ink);
+    font-size: 1.35rem;
+  }
+  
+  .story-info-card p:last-child {
+    margin: 0;
+    color: #70796d;
+  }
+  
+  .story-section {
+    margin-bottom: 42px;
+  }
+  
+  .story-note-card {
+    padding: 24px;
+    border: 1px solid rgba(142, 105, 61, 0.13);
+    border-radius: 24px 18px 26px 21px;
+    background:
+      linear-gradient(145deg, #f3e8d8, #efe0ca);
+    color: #655d50;
+    line-height: 1.7;
+  }
+  
+  .story-note-card p {
+    margin: 0;
+  }
+  
+  /* PLANT TIMELINE */
+  
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: 18px;
+    margin-top: 24px;
+  }
+  
+  .timeline-entry {
+    position: relative;
+    display: block;
+    padding: 24px 26px 24px 76px;
+    overflow: hidden;
+    border: 1px solid rgba(72, 91, 61, 0.14);
+    border-radius: 24px 18px 26px 20px;
+    background:
+      linear-gradient(135deg, rgba(255, 253, 245, 0.98), rgba(247, 240, 222, 0.96));
+    box-shadow:
+      0 12px 28px rgba(52, 67, 46, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  .timeline-entry:nth-child(even) {
+    border-radius: 18px 26px 20px 24px;
+  }
+  
+  .timeline-entry::after {
+    content: "❧";
+    position: absolute;
+    right: 18px;
+    bottom: 12px;
+    color: rgba(66, 92, 57, 0.18);
+    font-size: 1.15rem;
+  }
+  
+  .timeline-marker {
+    position: absolute;
+    top: 24px;
+    left: 22px;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid rgba(68, 93, 58, 0.15);
+    border-radius: 50%;
+    background: rgba(229, 239, 219, 0.9);
+    box-shadow: 0 5px 12px rgba(59, 74, 53, 0.08);
+    font-size: 1rem;
+  }
+  
+  .timeline-entry-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  
+  .timeline-entry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+  }
+  
+  .timeline-entry-meta time,
+  .timeline-entry time {
+    color: #7a6f5d;
+    font-size: 0.84rem;
+    font-style: italic;
+  }
+  
+  .entry-scope-label {
+    display: inline-flex;
+    width: fit-content;
+    padding: 5px 9px;
+    border: 1px solid rgba(82, 112, 71, 0.12);
+    border-radius: 999px;
+    background: #edf3e8;
+    color: #4e6849;
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  
+  .garden-entry-label {
+    background: #edf2ee;
+    color: #53666a;
+  }
+  
+  .timeline-entry h3 {
+    margin: 14px 0 9px;
+    color: var(--ink);
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+  
+  .timeline-entry p {
+    margin: 7px 0 0;
+    color: #596453;
+    line-height: 1.65;
+  }
+  
+  .event-product {
+    color: var(--moss);
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+  
+  .timeline-delete-button,
+  .journal-delete-button {
+    flex-shrink: 0;
+    padding: 6px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    opacity: 0.42;
+    transition:
+      opacity 160ms ease,
+      background 160ms ease,
+      transform 160ms ease;
+  }
+  
+  .timeline-delete-button:hover,
+  .journal-delete-button:hover {
+    background: rgba(69, 88, 59, 0.08);
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  
+  .empty-story {
+    padding: 34px;
+    border: 1px dashed rgba(66, 91, 57, 0.24);
+    border-radius: 24px;
+    color: #747d70;
+    text-align: center;
+  }
+  
+  .empty-story span {
+    font-size: 2rem;
+  }
+  

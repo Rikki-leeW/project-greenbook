@@ -11,17 +11,18 @@
 * {
   box-sizing: border-box;
 }
-
 html {
   min-width: 320px;
   min-height: 100%;
-  scrollbar-gutter: stable;
+  overflow-x: hidden;
 }
 
-bbody {
+body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+
+  overflow-x: hidden;
 
   background-color: var(--parchment);
   background-image: url('../images/backgrounds/woodland-frame.png');
