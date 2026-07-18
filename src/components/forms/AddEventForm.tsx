@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import type { GardenEvent } from '../../types'
+import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
+
+
 
 interface AddEventFormProps {
   plantId: string
@@ -39,9 +42,17 @@ export default function AddEventForm({
 
   return (
     <div className="form-backdrop">
-      <section className="add-plant-panel">
-        <div className="form-heading">
-          <h2>Add a Garden Moment</h2>
+    <section className="add-plant-panel chronicle-panel">
+    <img
+  className="chronicle-page-image"
+  src={notebookEntryBackground}
+  alt=""
+  aria-hidden="true"
+/>
+
+  <div className="chronicle-content">
+       /* <div className="form-heading">
+        /*  <h2></h2>
 
           <button
             type="button"
@@ -57,7 +68,7 @@ export default function AddEventForm({
           onSubmit={handleSubmit}
         >
           <label>
-            Event type
+          What happened?
             <select
               value={type}
               onChange={(e) =>
@@ -69,8 +80,6 @@ export default function AddEventForm({
               <option value="observation">
                 Observation
               </option>
-              <option value="">🌍 Whole garden</option>
-
               <option value="watered">Watered</option>
               <option value="fed">Fed</option>
               <option value="sprouted">
@@ -87,6 +96,7 @@ export default function AddEventForm({
               </option>
               <option value="photo">Photo</option>
               <option value="moved">Moved</option>
+              <option value="hilled">Hilled</option>
               <option value="harvest">
                 Harvested
               </option>
@@ -94,7 +104,7 @@ export default function AddEventForm({
           </label>
 
           <label>
-            Date
+            When
             <input
               type="date"
               value={date}
@@ -103,34 +113,34 @@ export default function AddEventForm({
           </label>
 
           <label>
-            Title
+            Give this page a title
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Fed with diluted urea"
+              placeholder="Watered the front"
             />
           </label>
 
           <label>
-            Product used (optional)
+            What did you use?
             <input
               value={productUsed}
               onChange={(e) =>
                 setProductUsed(e.target.value)
               }
-              placeholder="PowerFeed, Seasol..."
+              placeholder="Season, Powerfeed, Blood * Bone...."
             />
           </label>
 
           <label>
-            Notes
-            <textarea
-              rows={5}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Anything you want to remember..."
-            />
-          </label>
+  Notes to the story
+  <textarea
+    rows={5}
+    value={notes}
+    onChange={(e) => setNotes(e.target.value)}
+    placeholder="What would future you like to remember?"
+  />
+</label>
 
           <div className="form-actions">
             <button
@@ -138,17 +148,18 @@ export default function AddEventForm({
               className="secondary-button"
               onClick={onClose}
             >
-              Cancel
+              Leave it for now
             </button>
 
             <button
               type="submit"
               className="enter-button"
             >
-              Add memory
+              Add this page
             </button>
           </div>
         </form>
+        </div>
       </section>
     </div>
   )

@@ -34,6 +34,7 @@ export type EventType =
   | 'watered'
   | 'fed'
   | 'moved'
+  | 'hilled'
   | 'pruned'
   | 'treated'
   | 'weather'
@@ -80,8 +81,10 @@ export interface PlantStory {
   personality?: string
 
   quantity?: number
-  startMethod: StartMethod
+  startMethod: StartMethod  
+  sownDate?: string
   plantedDate: string
+  plantedOutDate?: string  
   enteredDate: string
 
   status: PlantStatus

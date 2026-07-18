@@ -2,28 +2,34 @@
 
 /* DASHBOARD */
 
-
 .quick-actions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 42px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 26px;
   }
   
   .quick-action {
     display: flex;
-    min-height: 78px;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 16px;
+    gap: 7px;
+  
+    min-height: 52px;
+    padding: 8px 12px;
+  
     border: 1px solid rgba(66, 91, 57, 0.13);
-    border-radius: 22px 17px 24px 18px;
-    background: rgba(255, 253, 247, 0.88);
+    border-radius: 17px;
+  
+    background: rgba(255, 253, 247, 0.86);
     color: #3d583f;
+  
+    font-size: 0.9rem;
     font-weight: 700;
+  
     cursor: pointer;
     box-shadow: var(--shadow-soft);
+  
     transition:
       transform 160ms ease,
       box-shadow 160ms ease,
@@ -31,17 +37,17 @@
   }
   
   .quick-action:nth-child(2) {
-    border-radius: 18px 24px 19px 23px;
+    border-radius: 17px;
   }
   
   .quick-action:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     border-color: rgba(66, 91, 57, 0.24);
-    box-shadow: 0 16px 36px rgba(55, 77, 48, 0.12);
+    box-shadow: 0 12px 28px rgba(55, 77, 48, 0.11);
   }
   
   .quick-action span {
-    font-size: 1.4rem;
+    font-size: 1rem;
   }
   
   .dashboard-section {
@@ -197,20 +203,7 @@
     .plant-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-  }
-  
-  @media (max-width: 760px) {
-    .garden-page,
-    .journal-page,
-    .plant-story-page {
-      padding: 28px 16px 112px;
-    }
-  
-    .garden-header,
-    .journal-header {
-      display: grid;
-    }
-  
+    
     .quick-actions {
       grid-template-columns: repeat(3, 1fr);
     }

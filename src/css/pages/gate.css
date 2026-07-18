@@ -1,9 +1,21 @@
-.quick-actions {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    margin-bottom: 42px;
-  }
+.gate-page .quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: -12px;
+  margin-bottom: 24px;
+}
+
+.gate-page .quick-action {
+  min-height: 46px;
+  padding: 7px 12px;
+  border-radius: 15px;
+  font-size: 0.88rem;
+}
+
+.gate-page .quick-action span {
+  font-size: 0.95rem;
+}
 
 
 .keeper-avatar {
@@ -149,36 +161,66 @@
 
 .gate-page .garden-header {
   position: relative;
-  min-height: 170px;
-  margin-bottom: 18px;
+  min-height: 120px;
+  margin-bottom: 4px;
 }
 
 .gate-page .keeper-avatar {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -110px;
+  right: -94px;
+
+  width: 500px;
+  height: 500px;
+
+  z-index: 0;
+  opacity: 0.9;
+  pointer-events: none;
 }
+
 
 @media (max-width: 620px) {
   .gate-page .garden-header {
-    min-height: 170px;
+    min-height: 138px;
+    margin-bottom: 4px;
     padding-right: 0;
   }
-  
+
   .gate-page .keeper-avatar {
-    top: -20px;
-    right: -35px;
-  
-    width: 250px;
-    height: 250px;
-  
-    z-index: 1;
-    opacity: 0.9;
+    top: -118px;
+    right: -162px;
+
+    width: 400px;
+    height: 400px;
+
+    z-index: 0;
+    opacity: 0.82;
     pointer-events: none;
   }
-  
+
   .gate-page .garden-header > :not(.keeper-avatar) {
     position: relative;
     z-index: 2;
+  }
+
+  .gate-page .quick-actions {
+    grid-template-columns: 1fr;
+    gap: 7px;
+    margin-top: -6px;
+    margin-bottom: 18px;
+  }
+
+  .gate-page .quick-action {
+    min-height: 42px;
+    padding: 6px 12px;
+    justify-content: flex-start;
+    gap: 7px;
+
+    border-radius: 14px;
+    font-size: 0.84rem;
+  }
+
+  .gate-page .quick-action span {
+    font-size: 0.9rem;
   }
 }
