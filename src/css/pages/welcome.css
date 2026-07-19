@@ -148,31 +148,37 @@
     font-size: 0.88rem;
     font-style: italic;
   }
-  
   @media (max-width: 620px) {
     .welcome-page {
-      place-items: start center;  
+      display: grid;
+      place-items: start center;
+  
+      min-height: 100svh;
+  
       padding:
-        calc(env(safe-area-inset-top) + 44px)
+        calc(92px + env(safe-area-inset-top))
         18px
-        24px;
+        calc(28px + env(safe-area-inset-bottom));
     }
   
     .welcome-card {
       width: 100%;
-      min-height: 560px;  
-      padding: 118px 24px 36px;  
-      border-radius: 32px 32px 24px 24px;  
+      min-height: 560px;
+  
+      padding: 132px 24px 38px;
+  
+      border-radius: 32px 32px 24px 24px;
+  
       transform: none;
     }
   
     .welcome-title-banner {
-      top: -132px;
-      width: min(84%, 400px);
+      top: -76px;
+  
+      width: min(82%, 380px);
     }
   
     .welcome-card h1 {
       font-size: clamp(2.5rem, 13vw, 4rem);
     }
-  
   }

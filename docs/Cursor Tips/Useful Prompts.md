@@ -20,3 +20,25 @@ Don't use
 
 These don't work in React.
 
+We've been bypassing that in one of two ways.
+
+Option 1 (temporary)
+
+Instead of:
+npm run dev
+or
+npm run build
+we use:
+npm.cmd run dev
+or
+npm.cmd run build
+
+npm run dev
+npm run build
+git status
+git add .
+git commit -m "Add dynamic plant story workflow"
+git push origin master
+Control C
+Check github
+
