@@ -162,24 +162,38 @@
         calc(28px + env(safe-area-inset-bottom));
     }
   
-    .welcome-card {
-      width: 100%;
-      min-height: 480px;
-  
-      padding: 112px 24px 34px;
-  
-      border-radius: 32px 32px 24px 24px;
-  
-      transform: none;
-    }
-  
-    .welcome-title-banner {
-      top: -76px;
-  
-      width: min(82%, 380px);
-    }
-  
-    .welcome-card h1 {
-      font-size: clamp(2.5rem, 13vw, 4rem);
+    @media (max-width: 620px) {
+      .welcome-page {
+        display: grid;
+        place-items: start center;
+    
+        min-height: 100svh;
+    
+        padding:
+          calc(112px + env(safe-area-inset-top))
+          18px
+          calc(28px + env(safe-area-inset-bottom));
+      }
+    
+      .welcome-card {
+        width: 100%;
+        min-height: 480px;
+    
+        padding: 112px 24px 34px;
+    
+        border-radius: 32px 32px 24px 24px;
+    
+        transform: none;
+      }
+    
+      .welcome-title-banner {
+        top: -76px;
+    
+        width: min(82%, 380px);
+      }
+    
+      .welcome-card h1 {
+        font-size: clamp(2.5rem, 13vw, 4rem);
+      }
     }
   }

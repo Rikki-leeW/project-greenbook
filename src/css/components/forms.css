@@ -356,233 +356,37 @@
   .form-actions .enter-button:hover {
     transform: none;
   }
+
+
   /* ---------- MOBILE ---------- */
-  
-  @media (max-width: 620px) {
-    .form-backdrop {
-      padding:
-        max(8px, env(safe-area-inset-top))
-        8px
-        max(8px, env(safe-area-inset-bottom));
-    }
-  
-    .add-plant-panel {
-      width: 100%;
-  
-      max-height: calc(
-        100dvh
-        - max(8px, env(safe-area-inset-top))
-        - max(8px, env(safe-area-inset-bottom))
-      );
-  
-      padding: 172px 38px 190px 58px;
-  
-      border-radius: 22px;
-  
-      background-size: 100% 100%;
-    }
-  
-    .form-heading {
-      margin-bottom: 34px;
-    }
-  
-    .form-heading h2 {
-      font-size: clamp(1.65rem, 8vw, 2.25rem);
-    }
-  
-    .close-button {
-      width: 36px;
-      height: 36px;
-    }
-  
-    .add-plant-form {
-      gap: 26px;
-    }
-  
-    .form-row,
-    .form-actions {
-      grid-template-columns: 1fr;
-    }
-  
-    .form-row {
-      gap: 26px;
-    }
-  
-    .form-actions {
-      gap: 10px;
-    }
-  
-    .add-plant-form textarea {
-      min-height: 200px;
-    }
-  }
-  
-  
-  /* ---------- VERY NARROW PHONES ---------- */
-  
-  @media (max-width: 390px) {
-    .add-plant-panel {
-      padding:
-        118px
-        34px
-        106px;
-    }
-  
-    .add-plant-form label {
-      font-size: 0.94rem;
-    }
-  
-    .add-plant-form input,
-    .add-plant-form select,
-    .add-plant-form textarea {
-      font-size: 0.95rem;
-    }
-  }
-
-  /* =======================================
-   CHRONICLE IMAGE COMPONENT
-   Overrides the earlier background version
-======================================= */
-
-.chronicle-panel {
-    position: relative;
-  
-    width: min(
-      92vw,
-      calc((100dvh - 24px) * 0.6667),
-      620px
-    );
-  
-    height: auto;
-    max-height: none;
-    aspect-ratio: 2 / 3;
-  
-    padding: 0;
-  
-    overflow: hidden;
-  
-    border: 0;
-    border-radius: 0;
-  
-    background: transparent;
-    box-shadow: none;
-  
-    overscroll-behavior: contain;
-  }
-  
-  .chronicle-page-image {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-  
-    display: block;
-  
-    width: 100%;
-    height: 100%;
-  
-    object-fit: contain;
-  
-    user-select: none;
-    pointer-events: none;
-  }
-  
-  .chronicle-content {
-    position: absolute;
-  
-    top: 18%;
-    right: 10%;
-    bottom: 11%;
-    left: 16%;
-  
-    z-index: 2;
-  
-    padding: 4px 8px 18px 4px;
-  
-    overflow-x: hidden;
-    overflow-y: auto;
-  
-    scrollbar-width: thin;
-    scrollbar-color:
-      rgba(88, 72, 47, 0.36)
-      transparent;
-  
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .chronicle-content::-webkit-scrollbar {
-    width: 5px;
-  }
-  
-  .chronicle-content::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .chronicle-content::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: rgba(88, 72, 47, 0.3);
-  }
-  
-  /* The notebook artwork already contains its own heading */
-  
-  .chronicle-content .form-heading {
-    min-height: 34px;
-    margin: 0 0 12px;
-  }
-  
-  .chronicle-content .close-button {
-    position: fixed;
-  
-    width: 34px;
-    height: 34px;
-  
-    font-size: 1.2rem;
-  }
-  
-  /* The full entry, including its buttons, scrolls together */
-  
-  .chronicle-content .add-plant-form {
-    max-height: none;
-  
-    overflow: visible;
-  
-    padding: 0 2px 10px 0;
-  }
-  
-  .chronicle-content .form-actions {
-    margin-top: 28px;
-    padding: 18px 0 8px;
-  }
-  
   /* Mobile notebook */
-  
-  @media (max-width: 620px) {
 
-    .chronicle-panel {
-      width: min(98vw, 520px);
-  
-      height: min(92svh, 920px);
-  
-      aspect-ratio: auto;
-    }
-  
-    .chronicle-content {
-      top: 17%;
-      right: 8%;
-      bottom: 8%;
-      left: 15%;
-  
-      padding-right: 6px;
-    }
-  
-    .chronicle-content .add-plant-form {
-      gap: 20px;
-    }
-  
-    .chronicle-content .form-actions {
-      grid-template-columns: 1fr;
-    }
+@media (max-width: 620px) {
+  .chronicle-panel {
+    width: min(99vw, 560px);
+    height: min(98svh, 1000px);
+
+    aspect-ratio: auto;
   }
+
+  .chronicle-content {
+  top: 18%;
+  right: 7%;
+  bottom: 8%;
+  left: 14%;
+
+  padding-right: 6px;
+}
+
+  .chronicle-content .add-plant-form {
+    gap: 20px;
+    padding-bottom: 110px;
+  }
+
+  .chronicle-content .form-actions {
+    grid-template-columns: 1fr;
+  }
+}
 
   .chronicle-content {
     display: flex;
