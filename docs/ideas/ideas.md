@@ -43,3 +43,5 @@ Given to Chat GPT 13/07/2026
 Delete button on home page for plants
 ____________________________
 Journal is still in boxes I want them to be more divided by lines like a journal not inside boxes.
+
+Gate - I envisage they will actually look like 1 line journal entries that I can click on for more information which will take me to the plants page of the journal. (Like an index in the front of a folder) s

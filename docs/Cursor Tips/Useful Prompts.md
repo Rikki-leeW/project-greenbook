@@ -33,11 +33,11 @@ npm.cmd run dev
 or
 npm.cmd run build
 
-npm run dev
+npm run dev - turns on the terminal
 npm run build
 git status
 git add .
-git commit -m "Add dynamic plant story workflow"
+git commit -m "Add dynamic plant story workflow - What you want to say you changed"
 git push origin master
 Control C
 Check github
