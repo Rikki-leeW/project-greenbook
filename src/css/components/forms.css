@@ -451,6 +451,7 @@
   transform: none;
 }
 
+
 /* =======================================
    MOBILE CHRONICLE
    Uses 1440 × 3120 mobile artwork
@@ -490,7 +491,7 @@
     max-height: none;
     aspect-ratio: auto;
 
-    margin-top: 0;
+    margin-top: -1px;
     padding: 0;
 
     overflow: hidden;
@@ -512,7 +513,7 @@
   /* Fixed writing window inside the notebook */
 
   .chronicle-content {
-    top: 13%;
+    top: 10%;
     right: 6%;
     bottom: 2.5%;
     left: 13%;
@@ -570,186 +571,42 @@
     grid-template-columns: 1fr 1.35fr;
     gap: 16px;
   }
+/* Smaller tray, sitting lower */
 
-  /* Smaller tray, sitting lower */
+.chronicle-content .form-actions {
+  bottom: 0;
 
-  .chronicle-content .form-actions {
-    bottom: -14px;
+  grid-template-columns: 0.8fr 1.35fr;
+  gap: 7px;
 
-    grid-template-columns: 0.8fr 1.35fr;
-    gap: 7px;
+  width: min(96%, 360px);
 
-    width: min(96%, 360px);
+  margin:
+    auto
+    auto
+    -12px;
 
-    margin:
-      12px
-      auto
-      0;
+  padding: 4px;
 
-    padding: 4px;
+  border: 1px solid rgba(91, 75, 48, 0.06);
+border-radius: 13px;
 
-    border-radius: 13px;
-  }
+background: rgba(247, 238, 214, 0.30);
 
-  .chronicle-content .form-actions .secondary-button,
-  .chronicle-content .form-actions .enter-button {
-    min-height: 38px;
-    padding: 7px 10px;
+box-shadow:
+    0 6px 16px rgba(61,49,31,.10),
+    inset 0 1px 0 rgba(255,255,255,.45);
 
-    border-radius: 9px;
-
-    font-size: 0.74rem;
-  }
+backdrop-filter: blur(1px);
 }
 
+.chronicle-content .form-actions .secondary-button,
+.chronicle-content .form-actions .enter-button {
+  min-height: 38px;
+  padding: 7px 10px;
 
-/* =======================================
-   MOBILE CHRONICLE
-   Uses 1440 × 3120 mobile artwork
-======================================= */
+  border-radius: 9px;
 
-@media (max-width: 620px) {
-  .form-backdrop {
-    align-items: flex-start;
-
-    padding:
-      max(2px, env(safe-area-inset-top))
-      0
-      max(2px, env(safe-area-inset-bottom));
-
-    overflow: hidden;
-  }
-
-  .add-plant-panel,
-  .chronicle-panel {
-    width: min(
-      106vw,
-      calc(
-        (
-          100svh
-          - max(4px, env(safe-area-inset-top))
-          - max(4px, env(safe-area-inset-bottom))
-        ) * 0.49
-      )
-    );
-
-    height: calc(
-      100svh
-      - max(4px, env(safe-area-inset-top))
-      - max(4px, env(safe-area-inset-bottom))
-    );
-
-    max-height: none;
-    aspect-ratio: auto;
-
-    margin-top: 0;
-    padding: 0;
-
-    overflow: hidden;
-    background: transparent;
-  }
-
-  /* Mobile notebook artwork */
-
-  .chronicle-page-image {
-    content:
-      url('../../images/notebook/notebook-entry-background-mobile.png');
-
-    width: 100%;
-    height: 100%;
-
-    object-fit: fill;
-  }
-
-  /* Fixed writing window inside the notebook */
-
-  .chronicle-content {
-    top: 13%;
-    right: 6%;
-    bottom: 2.5%;
-    left: 13%;
-
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-
-    padding:
-      0
-      3px
-      4px
-      0;
-
-    overflow: hidden;
-  }
-
-  .form-heading {
-    flex: 0 0 auto;
-
-    min-height: 24px;
-    margin-bottom: 2px;
-  }
-
-  .close-button {
-    width: 32px;
-    height: 32px;
-  }
-
-  /* This is the mobile scrolling area */
-
-  .chronicle-content .add-plant-form {
-    display: flex;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
-    flex-direction: column;
-
-    gap: 18px;
-    padding:
-      0
-      6px
-      70px
-      0;
-
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr 1.35fr;
-    gap: 16px;
-  }
-
-  /* Smaller tray, sitting lower */
-
-  .chronicle-content .form-actions {
-    bottom: -14px;
-
-    grid-template-columns: 0.8fr 1.35fr;
-    gap: 7px;
-
-    width: min(96%, 360px);
-
-    margin:
-      12px
-      auto
-      0;
-
-    padding: 4px;
-
-    border-radius: 13px;
-  }
-
-  .chronicle-content .form-actions .secondary-button,
-  .chronicle-content .form-actions .enter-button {
-    min-height: 38px;
-    padding: 7px 10px;
-
-    border-radius: 9px;
-
-    font-size: 0.74rem;
-  }
+  font-size: 0.74rem;
+}
 }
