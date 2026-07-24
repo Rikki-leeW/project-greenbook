@@ -491,7 +491,8 @@
     max-height: none;
     aspect-ratio: auto;
 
-    margin-top: -1px;
+    margin-top: 0;
+    transform: translateY(-70px);
     padding: 0;
 
     overflow: hidden;
@@ -515,7 +516,7 @@
   .chronicle-content {
     top: 10%;
     right: 6%;
-    bottom: 2.5%;
+    bottom: -4%;
     left: 13%;
 
     display: flex;
@@ -599,14 +600,30 @@ box-shadow:
 
 backdrop-filter: blur(1px);
 }
-
 .chronicle-content .form-actions .secondary-button,
 .chronicle-content .form-actions .enter-button {
   min-height: 38px;
   padding: 7px 10px;
-
   border-radius: 9px;
-
   font-size: 0.74rem;
+}
+
+.chronicle-content .form-actions .secondary-button {
+  background: rgba(255, 248, 226, 0.42);
+}
+
+.chronicle-content .form-actions .enter-button {
+  border: 1px solid rgba(49, 77, 50, 0.22);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(97, 127, 85, 0.62),
+      rgba(61, 93, 64, 0.62)
+    );
+
+  box-shadow:
+    0 4px 10px rgba(46, 67, 43, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 }

@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
   type FormEvent,
 } from 'react'
@@ -56,10 +57,15 @@ export default function AddPlantForm({
   const [notes, setNotes] = useState('')
 
   const beganFromSeed = startMethod === 'seed'
+  const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     const scrollY = window.scrollY
-
+    requestAnimationFrame(() => {
+      if (formRef.current) {
+        formRef.current.scrollTop = 0
+      }
+    })
     const previousOverflow = document.body.style.overflow
     const previousPosition = document.body.style.position
     const previousTop = document.body.style.top
@@ -164,9 +170,10 @@ export default function AddPlantForm({
           </div>
 
           <form
-            className="add-plant-form"
-            onSubmit={handleSubmit}
-          >
+  ref={formRef}
+  className="add-plant-form"
+  onSubmit={handleSubmit}
+>
             <label>
               What has begun to grow?
               <input
