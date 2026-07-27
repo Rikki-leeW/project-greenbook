@@ -26,8 +26,6 @@ interface AddEventFormProps {
 
 export default function AddEventForm({
   plantId,
-  plants,
-  growingPlaces,
   onAddEvent,
   onClose,
 }: AddEventFormProps) {

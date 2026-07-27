@@ -1,17 +1,17 @@
 import BottomNavigation from '../components/navigation/BottomNavigation'
-import type { GardenPlace } from '../types'
+import type { GrowingPlace } from '../types'
 import type { AppPage } from '../types/navigation'
 
 interface GardenPlacesProps {
-  gardenPlaces: GardenPlace[]
+  gardenPlaces: GrowingPlace[]
   onAddPlace: () => void
   onNavigate: (page: AppPage) => void
 }
 
 function getPlaceKindLabel(
-  kind: GardenPlace['kind'],
+  kind: GrowingPlace['kind'],
 ): string {
-  const labels: Record<GardenPlace['kind'], string> = {
+  const labels: Record<GrowingPlace['kind'], string> = {
     'garden-area': 'Garden area',
     'garden-bed': 'Garden bed',
     'raised-bed': 'Raised bed',

@@ -19,7 +19,7 @@ export const sampleGardenData: GardenData = {
     },
   ],
 
-  GrowingPlaces: [],
+  growingPlaces: [],
 
   plantStories: [
     {
