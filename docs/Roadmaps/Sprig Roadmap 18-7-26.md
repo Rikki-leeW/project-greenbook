@@ -54,15 +54,15 @@ Tasks
 
 Add "Hilled" as a Plant Event.
 
-☐ Record when seeds were first sown.
+Record when seeds were first sown.
 
-☐ Record when seedlings were planted out.
+Record when seedlings were planted out.
 
 ☐ Improve event recording workflow.
 
-☐ Add Location as its own field.
+Add Location as its own field.
 
-☐ Allow journal entries to connect to Garden Places.
+Allow journal entries to connect to Garden Places.
 
 Notes
 

@@ -46,3 +46,44 @@ Journal is still in boxes I want them to be more divided by lines like a journal
 
 This is a prompt for Chat GPT to remember the time I talked about adding the features in the form to added "areas" both from from coding and from the user end
 Gate - I envisage they will actually look like 1 line journal entries that I can click on for more information which will take me to the plants page of the journal. (Like an index in the front of a folder) s
+
+
+
+
+Wording
+No growing places yet
+Sprig button
+🌱 Add a growing place
+And I would change the little helper text underneath as well.
+Instead of:
+🌱 Welcome a new garden place
+I'd make Sprig sound like he's inviting you to sketch another part of the garden into his notebook.
+Something like:
+🌱 Sprig hasn't explored this growing place yet.
+or
+🌱 Add a growing place first.
+or my favourite:
+🌱 Let's add a new growing place.
+
+Things become Growing Places.
+Actions become Garden Activities.
+Experiments become Garden Trials.
+Plants become Plant Stories.
+Notes become Chronicles.
+
+
+Replace Dropdowns
+replace every dropdown in Sprig with a reusable Sprig Picker.
+Instead of a plain list, you'd tap it and get a little parchment card that unfolds over the notebook.
+For example, your "How did this story begin?" picker could show:
+
+🌰 Seed
+🌱 Seedling
+✂️ Cutting
+🥔 Seed potato
+🌿 Division
+🪴 Bought plant
+✨ Something else
+
+Each with a tiny hand-drawn icon and the same paper texture as the notebook.
+We'd build that component once, then use it everywhere: event types, varieties, growing places, trial outcomes, weather... everything. It would become part of Sprig's identity.

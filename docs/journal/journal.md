@@ -62,3 +62,8 @@ Display the photo in the Journal entry and later inside connected Plant Stories 
 _____________________________
 
 icons for cards and what happened
+
+___________________________________
+
+Change button at bottom to say 
+"Add these moments"
