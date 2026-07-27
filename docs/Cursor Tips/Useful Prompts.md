@@ -42,3 +42,15 @@ git push origin master
 Control C
 Check github
 
+
+ok>git add .
+git commit -m "Polish mobile Chronicle notebook experience2"
+git push origin master
+
+
+C:\Users\jonoa\Documents\Project Greenbook>git commit -m "Polish mobile Chronicle notebook experience2"
+ 
+[master 5629720] Polish mobile Chronicle notebook experience2
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+C:\Users\jonoa\Documents\Project Greenbook>git push origin master

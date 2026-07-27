@@ -19,6 +19,8 @@ export const sampleGardenData: GardenData = {
     },
   ],
 
+  GrowingPlaces: [],
+
   plantStories: [
     {
       id: 'royal-blue-june-2026',

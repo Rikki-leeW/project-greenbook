@@ -5,6 +5,25 @@ export type PlantStatus =
   | 'finished'
   | 'failed'
 
+  export type GrowingPlaceKind =
+  | 'garden-area'
+  | 'garden-bed'
+  | 'raised-bed'
+  | 'pot'
+  | 'grow-bag'
+  | 'greenhouse'
+  | 'compost-area'
+  | 'indoor'
+  | 'other'
+
+export interface GrowingPlace {
+  id: string
+  name: string
+  kind: GrowingPlaceKind
+  notes?: string
+  createdAt: string
+}
+
 export type StartMethod =
   | 'seed'
   | 'seedling'
@@ -105,6 +124,7 @@ export interface PlantStory {
 export interface GardenData {
   plantStories: PlantStory[]
   growingSpaces: GrowingSpace[]
+  GrowingPlaces: GrowingPlace[]
   events: GardenEvent[]
   harvests: Harvest[]
 }

@@ -1,0 +1,432 @@
+/* =======================================
+   SPRIG COMPONENTS
+======================================= */
+
+/* =====================================================
+   SPRIG PAPER
+===================================================== */
+
+.sprig-paper-panel {
+    background-image: url('../../images/backgrounds/base-paper-texture.jpg');
+    background-size: cover;
+    background-position: center;
+  
+    border-radius: 16px;
+    border: 1px solid rgba(110, 88, 55, 0.16);
+  
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.18),
+      inset 0 0 18px rgba(124,95,60,.05);
+  
+    overflow: hidden;
+  }
+
+/* =======================================
+   SPRIG CHOICE CARDS
+======================================= */
+
+/* ---------- JOURNAL CHOICE CARD ROWS ---------- */
+
+.growing-place-scope-grid,
+.plant-scope-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 7px;
+
+  width: 100%;
+  margin: 9px 0 12px;
+  padding: 0;
+}
+
+.growing-place-scope-grid .sprig-choice-card,
+.plant-scope-grid .sprig-choice-card {
+  width: 100%;
+  max-width: 96px;
+  justify-self: center;
+}
+  
+  /* Stronger selector prevents forms.css button rules
+     from stretching the cards */
+  
+  .add-plant-form .sprig-choice-card {
+    position: relative;
+  
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+  
+    width: 100%;
+    max-width: 96px;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+  
+    justify-self: center;
+  
+    margin: 0;
+    padding: 8px 5px;
+  
+    overflow: hidden;
+  
+    border: 0;
+    border-radius: 14px;
+  
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  
+    box-shadow: none;
+  
+    color: #4a3928;
+  
+    font-family: Georgia, "Times New Roman", serif;
+    text-align: center;
+  
+    cursor: pointer;
+  
+    transform: none;
+  
+    transition:
+      transform 150ms ease,
+      filter 150ms ease;
+  }
+  
+  .add-plant-form .sprig-choice-card:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.025);
+  }
+  
+  .add-plant-form .sprig-choice-card:active {
+    transform: translateY(0);
+  }
+  
+  .add-plant-form .sprig-choice-card:focus-visible {
+    outline: 2px solid rgba(95, 112, 64, 0.72);
+    outline-offset: 2px;
+  }
+  
+  .add-plant-form .sprig-choice-card:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  
+  
+  /* Card contents */
+  
+  .sprig-choice-card-icon {
+    display: grid;
+    place-items: center;
+  
+    min-height: 19px;
+  
+    font-size: 1rem;
+    line-height: 1;
+  }
+  
+  .sprig-choice-card-text {
+    display: grid;
+    place-items: center;
+    gap: 1px;
+  
+    width: 100%;
+  }
+  
+  .sprig-choice-card-title {
+    display: block;
+  
+    max-width: 100%;
+  
+    font-size: 0.62rem;
+    font-weight: 700;
+    line-height: 1.08;
+  
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  
+  .sprig-choice-card-subtitle {
+    font-size: 0.55rem;
+    font-style: italic;
+    line-height: 1.12;
+  }
+  
+  
+  /* Selected state */
+  
+  .add-plant-form .sprig-choice-card.is-selected {
+    color: #3f4e34;
+    filter: saturate(1.04);
+  }
+  
+
+
+
+  /* ---------- SMALL PHONE ADJUSTMENT ---------- */
+
+@media (max-width: 420px) {
+
+    .growing-place-scope-grid,
+    .plant-scope-grid {
+      gap: 5px;
+    }
+  
+    .growing-place-scope-grid .sprig-choice-card,
+    .plant-scope-grid .sprig-choice-card,
+    .add-plant-form .sprig-choice-card {
+      max-width: 84px;
+      padding: 6px 4px;
+    }
+  
+    .sprig-choice-card {
+      gap: 5px;
+    }
+  
+    .sprig-choice-card-icon {
+      min-height: 17px;
+      font-size: 0.9rem;
+    }
+  
+    .sprig-choice-card-title {
+      font-size: 0.56rem;
+    }
+  
+    .sprig-choice-card-subtitle {
+      font-size: 0.64rem;
+    }
+  }
+
+
+  /* =======================================
+   SPRIG PICKER
+======================================= */
+
+.sprig-picker {
+    display: grid;
+    gap: 7px;
+  
+    width: 100%;
+  }
+  
+  .sprig-picker-label {
+    margin: 0;
+  
+    color: #455842;
+  
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  
+  .sprig-picker-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  
+    width: 100%;
+    min-height: 34px;
+    margin: 0;
+    padding: 5px 14px;
+  
+    border: 0;
+    border-radius: 10px;
+  
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  
+    color: #4c4638;
+  
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif;
+    font-size: 0.78rem;
+    text-align: left;
+  
+    box-shadow: none;
+    cursor: pointer;
+  
+    transition:
+      transform 150ms ease,
+      filter 150ms ease;
+  }
+  
+  .sprig-picker-trigger:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
+  }
+  
+  .sprig-picker-trigger:active {
+    transform: translateY(0);
+  }
+  
+  .sprig-picker-trigger:focus-visible {
+    outline: 2px solid rgba(95, 112, 64, 0.72);
+    outline-offset: 2px;
+  }
+  
+  .sprig-picker-trigger:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
+  }
+  
+  .sprig-picker-trigger:active {
+    transform: translateY(0);
+  }
+  
+  .sprig-picker-trigger:focus-visible {
+    outline: 2px solid rgba(95, 112, 64, 0.72);
+    outline-offset: 2px;
+  }
+  
+
+  .sprig-picker-summary {
+    overflow: hidden;
+  
+    line-height: 1.35;
+    text-overflow: ellipsis;
+  }
+  
+  .sprig-picker-arrow {
+    flex: 0 0 auto;
+  
+    color: #607957;
+    font-size: 1rem;
+  }
+  
+    
+  .sprig-picker-options {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  
+    gap: 7px 8px;
+  }
+  
+  .sprig-picker-option {
+    display: grid;
+    grid-template-columns:
+      auto minmax(0, 1fr) 16px;
+  
+    align-items: center;
+    gap: 6px;
+  
+    min-width: 0;
+    min-height: 36px;
+  
+    margin: 0;
+    padding: 7px 12px;
+  
+    border: 0;
+    border-radius: 0;
+  
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  
+    color: #4a3928;
+  
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif;
+  
+    font-size: 0.74rem;
+    text-align: left;
+  
+    box-shadow: none;
+    cursor: pointer;
+  
+    transition:
+      transform 140ms ease,
+      filter 140ms ease;
+  }
+  
+  .sprig-picker-option:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
+  }
+  
+  .sprig-picker-option:active {
+    transform: translateY(0);
+  }
+  
+  .sprig-picker-option.is-selected {
+    color: #3f4e34;
+    font-weight: 700;
+  }
+  
+  .sprig-picker-option.is-selected {
+    color: #3f4e34;
+  }
+  
+  .sprig-picker-option-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+  
+  .sprig-picker-mark {
+    color: #5f7040;
+    font-weight: 700;
+    text-align: center;
+  }
+  
+  .sprig-picker-done {
+    justify-self: end;
+  
+    min-height: 36px;
+    padding: 7px 13px;
+  
+    border: 1px solid rgba(49, 77, 50, 0.2);
+    border-radius: 9px;
+  
+    background:
+      linear-gradient(
+        180deg,
+        rgba(97, 127, 85, 0.68),
+        rgba(61, 93, 64, 0.68)
+      );
+  
+    color: #fff9e8;
+  
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+  
+    cursor: pointer;
+  }
+  
+  @media (max-width: 420px) {
+    .sprig-picker-panel {
+        padding: 18px 14px 16px;
+      }
+      
+      .sprig-picker-options {
+        gap: 5px 6px;
+      }
+      
+      .sprig-picker-option {
+        min-height: 32px;
+        padding: 6px 9px;
+      
+        font-size: 0.66rem;
+      }
+      
+      .sprig-picker-option-icon {
+        font-size: 0.82rem;
+      }
+  }

@@ -1,3 +1,4 @@
+import AddGrowingPlaceForm from './AddGrowingPlaceForm'
 import {
   useEffect,
   useRef,
@@ -8,6 +9,7 @@ import {
 import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
 
 import type {
+  GrowingPlace,
   GrowingSpace,
   PlantStory,
   StartMethod,
@@ -15,7 +17,9 @@ import type {
 
 interface AddPlantFormProps {
   growingSpaces: GrowingSpace[]
+  GrowingPlaces: GrowingPlace[]
   onAddPlant: (plant: PlantStory) => void
+  onAddGrowingPlace: (place: GrowingPlace) => void
   onClose: () => void
 }
 
@@ -31,7 +35,9 @@ function createPlantId(plantName: string): string {
 
 export default function AddPlantForm({
   growingSpaces,
+  GrowingPlaces,
   onAddPlant,
+  onAddGrowingPlace,
   onClose,
 }: AddPlantFormProps) {
   const today = new Date().toISOString().slice(0, 10)
@@ -40,6 +46,8 @@ export default function AddPlantForm({
   const [variety, setVariety] = useState('')
   const [quantity, setQuantity] = useState('1')
 
+  const [isAddGrowingPlaceOpen, setIsAddGrowingPlaceOpen] =
+  useState(false)
   const [startMethod, setStartMethod] =
     useState<StartMethod>('seedling')
 
@@ -170,10 +178,11 @@ export default function AddPlantForm({
           </div>
 
           <form
-  ref={formRef}
-  className="add-plant-form"
-  onSubmit={handleSubmit}
->
+            id="add-plant-form"
+            ref={formRef}
+            className="add-plant-form"
+            onSubmit={handleSubmit}
+          >
             <label>
               What has begun to grow?
               <input
@@ -319,29 +328,41 @@ export default function AddPlantForm({
     )}
   </>
 )}
+<div className="garden-place-field">
+  <label>
+    Where is it growing?
 
-            <label>
-              Where is it growing?
-              <select
-                value={growingSpaceId}
-                onChange={(event) =>
-                  setGrowingSpaceId(event.target.value)
-                }
-              >
-                <option value="">
-                  Place not recorded
-                </option>
+    <select
+      value={growingSpaceId}
+      onChange={(event) =>
+        setGrowingSpaceId(event.target.value)
+      }
+    >
+      <option value="">
+      Select...
+      </option>
 
-                {growingSpaces.map((space) => (
-                  <option
-                    key={space.id}
-                    value={space.id}
-                  >
-                    {space.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+      {GrowingPlaces.map((place) => (
+  <option
+    key={place.id}
+    value={place.id}
+  >
+    {place.name}
+  </option>
+))}
+    </select>
+  </label>
+
+  <button
+    type="button"
+    className="garden-place-link"
+    onClick={() =>
+      setIsAddGrowingPlaceOpen(true)
+    }
+  >
+    Add a new growing place
+  </button>
+</div>
 
             <label>
               Notes to the story
@@ -359,25 +380,42 @@ export default function AddPlantForm({
               🌿 Every story begins with noticing.
             </p>
 
-            <div className="form-actions">
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={onClose}
-              >
-                🌿 Leave it for now
-              </button>
-
-              <button
-                type="submit"
-                className="enter-button"
-              >
-                📖 Add this page
-              </button>
-            </div>
           </form>
         </div>
+
+        <div className="chronicle-page-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={onClose}
+          >
+            🌿 Leave it for now
+          </button>
+
+          <button
+            type="submit"
+            form="add-plant-form"
+            className="enter-button"
+          >
+            📖 Add this page
+          </button>
+        </div>
       </section>
+
+      {isAddGrowingPlaceOpen && (
+        <AddGrowingPlaceForm
+        onAddPlace={(place) => {
+          onAddGrowingPlace(place)
+        
+          setGrowingSpaceId(place.id)
+        
+          setIsAddGrowingPlaceOpen(false)
+        }}
+          onClose={() =>
+            setIsAddGrowingPlaceOpen(false)
+          }
+        />
+      )}
     </div>
   )
 }

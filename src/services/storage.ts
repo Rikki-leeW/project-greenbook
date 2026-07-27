@@ -12,17 +12,41 @@ export function loadGardenData(): GardenData {
   }
 
   try {
-    return JSON.parse(savedData) as GardenData
+    const data = JSON.parse(savedData) as GardenData
+
+    return {
+      ...data,
+
+      // Existing gardens won't have these yet.
+      growingPlaces: data.growingPlaces ?? [],
+
+      // Older saves may also be missing harvests.
+      harvests: data.harvests ?? [],
+
+      // Ensure every event has the new optional collections.
+      events: data.events.map((event) => ({
+        ...event,
+        plantStoryIds: event.plantStoryIds ?? [],
+        growingPlaceIds: event.growingPlaceIds ?? [],
+      })),
+    }
   } catch {
-    console.warn('Sprig could not read saved garden data. Loading sample data.')
+    console.warn(
+      'Sprig could not read saved garden data. Loading sample data.',
+    )
 
     saveGardenData(sampleGardenData)
     return sampleGardenData
   }
 }
 
-export function saveGardenData(data: GardenData): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+export function saveGardenData(
+  data: GardenData,
+): void {
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(data),
+  )
 }
 
 export function resetGardenData(): GardenData {

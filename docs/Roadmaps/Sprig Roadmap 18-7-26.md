@@ -362,18 +362,22 @@ Loose Leaves / More
 TO do:
 prig Polish Pass
 Welcome
-☐ Lower welcome card on phones.
-☐ Check hanging sign spacing.
-☐ Make card fill the screen a little more.
+Lower welcome card on phones.
+Check hanging sign spacing.
+Make card fill the screen a little more.
+
 Chronicle Pages
-☐ Make notebook use ~90% of phone height.
-☐ Keep buttons pinned to bottom.
-☐ Larger writing area.
+
+Make notebook use ~90% of phone height.
+Maybe have that done - Keep buttons pinned to bottom.
+Maybe have that done - Larger writing area.
+
 Navigation
-☐ Redesign bottom navigation.
+☐ Redesign bottom navigation into satchel
 ☐ Larger icons.
 ☐ More spacing.
 ☐ Active page more obvious.
+
 Plant Story
 ☐ Different notebook pages depending on how the story begins.
 ☐ Seed workflow.
@@ -387,5 +391,8 @@ Chronicle Launcher
 ☐ Garden Trial
 ☐ Photo
 ☐ Learning
+
 Calendar 🌳
 ☐ The heart of Sprig.
+
+Gate: Change it to actually look like 1 line journal entries that  can click on for more information which will take me to the plants page of the journal. (Like an index in the front of a folder) s
