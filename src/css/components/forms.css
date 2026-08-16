@@ -201,7 +201,20 @@
 
   gap: 14px;
 
-  padding: 0 6px 18px 0;
+  /*
+   * The larger bottom padding is intentional.
+   *
+   * Chronicle action buttons are anchored over
+   * the notebook rather than living inside the
+   * scrolling form. This gives the final fields
+   * enough room to scroll completely above that
+   * tray instead of disappearing beneath it.
+   */
+  padding:
+    0
+    6px
+    96px
+    0;
 
   overflow-x: hidden;
   overflow-y: auto;
@@ -322,9 +335,10 @@
   border-color: #6b8258;
 
   box-shadow:
-    0 0 0 3px rgba(107,130,88,.10),
-    inset 0 1px 0 rgba(255,255,255,.35);
+    0 0 0 3px rgba(107, 130, 88, .10),
+    inset 0 1px 0 rgba(255, 255, 255, .35);
 }
+
 
 /* Some browsers use these colours for the opened list */
 
@@ -332,7 +346,6 @@
   background: #f7f0dc;
   color: #4c4638;
 }
-
 
 
 /* ---------- NOTEBOOK TEXTAREA ---------- */
@@ -443,6 +456,27 @@
 }
 
 
+/* ===========================
+   NOTEBOOK PAGE TITLE
+=========================== */
+
+.notebook-page-title {
+  margin: 0;
+
+  text-align: center;
+
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-weight: 500;
+
+  font-size: clamp(1.8rem, 2vw, 2.35rem);
+
+  color: #4d4a33;
+
+  letter-spacing: 0.02em;
+}
+
+
 /* ---------- GARDEN PLACE SHORTCUT ---------- */
 
 .garden-place-field {
@@ -482,8 +516,6 @@
   background: rgba(255, 248, 226, 0.58);
   border-color: rgba(83, 99, 75, 0.35);
 }
-
-
 
 
 /* ---------- ACTION TRAY ANCHORED TO NOTEBOOK ---------- */
@@ -563,7 +595,8 @@
   transform: none;
 }
 
-/* ---------- JOURNAL TITLE AND DATE ---------- */
+
+/* ---------- JOURNAL PHOTO LEGACY STYLING ---------- */
 
 .add-plant-form label.journal-photo-picker {
   display: flex;
@@ -647,57 +680,60 @@
   line-height: 1.3;
 }
 
+
 /* =====================================================
-   JOURNAL PHOTO
+   JOURNAL PHOTO LEGACY
 ===================================================== */
 
-.journal-photo-section{
-  display:grid;
-  gap:8px;
+.journal-photo-section {
+  display: grid;
+  gap: 8px;
 
-  width:100%;
+  width: 100%;
 }
 
-.journal-photo-picker{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  text-align:center;
+.journal-photo-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-  min-height:110px;
-  width:100%;
+  gap: 10px;
 
-  border:1px dashed rgba(108,84,54,.25);
-  border-radius:14px;
+  min-height: 110px;
+  width: 100%;
 
-  background:rgba(255,248,236,.35);
+  border: 1px dashed rgba(108, 84, 54, .25);
+  border-radius: 14px;
 
-  cursor:pointer;
-  transition:.2s ease;
+  background: rgba(255, 248, 236, .35);
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition: .2s ease;
 }
 
-.journal-photo-picker:hover{
-  background:rgba(255,248,236,.55);
-  border-color:rgba(108,84,54,.45);
+.journal-photo-picker:hover {
+  background: rgba(255, 248, 236, .55);
+  border-color: rgba(108, 84, 54, .45);
 }
 
-.journal-photo-picker input{
-  display:none;
+.journal-photo-picker input {
+  display: none;
 }
 
-.journal-photo-icon{
-  width:60px;
-  height:auto;
+.journal-photo-icon {
+  width: 60px;
+  height: auto;
 }
 
-.journal-photo-picker span{
-  font-family:Georgia, serif;
-  font-size:.88rem;
-  color:#6d5d42;
+.journal-photo-picker span {
+  font-family: Georgia, serif;
+  font-size: .88rem;
+  color: #6d5d42;
 }
-
 
 
 /* =======================================
@@ -706,31 +742,55 @@
 ======================================= */
 
 @media (max-width: 620px) {
+
   .journal-entry-heading-row {
+    display: grid;
+
     grid-template-columns:
       minmax(0, 1.55fr)
       minmax(92px, 0.8fr);
-  
+
+    align-items: start;
     gap: 10px;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
-  
+
+
   .journal-entry-heading-row label {
+    display: grid;
     gap: 5px;
+
+    min-width: 0;
+
+    font-size: 0.92rem;
+    line-height: 1.35;
   }
-  
+
+
   .journal-entry-heading-row input {
+    width: 100%;
+    min-width: 0;
     min-height: 42px;
+
     padding-right: 3px;
     padding-left: 3px;
   }
-  
+
+
+  .journal-title-field,
   .journal-date-field {
-    font-size: 0.8rem;
+    min-width: 0;
+    font-size: inherit;
   }
-  
+
+
   .journal-date-field input {
     font-size: 0.74rem;
   }
+
 
   .form-backdrop {
     align-items: flex-start;
@@ -741,33 +801,8 @@
       max(2px, env(safe-area-inset-bottom));
 
     overflow: hidden;
-
-    .journal-entry-heading-row {
-  grid-template-columns:
-    minmax(0, 1.55fr)
-    minmax(92px, 0.8fr);
-
-  gap: 10px;
-}
-
-.journal-entry-heading-row label {
-  gap: 5px;
-}
-
-.journal-entry-heading-row input {
-  min-height: 42px;
-  padding-right: 3px;
-  padding-left: 3px;
-}
-
-.journal-date-field {
-  font-size: 0.8rem;
-}
-
-.journal-date-field input {
-  font-size: 0.74rem;
-}
   }
+
 
   .add-plant-panel,
   .chronicle-panel {
@@ -793,11 +828,14 @@
 
     margin-top: 0;
     transform: translateY(-55px);
+
     padding: 0;
 
     overflow: hidden;
+
     background: transparent;
   }
+
 
   /* Mobile notebook artwork */
 
@@ -811,17 +849,42 @@
     object-fit: fill;
   }
 
+
+  /* Mobile notebook heading */
+
+  .form-heading {
+    position: relative;
+
+    flex: 0 0 auto;
+
+    min-height: 26px;
+    margin: 0;
+    padding: 0;
+  }
+
+
+  .notebook-page-title {
+    margin: 0;
+
+    transform: translateY(8px);
+  }
+
+
   /* Fixed writing window inside the notebook */
 
   .chronicle-content {
-    top: 10%;
+    top: 7%;
     right: 6%;
-    bottom: 13%;
-    left: 13%;
+    bottom: 8%;
+    left: 15%;
 
-    display: flex;
+    display: grid;
+
+    grid-template-rows:
+      auto
+      1fr;
+
     min-height: 0;
-    flex-direction: column;
 
     padding:
       0
@@ -832,6 +895,7 @@
     overflow: hidden;
   }
 
+
   .form-heading {
     flex: 0 0 auto;
 
@@ -839,26 +903,40 @@
     margin-bottom: 2px;
   }
 
+
   .close-button {
     width: 32px;
     height: 32px;
   }
 
-  /* This is the mobile scrolling area */
+
+  /* Mobile scrolling area */
 
   .chronicle-content .add-plant-form {
     display: flex;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
     flex-direction: column;
 
-    gap: 18px;
+    min-height: 0;
+    height: auto;
+    flex: 1 1 auto;
+
+    margin: 0;
+
+    /*
+     * The generous bottom padding is essential.
+     *
+     * The action tray is absolutely positioned
+     * over the lower notebook artwork. Without
+     * this extra scroll space, the last fields
+     * can sit permanently behind the buttons.
+     */
     padding:
       0
       6px
-      18px
+      132px
       0;
+
+    gap: 14px;
 
     overflow-x: hidden;
     overflow-y: auto;
@@ -866,12 +944,20 @@
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
+
+    scroll-padding-bottom: 132px;
   }
 
+
   .form-row {
-    grid-template-columns: 1fr 1.35fr;
+    grid-template-columns:
+      1fr
+      1.35fr;
+
     gap: 16px;
   }
+
+
   /* Action tray anchored to the mobile notebook */
 
   .chronicle-page-actions {
@@ -880,27 +966,33 @@
     left: 14%;
 
     width: auto;
+
     transform: none;
 
-    grid-template-columns: 0.8fr 1.35fr;
+    grid-template-columns:
+      0.8fr
+      1.35fr;
+
     gap: 7px;
 
     padding: 4px;
 
     border: 1px solid rgba(91, 75, 48, 0.08);
 
-  background: rgba(247, 238, 214, 0.22);
+    background: rgba(247, 238, 214, 0.22);
 
-  box-shadow:
-    0 5px 12px rgba(61, 49, 31, 0.08),
-    inset 0 1px 0 rgba(255,255,255,.45);
+    box-shadow:
+      0 5px 12px rgba(61, 49, 31, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, .45);
 
-  backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
   }
+
 
   .chronicle-page-actions .secondary-button,
   .chronicle-page-actions .enter-button {
     min-height: 38px;
+
     padding: 7px 10px;
 
     border-radius: 9px;
@@ -908,10 +1000,13 @@
     font-size: 0.74rem;
   }
 
+
   .chronicle-page-actions .secondary-button {
     border: 1px solid rgba(73, 91, 66, 0.20);
+
     background: rgba(255, 248, 226, 0.42);
   }
+
 
   .chronicle-page-actions .enter-button {
     border: 1px solid rgba(49, 77, 50, 0.22);

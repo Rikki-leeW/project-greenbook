@@ -3,7 +3,7 @@ Goal
 
 Transform the Journal from a simple diary into Sprig's central memory, where one entry can automatically become part of multiple Plant Stories and Growing Places without entering the same information twice.
 
-📖 Step 1 — Connect Journal Entries to Growing Places
+DONE - Step 1 — Connect Journal Entries to Growing Places
 
 Allow each journal entry to optionally relate to:
 
@@ -18,62 +18,25 @@ One journal entry appears in the Journal.
 The same entry also appears inside every connected Growing Place.
 🌱 Step 2 — Connect Journal Entries to Plants
 
-Allow each journal entry to optionally relate to:
-
-☐ No Plants
-☐ One Plant
-☐ Multiple Plants
-☐ Category of Plants
-☐ All Plants
-
-Outcome
-
 A single fertilising entry can automatically appear in every selected Plant Story.
 
 No duplicate entries are created.
 
-🌿 Step 3 — Automatic Plant Categories
+        🌿 Step 3 — 
 
-Sprig automatically builds plant categories from existing Plant Stories.
+        📍 Step 5 — Optional Fields
 
-Example:
+        Journal entries should never require every section.
 
-Potato
-Tomato
-Capsicum
-Broccoli
-Ayote
+        A gardener should be able to record only what is relevant.
 
-No manual category management required.
-
-New categories appear naturally as new plant types are added.
-
-🌾 Step 4 — Multiple Selection
-
-Instead of large dropdowns, allow easy multi-selection using checkboxes.
-
-Example:
-
-☑ Royal Blue
-☑ Dutch Cream
-☐ Mortgage Lifter
-☑ Ayote
-
-The journal entry is written once and linked to every selected Plant Story.
-
-📍 Step 5 — Optional Fields
-
-Journal entries should never require every section.
-
-A gardener should be able to record only what is relevant.
-
-Examples:
-✓ Entire Garden
-✓ One Growing Place
-✓ Several Plants
-✓ Notes only
-✓ Weather only
-✓ Observation only
+        Examples:
+        ✓ Entire Garden
+        ✓ One Growing Place
+        ✓ Several Plants
+        ✓ Notes only
+        ✓ Weather only
+        ✓ Observation only
 
 📖 Step 6 — Edit Existing Journal Entries
 

@@ -66,8 +66,8 @@ export default function Gate({
             className="quick-action"
             onClick={onAddEntry}
           >
-            <span>👀</span>
-            Garden Entry
+            <span>📖</span>
+            Journal Entry
           </button>
 
           <button

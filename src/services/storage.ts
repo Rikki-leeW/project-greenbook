@@ -3,42 +3,89 @@ import { sampleGardenData } from '../data/sampleData'
 
 const STORAGE_KEY = 'sprig-garden-data'
 
+
 export function loadGardenData(): GardenData {
-  const savedData = localStorage.getItem(STORAGE_KEY)
+  const savedData =
+    localStorage.getItem(
+      STORAGE_KEY,
+    )
 
   if (!savedData) {
-    saveGardenData(sampleGardenData)
+    saveGardenData(
+      sampleGardenData,
+    )
+
     return sampleGardenData
   }
 
   try {
-    const data = JSON.parse(savedData) as GardenData
+    const data =
+      JSON.parse(
+        savedData,
+      ) as GardenData
 
     return {
       ...data,
 
-      // Existing gardens won't have these yet.
-      growingPlaces: data.growingPlaces ?? [],
+      /*
+       * Older gardens won't have these
+       * collections yet.
+       */
+      growingPlaces:
+        data.growingPlaces ?? [],
 
-      // Older saves may also be missing harvests.
-      harvests: data.harvests ?? [],
+      growingSetups:
+        data.growingSetups ?? [],
 
-      // Ensure every event has the new optional collections.
-      events: data.events.map((event) => ({
-        ...event,
-        plantStoryIds: event.plantStoryIds ?? [],
-        growingPlaceIds: event.growingPlaceIds ?? [],
-      })),
+      ingredients:
+        data.ingredients ?? [],
+
+      products:
+        data.products ?? [],
+
+      purchases:
+        data.purchases ?? [],
+
+      costAllocations:
+        data.costAllocations ?? [],
+
+      /*
+       * Older saves may also be
+       * missing harvests.
+       */
+      harvests:
+        data.harvests ?? [],
+
+      /*
+       * Ensure every journal entry has
+       * the newer relationship collections.
+       */
+      events:
+        (data.events ?? []).map(
+          (event) => ({
+            ...event,
+
+            plantStoryIds:
+              event.plantStoryIds ?? [],
+
+            growingPlaceIds:
+              event.growingPlaceIds ?? [],
+          }),
+        ),
     }
   } catch {
     console.warn(
       'Sprig could not read saved garden data. Loading sample data.',
     )
 
-    saveGardenData(sampleGardenData)
+    saveGardenData(
+      sampleGardenData,
+    )
+
     return sampleGardenData
   }
 }
+
 
 export function saveGardenData(
   data: GardenData,
@@ -49,7 +96,11 @@ export function saveGardenData(
   )
 }
 
+
 export function resetGardenData(): GardenData {
-  saveGardenData(sampleGardenData)
+  saveGardenData(
+    sampleGardenData,
+  )
+
   return sampleGardenData
 }

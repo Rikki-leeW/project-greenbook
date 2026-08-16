@@ -79,3 +79,6 @@ Dark:
 Highlight:
 
 #A89066
+
+FONTS:
+Cormorant Garamond Italic 

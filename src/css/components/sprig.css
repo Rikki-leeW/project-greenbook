@@ -2,52 +2,62 @@
    SPRIG COMPONENTS
 ======================================= */
 
+
 /* =====================================================
    SPRIG PAPER
 ===================================================== */
 
 .sprig-paper-panel {
-    background-image: url('../../images/backgrounds/base-paper-texture.jpg');
-    background-size: cover;
-    background-position: center;
+    overflow: hidden;
   
-    border-radius: 16px;
     border: 1px solid rgba(110, 88, 55, 0.16);
+    border-radius: 16px;
+  
+    background-image:
+      url('../../images/backgrounds/base-paper-texture.jpg');
+    background-position: center;
+    background-size: cover;
   
     box-shadow:
-      inset 0 0 0 1px rgba(255,255,255,.18),
-      inset 0 0 18px rgba(124,95,60,.05);
-  
-    overflow: hidden;
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+      inset 0 0 18px rgba(124, 95, 60, 0.05);
   }
-
-/* =======================================
-   SPRIG CHOICE CARDS
-======================================= */
-
-/* ---------- JOURNAL CHOICE CARD ROWS ---------- */
-
-.growing-place-scope-grid,
-.plant-scope-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: start;
-  gap: 7px;
-
-  width: 100%;
-  margin: 9px 0 12px;
-  padding: 0;
-}
-
-.growing-place-scope-grid .sprig-choice-card,
-.plant-scope-grid .sprig-choice-card {
-  width: 100%;
-  max-width: 96px;
-  justify-self: center;
-}
   
-  /* Stronger selector prevents forms.css button rules
-     from stretching the cards */
+  
+  /* =====================================================
+     SPRIG CHOICE CARDS
+  ===================================================== */
+  
+  
+  /* ---------- JOURNAL CHOICE CARD ROWS ---------- */
+  
+  .growing-place-scope-grid,
+  .plant-scope-grid {
+    display: grid;
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+    align-items: start;
+  
+    gap: 7px;
+  
+    width: 100%;
+    margin: 9px 0 12px;
+    padding: 0;
+  }
+  
+  .growing-place-scope-grid .sprig-choice-card,
+  .plant-scope-grid .sprig-choice-card {
+    justify-self: center;
+  
+    width: 100%;
+    max-width: 96px;
+  }
+  
+  
+  /*
+   * Stronger selector prevents forms.css button rules
+   * from stretching the cards.
+   */
   
   .add-plant-form .sprig-choice-card {
     position: relative;
@@ -55,16 +65,18 @@
     display: grid;
     place-items: center;
     align-content: center;
+  
     gap: 3px;
+  
+    justify-self: center;
   
     width: 100%;
     max-width: 96px;
     min-width: 0;
+  
     height: auto;
     min-height: 0;
     aspect-ratio: 1 / 1;
-  
-    justify-self: center;
   
     margin: 0;
     padding: 8px 5px;
@@ -79,13 +91,15 @@
     background-repeat: no-repeat;
     background-size: 100% 100%;
   
-    box-shadow: none;
-  
     color: #4a3928;
   
-    font-family: Georgia, "Times New Roman", serif;
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif;
     text-align: center;
   
+    box-shadow: none;
     cursor: pointer;
   
     transform: none;
@@ -110,12 +124,12 @@
   }
   
   .add-plant-form .sprig-choice-card:disabled {
-    cursor: not-allowed;
     opacity: 0.55;
+    cursor: not-allowed;
   }
   
   
-  /* Card contents */
+  /* ---------- CHOICE CARD CONTENT ---------- */
   
   .sprig-choice-card-icon {
     display: grid;
@@ -130,6 +144,7 @@
   .sprig-choice-card-text {
     display: grid;
     place-items: center;
+  
     gap: 1px;
   
     width: 100%;
@@ -155,20 +170,17 @@
   }
   
   
-  /* Selected state */
+  /* ---------- CHOICE CARD SELECTED STATE ---------- */
   
   .add-plant-form .sprig-choice-card.is-selected {
     color: #3f4e34;
     filter: saturate(1.04);
   }
   
-
-
-
-  /* ---------- SMALL PHONE ADJUSTMENT ---------- */
-
-@media (max-width: 420px) {
-
+  
+  /* ---------- CHOICE CARDS: SMALL PHONES ---------- */
+  
+  @media (max-width: 420px) {
     .growing-place-scope-grid,
     .plant-scope-grid {
       gap: 5px;
@@ -187,6 +199,7 @@
   
     .sprig-choice-card-icon {
       min-height: 17px;
+  
       font-size: 0.9rem;
     }
   
@@ -198,18 +211,22 @@
       font-size: 0.64rem;
     }
   }
-
-
-  /* =======================================
-   SPRIG PICKER
-======================================= */
-
-.sprig-picker {
+  
+  
+  /* =====================================================
+     SPRIG PICKER
+  ===================================================== */
+  
+  .sprig-picker {
     display: grid;
+  
     gap: 7px;
   
     width: 100%;
   }
+  
+  
+  /* ---------- PICKER LABEL ---------- */
   
   .sprig-picker-label {
     margin: 0;
@@ -225,14 +242,19 @@
     line-height: 1.3;
   }
   
+  
+  /* ---------- PICKER TRIGGER ---------- */
+  
   .sprig-picker-trigger {
     display: flex;
     align-items: center;
     justify-content: space-between;
+  
     gap: 10px;
   
     width: 100%;
     min-height: 34px;
+  
     margin: 0;
     padding: 5px 14px;
   
@@ -275,57 +297,60 @@
     outline-offset: 2px;
   }
   
-  .sprig-picker-trigger:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.02);
-  }
-  
-  .sprig-picker-trigger:active {
-    transform: translateY(0);
-  }
-  
-  .sprig-picker-trigger:focus-visible {
-    outline: 2px solid rgba(95, 112, 64, 0.72);
-    outline-offset: 2px;
-  }
-  
-
   .sprig-picker-summary {
+    min-width: 0;
+  
     overflow: hidden;
   
     line-height: 1.35;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .sprig-picker-arrow {
     flex: 0 0 auto;
   
     color: #607957;
+  
     font-size: 1rem;
+    line-height: 1;
   }
   
-    
+  
+  /* ---------- PICKER PANEL ---------- */
+  
+  .sprig-picker-panel {
+    width: 100%;
+    min-width: 0;
+  }
+  
+  
+  /* ---------- PICKER OPTION GRID ---------- */
+  
   .sprig-picker-options {
     display: grid;
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   
     gap: 7px 8px;
+  
+    width: 100%;
+    min-width: 0;
   }
   
-  .sprig-picker-option {
-    display: grid;
-    grid-template-columns:
-      auto minmax(0, 1fr) 16px;
   
-    align-items: center;
-    gap: 6px;
+  /* ---------- SHARED PICKER OPTION ---------- */
+  
+  .sprig-picker-option {
+    position: relative;
   
     min-width: 0;
     min-height: 36px;
   
     margin: 0;
     padding: 7px 12px;
+  
+    overflow: hidden;
   
     border: 0;
     border-radius: 0;
@@ -341,7 +366,6 @@
       Georgia,
       "Times New Roman",
       serif;
-  
     font-size: 0.74rem;
     text-align: left;
   
@@ -362,30 +386,354 @@
     transform: translateY(0);
   }
   
+  .sprig-picker-option:focus-visible {
+    outline: 2px solid rgba(95, 112, 64, 0.72);
+    outline-offset: 1px;
+  }
+  
   .sprig-picker-option.is-selected {
     color: #3f4e34;
     font-weight: 700;
   }
   
-  .sprig-picker-option.is-selected {
-    color: #3f4e34;
+  
+  /* ---------- SHARED OPTION TEXT ---------- */
+  
+  .sprig-picker-option-text {
+    display: flex;
+    flex-direction: column;
+  
+    gap: 3px;
+  
+    min-width: 0;
+    width: 100%;
   }
   
-  .sprig-picker-option-icon {
-    font-size: 0.95rem;
+  .sprig-picker-option-title {
+    display: block;
+  
+    min-width: 0;
+  
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.15;
+  
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-picker-option-subtitle {
+    display: block;
+  
+    min-width: 0;
+  
+    color: #5d523f;
+  
+    font-size: 0.62rem;
+    font-weight: 400;
+    line-height: 1.15;
+  
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-picker-option-meta {
+    display: block;
+  
+    min-width: 0;
+  
+    color: #7b705a;
+  
+    font-size: 0.58rem;
+    font-weight: 400;
+    line-height: 1.1;
+  
+    overflow-wrap: anywhere;
+  }
+  
+  /* =====================================================
+   TAG PICKER VARIANT
+===================================================== */
+
+.sprig-picker-option:not(
+    .sprig-picker-option-label
+  ):not(
+    .sprig-picker-option-label-tall
+  ) {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      16px;
+  
+    align-items: center;
+  
+    gap: 6px;
+  
+    min-height: 36px;
+  }
+  
+  .sprig-picker-option:not(
+    .sprig-picker-option-label
+  ):not(
+    .sprig-picker-option-label-tall
+  ) .sprig-picker-option-text {
+    justify-content: center;
+  }
+  
+  .sprig-picker-option:not(
+    .sprig-picker-option-label
+  ):not(
+    .sprig-picker-option-label-tall
+  ) .sprig-picker-option-subtitle,
+  
+  .sprig-picker-option:not(
+    .sprig-picker-option-label
+  ):not(
+    .sprig-picker-option-label-tall
+  ) .sprig-picker-option-meta {
+    display: none;
+  }
+  
+  
+  /* ---------- TAG CHECK ---------- */
+  
+  .sprig-picker-option:not(
+    .sprig-picker-option-label
+  ):not(
+    .sprig-picker-option-label-tall
+  ) .sprig-picker-option-check {
+    position: static;
+  
+    display: grid;
+    place-items: center;
+  
+    width: 16px;
+  
+    color: #5f7040;
+  
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+  
+    pointer-events: none;
+  }
+  
+  
+  /* =====================================================
+     SHORT NOTEBOOK LABEL
+  ===================================================== */
+  
+  .sprig-picker-option-label {
+    position: relative;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    width: 100%;
+  
+    height: 32px;
+    min-height: 32px;
+  
+    margin: 0;
+    padding: 0 10px;
+  
+    overflow: hidden;
+  
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+  
+    color: #4a3928;
+  
+    font-size: 0.70rem;
     line-height: 1;
   }
   
-  .sprig-picker-mark {
-    color: #5f7040;
-    font-weight: 700;
-    text-align: center;
+  .sprig-picker-option-label
+  .sprig-picker-option-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  
+    width: 100%;
+    min-width: 0;
+  
+    padding-left: 10px;
+    padding-right: 18px;
   }
+  
+  .sprig-picker-option-label
+  .sprig-picker-option-title {
+    display: block;
+  
+    width: 100%;
+  
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1;
+  
+    text-align: center;
+  
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .sprig-picker-option-label
+  .sprig-picker-option-subtitle,
+  
+  .sprig-picker-option-label
+  .sprig-picker-option-meta,
+  
+  .sprig-picker-option-label
+  .sprig-picker-option-icon {
+    display: none;
+  }
+  
+  .sprig-picker-option-label
+  .sprig-picker-option-check {
+    position: absolute;
+  
+    top: 50%;
+    right: 8px;
+  
+    z-index: 2;
+  
+    display: block;
+  
+    color: #5f7040;
+  
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+  
+    pointer-events: none;
+  
+    transform: translateY(-50%);
+  }
+  
+  .sprig-picker-option-label.is-selected {
+    color: #3f4e34;
+    filter: saturate(1.04);
+  }
+  
+  
+  /* =====================================================
+     TALL NOTEBOOK LABEL
+  ===================================================== */
+  
+  .sprig-picker-option-label-tall {
+    position: relative;
+  
+    display: flex;
+    align-items: center;
+  
+    min-height: 58px;
+  
+    padding:
+      8px
+      12px
+      10px;
+  
+    overflow: hidden;
+  
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+  
+    color: #4a3928;
+  
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+  
+  .sprig-picker-option-label-tall
+  .sprig-picker-option-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  
+    gap: 3px;
+  
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+  
+    padding-right: 18px;
+    padding-left: 15px;
+  }
+  
+  .sprig-picker-option-label-tall
+  .sprig-picker-option-title {
+    color: #4a3928;
+  
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  
+  .sprig-picker-option-label-tall
+  .sprig-picker-option-subtitle {
+    color: #5d523f;
+  
+    font-size: 0.62rem;
+    font-weight: 400;
+    line-height: 1.15;
+  }
+  
+  .sprig-picker-option-label-tall
+  .sprig-picker-option-meta {
+    color: #7b705a;
+  
+    font-size: 0.58rem;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+  
+  .sprig-picker-option-label-tall
+  .sprig-picker-option-icon {
+    display: none;
+  }
+  
+  .sprig-picker-option-label-tall
+  .sprig-picker-option-check {
+    position: absolute;
+  
+    top: 6px;
+    right: 8px;
+  
+    z-index: 2;
+  
+    display: block;
+  
+    color: #5f7040;
+  
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+  
+    pointer-events: none;
+  }
+  
+  .sprig-picker-option-label-tall.is-selected {
+    color: #3f4e34;
+    filter: saturate(1.04);
+  }
+  
+  .sprig-picker-option-label-tall.is-selected
+  .sprig-picker-option-title {
+    color: #3f4e34;
+  }
+  
+  /* =====================================================
+     PICKER DONE BUTTON
+  ===================================================== */
   
   .sprig-picker-done {
     justify-self: end;
   
     min-height: 36px;
+  
     padding: 7px 13px;
   
     border: 1px solid rgba(49, 77, 50, 0.2);
@@ -406,27 +754,241 @@
       serif;
     font-size: 0.75rem;
     font-weight: 700;
+    line-height: 1.2;
   
     cursor: pointer;
+  
+    transition:
+      transform 140ms ease,
+      filter 140ms ease;
   }
+  
+  .sprig-picker-done:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.03);
+  }
+  
+  .sprig-picker-done:active {
+    transform: translateY(0);
+  }
+  
+  .sprig-picker-done:focus-visible {
+    outline: 2px solid rgba(95, 112, 64, 0.72);
+    outline-offset: 2px;
+  }
+  
+  
+  /* =====================================================
+     SPRIG PICKER: SMALL PHONES
+  ===================================================== */
   
   @media (max-width: 420px) {
     .sprig-picker-panel {
-        padding: 18px 14px 16px;
-      }
-      
-      .sprig-picker-options {
-        gap: 5px 6px;
-      }
-      
-      .sprig-picker-option {
-        min-height: 32px;
-        padding: 6px 9px;
-      
-        font-size: 0.66rem;
-      }
-      
-      .sprig-picker-option-icon {
-        font-size: 0.82rem;
-      }
+      padding:
+        18px
+        14px
+        16px;
+    }
+  
+    .sprig-picker-options {
+      gap: 5px 6px;
+    }
+  
+    .sprig-picker-option {
+      font-size: 0.66rem;
+    }
+  
+  
+    /* ---------- COMPACT TAGS ---------- */
+  
+    .sprig-picker-option:not(
+      .sprig-picker-option-label
+    ) {
+      min-height: 32px;
+  
+      padding: 6px 9px;
+    }
+  
+    .sprig-picker-option:not(
+      .sprig-picker-option-label
+    ) .sprig-picker-option-title {
+      font-size: 0.66rem;
+    }
+  
+  
+    /* ---------- NOTEBOOK LABELS ---------- */
+  
+    .sprig-picker-option-label {
+      min-height: 58px;
+  
+      padding:
+        8px
+        10px
+        10px;
+    }
+  
+    .sprig-picker-option-label
+      .sprig-picker-option-text {
+      min-height: 40px;
+  
+      padding-right: 16px;
+      padding-left: 12px;
+    }
+  
+    .sprig-picker-option-label
+      .sprig-picker-option-title {
+      font-size: 0.7rem;
+    }
+  
+    .sprig-picker-option-label
+      .sprig-picker-option-subtitle {
+      font-size: 0.58rem;
+    }
+  
+    .sprig-picker-option-label
+      .sprig-picker-option-meta {
+      font-size: 0.54rem;
+    }
+  
+    .sprig-picker-option-label
+      .sprig-picker-option-check {
+      top: 6px;
+      right: 7px;
+  
+      font-size: 0.74rem;
+    }
   }
+
+
+  /* =========================================
+   SPRIG QUICK PEEK
+========================================= */
+
+.sprig-quick-peek-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(38, 47, 35, 0.28);
+  backdrop-filter: blur(2px);
+}
+
+
+.sprig-quick-peek-card {
+  position: relative;
+
+  width: min(92vw, 430px);
+  max-height: min(76vh, 620px);
+  overflow-y: auto;
+
+  padding: 28px;
+
+  border: 1px solid rgba(80, 72, 48, 0.18);
+  border-radius: 22px;
+
+  background: rgba(255, 252, 239, 0.80);
+
+
+  
+  box-shadow:
+    0 20px 60px rgba(35, 42, 30, 0.22),
+    0 4px 14px rgba(35, 42, 30, 0.10);
+}
+
+
+.sprig-quick-peek-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+
+  width: 34px;
+  height: 34px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #42563c;
+  font-size: 1.5rem;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+
+.sprig-quick-peek-close:hover {
+  background: rgba(73, 92, 64, 0.08);
+}
+
+
+.sprig-quick-peek-eyebrow {
+  margin: 0 42px 6px 0;
+
+  color: #71806a;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+
+.sprig-quick-peek-title {
+  margin: 0;
+
+  color: #304a32;
+
+  font-size: 1.7rem;
+  line-height: 1.1;
+}
+
+
+.sprig-quick-peek-subtitle {
+  margin: 7px 0 0;
+
+  color: #77725f;
+
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+
+.sprig-quick-peek-content {
+  margin-top: 22px;
+}
+
+
+.sprig-quick-peek-content h3 {
+  margin: 18px 0 8px;
+
+  color: #40553c;
+
+  font-size: 1rem;
+}
+
+
+.sprig-quick-peek-content ul {
+  margin: 8px 0 0;
+  padding-left: 22px;
+}
+
+
+.sprig-quick-peek-content li {
+  margin-bottom: 7px;
+}
+
+
+.sprig-quick-peek-actions {
+  margin-top: 24px;
+  padding-top: 16px;
+
+  border-top: 1px solid rgba(80, 72, 48, 0.14);
+}

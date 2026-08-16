@@ -22,41 +22,42 @@ ________________________________________________________________________________
 
 This is a prompt for Chat GPT to remember the time I talked about adding the features in the form to added "areas" both from from coding and from the user end
 _______
-Need to add photos
+
 _________
-Replace Dropdowns
-replace every dropdown in Sprig with a reusable Sprig Picker.
-Instead of a plain list, you'd tap it and get a little parchment card that unfolds over the notebook.
-instead of:
 
-What happened?
-▼ Watered
+            Replace Dropdowns
+            replace every dropdown in Sprig with a reusable Sprig Picker.
+            Instead of a plain list, you'd tap it and get a little parchment card that unfolds over the notebook.
+            instead of:
 
-Imagine...
-What happened today?
-☐ Watered
-☐ Fertilised
-☐ Harvested
-☐ Pruned
-☐ Observed
-☐ Moved
-☐ Weather
-☐ Photo
+            What happened?
+            ▼ Watered
 
-Now your entry becomes
-Watered ✓
-Fertilised ✓
-Harvested ✓
-One notebook page.
-One memory.
-______________
+            Imagine...
+            What happened today?
+            ☐ Watered
+            ☐ Fertilised
+            ☐ Harvested
+            ☐ Pruned
+            ☐ Observed
+            ☐ Moved
+            ☐ Weather
+            ☐ Photo
 
+            Now your entry becomes
+            Watered ✓
+            Fertilised ✓
+            Harvested ✓
+            One notebook page.
+            One memory.
+            ______________
+     
 
 he cleanest order is:
 
-Finish the What happened? picker.
-Add an Add photo section near the bottom of the Journal form.
-Save the photo reference with the journal entry.
+            Finish the What happened? picker.
+            Add an Add photo section near the bottom of the Journal form.
+            Save the photo reference with the journal entry.
 Display the photo in the Journal entry and later inside connected Plant Stories and Growing Places.
 
 _____________________________
@@ -67,3 +68,4 @@ ___________________________________
 
 Change button at bottom to say 
 "Add these moments"
+Fix look of buttons

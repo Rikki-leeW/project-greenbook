@@ -20,6 +20,7 @@ export const sampleGardenData: GardenData = {
   ],
 
   growingPlaces: [],
+  growingSetups: [],
 
   plantStories: [
     {
@@ -95,5 +96,14 @@ export const sampleGardenData: GardenData = {
     },
   ],
 
+
+  ingredients: [],
+
+  products: [],
+  
+  purchases: [],
+  
+  costAllocations: [],
+  
   harvests: [],
-}
+  }
