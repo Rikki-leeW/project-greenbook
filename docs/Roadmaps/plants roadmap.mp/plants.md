@@ -31,3 +31,16 @@ Example:
 ☑ Dutch Cream
 ☐ Mortgage Lifter
 ☑ Ayote
+-------------------------
+12/8/26
+⬜ lant Stories V2
+
+□ Expected harvest window
+□ Current estimated harvest date
+□ Actual harvest date(s)
+□ Days since sowing
+□ Days since planting
+□ Days to actual harvest
+□ Development milestones
+□ Comparison with sibling plants
+□ “Sprig notices…” observations

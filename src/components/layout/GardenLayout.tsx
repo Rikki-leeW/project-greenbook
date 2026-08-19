@@ -10,6 +10,11 @@ import type {
 import BottomNavigation from '../navigation/BottomNavigation'
 import SatchelMenu from '../navigation/SatchelMenu'
 
+type LibraryDestination =
+  | 'library'
+  | 'growing-recipes'
+  | 'ingredients'
+  | 'products'
 
 interface GardenLayoutProps {
   children: ReactNode
@@ -17,8 +22,9 @@ interface GardenLayoutProps {
   activePage: AppPage
 
   onNavigate: (
-    page: AppPage,
-  ) => void
+  page: AppPage,
+  libraryView?: LibraryDestination,
+) => void
 }
 
 
@@ -33,18 +39,19 @@ export default function GardenLayout({
   ] =
     useState(false)
 
-
-  function handleNavigate(
-    page: AppPage,
-  ) {
-    setIsSatchelOpen(
-      false,
-    )
-
-    onNavigate(
-      page,
-    )
-  }
+    function handleNavigate(
+      page: AppPage,
+      libraryView?: LibraryDestination,
+    ) {
+      setIsSatchelOpen(
+        false,
+      )
+    
+      onNavigate(
+        page,
+        libraryView,
+      )
+    }
 
 
   return (

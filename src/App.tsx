@@ -127,9 +127,8 @@ function App() {
       null,
     )
 
-
   /* =======================================
-     LIBRARY RECORD TO OPEN
+     LIBRARY DESTINATION
   ======================================= */
 
   const [
@@ -140,6 +139,22 @@ function App() {
       null,
     )
 
+
+    const [
+      libraryViewToOpen,
+      setLibraryViewToOpen,
+    ] =
+      useState<
+        | 'library'
+        | 'growing-recipes'
+        | 'ingredients'
+        | 'products'
+        | null
+      >(
+        null,
+      )
+
+       
 
   /* =======================================
      ACTIVE APP PAGE
@@ -153,13 +168,17 @@ function App() {
       'gate',
     )
 
-
   /* =======================================
      CENTRAL APP NAVIGATION
   ======================================= */
 
   function handleNavigate(
     page: AppPage,
+    libraryView?:
+      | 'library'
+      | 'growing-recipes'
+      | 'ingredients'
+      | 'products',
   ) {
     /*
      * A detail record sits over one of
@@ -202,6 +221,25 @@ function App() {
     setIsAddGrowingPlaceOpen(
       false,
     )
+
+
+    /*
+     * If the gardener chose a particular
+     * Garden Library shelf from the Satchel,
+     * remember that destination.
+     *
+     * Ordinary navigation to the Library
+     * opens its main bookshelf.
+     */
+
+    if (
+      page === 'library'
+    ) {
+      setLibraryViewToOpen(
+        libraryView ??
+          'library',
+      )
+    }
 
 
     setActivePage(
@@ -1198,6 +1236,10 @@ function App() {
             recipeId,
           )
 
+          setLibraryViewToOpen(
+            'growing-recipes',
+          )
+
           setSelectedGrowingPlaceId(
             null,
           )
@@ -1789,6 +1831,10 @@ function App() {
 
         initialRecipeId={
           libraryRecipeIdToOpen
+        }
+
+        initialView={
+          libraryViewToOpen
         }
 
         onAddRecipe={

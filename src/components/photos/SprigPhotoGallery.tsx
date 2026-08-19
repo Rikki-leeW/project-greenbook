@@ -87,7 +87,9 @@ import {
             1
         ) {
           setActivePhotoIndex(
-            (currentIndex) => {
+            (
+              currentIndex,
+            ) => {
               if (
                 currentIndex ===
                 null
@@ -114,7 +116,9 @@ import {
             1
         ) {
           setActivePhotoIndex(
-            (currentIndex) => {
+            (
+              currentIndex,
+            ) => {
               if (
                 currentIndex ===
                 null
@@ -186,7 +190,25 @@ import {
             THUMBNAILS
         ======================================= */}
   
-        <div className="sprig-photo-gallery-grid">
+        <div
+          className="sprig-photo-gallery-grid"
+          style={{
+            display:
+              'grid',
+  
+            gridTemplateColumns:
+              'repeat(auto-fit, minmax(220px, 300px))',
+  
+            gap:
+              '16px',
+  
+            alignItems:
+              'start',
+  
+            justifyContent:
+              'start',
+          }}
+        >
           {photoUrls.map(
             (
               photoUrl,
@@ -207,6 +229,25 @@ import {
                 aria-label={`Open ${photoAltPrefix.toLowerCase()} ${
                   index + 1
                 }`}
+                style={{
+                  width:
+                    '100%',
+  
+                  maxWidth:
+                    '300px',
+  
+                  aspectRatio:
+                    '4 / 3',
+  
+                  padding:
+                    0,
+  
+                  overflow:
+                    'hidden',
+  
+                  cursor:
+                    'pointer',
+                }}
               >
                 <img
                   className="sprig-photo-gallery-thumbnail"
@@ -216,6 +257,19 @@ import {
                   alt={`${photoAltPrefix} ${
                     index + 1
                   }`}
+                  style={{
+                    display:
+                      'block',
+  
+                    width:
+                      '100%',
+  
+                    height:
+                      '100%',
+  
+                    objectFit:
+                      'cover',
+                  }}
                 />
               </button>
             ),
@@ -303,6 +357,7 @@ import {
                     Previous
                   </button>
   
+  
                   <p className="form-whisper">
                     {(
                       activePhotoIndex ??
@@ -313,6 +368,7 @@ import {
                       photoUrls.length
                     }
                   </p>
+  
   
                   <button
                     type="button"

@@ -14,12 +14,23 @@ import {
   import PurchaseDetailsSection from './PurchaseDetailsSection'
   
   
+  type PurchaseEditorMode =
+    | 'new'
+    | 'edit'
+    | 'repeat'
+  
+  
   interface PurchaseEditorProps {
     purchase?: PurchaseRecord | null
   
+    mode?: PurchaseEditorMode
+  
     itemType: PurchaseRecord['itemType']
+  
     itemId?: string
+  
     itemName: string
+  
     brand?: string
   
     onSave: (
@@ -32,6 +43,7 @@ import {
   
   export default function PurchaseEditor({
     purchase,
+    mode = 'new',
     itemType,
     itemId,
     itemName,
@@ -47,22 +59,30 @@ import {
     const [
       supplier,
       setSupplier,
-    ] = useState('')
+    ] =
+      useState('')
+  
   
     const [
       purchaseDate,
       setPurchaseDate,
-    ] = useState('')
+    ] =
+      useState('')
+  
   
     const [
       pricePaid,
       setPricePaid,
-    ] = useState('')
+    ] =
+      useState('')
+  
   
     const [
       quantity,
       setQuantity,
-    ] = useState('')
+    ] =
+      useState('')
+  
   
     const [
       unit,
@@ -72,10 +92,13 @@ import {
         'each',
       )
   
+  
     const [
       packageSize,
       setPackageSize,
-    ] = useState('')
+    ] =
+      useState('')
+  
   
     const [
       packageUnit,
@@ -85,10 +108,12 @@ import {
         'each',
       )
   
+  
     const [
       purchaseNotes,
       setPurchaseNotes,
-    ] = useState('')
+    ] =
+      useState('')
   
   
     /* =======================================
@@ -96,7 +121,9 @@ import {
     ======================================= */
   
     const formRef =
-      useRef<HTMLDivElement>(null)
+      useRef<HTMLDivElement>(
+        null,
+      )
   
   
     /* =======================================
@@ -104,20 +131,41 @@ import {
     ======================================= */
   
     useEffect(() => {
-      if (purchase) {
+      const today =
+        new Date()
+          .toISOString()
+          .slice(
+            0,
+            10,
+          )
+  
+  
+      /* =======================================
+         EDIT EXISTING PURCHASE
+      ======================================= */
+  
+      if (
+        mode === 'edit' &&
+        purchase
+      ) {
         setSupplier(
-          purchase.supplier ?? '',
+          purchase.supplier ??
+          '',
         )
   
+  
         setPurchaseDate(
-          purchase.date ?? '',
+          purchase.date ??
+          '',
         )
+  
   
         setPricePaid(
           String(
             purchase.pricePaid,
           ),
         )
+  
   
         setQuantity(
           purchase.quantity !==
@@ -128,10 +176,12 @@ import {
             : '',
         )
   
+  
         setUnit(
           purchase.unit ??
-            'each',
+          'each',
         )
+  
   
         setPackageSize(
           purchase.packageSize !==
@@ -142,35 +192,141 @@ import {
             : '',
         )
   
+  
         setPackageUnit(
           purchase.packageUnit ??
-            'each',
+          'each',
         )
   
+  
         setPurchaseNotes(
-          purchase.notes ?? '',
+          purchase.notes ??
+          '',
         )
+  
   
         return
       }
   
   
-      setSupplier('')
+      /* =======================================
+         REPEAT PURCHASE
+      ======================================= */
   
-      setPurchaseDate(
-        new Date()
-          .toISOString()
-          .slice(0, 10),
+      if (
+        mode === 'repeat' &&
+        purchase
+      ) {
+        setSupplier(
+          purchase.supplier ??
+          '',
+        )
+  
+  
+        setPurchaseDate(
+          today,
+        )
+  
+  
+        setPricePaid(
+          String(
+            purchase.pricePaid,
+          ),
+        )
+  
+  
+        setQuantity(
+          purchase.quantity !==
+          undefined
+            ? String(
+                purchase.quantity,
+              )
+            : '',
+        )
+  
+  
+        setUnit(
+          purchase.unit ??
+          'each',
+        )
+  
+  
+        setPackageSize(
+          purchase.packageSize !==
+          undefined
+            ? String(
+                purchase.packageSize,
+              )
+            : '',
+        )
+  
+  
+        setPackageUnit(
+          purchase.packageUnit ??
+          'each',
+        )
+  
+  
+        /*
+         * Notes belong to the individual
+         * purchase, so a repeat purchase
+         * starts with a clean note.
+         */
+  
+        setPurchaseNotes(
+          '',
+        )
+  
+  
+        return
+      }
+  
+  
+      /* =======================================
+         NEW PURCHASE
+      ======================================= */
+  
+      setSupplier(
+        '',
       )
   
-      setPricePaid('')
-      setQuantity('')
-      setUnit('each')
-      setPackageSize('')
-      setPackageUnit('each')
-      setPurchaseNotes('')
+  
+      setPurchaseDate(
+        today,
+      )
+  
+  
+      setPricePaid(
+        '',
+      )
+  
+  
+      setQuantity(
+        '',
+      )
+  
+  
+      setUnit(
+        'each',
+      )
+  
+  
+      setPackageSize(
+        '',
+      )
+  
+  
+      setPackageUnit(
+        'each',
+      )
+  
+  
+      setPurchaseNotes(
+        '',
+      )
     }, [
       purchase,
+      mode,
     ])
   
   
@@ -182,48 +338,67 @@ import {
       const scrollY =
         window.scrollY
   
-      requestAnimationFrame(() => {
-        if (formRef.current) {
-          formRef.current.scrollTop = 0
-        }
-      })
+  
+      requestAnimationFrame(
+        () => {
+          if (
+            formRef.current
+          ) {
+            formRef.current.scrollTop =
+              0
+          }
+        },
+      )
+  
   
       const previousOverflow =
         document.body.style.overflow
   
+  
       const previousPosition =
         document.body.style.position
+  
   
       const previousTop =
         document.body.style.top
   
+  
       const previousWidth =
         document.body.style.width
+  
   
       document.body.style.overflow =
         'hidden'
   
+  
       document.body.style.position =
         'fixed'
+  
   
       document.body.style.top =
         `-${scrollY}px`
   
+  
       document.body.style.width =
         '100%'
+  
   
       return () => {
         document.body.style.overflow =
           previousOverflow
   
+  
         document.body.style.position =
           previousPosition
+  
   
         document.body.style.top =
           previousTop
   
+  
         document.body.style.width =
           previousWidth
+  
   
         window.scrollTo(
           0,
@@ -239,12 +414,18 @@ import {
   
     function handleSave() {
       const parsedPrice =
-        Number(pricePaid)
+        Number(
+          pricePaid,
+        )
+  
   
       if (
         !purchaseDate ||
-        pricePaid.trim() === '' ||
-        Number.isNaN(parsedPrice)
+        pricePaid.trim() ===
+          '' ||
+        Number.isNaN(
+          parsedPrice,
+        )
       ) {
         window.alert(
           'Please add a purchase date and the total price paid.',
@@ -255,14 +436,32 @@ import {
   
   
       const now =
-        new Date().toISOString()
+        new Date()
+          .toISOString()
+  
+  
+      const isEditing =
+        mode ===
+          'edit' &&
+        Boolean(
+          purchase,
+        )
   
   
       const savedPurchase:
         PurchaseRecord = {
+          /*
+           * Only an edit keeps the existing
+           * Purchase ID.
+           *
+           * Repeat and new purchases always
+           * become new Purchase records.
+           */
+  
           id:
-            purchase?.id ??
-            crypto.randomUUID(),
+            isEditing
+              ? purchase!.id
+              : crypto.randomUUID(),
   
           itemType,
   
@@ -291,7 +490,9 @@ import {
   
           quantity:
             quantity.trim()
-              ? Number(quantity)
+              ? Number(
+                  quantity,
+                )
               : undefined,
   
           unit:
@@ -322,14 +523,18 @@ import {
             undefined,
   
           photoUrls:
-            purchase?.photoUrls,
+            isEditing
+              ? purchase?.photoUrls
+              : undefined,
   
           createdAt:
-            purchase?.createdAt ??
-            now,
+            isEditing
+              ? purchase?.createdAt ??
+                now
+              : now,
   
           updatedAt:
-            purchase
+            isEditing
               ? now
               : undefined,
         }
@@ -338,6 +543,56 @@ import {
       onSave(
         savedPurchase,
       )
+    }
+  
+  
+    /* =======================================
+       HEADING
+    ======================================= */
+  
+    function getHeading(): string {
+      if (
+        mode ===
+        'edit'
+      ) {
+        return 'Edit this purchase'
+      }
+  
+  
+      if (
+        mode ===
+        'repeat'
+      ) {
+        return 'Bought this again'
+      }
+  
+  
+      return 'Add a purchase'
+    }
+  
+  
+    /* =======================================
+       SAVE BUTTON LABEL
+    ======================================= */
+  
+    function getSaveButtonLabel(): string {
+      if (
+        mode ===
+        'edit'
+      ) {
+        return 'Save purchase'
+      }
+  
+  
+      if (
+        mode ===
+        'repeat'
+      ) {
+        return 'Add this purchase'
+      }
+  
+  
+      return 'Add purchase'
     }
   
   
@@ -365,6 +620,7 @@ import {
             aria-hidden="true"
           />
   
+  
           <div
             ref={
               formRef
@@ -377,16 +633,17 @@ import {
                   Purchase history
                 </p>
   
+  
                 <h2 id="purchase-editor-title">
-                  {purchase
-                    ? 'Edit this purchase'
-                    : 'Add another purchase'}
+                  {getHeading()}
                 </h2>
+  
   
                 <p className="form-whisper">
                   {itemName}
                 </p>
               </div>
+  
   
               <button
                 type="button"
@@ -407,6 +664,7 @@ import {
                 supplier={
                   supplier
                 }
+  
                 setSupplier={
                   setSupplier
                 }
@@ -414,6 +672,7 @@ import {
                 purchaseDate={
                   purchaseDate
                 }
+  
                 setPurchaseDate={
                   setPurchaseDate
                 }
@@ -421,6 +680,7 @@ import {
                 pricePaid={
                   pricePaid
                 }
+  
                 setPricePaid={
                   setPricePaid
                 }
@@ -428,6 +688,7 @@ import {
                 quantity={
                   quantity
                 }
+  
                 setQuantity={
                   setQuantity
                 }
@@ -435,6 +696,7 @@ import {
                 unit={
                   unit
                 }
+  
                 setUnit={
                   setUnit
                 }
@@ -442,6 +704,7 @@ import {
                 packageSize={
                   packageSize
                 }
+  
                 setPackageSize={
                   setPackageSize
                 }
@@ -449,6 +712,7 @@ import {
                 packageUnit={
                   packageUnit
                 }
+  
                 setPackageUnit={
                   setPackageUnit
                 }
@@ -456,6 +720,7 @@ import {
                 purchaseNotes={
                   purchaseNotes
                 }
+  
                 setPurchaseNotes={
                   setPurchaseNotes
                 }
@@ -473,6 +738,7 @@ import {
                   Leave it for now
                 </button>
   
+  
                 <button
                   type="button"
                   className="enter-button"
@@ -480,11 +746,10 @@ import {
                     handleSave
                   }
                 >
-                  {purchase
-                    ? 'Save purchase'
-                    : 'Add purchase'}
+                  {getSaveButtonLabel()}
                 </button>
               </div>
+  
             </div>
           </div>
         </section>

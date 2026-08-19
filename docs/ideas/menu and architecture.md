@@ -87,3 +87,109 @@ For example, your "How did this story begin?" picker could show:
 
 Each with a tiny hand-drawn icon and the same paper texture as the notebook.
 We'd build that component once, then use it everywhere: event types, varieties, growing places, trial outcomes, weather... everything. It would become part of Sprig's identity.
+
+
+ACCOUNTANT SPRIG
+
+
+----------------------------------
+Library
+
+├── 🌱 Plants
+├── 📖 Recipes
+├── 🌿 Ingredients
+├── 🧪 Products
+├── 📍 Growing Places
+├── 🌾 Harvests
+├── 🧪 Garden Trials
+└── 📚 Journal
+
+Recipes
+🌱 Recipe Engine (internal)
+The reusable architecture that stores ingredients, quantities, photos, costs, versions, notes, and relationships.
+
+🌱 Recipe Types (future)
+Growing Recipe
+Potting mixes
+Seed raising mixes
+Soil blends
+Hydroponic media
+
+Feed Recipe
+Liquid fertilisers
+Compost teas
+Worm teas
+
+Compost Recipe
+Hot compost
+Cold compost
+Leaf mould
+Bokashi
+
+Mulch Recipe
+Orchard mulch
+Vegetable mulch
+
+Spray Recipe
+Neem
+Garlic
+Milk
+Seaweed
+
+Trap Recipe
+Slug traps
+Fruit fly traps
+
+Substrate Recipe
+Mushroom blocks
+Specialty growing substrates
+
+Soil Improvement Recipe
+Clay amendments
+Raised bed recharge
+Mineral blends
+
+That gives us a beautiful separation:
+Gardeners see: Growing Recipe, Feed Recipe, Compost Recipe.
+Sprig's code sees: one elegant Recipe engine.
+----------------------------------------------------
+
+Every page
+← Back
+✏ Edit
+🌱 Create a variation
+⭐ Favourite
+📸 Add photographs
+📦 Archive
+🖨 Print
+📤 Export
+Delete
+
+✅Product 
+✅Ingredients
+✅Recipes
+native Ground
+Growing System
+Plants
+    has:
+    Product creation and saving
+    Purchase details captured alongside creation
+    Product index/shelf
+    Product Detail page
+    Purchase-history architecture
+    Edit Product
+    Favourite
+    1–5 rating
+    Archive
+    Restore
+    Permanent delete
+    Multi-photo fields retained
+    Old products without a category safely handled
+
+✅ Products
+✅ Ingredients 
+✅ Pricing
+    Harvest
+    Calendar
+
+

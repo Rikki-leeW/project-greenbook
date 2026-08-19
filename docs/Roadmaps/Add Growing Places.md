@@ -139,8 +139,10 @@ Pool Deck Container Blend
 Layered Vegetable Bed
 Native Clay Improvement
 
-
+✅  COMPLETE
 -----------------------------------------------
+✅  COMPLETE
+
 7/8/26
 My suggested build order now would be:
 ✅ Expand the GrowingPlace types (we've planned this).
@@ -199,31 +201,21 @@ What would you like to call this mix?
 _____________________
 
 Example:
-
 My Compost & Guinea Pig Mix
-
 or
-
 Potato Blend V1
-
 or
-
 Rich Veggie Mix
-
 or
 
 Winter Raised Bed Mix
-
 Whatever the gardener naturally calls it.
 
-Then...
 
 Sprig asks
-
 What went into this mix?
 
 You write:
-
 2 parts compost
 1 part aged horse bedding
 handful GP manure
@@ -231,37 +223,23 @@ handful GP manure
 Here's the clever part
 
 The next time you choose My Own Mix, Sprig doesn't start from scratch.
-
 Instead it quietly asks:
-
 Have you made this mix before?
 
 Then shows:
-
 📖 My Compost & Guinea Pig Mix
-
 📖 Potato Blend V1
-
 📖 Seedling Mix
-
 📖 Winter Raised Bed Mix
 
 ➕ Create a new mix
-
 That is exactly how a gardener's notebook works.
 
 You're not recreating recipes.
-
 You're reusing knowledge.
-
-Even better...
-
 Imagine a few years from now.
-
 You decide to improve your potato mix.
-
 Instead of editing the old one, Sprig could suggest:
-
 Potato Blend V1
 
 Create a new version?
@@ -271,34 +249,86 @@ Create a new version?
 Potato Blend V2
 
 Now your journal automatically knows which plants grew in V1 and which grew in V2.
-
 Later Sprig could even help answer questions like:
-
 "Which version produced the biggest potatoes?"
-
 That's not something we'd build now, but if we store the data this way from the beginning, we'll already have the foundation.
 
 The bought mix can work the same way
-
 Choose:
-
 🪴 I bought a mix
-
 ↓
-
 What type of mix?
 
 Potting Mix
 Seed Raising Mix
 Raised Bed Mix
 ...
-
 ↓
-
 Which brand?
-
 Richgro
 Rocky Point
 Osmocote
 Brunnings
 Other...
+
+Growing Setup
+
+What are you growing in?
+
+⬜ My Own Mix
+⬜ I Bought a Mix
+⬜ Straight into the Ground
+⬜ It's a Growing System
+
+Then...
+
+🌱 My Own Mix
+
+Mix name
+Date created
+Photo
+Notes
+
+then later
+
+"What's in this mix?"
+
+(recipe builder)
+
+🛒 I Bought a Mix
+
+asks
+
+Brand
+Product
+Photo of the bag
+Notes
+
+Eventually it becomes a searchable library.
+
+🌍 Straight into the Ground
+
+asks
+Native soil
+Imported soil
+Clay
+Sandy
+Loam
+Rocky
+
+plus notes and photos.
+
+💧 Growing System
+
+asks
+Hydroponic
+Aquaponic
+Hügelkultur
+Wicking bed
+NFT
+DWC
+Kratky
+Other
+✅ COMPLETE
+----------------------------------------------------
+

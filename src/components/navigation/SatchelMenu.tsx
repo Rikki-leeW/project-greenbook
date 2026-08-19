@@ -7,6 +7,13 @@ import type {
   } from './appNavigation'
   
   
+  type LibraryDestination =
+    | 'library'
+    | 'growing-recipes'
+    | 'ingredients'
+    | 'products'
+  
+  
   interface SatchelMenuProps {
     isOpen: boolean
   
@@ -14,6 +21,7 @@ import type {
   
     onNavigate: (
       page: AppPage,
+      libraryView?: LibraryDestination,
     ) => void
   }
   
@@ -28,13 +36,19 @@ import type {
     }
   
   
+    /* =======================================
+       NAVIGATION
+    ======================================= */
+  
     function handleNavigate(
       page: AppPage,
+      libraryView?: LibraryDestination,
     ) {
       onClose()
   
       onNavigate(
         page,
+        libraryView,
       )
     }
   
@@ -153,6 +167,7 @@ import type {
                 Sprig
               </p>
   
+  
               <h2
                 style={{
                   margin:
@@ -164,6 +179,7 @@ import type {
               >
                 Satchel
               </h2>
+  
   
               <p
                 style={{
@@ -286,13 +302,46 @@ import type {
                             }
                             onClick={() => {
                               if (
-                                isAvailable &&
-                                item.page
+                                !isAvailable ||
+                                !item.page
                               ) {
-                                handleNavigate(
-                                  item.page,
-                                )
+                                return
                               }
+  
+  
+                              /* =======================================
+                                 LIBRARY DESTINATION
+                              ======================================= */
+  
+                              if (
+                                item.page ===
+                                  'library' &&
+                                item.libraryView
+                              ) {
+                                const libraryView:
+                                  LibraryDestination =
+                                  item.libraryView ===
+                                    'home'
+                                    ? 'library'
+                                    : item.libraryView
+  
+  
+                                handleNavigate(
+                                  'library',
+                                  libraryView,
+                                )
+  
+                                return
+                              }
+  
+  
+                              /* =======================================
+                                 STANDARD APP DESTINATION
+                              ======================================= */
+  
+                              handleNavigate(
+                                item.page,
+                              )
                             }}
                             style={{
                               width:

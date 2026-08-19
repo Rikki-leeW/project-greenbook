@@ -6,12 +6,31 @@ export type SprigPageStatus =
   | 'coming-later'
 
 
+export type SprigLibraryView =
+  | 'home'
+  | 'growing-recipes'
+  | 'ingredients'
+  | 'products'
+
+
 export interface SprigNavigationItem {
   id: string
   label: string
   icon: string
   status: SprigPageStatus
   page?: AppPage
+
+  /*
+   * Optional destination inside a major
+   * Sprig page.
+   *
+   * At present this is used by the Garden
+   * Library so Satchel can open a particular
+   * shelf directly rather than always landing
+   * on the Library overview.
+   */
+  libraryView?: SprigLibraryView
+
   note?: string
 }
 
@@ -35,9 +54,11 @@ than maintaining its own list of pages.
 
 When a future page is built:
 
-1. Add its route to AppPage.
+1. Add its route to AppPage if needed.
 2. Give the item its page value here.
-3. Change status to 'live'.
+3. Give it a sub-view destination where
+   the page contains its own sections.
+4. Change status to 'live'.
 
 The Satchel will then automatically make
 that destination available.
@@ -109,8 +130,10 @@ export const sprigNavigation:
           icon: '🧺',
           status: 'live',
           page: 'library',
+          libraryView:
+            'growing-recipes',
           note:
-            'Open through the Garden Library',
+            'Your saved growing recipes',
         },
 
         {
@@ -119,8 +142,10 @@ export const sprigNavigation:
           icon: '🌾',
           status: 'live',
           page: 'library',
+          libraryView:
+            'ingredients',
           note:
-            'Open through the Garden Library',
+            'The building blocks used throughout your garden',
         },
 
         {
@@ -129,8 +154,10 @@ export const sprigNavigation:
           icon: '🧴',
           status: 'live',
           page: 'library',
+          libraryView:
+            'products',
           note:
-            'Open through the Garden Library',
+            'Commercial products bought for the garden',
         },
 
         {
@@ -139,8 +166,10 @@ export const sprigNavigation:
           icon: '📚',
           status: 'live',
           page: 'library',
+          libraryView:
+            'home',
           note:
-            'Recipes, ingredients and products',
+            'Browse the whole Garden Library',
         },
       ],
     },

@@ -1076,14 +1076,14 @@ export default function PlantDetail({
 
 
             <button
-              type="button"
-              className="journal-add-button"
-              onClick={
-                onAddEvent
-              }
-            >
-              📖 Add a moment
-            </button>
+  type="button"
+  className="secondary-button"
+  onClick={
+    onAddEvent
+  }
+>
+  📖 Add a moment
+</button>
 
 
             {plant.status ===

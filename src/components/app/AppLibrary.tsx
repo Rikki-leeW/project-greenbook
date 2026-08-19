@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
 } from 'react'
 
@@ -28,6 +29,13 @@ import type {
 } from '../../types/navigation'
 
 
+type LibraryDestination =
+  | 'library'
+  | 'growing-recipes'
+  | 'ingredients'
+  | 'products'
+
+
 interface AppLibraryProps {
   recipes: GrowingSetup[]
 
@@ -42,6 +50,13 @@ interface AppLibraryProps {
   growingPlaces: GrowingPlace[]
 
   initialRecipeId?: string | null
+
+  initialView?:
+    | 'library'
+    | 'growing-recipes'
+    | 'ingredients'
+    | 'products'
+    | null
 
   onAddRecipe: (
     recipe: GrowingSetup,
@@ -97,6 +112,7 @@ interface AppLibraryProps {
 
   onNavigate: (
     page: AppPage,
+    libraryView?: LibraryDestination,
   ) => void
 }
 
@@ -115,6 +131,12 @@ type LibraryView =
 
 type RecipeEditorMode =
   | 'create'
+  | 'edit'
+  | 'variation'
+
+
+type ProductEditorMode =
+  | 'new'
   | 'edit'
   | 'variation'
 
@@ -149,6 +171,36 @@ function createVariationId(
 }
 
 
+/* =======================================
+   PRODUCT VARIATION ID
+======================================= */
+
+function createProductVariationId(
+  product: GardenProduct,
+): string {
+  const safeName =
+    product.name
+      .trim()
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]+/g,
+        '-',
+      )
+      .replace(
+        /^-|-$/g,
+        '',
+      )
+
+  return `product-variation-${
+    safeName || 'product'
+  }-${Date.now()}`
+}
+
+
+/* =======================================
+   TODAY
+======================================= */
+
 function getTodayDate(): string {
   return new Date()
     .toISOString()
@@ -167,6 +219,7 @@ export default function AppLibrary({
   plants,
   growingPlaces,
   initialRecipeId,
+  initialView,
   onAddRecipe,
   onUpdateRecipe,
   onDeleteRecipe,
@@ -194,8 +247,62 @@ export default function AppLibrary({
     useState<LibraryView>(
       initialRecipeId
         ? 'recipe-detail'
-        : 'library',
+        : initialView ??
+          'library',
     )
+
+
+  /* =======================================
+     RESPOND TO LIBRARY NAVIGATION
+  ======================================= */
+
+  useEffect(() => {
+    if (
+      initialRecipeId
+    ) {
+      setSelectedRecipeId(
+        initialRecipeId,
+      )
+
+      setSelectedIngredientId(
+        null,
+      )
+
+      setSelectedProductId(
+        null,
+      )
+
+      setCurrentView(
+        'recipe-detail',
+      )
+
+      return
+    }
+
+
+    if (
+      initialView
+    ) {
+      setSelectedRecipeId(
+        null,
+      )
+
+      setSelectedIngredientId(
+        null,
+      )
+
+      setSelectedProductId(
+        null,
+      )
+
+      setCurrentView(
+        initialView,
+      )
+    }
+  }, [
+    initialRecipeId,
+    initialView,
+  ])
 
 
   /* =======================================
@@ -287,6 +394,15 @@ export default function AppLibrary({
 
 
   const [
+    productEditorMode,
+    setProductEditorMode,
+  ] =
+    useState<ProductEditorMode>(
+      'new',
+    )
+
+
+  const [
     editorProduct,
     setEditorProduct,
   ] =
@@ -294,6 +410,14 @@ export default function AppLibrary({
       null,
     )
 
+
+  const [
+    variationPurchaseTemplate,
+    setVariationPurchaseTemplate,
+  ] =
+    useState<PurchaseRecord | null>(
+      null,
+    )
 
   /* =======================================
      PURCHASE STATE
@@ -312,6 +436,19 @@ export default function AppLibrary({
   ] =
     useState<PurchaseRecord | null>(
       null,
+    )
+
+
+  const [
+    purchaseEditorMode,
+    setPurchaseEditorMode,
+  ] =
+    useState<
+      'new' |
+      'edit' |
+      'repeat'
+    >(
+      'new',
     )
 
 
@@ -398,6 +535,99 @@ export default function AppLibrary({
 
 
   /* =======================================
+     LIBRARY-AWARE NAVIGATION
+  ======================================= */
+
+  function handleLibraryNavigate(
+    page: AppPage,
+    libraryView?: LibraryDestination,
+  ) {
+    setIsProductEditorOpen(
+      false,
+    )
+
+    setEditorProduct(
+      null,
+    )
+
+    setProductEditorMode(
+      'new',
+    )
+
+
+    setIsIngredientEditorOpen(
+      false,
+    )
+
+    setEditorIngredient(
+      null,
+    )
+
+
+    setIsRecipeEditorOpen(
+      false,
+    )
+
+    setEditorRecipe(
+      null,
+    )
+
+    setRecipeEditorMode(
+      'create',
+    )
+
+
+    setIsPurchaseEditorOpen(
+      false,
+    )
+
+    setEditorPurchase(
+      null,
+    )
+
+    setPurchaseEditorMode(
+      'new',
+    )
+
+
+    if (
+      page === 'library' &&
+      libraryView
+    ) {
+      setSelectedRecipeId(
+        null,
+      )
+
+      setSelectedIngredientId(
+        null,
+      )
+
+      setSelectedProductId(
+        null,
+      )
+
+      setCurrentView(
+        libraryView,
+      )
+
+
+      onNavigate(
+        page,
+        libraryView,
+      )
+
+      return
+    }
+
+
+    onNavigate(
+      page,
+      libraryView,
+    )
+  }
+
+
+  /* =======================================
      RECIPE RELATIONSHIP CHECKING
   ======================================= */
 
@@ -478,6 +708,10 @@ export default function AppLibrary({
       null,
     )
 
+    setSelectedProductId(
+      null,
+    )
+
     setSelectedRecipeId(
       recipeId,
     )
@@ -496,6 +730,10 @@ export default function AppLibrary({
     ingredientId: string,
   ) {
     setSelectedRecipeId(
+      null,
+    )
+
+    setSelectedProductId(
       null,
     )
 
@@ -550,7 +788,7 @@ export default function AppLibrary({
 
 
   /* =======================================
-     CREATE VARIATION
+     CREATE RECIPE VARIATION
   ======================================= */
 
   function handleCreateVariation(
@@ -663,21 +901,15 @@ export default function AppLibrary({
   function handleToggleFavourite(
     recipe: GrowingSetup,
   ) {
-    const updatedRecipe:
-      GrowingSetup = {
-        ...recipe,
+    onUpdateRecipe({
+      ...recipe,
 
-        isFavourite:
-          !recipe.isFavourite,
+      isFavourite:
+        !recipe.isFavourite,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateRecipe(
-      updatedRecipe,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
   }
 
 
@@ -689,20 +921,14 @@ export default function AppLibrary({
     recipe: GrowingSetup,
     rating: RecordRating,
   ) {
-    const updatedRecipe:
-      GrowingSetup = {
-        ...recipe,
+    onUpdateRecipe({
+      ...recipe,
 
-        rating,
+      rating,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateRecipe(
-      updatedRecipe,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
   }
 
 
@@ -713,21 +939,15 @@ export default function AppLibrary({
   function handleToggleIngredientFavourite(
     ingredient: Ingredient,
   ) {
-    const updatedIngredient:
-      Ingredient = {
-        ...ingredient,
+    onUpdateIngredient({
+      ...ingredient,
 
-        isFavourite:
-          !ingredient.isFavourite,
+      isFavourite:
+        !ingredient.isFavourite,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateIngredient(
-      updatedIngredient,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
   }
 
 
@@ -739,27 +959,21 @@ export default function AppLibrary({
     ingredient: Ingredient,
     rating: number,
   ) {
-    const updatedIngredient:
-      Ingredient = {
-        ...ingredient,
+    onUpdateIngredient({
+      ...ingredient,
 
-        rating:
-          Math.max(
-            1,
-            Math.min(
-              5,
-              rating,
-            ),
-          ) as RecordRating,
+      rating:
+        Math.max(
+          1,
+          Math.min(
+            5,
+            rating,
+          ),
+        ) as RecordRating,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateIngredient(
-      updatedIngredient,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
   }
 
 
@@ -770,21 +984,15 @@ export default function AppLibrary({
   function handleToggleProductFavourite(
     product: GardenProduct,
   ) {
-    const updatedProduct:
-      GardenProduct = {
-        ...product,
+    onUpdateProduct({
+      ...product,
 
-        isFavourite:
-          !product.isFavourite,
+      isFavourite:
+        !product.isFavourite,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateProduct(
-      updatedProduct,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
   }
 
 
@@ -796,27 +1004,21 @@ export default function AppLibrary({
     product: GardenProduct,
     rating: number,
   ) {
-    const updatedProduct:
-      GardenProduct = {
-        ...product,
+    onUpdateProduct({
+      ...product,
 
-        rating:
-          Math.max(
-            1,
-            Math.min(
-              5,
-              rating,
-            ),
-          ) as RecordRating,
+      rating:
+        Math.max(
+          1,
+          Math.min(
+            5,
+            rating,
+          ),
+        ) as RecordRating,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateProduct(
-      updatedProduct,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
   }
 
 
@@ -827,12 +1029,143 @@ export default function AppLibrary({
   function handleOpenEditProduct(
     product: GardenProduct,
   ) {
+    setProductEditorMode(
+      'edit',
+    )
+
     setEditorProduct(
       product,
     )
 
     setIsProductEditorOpen(
       true,
+    )
+  }
+
+
+  /* =======================================
+     PRODUCT QUICK ACTIONS
+  ======================================= */
+
+  function handleCreateProductVariation(
+    sourceProduct: GardenProduct,
+  ) {
+    const today =
+      getTodayDate()
+  
+  
+    const variationDraft:
+      GardenProduct = {
+        ...sourceProduct,
+  
+        id:
+          createProductVariationId(
+            sourceProduct,
+          ),
+  
+        name:
+          `${sourceProduct.name} (Variation)`,
+  
+        isFavourite:
+          false,
+  
+        rating:
+          undefined,
+  
+        isArchived:
+          false,
+  
+        archivedAt:
+          undefined,
+  
+        photoUrls: [],
+  
+        createdAt:
+          today,
+  
+        updatedAt:
+          undefined,
+      }
+  
+  
+    const mostRecentPurchase =
+      purchases
+        .filter(
+          (
+            purchase,
+          ) =>
+            purchase.itemType ===
+              'product' &&
+            purchase.itemId ===
+              sourceProduct.id,
+        )
+        .sort(
+          (
+            first,
+            second,
+          ) =>
+            second.date.localeCompare(
+              first.date,
+            ),
+        )[0] ??
+      null
+  
+  
+    setVariationPurchaseTemplate(
+      mostRecentPurchase,
+    )
+  
+  
+    setProductEditorMode(
+      'variation',
+    )
+  
+    setEditorProduct(
+      variationDraft,
+    )
+  
+    setIsProductEditorOpen(
+      true,
+    )
+  }
+
+
+  function handleAddProductNote(
+    product: GardenProduct,
+  ) {
+    const note =
+      window.prompt(
+        `Add a note to "${product.name}"`,
+        product.notes ??
+          '',
+      )
+
+
+    if (
+      note === null
+    ) {
+      return
+    }
+
+
+    onUpdateProduct({
+      ...product,
+
+      notes:
+        note.trim() ||
+        undefined,
+
+      updatedAt:
+        getTodayDate(),
+    })
+  }
+
+
+  function handleAddProductPhotographs(
+    product: GardenProduct,
+  ) {
+    handleOpenEditProduct(
+      product,
     )
   }
 
@@ -860,24 +1193,18 @@ export default function AppLibrary({
       getTodayDate()
 
 
-    const updatedProduct:
-      GardenProduct = {
-        ...product,
+    onUpdateProduct({
+      ...product,
 
-        isArchived:
-          true,
+      isArchived:
+        true,
 
-        archivedAt:
-          today,
+      archivedAt:
+        today,
 
-        updatedAt:
-          today,
-      }
-
-
-    onUpdateProduct(
-      updatedProduct,
-    )
+      updatedAt:
+        today,
+    })
 
 
     setSelectedProductId(
@@ -897,24 +1224,18 @@ export default function AppLibrary({
   function handleRestoreProduct(
     product: GardenProduct,
   ) {
-    const updatedProduct:
-      GardenProduct = {
-        ...product,
+    onUpdateProduct({
+      ...product,
 
-        isArchived:
-          false,
+      isArchived:
+        false,
 
-        archivedAt:
-          undefined,
+      archivedAt:
+        undefined,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateProduct(
-      updatedProduct,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
 
 
     setSelectedProductId(
@@ -1013,24 +1334,18 @@ export default function AppLibrary({
       getTodayDate()
 
 
-    const updatedRecipe:
-      GrowingSetup = {
-        ...recipe,
+    onUpdateRecipe({
+      ...recipe,
 
-        isArchived:
-          true,
+      isArchived:
+        true,
 
-        archivedAt:
-          today,
+      archivedAt:
+        today,
 
-        updatedAt:
-          today,
-      }
-
-
-    onUpdateRecipe(
-      updatedRecipe,
-    )
+      updatedAt:
+        today,
+    })
 
 
     setSelectedRecipeId(
@@ -1050,24 +1365,18 @@ export default function AppLibrary({
   function handleRestoreRecipe(
     recipe: GrowingSetup,
   ) {
-    const updatedRecipe:
-      GrowingSetup = {
-        ...recipe,
+    onUpdateRecipe({
+      ...recipe,
 
-        isArchived:
-          false,
+      isArchived:
+        false,
 
-        archivedAt:
-          undefined,
+      archivedAt:
+        undefined,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateRecipe(
-      updatedRecipe,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
 
 
     setSelectedRecipeId(
@@ -1103,24 +1412,18 @@ export default function AppLibrary({
       getTodayDate()
 
 
-    const updatedIngredient:
-      Ingredient = {
-        ...ingredient,
+    onUpdateIngredient({
+      ...ingredient,
 
-        isArchived:
-          true,
+      isArchived:
+        true,
 
-        archivedAt:
-          today,
+      archivedAt:
+        today,
 
-        updatedAt:
-          today,
-      }
-
-
-    onUpdateIngredient(
-      updatedIngredient,
-    )
+      updatedAt:
+        today,
+    })
 
 
     setSelectedIngredientId(
@@ -1140,24 +1443,18 @@ export default function AppLibrary({
   function handleRestoreIngredient(
     ingredient: Ingredient,
   ) {
-    const updatedIngredient:
-      Ingredient = {
-        ...ingredient,
+    onUpdateIngredient({
+      ...ingredient,
 
-        isArchived:
-          false,
+      isArchived:
+        false,
 
-        archivedAt:
-          undefined,
+      archivedAt:
+        undefined,
 
-        updatedAt:
-          getTodayDate(),
-      }
-
-
-    onUpdateIngredient(
-      updatedIngredient,
-    )
+      updatedAt:
+        getTodayDate(),
+    })
 
 
     setSelectedIngredientId(
@@ -1365,14 +1662,15 @@ export default function AppLibrary({
 
 
   /* =======================================
-     SAVE PRODUCT PURCHASE
+     SAVE PURCHASE
   ======================================= */
 
   function handleSaveProductPurchase(
     purchase: PurchaseRecord,
   ) {
     if (
-      editorPurchase
+      purchaseEditorMode ===
+      'edit'
     ) {
       onUpdatePurchase(
         purchase,
@@ -1386,6 +1684,10 @@ export default function AppLibrary({
 
     setEditorPurchase(
       null,
+    )
+
+    setPurchaseEditorMode(
+      'new',
     )
 
     setIsPurchaseEditorOpen(
@@ -1548,14 +1850,14 @@ export default function AppLibrary({
       'ingredient-detail',
     )
   }
-
-
-  /* =======================================
+    /* =======================================
      PAGE CONTENT
   ======================================= */
 
   let pageContent
-    /* =======================================
+
+
+  /* =======================================
      INGREDIENT DETAIL
   ======================================= */
 
@@ -1640,6 +1942,10 @@ export default function AppLibrary({
             null,
           )
 
+          setPurchaseEditorMode(
+            'new',
+          )
+
           setIsPurchaseEditorOpen(
             true,
           )
@@ -1650,6 +1956,10 @@ export default function AppLibrary({
         ) => {
           setEditorPurchase(
             purchase,
+          )
+
+          setPurchaseEditorMode(
+            'edit',
           )
 
           setIsPurchaseEditorOpen(
@@ -1666,7 +1976,7 @@ export default function AppLibrary({
         }}
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -1710,7 +2020,7 @@ export default function AppLibrary({
         }
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -1762,7 +2072,7 @@ export default function AppLibrary({
         archivedButtonLabel="Back to Active Ingredients"
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -1868,6 +2178,10 @@ export default function AppLibrary({
             null,
           )
 
+          setPurchaseEditorMode(
+            'new',
+          )
+
           setIsPurchaseEditorOpen(
             true,
           )
@@ -1878,6 +2192,10 @@ export default function AppLibrary({
         ) => {
           setEditorPurchase(
             purchase,
+          )
+
+          setPurchaseEditorMode(
+            'edit',
           )
 
           setIsPurchaseEditorOpen(
@@ -1910,7 +2228,7 @@ export default function AppLibrary({
         }}
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -1958,7 +2276,7 @@ export default function AppLibrary({
         archivedButtonLabel="Back to Active Recipes"
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -1998,7 +2316,7 @@ export default function AppLibrary({
         }
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -2036,6 +2354,24 @@ export default function AppLibrary({
 
         onEdit={() =>
           handleOpenEditProduct(
+            selectedProduct,
+          )
+        }
+
+        onCreateVariation={() =>
+          handleCreateProductVariation(
+            selectedProduct,
+          )
+        }
+
+        onAddPhotographs={() =>
+          handleAddProductPhotographs(
+            selectedProduct,
+          )
+        }
+
+        onAddNote={() =>
+          handleAddProductNote(
             selectedProduct,
           )
         }
@@ -2080,8 +2416,37 @@ export default function AppLibrary({
         }
 
         onAddPurchase={() => {
+          const mostRecentPurchase =
+            purchases
+              .filter(
+                (
+                  purchase,
+                ) =>
+                  purchase.itemType ===
+                    'product' &&
+                  purchase.itemId ===
+                    selectedProduct.id,
+              )
+              .sort(
+                (
+                  first,
+                  second,
+                ) =>
+                  second.date.localeCompare(
+                    first.date,
+                  ),
+              )[0] ??
+            null
+
+
           setEditorPurchase(
-            null,
+            mostRecentPurchase,
+          )
+
+          setPurchaseEditorMode(
+            mostRecentPurchase
+              ? 'repeat'
+              : 'new',
           )
 
           setIsPurchaseEditorOpen(
@@ -2096,13 +2461,17 @@ export default function AppLibrary({
             purchase,
           )
 
+          setPurchaseEditorMode(
+            'edit',
+          )
+
           setIsPurchaseEditorOpen(
             true,
           )
         }}
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -2136,6 +2505,10 @@ export default function AppLibrary({
         }}
 
         onAddProduct={() => {
+          setProductEditorMode(
+            'new',
+          )
+
           setEditorProduct(
             null,
           )
@@ -2146,7 +2519,7 @@ export default function AppLibrary({
         }}
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -2179,7 +2552,7 @@ export default function AppLibrary({
         }
 
         onNavigate={
-          onNavigate
+          handleLibraryNavigate
         }
       />
     )
@@ -2255,10 +2628,21 @@ export default function AppLibrary({
       )}
 
 
-      {isProductEditorOpen && (
+            {isProductEditorOpen && (
         <AddProductForm
           product={
             editorProduct
+          }
+
+          mode={
+            productEditorMode
+          }
+
+          initialPurchase={
+            productEditorMode ===
+              'variation'
+              ? variationPurchaseTemplate
+              : null
           }
 
           onSave={(
@@ -2266,7 +2650,8 @@ export default function AppLibrary({
             purchase,
           ) => {
             if (
-              editorProduct
+              productEditorMode ===
+              'edit'
             ) {
               onUpdateProduct(
                 product,
@@ -2295,6 +2680,14 @@ export default function AppLibrary({
               null,
             )
 
+            setVariationPurchaseTemplate(
+              null,
+            )
+
+            setProductEditorMode(
+              'new',
+            )
+
             setIsProductEditorOpen(
               false,
             )
@@ -2307,6 +2700,14 @@ export default function AppLibrary({
           onClose={() => {
             setEditorProduct(
               null,
+            )
+
+            setVariationPurchaseTemplate(
+              null,
+            )
+
+            setProductEditorMode(
+              'new',
             )
 
             setIsProductEditorOpen(
@@ -2324,6 +2725,10 @@ export default function AppLibrary({
         <PurchaseEditor
           purchase={
             editorPurchase
+          }
+
+          mode={
+            purchaseEditorMode
           }
 
           itemType="product"
@@ -2349,6 +2754,10 @@ export default function AppLibrary({
               null,
             )
 
+            setPurchaseEditorMode(
+              'new',
+            )
+
             setIsPurchaseEditorOpen(
               false,
             )
@@ -2364,6 +2773,10 @@ export default function AppLibrary({
         <PurchaseEditor
           purchase={
             editorPurchase
+          }
+
+          mode={
+            purchaseEditorMode
           }
 
           itemType="growing-setup"
@@ -2389,6 +2802,10 @@ export default function AppLibrary({
               null,
             )
 
+            setPurchaseEditorMode(
+              'new',
+            )
+
             setIsPurchaseEditorOpen(
               false,
             )
@@ -2404,6 +2821,10 @@ export default function AppLibrary({
         <PurchaseEditor
           purchase={
             editorPurchase
+          }
+
+          mode={
+            purchaseEditorMode
           }
 
           itemType="ingredient"
@@ -2427,6 +2848,10 @@ export default function AppLibrary({
           onClose={() => {
             setEditorPurchase(
               null,
+            )
+
+            setPurchaseEditorMode(
+              'new',
             )
 
             setIsPurchaseEditorOpen(

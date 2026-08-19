@@ -1,0 +1,917 @@
+🌿 SPRIG APP DEVELOPMENT CONTINUATION PROMPT
+Full project handover, current as of 13 August 2026
+
+I am continuing development of my gardening app Sprig with you from several long previous development chats.
+
+Please treat everything below as established project context and continue from it rather than redesigning the app or starting the architecture again.
+
+VERY IMPORTANT WORKING STYLE
+
+I am building this app myself with your guidance, but I am not an experienced React/TypeScript developer.
+
+Please therefore:
+
+Work with me one file / one controlled change at a time wherever practical.
+When changing a file, I strongly prefer you to give me the complete replacement file, not scattered snippets that I have to work out how to merge.
+Tell me clearly which file we are changing.
+Tell me whether I should replace the whole file.
+Do not assume I know where code snippets belong.
+Do not casually refactor unrelated working code.
+Preserve working functionality unless there is a deliberate reason to change it.
+Explain architectural decisions in plain English.
+If you need to see a current file, ask me to paste/upload it rather than guessing its contents.
+Do not invent types, props, functions, storage methods or filenames without checking what actually exists.
+If one file depends on another file, inspect the relevant current code before making assumptions.
+We compile/test regularly rather than making a huge collection of untested changes.
+I prefer careful, complete solutions over quick patches that create technical debt.
+When I give you a file, treat my current file as the source of truth, even if you remember an older version.
+Please pay attention to TypeScript errors and unused variables/imports because Vite production builds have previously failed on these even when the app appeared to work locally.
+We deploy to GitHub Pages, so a clean production build matters.
+
+Most importantly: do not lose Sprig's personality or its design philosophy while solving technical problems.
+
+🌱 WHAT SPRIG IS
+
+Sprig is a personal gardening chronicle / garden record app.
+
+It is not intended to feel like:
+
+farm-management software
+a spreadsheet
+a clinical horticultural database
+a generic CRUD dashboard
+a childish gardening game
+
+Its atmosphere is an old gardener's notebook tucked into a woodland world, with a subtle Narnia-like feeling.
+
+The visual and language direction is:
+
+elegant
+timeless
+botanical
+tactile
+notebook-like
+warm
+softly magical
+woodland
+useful to a serious gardener
+never cluttered
+never twee or overly childish
+
+Sprig should feel as though the gardener is gradually building the story and memory of their garden.
+
+A major design principle we established is:
+
+Purpose determines presentation.
+
+Examples:
+
+Pages are for reading.
+Notebook indexes are for searching/browsing large collections.
+Selection cards are for meaningful decisions.
+Tags show things already selected.
+Forms should feel like writing another page in the garden's chronicle.
+Large collections should not become giant walls of cards.
+🪴 CURRENT TECHNICAL STACK
+
+Sprig currently uses:
+
+React
+TypeScript
+Vite
+PWA
+localStorage
+GitHub
+GitHub Actions
+GitHub Pages deployment
+
+Repository:
+
+project-greenbook
+
+Main branch:
+
+master
+
+There is currently no backend/cloud database.
+
+Sprig's records currently live in localStorage.
+
+The app has been successfully built, pushed and published previously, and I test the installed/PWA version on my phone as well as desktop/browser.
+
+📚 IMPORTANT CURRENT PROJECT STRUCTURE
+
+The project includes areas such as:
+
+Forms
+
+Examples include:
+
+AddEventForm.tsx
+AddPlantForm.tsx
+AddGrowingPlaceForm.tsx
+AddRecipeForm.tsx
+
+Growing Recipe has now also been split into subcomponents including:
+
+OwnMixSection.tsx
+BoughtMixSection.tsx
+GroundTypeSection.tsx
+GrowingSystemSection.tsx
+
+Purchase UI includes:
+
+PurchaseDetailsSection.tsx
+Sprig reusable components
+
+Including:
+
+SelectionCard.tsx
+SprigPicker.tsx
+Pages
+
+Including things such as:
+
+Gate.tsx
+Plants.tsx
+PlantDetail.tsx
+Journal.tsx
+Harvest.tsx
+Library.tsx
+GrowingPlaces.tsx
+
+There is also now a Growing Recipe / Library architecture, including a Growing Recipe detail page and AppLibrary.tsx.
+
+Services
+
+Including:
+
+services/storage.ts
+Data
+
+Including:
+
+data/sampleData.ts
+CSS
+
+Important styles include:
+
+sprig.css
+forms.css
+navigation.css
+buttons.css
+layout.css
+
+There are also image folders containing:
+
+cards
+backgrounds
+icons
+notebook backgrounds
+
+Please do not assume this list is exhaustive. Ask for the current tree/file if you need exact structure.
+
+📖 IMPORTANT EXISTING DATA ARCHITECTURE
+
+The project has a central types.ts.
+
+Existing concepts include:
+
+PlantStatus
+GrowingPlaceKind
+GrowingPlace
+StartMethod
+GrowingSpaceType
+legacy GrowingSpace
+PlantStory
+EventType
+GrowingPlaceScope
+PlantScope
+GardenEvent
+Harvest
+GardenData
+
+A previous important correction was:
+
+growingPlaces: GrowingPlace[]
+
+with lowercase growingPlaces.
+
+There was previously a compile/deployment failure caused by confusion between:
+
+GrowingPlaces
+growingPlaces
+GardenPlace
+GrowingPlace
+
+That was fixed.
+
+Please do not reintroduce those naming inconsistencies.
+
+🌳 GROWING PLACES
+
+Growing Places are an important first-class Sprig concept.
+
+Journal events can apply to:
+
+one Growing Place
+several Growing Places
+the Whole Garden
+
+Internal scope wording may use:
+
+'entire-garden'
+
+but the user-facing wording is:
+
+Whole Garden
+
+Do not casually change that wording.
+
+📓 JOURNAL / GARDEN EVENTS
+
+The Journal is intended to become a beautiful living timeline of the garden rather than a plain activity log.
+
+GardenEvent has evolved to support things including:
+
+type
+activityTypes?
+growingPlaceScope?
+growingPlaceIds?
+plantScope?
+plantStoryIds
+plantCategory?
+photoUrl?
+productUsed?
+notes?
+
+Some photo architecture is evolving beyond the older singular photoUrl, so inspect current types before modifying this.
+
+The Journal form wording/order we established includes:
+
+Title + date
+When
+What happened?
+Where did this story unfold?
+Which plants were involved?
+What did you use?
+Notes to the story
+Add photograph(s)
+actions
+
+The activity picker uses SprigPicker.
+
+Its trigger wording is:
+
+Choose today's moments
+
+Activities have included:
+
+Observed
+Watered
+Fertilised
+Sprouted
+Pruned
+Treated
+Harvested
+Moved
+Hilled
+Weather
+Photographed
+Made a note
+
+The picker uses Sprig tag artwork rather than emoji-based buttons.
+
+Important wording already established:
+
+Where did this story unfold?
+
+Which plants were involved?
+
+Choose today's moments
+
+Tuck a garden photograph into this page.
+
+Please preserve this vocabulary unless we deliberately decide to improve it.
+
+🏷️ SELECTION ARCHITECTURE
+
+SelectionCard.tsx is a reusable choice-card component.
+
+Growing Place scope choices include:
+
+One Place
+Several Places
+Whole Garden
+
+Plant scope choices include:
+
+One Plant
+Several Plants
+All Plants
+
+We deliberately removed the visible Plant Category choice because it became confusing with succession planting and individual Plant Stories.
+
+Plant selection eventually needs to behave more like a searchable notebook index, not dozens of cards.
+
+When identifying a Plant Story, Sprig should ideally show enough context to distinguish it, such as:
+
+display name / variety
+planted/sown date
+current Growing Place
+📷 PHOTOGRAPH ARCHITECTURE
+
+This is now a core Sprig requirement, not an optional later embellishment.
+
+Originally Journal supported one compressed photograph stored as a data URL in localStorage.
+
+We subsequently decided that multiple photographs need to become part of Sprig's underlying architecture across the app.
+
+Major record types should ultimately support multiple photographs, including:
+
+Growing Places
+Growing Setups / Growing Recipes
+Plants
+Journal entries
+Harvests
+Garden Trials
+Ingredients
+Products
+other notebook records where appropriate
+
+Growing Places and Growing Setups should support this properly from the beginning of their newer architecture.
+
+We do not want to bolt multiple photos awkwardly onto every feature later.
+
+The current Growing Recipe work already uses:
+
+photoUrls: string[]
+
+where appropriate.
+
+Eventually photographs should be viewable in relevant:
+
+detail pages
+Journal entries
+Plant Stories
+Growing Places
+other linked records
+
+Photo replacement/removal and improved presentation remain part of the broader photo architecture.
+
+💰 COST / PURCHASE ARCHITECTURE
+
+This is extremely important because it is the area we are working on right now.
+
+Sprig is gaining proper cost and price tracking.
+
+We do not want a single mutable "price" field on a Product/Ingredient/Growing Recipe because prices change over time.
+
+Instead, Sprig now has a separate PurchaseRecord architecture so we can retain purchase history.
+
+We want to be able to track costs for things such as:
+
+growing media
+Bought Mixes
+fertilisers
+garden products
+seeds
+seedlings
+ingredients
+other inputs
+
+Purchase history should ultimately support:
+
+price
+date
+supplier/store
+brand where appropriate
+package size
+quantity
+unit
+unit cost / derived cost later
+notes
+price history
+
+Purchases should eventually be linkable to things such as:
+
+Plants
+Growing Setups
+Harvests
+Garden Trials
+other relevant records
+💵 CURRENT PURCHASE TYPES
+
+This is a particularly important recent discovery.
+
+The current PurchaseItemType already supports:
+
+'growing-setup'
+
+A Bought Mix is a GrowingSetup.
+
+Therefore a purchase of a Bought Mix must be stored as:
+
+itemType: 'growing-setup'
+
+NOT:
+
+itemType: 'product'
+
+This was the architectural mistake we discovered in the previous chat.
+
+Do not revert it.
+
+A Bought Mix is not secretly a GardenProduct.
+
+Its purchase should reference the Growing Setup itself:
+
+itemType: 'growing-setup'
+itemId: savedRecipe.id
+itemName: savedRecipe.name
+🌱 GROWING RECIPES / GROWING SETUPS
+
+This is a major new Library feature.
+
+The current concept is represented by GrowingSetup.
+
+Growing Setup categories include:
+
+'own-mix'
+'bought-mix'
+'ground-type'
+'growing-system'
+
+The user-facing names are:
+
+own-mix
+
+My Recipe
+
+For mixtures I make myself.
+
+bought-mix
+
+Bought Mix
+
+For commercially purchased potting mixes, soil mixes, etc.
+
+ground-type
+
+Native Ground
+
+For existing/native ground conditions.
+
+growing-system
+
+Growing System
+
+For methods/systems rather than a literal mix.
+
+🧺 CURRENT GROWING RECIPE OPTIONS
+
+Native Ground includes choices such as:
+
+Native Soil
+Native Clay
+Loam
+Sandy Soil
+Rocky Soil
+Peat Soil
+Imported Topsoil
+Not Sure
+
+Growing Systems include:
+
+No-Dig
+Layered Bed
+Hügelkultur
+Filled Raised Bed
+Wicking Bed
+Hydroponics
+Aquaponics
+Kratky
+NFT
+Deep Water Culture
+Ebb & Flow
+Aeroponics
+
+There is also architecture for custom options stored in localStorage.
+
+Please inspect the current code before changing how those work.
+
+🧪 GARDEN TRIALS, FUTURE FEATURE ALREADY DESIGNED CONCEPTUALLY
+
+Garden Trials are another planned first-class Sprig feature.
+
+We deliberately do not want them to sound like a laboratory/science professor interface.
+
+The language should remain gently Sprig-like while still useful to an adult gardener.
+
+We previously liked concepts around a garden experiment becoming a Garden Trial, with language that feels like observing what the garden teaches us.
+
+Status/result language we specifically liked includes:
+
+Successful
+
+Thrived
+
+Unsuccessful
+
+Didn't take
+
+In progress
+
+Quietly unfolding
+
+Completed
+
+Story gathered
+
+This feature has not become the current coding priority yet, but please retain the concept.
+
+A Garden Trial should eventually be able to compare things such as:
+
+different Growing Places
+different Growing Recipes
+different methods
+varieties
+timing
+outcomes
+costs
+harvests
+photographs
+
+Example real-world trial:
+
+Ayote Winter Establishment Trial (2026)
+
+The user planted Ayote using several methods/locations to compare winter establishment.
+
+🥔 HARVEST ARCHITECTURE WE HAVE ALREADY DECIDED WE NEED
+
+Harvest timing is another important future core requirement.
+
+Each Plant Story should eventually be capable of showing:
+
+expected harvest date/window
+likely harvest date/window
+actual harvest dates
+repeated harvest history
+
+We want Sprig eventually to compare outcomes across the same crop/variety and help reveal anomalies.
+
+For example:
+
+two broccoli plants of the same age behaving differently
+potatoes taking much longer in one Growing Place
+repeated failures associated with one location
+different harvest times from different Growing Recipes
+
+Critically, harvest is crop-dependent.
+
+We do not want one simplistic universal harvest date field.
+
+Examples:
+
+broccoli may have a main head followed by side-shoot harvests
+tomatoes produce repeatedly
+herbs may be harvested continuously
+potatoes tend toward a major harvest
+some crops have multiple distinct harvests
+
+The data model eventually needs to respect these patterns.
+
+🧠 LONGER-TERM SPRIG INTELLIGENCE
+
+Sprig is intended eventually to become more than a passive notebook.
+
+Once enough records exist, I want it to help notice patterns in my own garden.
+
+Examples:
+
+"Plants in this Growing Place consistently mature later."
+"This Growing Recipe produced better potato yields."
+"These two broccoli were planted at the same time but behaved very differently."
+"You repeatedly bought this mix at different prices."
+"This crop usually takes longer than the packet estimate in your garden."
+"Plants in this location struggle during this season."
+
+We are not building an AI engine right now, but please avoid architectural choices that make this future pattern/history analysis impossible.
+
+History matters.
+
+That is one reason purchases, harvests and observations should not simply overwrite previous values.
+
+🧱 IMPORTANT UI / CSS CONSTRAINT
+
+The mobile notebook forms have taken considerable work.
+
+Please be careful with:
+
+notebook backgrounds
+forms.css
+mobile form proportions
+scroll behaviour
+form positioning
+
+There is a known visual issue that remains on our list:
+
+The mobile Chronicle form action buttons:
+
+Leave it for now
+Add this page
+
+have historically sat too high.
+
+Moving them lower is a priority, but we must not destroy the notebook background/layout while fixing it.
+
+There has also been a broader issue where mobile notebook content sometimes appears lost in the middle rather than using enough vertical height.
+
+Do not casually rewrite the form backdrop/panel CSS while working on unrelated functionality.
+
+🗃️ LIBRARY DIRECTION
+
+The Library is becoming the home for reusable/reference garden knowledge and records, including areas such as:
+
+Growing Recipes / Growing Setups
+Ingredients
+Products
+other reference records as Sprig grows
+
+The distinction between concepts matters.
+
+For example:
+
+Ingredient
+
+Something that can be part of a homemade Growing Recipe.
+
+Bought Mix
+
+A GrowingSetup of category bought-mix.
+
+Product
+
+A garden product, but not a catch-all type for everything purchased.
+
+PurchaseRecord
+
+A historical purchase transaction attached to the actual item type.
+
+Please preserve these distinctions rather than collapsing everything into Products.
+
+🚨 EXACT POINT WHERE THE PREVIOUS CHAT ENDED
+
+We were repairing the Bought Mix purchase architecture.
+
+The problem was that Bought Mix purchase records had incorrectly been treated as:
+
+itemType: 'product'
+
+We discovered the existing types already support:
+
+itemType: 'growing-setup'
+
+and therefore Bought Mix purchases should use that.
+
+We were updating the files involved so:
+
+AddRecipeForm.tsx creates Bought Mix purchases using:
+itemType: 'growing-setup'
+GrowingRecipeDetail.tsx needs to find/display purchases using the same growing-setup type.
+AppLibrary.tsx needs to correctly pass/manage the purchase architecture.
+Existing historical purchases should remain historical records rather than being silently overwritten.
+Editing the Growing Recipe itself and editing a historical purchase are different actions.
+A user should be able to use Edit purchase from the Growing Recipe detail/history interface to modify an existing purchase.
+If recording another purchase of the same Bought Mix, that should create another PurchaseRecord, preserving price history.
+⚠️ IMPORTANT: THE LAST ATTEMPT DID NOT FINISH CLEANLY
+
+In the previous chat, you returned a replacement AddRecipeForm.tsx.
+
+We then intended to fix AppLibrary.tsx.
+
+However:
+
+we did NOT successfully complete the AppLibrary.tsx repair.
+
+The code you returned for it was broken / not usable, and the thread became unreliable before we could correct it.
+
+Therefore:
+
+DO NOT assume AppLibrary.tsx has been fixed.
+
+I will paste/upload my current AppLibrary.tsx immediately after this handover message.
+
+Please inspect that actual file and repair it.
+
+Do not reconstruct AppLibrary.tsx from memory.
+
+Also, because the previous AddRecipeForm.tsx replacement was produced immediately before the thread failed, I may give you my current AddRecipeForm.tsx too if needed. Please verify compatibility rather than assuming the previous generated version is perfect.
+
+🔍 PURCHASE EDITING BEHAVIOUR WE WANT
+
+This distinction is important.
+
+Suppose I have a Bought Mix:
+
+Brand X Premium Potting Mix
+
+and I bought it in June for $12.
+
+That should be a PurchaseRecord.
+
+If I buy it again in August for $15, that should be a second PurchaseRecord.
+
+Sprig should then retain both.
+
+If I discover I accidentally typed the June purchase as $120 instead of $12, Edit purchase should edit that June PurchaseRecord.
+
+Editing the Growing Recipe itself should edit things such as:
+
+brand
+product name
+notes
+photos
+
+It should not silently rewrite historical purchases.
+
+If the Growing Recipe edit form allows entering fresh purchase details, those should represent a new purchase, not replacement of an old one.
+
+This history is deliberate because we eventually want price comparisons and cost analysis.
+
+📷 GROWING RECIPE PHOTOS
+
+Growing Recipes currently support multiple photographs using:
+
+photoUrls: string[]
+
+The form allows multiple image selection and removal.
+
+Do not regress this to a singular photograph field.
+
+🧾 PURCHASE DETAILS UI
+
+There is now a reusable component:
+
+PurchaseDetailsSection
+
+It handles purchase information such as:
+
+supplier
+purchase date
+total price paid
+quantity
+unit
+package size
+package unit
+purchase notes
+
+Please use/reuse the established purchase architecture rather than duplicating a different pricing form inside every feature.
+
+🌿 CURRENT BROADER PRIORITIES
+
+Once this immediate Growing Recipe / Purchase / Library work is stable, important Sprig priorities include:
+
+Finish Growing Recipe / Bought Mix purchase architecture.
+Ensure purchase history displays and edits correctly.
+Continue multi-photo architecture across record types.
+Continue Growing Place connections.
+Finish/refine Plant searchable selection.
+Journal edit functionality.
+Display Journal connections in Plant Stories and eventually Growing Places.
+Display photographs beautifully in records/detail pages.
+Progressively replace remaining native dropdowns with SprigPicker where appropriate.
+Continue cost architecture into Ingredients, Products, seeds, seedlings and other inputs.
+Harvest history/timing architecture.
+Garden Trials.
+Later garden intelligence/pattern recognition.
+
+Do not jump ahead to all of these at once.
+
+🌲 SPRIG LANGUAGE GUIDE
+
+Please preserve Sprig's established vocabulary.
+
+Preferred examples:
+
+Growing Place
+
+not generic "location" when referring to the Sprig concept.
+
+Whole Garden
+
+rather than exposing internal entire-garden.
+
+Growing Recipe
+
+for the user-facing Library concept.
+
+My Recipe
+
+for a homemade growing-medium recipe.
+
+Bought Mix
+
+for purchased growing media.
+
+Native Ground
+
+for existing ground/soil.
+
+Growing System
+
+for systems such as hydroponics, Kratky, wicking beds, no-dig etc.
+
+Journal phrases:
+
+Where did this story unfold?
+
+Which plants were involved?
+
+Choose today's moments
+
+Tuck a garden photograph into this page.
+
+Sprig can be gently whimsical, but never so whimsical that it becomes unclear what the gardener is recording.
+
+🧭 HOW I WANT US TO RESUME
+
+The first coding task in this new chat is NOT to invent new features.
+
+It is:
+
+FIX AppLibrary.tsx
+
+I will provide my current AppLibrary.tsx immediately after this message.
+
+Please:
+
+Read the entire current file.
+Understand how it currently manages:
+Growing Recipes
+purchases
+detail/edit state
+callbacks
+storage/data updates
+Compare it against the purchase architecture described above.
+Identify the smallest correct architectural repair.
+Check what other files/types you actually need before coding.
+Ask me for those files if necessary.
+Then give me a complete replacement AppLibrary.tsx that I can copy and paste.
+Do not modify unrelated working behaviour.
+Make sure TypeScript should compile cleanly.
+After I save it, wait for my result/error before moving to the next file.
+
+If you need to inspect:
+
+types.ts
+✅GrowingRecipeDetail.tsx
+✅AddRecipeForm.tsx
+✅PurchaseDetailsSection.tsx
+storage
+Library.tsx
+App-level state
+
+ask me for the current versions.
+
+Do not guess.
+
+🌱 FINAL CONTINUITY NOTE
+
+We have spent many conversations shaping Sprig carefully.
+
+Please approach it as an existing application with an established architecture and design language, not as a new prototype.
+
+When there is a choice between:
+
+a quick workaround that happens to compile, and
+a clean structure that preserves historical garden data and supports Sprig's future,
+
+we generally want the clean structure.
+
+But we also do not want speculative overengineering.
+
+The goal is:
+
+Build today's feature properly while leaving tomorrow somewhere sensible to grow.
+
+Now I am going to give you my current AppLibrary.tsx.
+
+Please inspect it before writing any replacement code.
+
+That should give the new chat a very substantial map of the forest. 🌿
+
+One extra thing I recommend: after pasting that prompt, send AppLibrary.tsx as the next message by itself. If the new chat determines that it also needs types.ts, GrowingRecipeDetail.tsx, or your current AddRecipeForm.tsx, give them one at a time when requested. That is safer than dumping the entire project in and having it accidentally reason from an obsolete version of a file.
+
+And importantly, I've deliberately told the new thread that the AppLibrary repair was not completed and that the last generated code was broken. That should prevent it from inheriting the false assumption that we're starting from a working AppLibrary.
+
+--------------------------------------------------
+19/08 
+✅Products is COMPLETE
+✅MENU is debugged
+✅PURCHASES are working
+
+Beggining to work on harvest
+Then I want to work on Calendar & garden References
+-----------------------------------------------
