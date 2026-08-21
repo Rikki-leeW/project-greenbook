@@ -8,6 +8,8 @@ import AddEventForm from './components/forms/AddEventForm'
 import AddPlantForm from './components/forms/AddPlantForm'
 import AddRecipeForm from './components/forms/AddRecipeForm'
 import AddGrowingPlaceForm from './components/forms/AddGrowingPlaceForm'
+import AddHarvestForm from './components/forms/AddHarvestForm'
+import HarvestDetail from './pages/HarvestDetail'
 
 import Journal from './pages/Journal'
 import JournalEntryDetail from './pages/JournalEntryDetail'
@@ -36,6 +38,7 @@ import type {
   Ingredient,
   PlantStory,
   PurchaseRecord,
+  HarvestRecord,
 } from './types'
 
 
@@ -64,7 +67,6 @@ function App() {
   ] =
     useState(false)
 
-
   /* =======================================
      FORM STATE
   ======================================= */
@@ -84,6 +86,27 @@ function App() {
 
 
   const [
+    isAddHarvestOpen,
+    setIsAddHarvestOpen,
+  ] =
+    useState(false)
+
+    const [
+      harvestEditorRecord,
+      setHarvestEditorRecord,
+    ] =
+      useState<HarvestRecord | null>(
+        null,
+      )
+    
+    const [
+      harvestInitialPlantStoryIds,
+      setHarvestInitialPlantStoryIds,
+    ] =
+      useState<string[]>(
+        [],
+      )
+  const [
     isAddRecipeOpen,
     setIsAddRecipeOpen,
   ] =
@@ -98,34 +121,40 @@ function App() {
 
 
   /* =======================================
-     SELECTED RECORDS
-  ======================================= */
+   SELECTED RECORDS
+======================================= */
 
-  const [
-    selectedPlantId,
-    setSelectedPlantId,
-  ] =
-    useState<string | null>(
-      null,
-    )
+const [
+  selectedPlantId,
+  setSelectedPlantId,
+] =
+  useState<string | null>(
+    null,
+  )
 
+const [
+  selectedEventId,
+  setSelectedEventId,
+] =
+  useState<string | null>(
+    null,
+  )
 
-  const [
-    selectedEventId,
-    setSelectedEventId,
-  ] =
-    useState<string | null>(
-      null,
-    )
+const [
+  selectedHarvestId,
+  setSelectedHarvestId,
+] =
+  useState<string | null>(
+    null,
+  )
 
-
-  const [
-    selectedGrowingPlaceId,
-    setSelectedGrowingPlaceId,
-  ] =
-    useState<string | null>(
-      null,
-    )
+const [
+  selectedGrowingPlaceId,
+  setSelectedGrowingPlaceId,
+] =
+  useState<string | null>(
+    null,
+  )
 
   /* =======================================
      LIBRARY DESTINATION
@@ -192,11 +221,12 @@ function App() {
     setSelectedPlantId(
       null,
     )
-
     setSelectedEventId(
       null,
     )
-
+    setSelectedHarvestId(
+      null,
+    )
     setSelectedGrowingPlaceId(
       null,
     )
@@ -209,18 +239,28 @@ function App() {
     setIsAddPlantOpen(
       false,
     )
-
     setIsAddEventOpen(
       false,
     )
-
+    setIsAddHarvestOpen(
+      false,
+    )
     setIsAddRecipeOpen(
       false,
     )
-
     setIsAddGrowingPlaceOpen(
       false,
     )
+
+
+setHarvestEditorRecord(
+  null,
+)
+
+setHarvestInitialPlantStoryIds(
+  [],
+)
+
 
 
     /*
@@ -256,6 +296,10 @@ function App() {
     plantId: string,
   ) {
     setSelectedEventId(
+      null,
+    )
+
+    setSelectedHarvestId(
       null,
     )
 
@@ -930,6 +974,167 @@ function App() {
     }
   }
 
+  /* =======================================
+   ADD HARVEST
+======================================= */
+
+function handleAddHarvest(
+  newHarvest: HarvestRecord,
+) {
+  const updatedGardenData = {
+    ...gardenData,
+
+    harvests: [
+      ...gardenData.harvests,
+      newHarvest,
+    ],
+  }
+
+
+  setGardenData(
+    updatedGardenData,
+  )
+
+  saveGardenData(
+    updatedGardenData,
+  )
+}
+
+
+/* =======================================
+   UPDATE HARVEST
+======================================= */
+
+function handleUpdateHarvest(
+  updatedHarvest: HarvestRecord,
+) {
+  const updatedGardenData = {
+    ...gardenData,
+
+    harvests:
+      gardenData.harvests.map(
+        (
+          harvest,
+        ) =>
+          harvest.id ===
+            updatedHarvest.id
+            ? updatedHarvest
+            : harvest,
+      ),
+  }
+
+
+  setGardenData(
+    updatedGardenData,
+  )
+
+  saveGardenData(
+    updatedGardenData,
+  )
+}
+
+
+/* =======================================
+   DELETE HARVEST
+======================================= */
+
+function handleDeleteHarvest(
+  harvestId: string,
+) {
+  const updatedGardenData = {
+    ...gardenData,
+
+    harvests:
+      gardenData.harvests.filter(
+        (
+          harvest,
+        ) =>
+          harvest.id !==
+          harvestId,
+      ),
+  }
+
+
+  setGardenData(
+    updatedGardenData,
+  )
+
+  saveGardenData(
+    updatedGardenData,
+  )
+
+
+  if (
+    selectedHarvestId ===
+    harvestId
+  ) {
+    setSelectedHarvestId(
+      null,
+    )
+  }
+}
+
+
+/* =======================================
+   OPEN NEW HARVEST
+======================================= */
+
+function handleOpenNewHarvest(
+  plantStoryIds:
+    string[] = [],
+) {
+  setHarvestEditorRecord(
+    null,
+  )
+
+  setHarvestInitialPlantStoryIds(
+    plantStoryIds,
+  )
+
+  setIsAddHarvestOpen(
+    true,
+  )
+}
+
+
+/* =======================================
+   OPEN EDIT HARVEST
+======================================= */
+
+function handleOpenEditHarvest(
+  harvest: HarvestRecord,
+) {
+  setHarvestEditorRecord(
+    harvest,
+  )
+
+  setHarvestInitialPlantStoryIds(
+    [],
+  )
+
+  setIsAddHarvestOpen(
+    true,
+  )
+}
+
+
+/* =======================================
+   CLOSE HARVEST EDITOR
+======================================= */
+
+function handleCloseHarvestEditor() {
+  setIsAddHarvestOpen(
+    false,
+  )
+
+  setHarvestEditorRecord(
+    null,
+  )
+
+  setHarvestInitialPlantStoryIds(
+    [],
+  )
+}
 
   /* =======================================
      DELETE PLANT
@@ -1008,6 +1213,19 @@ function App() {
     )
   }
 
+  /* =======================================
+   CURRENT HARVEST
+======================================= */
+
+const selectedHarvest =
+gardenData.harvests.find(
+  (
+    harvest,
+  ) =>
+    harvest.id ===
+    selectedHarvestId,
+)
+
 
   /* =======================================
      CURRENT PLANT
@@ -1069,6 +1287,143 @@ function App() {
     )
   }
 
+
+  
+ /* =======================================
+   HARVEST DETAIL
+======================================= */
+
+if (
+  selectedHarvest
+) {
+  return (
+    <>
+      <HarvestDetail
+        harvest={
+          selectedHarvest
+        }
+        harvests={
+          gardenData.harvests
+        }
+        plants={
+          gardenData.plantStories
+        }
+        onBack={() => {
+          setSelectedHarvestId(
+            null,
+          )
+          setActivePage(
+            'harvest',
+          )
+        }}
+        onEdit={
+          handleOpenEditHarvest
+        }
+        onRecordAnotherHarvest={(
+          harvest,
+        ) =>
+          handleOpenNewHarvest(
+            harvest.plantStoryIds,
+          )
+        }
+        onDelete={(
+          harvestId,
+        ) => {
+          handleDeleteHarvest(
+            harvestId,
+          )
+          setSelectedHarvestId(
+            null,
+          )
+          setActivePage(
+            'harvest',
+          )
+        }}
+        onOpenPlant={(plantId) => {
+          setSelectedHarvestId(
+            null,
+          )
+
+          setSelectedEventId(
+            null,
+          )
+
+          setSelectedGrowingPlaceId(
+            null,
+          )
+
+          setLibraryRecipeIdToOpen(
+            null,
+          )
+
+          setActivePage(
+            'plants',
+          )
+
+          setSelectedPlantId(
+            plantId,
+          )
+        }}
+        onNavigate={
+          handleNavigate
+        }
+      />
+
+      {isAddHarvestOpen && (
+        <AddHarvestForm
+          plants={
+            gardenData.plantStories
+          }
+
+          growingPlaces={
+            gardenData.growingPlaces
+          }
+
+          harvest={
+            harvestEditorRecord
+          }
+
+          initialPlantStoryIds={
+            harvestInitialPlantStoryIds
+          }
+
+          onSaveHarvest={(
+            harvest,
+          ) => {
+            if (
+              harvestEditorRecord
+            ) {
+              handleUpdateHarvest(
+                harvest,
+              )
+            } else {
+              handleAddHarvest(
+                harvest,
+              )
+            }
+
+
+            /*
+             * After saving, keep the gardener
+             * with the Harvest Record they just
+             * created or edited.
+             */
+            setSelectedHarvestId(
+              harvest.id,
+            )
+
+
+            handleCloseHarvestEditor()
+          }}
+
+          onClose={
+            handleCloseHarvestEditor
+          }
+        />
+      )}
+    </>
+  )
+}
 
   /* =======================================
      JOURNAL ENTRY DETAIL
@@ -1297,12 +1652,52 @@ function App() {
             gardenData.events
           }
 
+          harvests={
+            gardenData.harvests
+          }
+
           onNavigate={
             handleNavigate
           }
 
           onOpenGrowingPlace={
             handleOpenGrowingPlaceRecord
+          }
+
+          onOpenHarvest={(
+            harvestId,
+          ) => {
+            setSelectedPlantId(
+              null,
+            )
+
+            setSelectedEventId(
+              null,
+            )
+
+            setSelectedGrowingPlaceId(
+              null,
+            )
+
+            setLibraryRecipeIdToOpen(
+              null,
+            )
+
+            setActivePage(
+              'harvest',
+            )
+
+            setSelectedHarvestId(
+              harvestId,
+            )
+          }}
+
+          onAddHarvest={(
+            plantStoryIds,
+          ) =>
+            handleOpenNewHarvest(
+              plantStoryIds,
+            )
           }
 
           onOpenJournalEntry={(
@@ -1398,6 +1793,48 @@ function App() {
           />
         )}
 
+{isAddHarvestOpen && (
+          <AddHarvestForm
+            plants={
+              gardenData.plantStories
+            }
+
+            growingPlaces={
+              gardenData.growingPlaces
+            }
+
+            harvest={
+              harvestEditorRecord
+            }
+
+            initialPlantStoryIds={
+              harvestInitialPlantStoryIds
+            }
+
+            onSaveHarvest={(
+              harvest,
+            ) => {
+              if (
+                harvestEditorRecord
+              ) {
+                handleUpdateHarvest(
+                  harvest,
+                )
+              } else {
+                handleAddHarvest(
+                  harvest,
+                )
+              }
+
+
+              handleCloseHarvestEditor()
+            }}
+
+            onClose={
+              handleCloseHarvestEditor
+            }
+          />
+        )}
 
         {isAddRecipeOpen && (
           <AddRecipeForm
@@ -1703,92 +2140,101 @@ function App() {
     )
   }
 
-
   /* =======================================
-     HARVEST
-  ======================================= */
+   HARVEST
+======================================= */
 
-  if (
-    activePage ===
-    'harvest'
-  ) {
-    return (
-      <>
-        <Harvest
-          events={
-            gardenData.events
-          }
+if (
+  activePage ===
+  'harvest'
+) {
+  return (
+    <>
+      <Harvest
+  harvests={
+    gardenData.harvests
+  }
 
+  plants={
+    gardenData.plantStories
+  }
+
+  onRecordHarvest={() =>
+    handleOpenNewHarvest()
+  }
+
+  onOpenHarvest={(
+    harvestId,
+  ) =>
+    setSelectedHarvestId(
+      harvestId,
+    )
+  }
+
+  onNavigate={
+    handleNavigate
+  }
+/>
+
+
+      {isAddHarvestOpen && (
+        <AddHarvestForm
           plants={
             gardenData.plantStories
           }
 
-          onRecordHarvest={() =>
-            setIsAddEventOpen(
-              true,
+          growingPlaces={
+            gardenData.growingPlaces
+          }
+
+          harvest={
+            harvestEditorRecord
+          }
+
+          initialPlantStoryIds={
+            harvestInitialPlantStoryIds
+          }
+
+          onSaveHarvest={(
+            harvest,
+          ) => {
+            if (
+              harvestEditorRecord
+            ) {
+              handleUpdateHarvest(
+                harvest,
+              )
+            } else {
+              handleAddHarvest(
+                harvest,
+              )
+            }
+
+
+            /*
+             * Open the record after saving.
+             *
+             * This also gives clear confirmation
+             * that the Harvest was actually saved,
+             * preventing accidental double entries.
+             */
+            setSelectedHarvestId(
+              harvest.id,
             )
-          }
 
-          onDeleteEvent={
-            handleDeleteEvent
-          }
 
-          onNavigate={
-            handleNavigate
+            handleCloseHarvestEditor()
+          }}
+
+          onClose={
+            handleCloseHarvestEditor
           }
         />
+      )}
+    </>
+  )
+}
 
-
-        {isAddEventOpen && (
-          <AddEventForm
-            plantId=""
-
-            plants={
-              gardenData.plantStories
-            }
-
-            growingPlaces={
-              gardenData.growingPlaces
-            }
-
-            onAddEvent={
-              handleAddEvent
-            }
-
-            onClose={() =>
-              setIsAddEventOpen(
-                false,
-              )
-            }
-          />
-        )}
-
-
-        {isAddRecipeOpen && (
-          <AddRecipeForm
-            ingredients={
-              gardenData.ingredients ??
-              []
-            }
-
-            onAddRecipe={
-              handleAddRecipe
-            }
-
-            onAddIngredient={
-              handleAddIngredient
-            }
-
-            onClose={() =>
-              setIsAddRecipeOpen(
-                false,
-              )
-            }
-          />
-        )}
-      </>
-    )
-  }
 
 
   /* =======================================

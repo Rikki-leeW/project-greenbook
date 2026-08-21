@@ -914,4 +914,12 @@ And importantly, I've deliberately told the new thread that the AppLibrary repai
 
 Beggining to work on harvest
 Then I want to work on Calendar & garden References
+
+CALENDAR
 -----------------------------------------------
+21/08
+EXPORTER
+reusable proper PDF + XLSX exporter for Harvest, Plants, Comparisons and Trials.
+
+COMPARISONS - harvests to start with but growth and photos and plants should be compared.
+--------------------------------------------------

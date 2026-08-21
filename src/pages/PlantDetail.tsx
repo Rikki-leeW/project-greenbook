@@ -18,6 +18,7 @@ import type {
   Ingredient,
   PlantOriginType,
   PlantStory,
+  HarvestRecord,
 } from '../types'
 
 import type {
@@ -36,6 +37,8 @@ interface PlantDetailProps {
 
   events: GardenEvent[]
 
+  harvests: HarvestRecord[]
+
   onBack: () => void
 
   onNavigate: (
@@ -46,11 +49,17 @@ interface PlantDetailProps {
     growingPlaceId: string,
   ) => void
 
-
   onOpenJournalEntry: (
     eventId: string,
   ) => void
 
+  onOpenHarvest: (
+    harvestId: string,
+  ) => void
+
+  onAddHarvest: (
+    plantStoryIds: string[],
+  ) => void
 
   onAddEvent: () => void
 
@@ -236,21 +245,232 @@ function getPlantOriginLabel(
 function getEventEmoji(
   type: GardenEvent['type'],
 ): string {
-  if (type === 'planted') return '🌱'
-  if (type === 'sprouted') return '🌿'
-  if (type === 'watered') return '💧'
-  if (type === 'fed') return '🧪'
-  if (type === 'moved') return '🪴'
-  if (type === 'hilled') return '🥔'
-  if (type === 'pruned') return '✂️'
-  if (type === 'treated') return '🩹'
-  if (type === 'weather') return '🌦️'
-  if (type === 'observation') return '👀'
-  if (type === 'photo') return '📷'
-  if (type === 'harvest') return '🧺'
-  if (type === 'note') return '📖'
+  if (
+    type ===
+    'planted'
+  ) {
+    return '🌱'
+  }
+
+  if (
+    type ===
+    'sprouted'
+  ) {
+    return '🌿'
+  }
+
+  if (
+    type ===
+    'watered'
+  ) {
+    return '💧'
+  }
+
+  if (
+    type ===
+    'fed'
+  ) {
+    return '🧪'
+  }
+
+  if (
+    type ===
+    'moved'
+  ) {
+    return '🪴'
+  }
+
+  if (
+    type ===
+    'hilled'
+  ) {
+    return '🥔'
+  }
+
+  if (
+    type ===
+    'pruned'
+  ) {
+    return '✂️'
+  }
+
+  if (
+    type ===
+    'treated'
+  ) {
+    return '🩹'
+  }
+
+  if (
+    type ===
+    'weather'
+  ) {
+    return '🌦️'
+  }
+
+  if (
+    type ===
+    'observation'
+  ) {
+    return '👀'
+  }
+
+  if (
+    type ===
+    'photo'
+  ) {
+    return '📷'
+  }
+
+  if (
+    type ===
+    'harvest'
+  ) {
+    return '🧺'
+  }
+
+  if (
+    type ===
+    'note'
+  ) {
+    return '📖'
+  }
 
   return '📝'
+}
+
+
+/* =======================================
+   HARVEST TIMELINE LABEL
+======================================= */
+
+function getHarvestTimelineTitle(
+  harvest: HarvestRecord,
+): string {
+  if (
+    harvest.harvestType ===
+      'other' &&
+    harvest.customHarvestTypeLabel
+  ) {
+    return harvest.customHarvestTypeLabel
+  }
+
+
+  switch (
+    harvest.harvestType
+  ) {
+    case 'first':
+      return 'First harvest'
+
+    case 'regular':
+      return 'Regular harvest'
+
+    case 'main':
+      return 'Main harvest'
+
+    case 'secondary':
+      return 'Secondary harvest'
+
+    case 'final':
+      return 'Final harvest'
+
+    case 'other':
+      return 'Other harvest'
+
+    default:
+      return 'Harvest'
+  }
+}
+
+
+/* =======================================
+   HARVEST TIMELINE AMOUNT
+======================================= */
+
+function getHarvestTimelineAmount(
+  harvest: HarvestRecord,
+): string | undefined {
+  const pieces:
+    string[] = []
+
+
+  if (
+    harvest.count !==
+    undefined
+  ) {
+    pieces.push(
+      `${harvest.count}`,
+    )
+  }
+
+
+  if (
+    harvest.measurementAmount !==
+    undefined
+  ) {
+    let unitLabel = ''
+
+
+    switch (
+      harvest.measurementUnit
+    ) {
+      case 'gram':
+        unitLabel = 'g'
+        break
+
+      case 'kilogram':
+        unitLabel = 'kg'
+        break
+
+      case 'millilitre':
+        unitLabel = 'mL'
+        break
+
+      case 'litre':
+        unitLabel = 'L'
+        break
+
+      case 'bunch':
+        unitLabel = 'bunch'
+        break
+
+      case 'handful':
+        unitLabel = 'handful'
+        break
+
+      case 'basket':
+        unitLabel = 'basket'
+        break
+
+      case 'container':
+        unitLabel = 'container'
+        break
+
+      case 'other':
+        unitLabel =
+          harvest.customMeasurementUnitLabel ??
+          ''
+        break
+
+      default:
+        unitLabel = ''
+    }
+
+
+    pieces.push(
+      unitLabel
+        ? `${harvest.measurementAmount} ${unitLabel}`
+        : `${harvest.measurementAmount}`,
+    )
+  }
+
+
+  return pieces.length >
+    0
+    ? pieces.join(
+        ' · ',
+      )
+    : undefined
 }
 
 
@@ -307,10 +527,13 @@ export default function PlantDetail({
   growingSetups,
   ingredients,
   events,
+  harvests,
   onBack,
   onNavigate,
   onOpenGrowingPlace,
   onOpenJournalEntry,
+  onOpenHarvest,
+  onAddHarvest,
   onAddEvent,
   onAddPlant,
   onAddGrowingPlace,
@@ -350,6 +573,27 @@ export default function PlantDetail({
     useState(false)
 
 
+  const [
+    isHarvestTimingQuickPeekOpen,
+    setIsHarvestTimingQuickPeekOpen,
+  ] =
+    useState(false)
+
+
+  const [
+    customHarvestTimingDate,
+    setCustomHarvestTimingDate,
+  ] =
+    useState('')
+
+
+  const [
+    customHarvestTimingLabel,
+    setCustomHarvestTimingLabel,
+  ] =
+    useState('')
+
+
   /* =======================================
      PHOTO ADDER
   ======================================= */
@@ -375,78 +619,78 @@ export default function PlantDetail({
      OPEN PLANT STORY AT TOP
   ======================================= */
 
-  useLayoutEffect(() => {
-    document.body.style.overflow =
-      ''
+  useLayoutEffect(
+    () => {
+      document.body.style.overflow =
+        ''
 
-    document.body.style.position =
-      ''
+      document.body.style.position =
+        ''
 
-    document.body.style.top =
-      ''
+      document.body.style.top =
+        ''
 
-    document.body.style.width =
-      ''
+      document.body.style.width =
+        ''
 
-    document.documentElement.style.overflow =
-      ''
-
-
-    function goToTop() {
-      const scrollingElement =
-        document.scrollingElement
+      document.documentElement.style.overflow =
+        ''
 
 
-      if (scrollingElement) {
-        scrollingElement.scrollTop =
+      function goToTop() {
+        const scrollingElement =
+          document.scrollingElement
+
+
+        if (
+          scrollingElement
+        ) {
+          scrollingElement.scrollTop =
+            0
+
+          scrollingElement.scrollLeft =
+            0
+        }
+
+
+        document.documentElement.scrollTop =
           0
 
-        scrollingElement.scrollLeft =
+        document.body.scrollTop =
           0
+
+        window.scrollTo(
+          0,
+          0,
+        )
       }
 
 
-      document.documentElement.scrollTop =
-        0
-
-      document.body.scrollTop =
-        0
-
-      window.scrollTo(
-        0,
-        0,
-      )
-    }
+      goToTop()
 
 
-    goToTop()
-
-
-    const firstFrame =
-      requestAnimationFrame(
-        () => {
-          const secondFrame =
+      const firstFrame =
+        requestAnimationFrame(
+          () => {
             requestAnimationFrame(
               () => {
                 goToTop()
               },
             )
+          },
+        )
 
 
-          return () =>
-            cancelAnimationFrame(
-              secondFrame,
-            )
-        },
-      )
-
-
-    return () => {
-      cancelAnimationFrame(
-        firstFrame,
-      )
-    }
-  }, [plant.id])
+      return () => {
+        cancelAnimationFrame(
+          firstFrame,
+        )
+      }
+    },
+    [
+      plant.id,
+    ],
+  )
 
 
   /* =======================================
@@ -510,7 +754,6 @@ export default function PlantDetail({
       ) ??
     []
 
-
   /* =======================================
      GROWING TIME
   ======================================= */
@@ -542,15 +785,215 @@ export default function PlantDetail({
       ),
     )
 
+          
+  /* =======================================
+     HARVEST STORY
+  ======================================= */
+
+  const plantHarvests = [
+    ...harvests,
+  ]
+    .filter(
+      (
+        harvest,
+      ) =>
+        harvest.plantStoryIds.includes(
+          plant.id,
+        ),
+    )
+    .sort(
+      (
+        first,
+        second,
+      ) =>
+        new Date(
+          first.date,
+        ).getTime() -
+        new Date(
+          second.date,
+        ).getTime(),
+    )
+
+
+  const firstPlantHarvest =
+    plantHarvests[0]
+
+
+  const latestPlantHarvest =
+    plantHarvests[
+      plantHarvests.length -
+        1
+    ]
+
+
+  const totalHarvestCount =
+    plantHarvests.reduce(
+      (
+        total,
+        harvest,
+      ) =>
+        total +
+        (
+          harvest.count ??
+          0
+        ),
+      0,
+    )
+
+
+  const harvestMeasurements =
+    plantHarvests.filter(
+      (
+        harvest,
+      ) =>
+        typeof harvest.measurementAmount ===
+          'number' &&
+        Boolean(
+          harvest.measurementUnit,
+        ),
+    )
+
+
+  const harvestUnits =
+    Array.from(
+      new Set(
+        harvestMeasurements.map(
+          (
+            harvest,
+          ) =>
+            harvest.measurementUnit,
+        ),
+      ),
+    )
+
+
+  const canCombineHarvestAmounts =
+    harvestMeasurements.length >
+      0 &&
+    harvestUnits.length ===
+      1
+
+
+  const totalHarvestAmount =
+    canCombineHarvestAmounts
+      ? harvestMeasurements.reduce(
+          (
+            total,
+            harvest,
+          ) =>
+            total +
+            (
+              harvest.measurementAmount ??
+              0
+            ),
+          0,
+        )
+      : undefined
+
+
+  const totalHarvestUnit =
+    canCombineHarvestAmounts
+      ? harvestUnits[0]
+      : undefined
+
+
+    /* =======================================
+     HARVEST TIMING REFERENCE
+  ======================================= */
+
+  const harvestTimingReference =
+    plant.harvestTimingReference
+
+
+  const harvestTimingEvent =
+    harvestTimingReference?.sourceType ===
+      'garden-event' &&
+    harvestTimingReference.eventId
+      ? events.find(
+          (
+            event,
+          ) =>
+            event.id ===
+            harvestTimingReference.eventId,
+        )
+      : undefined
+
+
+  let harvestTimingReferenceDate =
+    plant.plantedDate
+
+
+  let harvestTimingReferenceLabel =
+    'Planted'
+
+
+  if (
+    harvestTimingReference?.sourceType ===
+      'sown' &&
+    plant.sownDate
+  ) {
+    harvestTimingReferenceDate =
+      plant.sownDate
+
+    harvestTimingReferenceLabel =
+      'Sown'
+  } else if (
+    harvestTimingReference?.sourceType ===
+    'planted'
+  ) {
+    harvestTimingReferenceDate =
+      plant.plantedDate
+
+    harvestTimingReferenceLabel =
+      'Planted'
+  } else if (
+    harvestTimingReference?.sourceType ===
+      'planted-out' &&
+    plant.plantedOutDate
+  ) {
+    harvestTimingReferenceDate =
+      plant.plantedOutDate
+
+    harvestTimingReferenceLabel =
+      'Planted out'
+  } else if (
+    harvestTimingReference?.sourceType ===
+      'garden-event' &&
+    harvestTimingEvent
+  ) {
+    harvestTimingReferenceDate =
+      harvestTimingEvent.date
+
+    harvestTimingReferenceLabel =
+      harvestTimingEvent.title
+  } else if (
+    harvestTimingReference?.sourceType ===
+      'custom-date' &&
+    harvestTimingReference.customDate
+  ) {
+    harvestTimingReferenceDate =
+      harvestTimingReference.customDate
+
+    harvestTimingReferenceLabel =
+      harvestTimingReference.customLabel ??
+      'Another date'
+  }
+
+
+  const harvestTimingReferenceDateObject =
+    new Date(
+      `${harvestTimingReferenceDate}T00:00:00`,
+    )
+
 
   /* =======================================
-     EXPECTED HARVEST
+     EXPECTED + ACTUAL HARVEST TIMING
   ======================================= */
 
   const expectedHarvestStart =
     plant.expectedHarvestDaysMin
       ? addDaysToDate(
-          plant.plantedDate,
+          harvestTimingReferenceDate,
           plant.expectedHarvestDaysMin,
         )
       : undefined
@@ -559,10 +1002,124 @@ export default function PlantDetail({
   const expectedHarvestEnd =
     plant.expectedHarvestDaysMax
       ? addDaysToDate(
-          plant.plantedDate,
+          harvestTimingReferenceDate,
           plant.expectedHarvestDaysMax,
         )
       : undefined
+
+
+  /*
+   * The first real Harvest Record becomes
+   * the actual beginning of this plant's
+   * harvest story.
+   */
+
+  const firstHarvestDate =
+    firstPlantHarvest
+      ? new Date(
+          `${firstPlantHarvest.date}T00:00:00`,
+        )
+      : undefined
+
+
+  /*
+   * Number of days from the selected timing
+   * reference until the first real harvest.
+   */
+
+  const actualDaysToFirstHarvest =
+    firstHarvestDate
+      ? Math.max(
+          0,
+          Math.round(
+            (
+              firstHarvestDate.getTime() -
+              harvestTimingReferenceDateObject.getTime()
+            ) /
+              (
+                1000 *
+                60 *
+                60 *
+                24
+              ),
+          ),
+        )
+      : undefined
+
+
+  /*
+   * Compare the first real harvest with the
+   * expected harvest window.
+   */
+
+  let harvestTimingDifference:
+    number | undefined
+
+
+  let harvestTimingStatus:
+    | 'early'
+    | 'expected'
+    | 'late'
+    | undefined
+
+
+  if (
+    firstHarvestDate &&
+    expectedHarvestStart &&
+    firstHarvestDate.getTime() <
+      expectedHarvestStart.getTime()
+  ) {
+    harvestTimingStatus =
+      'early'
+
+    harvestTimingDifference =
+      Math.round(
+        (
+          expectedHarvestStart.getTime() -
+          firstHarvestDate.getTime()
+        ) /
+          (
+            1000 *
+            60 *
+            60 *
+            24
+          ),
+      )
+  } else if (
+    firstHarvestDate &&
+    expectedHarvestEnd &&
+    firstHarvestDate.getTime() >
+      expectedHarvestEnd.getTime()
+  ) {
+    harvestTimingStatus =
+      'late'
+
+    harvestTimingDifference =
+      Math.round(
+        (
+          firstHarvestDate.getTime() -
+          expectedHarvestEnd.getTime()
+        ) /
+          (
+            1000 *
+            60 *
+            60 *
+            24
+          ),
+      )
+  } else if (
+    firstHarvestDate &&
+    (
+      expectedHarvestStart ||
+      expectedHarvestEnd
+    )
+  ) {
+    harvestTimingStatus =
+      'expected'
+
+    harvestTimingDifference =
+      0
+  }
 
 
   /* =======================================
@@ -595,6 +1152,132 @@ export default function PlantDetail({
         ).getTime(),
     )
 
+  /* =======================================
+     COMPLETE PLANT TIMELINE
+  ======================================= */
+
+  const storyTimeline = [
+    ...plantEvents.map(
+      (
+        event,
+      ) => ({
+        kind:
+          'event' as const,
+
+        date:
+          event.date,
+
+        event,
+      }),
+    ),
+
+    ...plantHarvests.map(
+      (
+        harvest,
+      ) => ({
+        kind:
+          'harvest' as const,
+
+        date:
+          harvest.date,
+
+        harvest,
+      }),
+    ),
+  ].sort(
+    (
+      first,
+      second,
+    ) =>
+      new Date(
+        second.date,
+      ).getTime() -
+      new Date(
+        first.date,
+      ).getTime(),
+  )
+
+  /* =======================================
+     HARVEST TIMING REFERENCE
+  ======================================= */
+
+  function saveHarvestTimingReference(
+    sourceType:
+      | 'sown'
+      | 'planted'
+      | 'planted-out'
+      | 'garden-event'
+      | 'custom-date',
+    eventId?: string,
+  ) {
+    onUpdatePlant({
+      ...plant,
+
+      harvestTimingReference: {
+        sourceType,
+
+        eventId:
+          sourceType ===
+          'garden-event'
+            ? eventId
+            : undefined,
+
+        customDate:
+          sourceType ===
+            'custom-date'
+            ? customHarvestTimingDate
+            : undefined,
+
+        customLabel:
+          sourceType ===
+            'custom-date'
+            ? (
+                customHarvestTimingLabel.trim() ||
+                undefined
+              )
+            : undefined,
+      },
+
+      updatedAt:
+        new Date()
+          .toISOString(),
+    })
+
+
+    setIsHarvestTimingQuickPeekOpen(
+      false,
+    )
+
+
+    setCustomHarvestTimingDate(
+      '',
+    )
+
+
+    setCustomHarvestTimingLabel(
+      '',
+    )
+  }
+
+
+  const harvestTimingMilestoneEvents =
+    plantEvents.filter(
+      (
+        event,
+      ) =>
+        event.plantStoryIds.includes(
+          plant.id,
+        ) &&
+        (
+          event.type ===
+            'planted' ||
+          event.type ===
+            'moved' ||
+          event.type ===
+            'sprouted'
+        ),
+    )
+
 
   /* =======================================
      FAVOURITE
@@ -625,7 +1308,9 @@ export default function PlantDetail({
       )
 
 
-    if (!confirmed) {
+    if (
+      !confirmed
+    ) {
       return
     }
 
@@ -683,7 +1368,9 @@ export default function PlantDetail({
       )
 
 
-    if (!confirmed) {
+    if (
+      !confirmed
+    ) {
       return
     }
 
@@ -761,6 +1448,9 @@ export default function PlantDetail({
 
       events:
         plantEvents,
+
+      harvests:
+        plantHarvests,
     }
 
 
@@ -805,15 +1495,15 @@ export default function PlantDetail({
       }-sprig.json`
 
 
-    document.body
-      .appendChild(
-        link,
-      )
+    document.body.appendChild(
+      link,
+    )
 
 
     link.click()
 
     link.remove()
+
 
     URL.revokeObjectURL(
       url,
@@ -1076,14 +1766,14 @@ export default function PlantDetail({
 
 
             <button
-  type="button"
-  className="secondary-button"
-  onClick={
-    onAddEvent
-  }
->
-  📖 Add a moment
-</button>
+              type="button"
+              className="secondary-button"
+              onClick={
+                onAddEvent
+              }
+            >
+              📖 Add a moment
+            </button>
 
 
             {plant.status ===
@@ -1282,10 +1972,6 @@ export default function PlantDetail({
 
             <section className="story-information-grid">
 
-              {/* =======================================
-                  GROWING PLACE
-              ======================================= */}
-
               {currentGrowingPlace ? (
                 <button
                   type="button"
@@ -1346,10 +2032,6 @@ export default function PlantDetail({
               )}
 
 
-              {/* =======================================
-                  GROWING RECIPE QUICK PEEK
-              ======================================= */}
-
               {currentGrowingSetup ? (
                 <button
                   type="button"
@@ -1408,12 +2090,11 @@ export default function PlantDetail({
             </section>
           </section>
 
-
           {/* =======================================
-              HARVEST EXPECTATION
+              HARVEST TIMING
           ======================================= */}
 
-          {(plant.expectedHarvestDaysMin ||
+{(plant.expectedHarvestDaysMin ||
             plant.expectedHarvestDaysMax) && (
             <section className="story-section">
               <div className="section-heading">
@@ -1428,8 +2109,56 @@ export default function PlantDetail({
                 </div>
               </div>
 
-
               <section className="story-information-grid">
+                                <button
+                  type="button"
+                  className="story-info-card"
+                  onClick={() =>
+                    setIsHarvestTimingQuickPeekOpen(
+                      true,
+                    )
+                  }
+                  style={{
+                    textAlign:
+                      'left',
+
+                    cursor:
+                      'pointer',
+
+                    font:
+                      'inherit',
+                  }}
+                >
+                  <p className="section-label">
+                    Start counting from
+                  </p>
+
+                  <h2>
+                    {harvestTimingReferenceLabel}
+                  </h2>
+
+                  <p>
+                    {new Date(
+                      `${harvestTimingReferenceDate}T00:00:00`,
+                    ).toLocaleDateString(
+                      'en-AU',
+                      {
+                        day:
+                          'numeric',
+
+                        month:
+                          'long',
+
+                        year:
+                          'numeric',
+                      },
+                    )}
+                  </p>
+
+                  <p className="form-whisper">
+                  Choose where Sprig should start counting →
+                  </p>
+                </button>
 
                 <article className="story-info-card">
                   <p className="section-label">
@@ -1444,8 +2173,38 @@ export default function PlantDetail({
                         ? `From ${plant.expectedHarvestDaysMin} days`
                         : `Around ${plant.expectedHarvestDaysMax} days`}
                   </h2>
-                </article>
 
+                  <p>
+                    {plant.expectedHarvestDaysMin &&
+                    plant.expectedHarvestDaysMax
+                      ? `About ${(
+                          plant.expectedHarvestDaysMin /
+                          7
+                        ).toFixed(
+                          1,
+                        )}–${(
+                          plant.expectedHarvestDaysMax /
+                          7
+                        ).toFixed(
+                          1,
+                        )} weeks`
+                      : plant.expectedHarvestDaysMin
+                        ? `About ${(
+                            plant.expectedHarvestDaysMin /
+                            7
+                          ).toFixed(
+                            1,
+                          )} weeks`
+                        : plant.expectedHarvestDaysMax
+                          ? `About ${(
+                              plant.expectedHarvestDaysMax /
+                              7
+                            ).toFixed(
+                              1,
+                            )} weeks`
+                          : ''}
+                  </p>
+                </article>
 
                 {expectedHarvestStart && (
                   <article className="story-info-card">
@@ -1457,20 +2216,14 @@ export default function PlantDetail({
                       {expectedHarvestStart.toLocaleDateString(
                         'en-AU',
                         {
-                          day:
-                            'numeric',
-
-                          month:
-                            'long',
-
-                          year:
-                            'numeric',
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
                         },
                       )}
                     </h2>
                   </article>
                 )}
-
 
                 {expectedHarvestEnd && (
                   <article className="story-info-card">
@@ -1482,24 +2235,314 @@ export default function PlantDetail({
                       {expectedHarvestEnd.toLocaleDateString(
                         'en-AU',
                         {
-                          day:
-                            'numeric',
-
-                          month:
-                            'long',
-
-                          year:
-                            'numeric',
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
                         },
                       )}
                     </h2>
                   </article>
                 )}
-
               </section>
+
+              {firstPlantHarvest &&
+                actualDaysToFirstHarvest !== undefined && (
+                  <>
+                    <div className="section-heading">
+                      <div>
+                        <p className="section-label">
+                          What actually happened
+                        </p>
+
+                        <h2>
+                          This plant found its own timing
+                        </h2>
+                      </div>
+                    </div>
+
+                    <section className="story-information-grid">
+                      <article className="story-info-card">
+                        <p className="section-label">
+                          First gathered
+                        </p>
+
+                        <h2>
+                          {formatDate(
+                            firstPlantHarvest.date,
+                          )}
+                        </h2>
+                      </article>
+
+                      <article className="story-info-card">
+                        <p className="section-label">
+                          Actual timing
+                        </p>
+
+                        <h2>
+                          {actualDaysToFirstHarvest}{' '}
+                          {actualDaysToFirstHarvest === 1
+                            ? 'day'
+                            : 'days'}
+                        </h2>
+
+                        <p>
+                          About{' '}
+                          {(
+                            actualDaysToFirstHarvest /
+                            7
+                          ).toFixed(
+                            1,
+                          )}{' '}
+                          {actualDaysToFirstHarvest === 7
+                            ? 'week'
+                            : 'weeks'}
+                        </p>
+                      </article>
+
+                      {harvestTimingStatus ===
+                        'early' &&
+                        harvestTimingDifference !==
+                          undefined && (
+                          <article className="story-info-card">
+                            <p className="section-label">
+                              Earlier than expected
+                            </p>
+
+                            <h2>
+                              {harvestTimingDifference}{' '}
+                              {harvestTimingDifference === 1
+                                ? 'day'
+                                : 'days'}{' '}
+                              early
+                            </h2>
+
+                            <p>
+                              About{' '}
+                              {(
+                                harvestTimingDifference /
+                                7
+                              ).toFixed(
+                                1,
+                              )}{' '}
+                              weeks early
+                            </p>
+                          </article>
+                        )}
+
+                      {harvestTimingStatus ===
+                        'expected' && (
+                        <article className="story-info-card">
+                          <p className="section-label">
+                            Compared with expected
+                          </p>
+
+                          <h2>
+                            Within the expected window
+                          </h2>
+                        </article>
+                      )}
+
+                      {harvestTimingStatus ===
+                        'late' &&
+                        harvestTimingDifference !==
+                          undefined && (
+                          <article className="story-info-card">
+                            <p className="section-label">
+                              Later than expected
+                            </p>
+
+                            <h2>
+                              {harvestTimingDifference}{' '}
+                              {harvestTimingDifference === 1
+                                ? 'day'
+                                : 'days'}{' '}
+                              later
+                            </h2>
+
+                            <p>
+                              About{' '}
+                              {(
+                                harvestTimingDifference /
+                                7
+                              ).toFixed(
+                                1,
+                              )}{' '}
+                              weeks later
+                            </p>
+                          </article>
+                        )}
+                    </section>
+                  </>
+                )}
+            </section>
+          )}
+          {/* =======================================
+              FIRST HARVEST
+          ======================================= */}
+
+{plantHarvests.length ===
+            0 && (
+            <section className="story-section">
+              <div className="section-heading">
+                <div>
+                  <p className="section-label">
+                    Harvest
+                  </p>
+
+                  <h2>
+                    Ready to gather from this story?
+                  </h2>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() =>
+                  onAddHarvest(
+                    [
+                      plant.id,
+                    ],
+                  )
+                }
+              >
+                🧺 Harvest this plant
+              </button>
             </section>
           )}
 
+
+          {/* =======================================
+              HARVEST STORY
+          ======================================= */}
+
+          {plantHarvests.length >
+            0 &&
+            latestPlantHarvest && (
+            <section className="story-section">
+              <div className="section-heading">
+                <div>
+                  <p className="section-label">
+                    Harvest Story
+                  </p>
+
+                  <h2>
+                    What this story has given back
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() =>
+                    onAddHarvest(
+                      [
+                        plant.id,
+                      ],
+                    )
+                  }
+                >
+                  + Gather another harvest
+                </button>
+              </div>
+
+              <button
+                type="button"
+                className="story-info-card"
+                onClick={() =>
+                  onOpenHarvest(
+                    latestPlantHarvest.id,
+                  )
+                }
+                aria-label={`Open ${plant.displayName} Harvest Story`}
+                style={{
+                  width:
+                    '100%',
+                  textAlign:
+                    'left',
+                  cursor:
+                    'pointer',
+                  font:
+                    'inherit',
+                }}
+              >
+                <p className="section-label">
+                  🧺 Harvested from this story
+                </p>
+
+                <h2>
+                  {plantHarvests.length}{' '}
+                  {plantHarvests.length ===
+                  1
+                    ? 'harvest'
+                    : 'harvests'}
+                </h2>
+
+                {totalHarvestCount >
+                  0 && (
+                  <p>
+                    <strong>
+                      Total count:
+                    </strong>{' '}
+                    {
+                      totalHarvestCount
+                    }
+                  </p>
+                )}
+
+{totalHarvestAmount !==
+  undefined &&
+  totalHarvestUnit && (
+  <p>
+    <strong>
+      Total gathered:
+    </strong>{' '}
+    {
+      totalHarvestAmount
+    }{' '}
+    {
+      totalHarvestUnit === 'gram'
+        ? 'g'
+        : totalHarvestUnit === 'kilogram'
+          ? 'kg'
+          : totalHarvestUnit === 'millilitre'
+            ? 'mL'
+            : totalHarvestUnit === 'litre'
+              ? 'L'
+              : totalHarvestUnit
+    }
+  </p>
+)}
+
+                {firstPlantHarvest && (
+                  <p>
+                    <strong>
+                      First harvest:
+                    </strong>{' '}
+                    {formatDate(
+                      firstPlantHarvest.date,
+                    )}
+                  </p>
+                )}
+
+                {plantHarvests.length >
+                  1 && (
+                  <p>
+                    <strong>
+                      Latest harvest:
+                    </strong>{' '}
+                    {formatDate(
+                      latestPlantHarvest.date,
+                    )}
+                  </p>
+                )}
+
+                <p className="form-whisper">
+                  Open Harvest Story →
+                </p>
+              </button>
+            </section>
+          )}
 
           {/* =======================================
               NOTES
@@ -1551,18 +2594,21 @@ export default function PlantDetail({
                 plant.photoUrls ??
                 []
               }
+
               title="Plant photographs"
+
               emptyMessage="No photographs have been tucked into this Plant Story yet."
+
               photoAltPrefix={`${plant.displayName} photograph`}
             />
           </section>
 
 
-                    {/* =======================================
+          {/* =======================================
               TIMELINE
           ======================================= */}
 
-<section className="story-section">
+          <section className="story-section">
             <div className="section-heading">
               <div>
                 <p className="section-label">
@@ -1573,6 +2619,7 @@ export default function PlantDetail({
                   The story so far
                 </h2>
               </div>
+
 
               <button
                 type="button"
@@ -1587,147 +2634,304 @@ export default function PlantDetail({
 
 
             <div className="timeline">
-              {plantEvents.length >
+              {storyTimeline.length >
               0 ? (
-                plantEvents.map(
+                storyTimeline.map(
                   (
-                    event,
-                  ) => (
-                    <article
-                      className="timeline-entry"
-                      key={
-                        event.id
-                      }
-                      role="button"
-                      tabIndex={0}
-                      onClick={() =>
-                        onOpenJournalEntry(
-                          event.id,
+                    timelineItem,
+                  ) => {
+                    if (
+                      timelineItem.kind ===
+                      'harvest'
+                    ) {
+                      const timelineHarvest =
+                        timelineItem.harvest
+
+
+                      const harvestAmount =
+                        getHarvestTimelineAmount(
+                          timelineHarvest,
                         )
-                      }
-                      onKeyDown={(
-                        keyboardEvent,
-                      ) => {
-                        if (
-                          keyboardEvent.key ===
-                            'Enter' ||
-                          keyboardEvent.key ===
-                            ' '
-                        ) {
-                          keyboardEvent.preventDefault()
-
-                          onOpenJournalEntry(
-                            event.id,
-                          )
-                        }
-                      }}
-                    >
-                      <div className="timeline-marker">
-                        {getEventEmoji(
-                          event.type,
-                        )}
-                      </div>
 
 
-                      <div className="timeline-entry-header">
-                        <div className="timeline-entry-meta">
-                          <time>
-                            {formatDate(
-                              event.date,
-                            )}
-                          </time>
-
-                          <span
-                            className={
-                              event.plantStoryIds.length ===
-                              0
-                                ? 'entry-scope-label garden-entry-label'
-                                : 'entry-scope-label plant-entry-label'
-                            }
-                          >
-                            {event.plantStoryIds.length ===
-                            0
-                              ? '🌍 Garden entry'
-                              : '🌱 Plant entry'}
-                          </span>
-                        </div>
-
-
-                        <button
-                          type="button"
-                          className="timeline-delete-button"
-                          aria-label={`Remove ${event.title} from the garden journal`}
-                          onClick={(
-                            clickEvent,
+                      return (
+                        <article
+                          className="timeline-entry"
+                          key={`harvest-${timelineHarvest.id}`}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() =>
+                            onOpenHarvest(
+                              timelineHarvest.id,
+                            )
+                          }
+                          onKeyDown={(
+                            keyboardEvent,
                           ) => {
-                            clickEvent.stopPropagation()
-
-                            const confirmed =
-                              window.confirm(
-                                'Remove this entry from the garden journal?',
-                              )
-
                             if (
-                              confirmed
+                              keyboardEvent.key ===
+                                'Enter' ||
+                              keyboardEvent.key ===
+                                ' '
                             ) {
-                              onDeleteEvent(
-                                event.id,
+                              keyboardEvent.preventDefault()
+
+
+                              onOpenHarvest(
+                                timelineHarvest.id,
                               )
                             }
                           }}
                         >
-                          🗑️
-                        </button>
-                      </div>
+                          <div className="timeline-marker">
+                            🧺
+                          </div>
 
 
-                      <h3>
-                        {event.title}
-                      </h3>
+                          <div className="timeline-entry-header">
+                            <div className="timeline-entry-meta">
+                              <time>
+                                {formatDate(
+                                  timelineHarvest.date,
+                                )}
+                              </time>
 
 
-                      {event.productUsed && (
-                        <p className="event-product">
-                          Used:{' '}
-                          {event.productUsed}
-                        </p>
-                      )}
+                              <span className="entry-scope-label plant-entry-label">
+                                🧺 Harvest
+                              </span>
+                            </div>
+                          </div>
 
 
-                      {event.notes && (
-                        <p>
-                          {event.notes}
-                        </p>
-                      )}
+                          <h3>
+                            {getHarvestTimelineTitle(
+                              timelineHarvest,
+                            )}
+                          </h3>
 
 
-                      {event.photoUrls &&
-                        event.photoUrls.length >
-                          0 && (
-                        <div
-                          onClick={(
-                            clickEvent,
-                          ) =>
-                            clickEvent.stopPropagation()
+                          {harvestAmount && (
+                            <p className="event-product">
+                              Gathered:{' '}
+                              {
+                                harvestAmount
+                              }
+                            </p>
+                          )}
+
+
+                          {timelineHarvest.quality && (
+                            <p>
+                              How it was:{' '}
+                              {formatLabel(
+                                timelineHarvest.quality,
+                              )}
+                            </p>
+                          )}
+
+
+                          {timelineHarvest.notes && (
+                            <p>
+                              {
+                                timelineHarvest.notes
+                              }
+                            </p>
+                          )}
+
+
+                          {timelineHarvest.photoUrls &&
+                            timelineHarvest.photoUrls.length >
+                              0 && (
+                            <div
+                              onClick={(
+                                clickEvent,
+                              ) =>
+                                clickEvent.stopPropagation()
+                              }
+                              onKeyDown={(
+                                keyboardEvent,
+                              ) =>
+                                keyboardEvent.stopPropagation()
+                              }
+                            >
+                              <SprigPhotoGallery
+                                photoUrls={
+                                  timelineHarvest.photoUrls
+                                }
+
+                                title="Photographs from this harvest"
+
+                                emptyMessage=""
+
+                                photoAltPrefix={`${getHarvestTimelineTitle(
+                                  timelineHarvest,
+                                )} photograph`}
+                              />
+                            </div>
+                          )}
+
+
+                          <p className="form-whisper">
+                            Open Harvest Story →
+                          </p>
+                        </article>
+                      )
+                    }
+
+
+                    const event =
+                      timelineItem.event
+
+
+                    return (
+                      <article
+                        className="timeline-entry"
+                        key={`event-${event.id}`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
+                          onOpenJournalEntry(
+                            event.id,
+                          )
+                        }
+                        onKeyDown={(
+                          keyboardEvent,
+                        ) => {
+                          if (
+                            keyboardEvent.key ===
+                              'Enter' ||
+                            keyboardEvent.key ===
+                              ' '
+                          ) {
+                            keyboardEvent.preventDefault()
+
+
+                            onOpenJournalEntry(
+                              event.id,
+                            )
                           }
-                          onKeyDown={(
-                            keyboardEvent,
-                          ) =>
-                            keyboardEvent.stopPropagation()
-                          }
-                        >
-                          <SprigPhotoGallery
-                            photoUrls={
-                              event.photoUrls
-                            }
-                            title="Photographs from this moment"
-                            emptyMessage=""
-                            photoAltPrefix={`${event.title} photograph`}
-                          />
+                        }}
+                      >
+                        <div className="timeline-marker">
+                          {getEventEmoji(
+                            event.type,
+                          )}
                         </div>
-                      )}
-                    </article>
-                  ),
+
+
+                        <div className="timeline-entry-header">
+                          <div className="timeline-entry-meta">
+                            <time>
+                              {formatDate(
+                                event.date,
+                              )}
+                            </time>
+
+
+                            <span
+                              className={
+                                event.plantStoryIds.length ===
+                                0
+                                  ? 'entry-scope-label garden-entry-label'
+                                  : 'entry-scope-label plant-entry-label'
+                              }
+                            >
+                              {event.plantStoryIds.length ===
+                              0
+                                ? '🌍 Garden entry'
+                                : '🌱 Plant entry'}
+                            </span>
+                          </div>
+
+
+                          <button
+                            type="button"
+                            className="timeline-delete-button"
+                            aria-label={`Remove ${event.title} from the garden journal`}
+                            onClick={(
+                              clickEvent,
+                            ) => {
+                              clickEvent.stopPropagation()
+
+
+                              const confirmed =
+                                window.confirm(
+                                  'Remove this entry from the garden journal?',
+                                )
+
+
+                              if (
+                                confirmed
+                              ) {
+                                onDeleteEvent(
+                                  event.id,
+                                )
+                              }
+                            }}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+
+
+                        <h3>
+                          {
+                            event.title
+                          }
+                        </h3>
+
+
+                        {event.productUsed && (
+                          <p className="event-product">
+                            Used:{' '}
+                            {
+                              event.productUsed
+                            }
+                          </p>
+                        )}
+
+
+                        {event.notes && (
+                          <p>
+                            {
+                              event.notes
+                            }
+                          </p>
+                        )}
+
+
+                        {event.photoUrls &&
+                          event.photoUrls.length >
+                            0 && (
+                          <div
+                            onClick={(
+                              clickEvent,
+                            ) =>
+                              clickEvent.stopPropagation()
+                            }
+                            onKeyDown={(
+                              keyboardEvent,
+                            ) =>
+                              keyboardEvent.stopPropagation()
+                            }
+                          >
+                            <SprigPhotoGallery
+                              photoUrls={
+                                event.photoUrls
+                              }
+
+                              title="Photographs from this moment"
+
+                              emptyMessage=""
+
+                              photoAltPrefix={`${event.title} photograph`}
+                            />
+                          </div>
+                        )}
+                      </article>
+                    )
+                  },
                 )
               ) : (
                 <div className="empty-story">
@@ -1735,9 +2939,11 @@ export default function PlantDetail({
                     🌿
                   </span>
 
+
                   <p>
                     This story has only just opened its notebook.
                   </p>
+
 
                   <button
                     type="button"
@@ -1917,6 +3123,195 @@ export default function PlantDetail({
       </SprigQuickPeek>
 
 
+     {/* =======================================
+          HARVEST TIMING QUICK PEEK
+      ======================================= */}
+
+<SprigQuickPeek
+  isOpen={
+    isHarvestTimingQuickPeekOpen
+  }
+  onClose={() =>
+    setIsHarvestTimingQuickPeekOpen(
+      false,
+    )
+  }
+  eyebrow="Harvest timing"
+  title="When should Sprig start counting?"
+  subtitle="Tap a recorded date below to use it straight away, or enter another date of your own."
+>
+  <div className="quick-peek-actions">
+    {plant.sownDate && (
+      <button
+        type="button"
+        className="secondary-button"
+        onClick={() =>
+          saveHarvestTimingReference(
+            'sown',
+          )
+        }
+      >
+        {harvestTimingReference?.sourceType ===
+        'sown'
+          ? '✓ '
+          : '🌱 '}
+        Sown ·{' '}
+        {formatDate(
+          plant.sownDate,
+        )}
+        {harvestTimingReference?.sourceType ===
+          'sown' && ' · Current'}
+      </button>
+    )}
+
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={() =>
+        saveHarvestTimingReference(
+          'planted',
+        )
+      }
+    >
+      {(!harvestTimingReference ||
+        harvestTimingReference.sourceType ===
+          'planted')
+        ? '✓ '
+        : '🪴 '}
+      Planted ·{' '}
+      {formatDate(
+        plant.plantedDate,
+      )}
+      {(!harvestTimingReference ||
+        harvestTimingReference.sourceType ===
+          'planted') &&
+        ' · Current'}
+    </button>
+
+    {plant.plantedOutDate && (
+      <button
+        type="button"
+        className="secondary-button"
+        onClick={() =>
+          saveHarvestTimingReference(
+            'planted-out',
+          )
+        }
+      >
+        {harvestTimingReference?.sourceType ===
+        'planted-out'
+          ? '✓ '
+          : '🌿 '}
+        Planted out ·{' '}
+        {formatDate(
+          plant.plantedOutDate,
+        )}
+        {harvestTimingReference?.sourceType ===
+          'planted-out' &&
+          ' · Current'}
+      </button>
+    )}
+
+    {harvestTimingMilestoneEvents.map(
+      (
+        event,
+      ) => (
+        <button
+          type="button"
+          className="secondary-button"
+          key={
+            event.id
+          }
+          onClick={() =>
+            saveHarvestTimingReference(
+              'garden-event',
+              event.id,
+            )
+          }
+        >
+          {harvestTimingReference?.sourceType ===
+            'garden-event' &&
+          harvestTimingReference.eventId ===
+            event.id
+            ? '✓ '
+            : '📖 '}
+          {event.title} ·{' '}
+          {formatDate(
+            event.date,
+          )}
+          {harvestTimingReference?.sourceType ===
+            'garden-event' &&
+            harvestTimingReference.eventId ===
+              event.id &&
+            ' · Current'}
+        </button>
+      ),
+    )}
+  </div>
+
+  <div className="form-section">
+  <p className="section-label">
+  Or use another date
+</p>
+
+<p className="form-whisper">
+  If the right moment isn't recorded above, enter
+  another date for Sprig to count from.
+</p>
+
+    <label>
+      Date
+      <input
+        type="date"
+        value={
+          customHarvestTimingDate
+        }
+        onChange={(
+          event,
+        ) =>
+          setCustomHarvestTimingDate(
+            event.target.value,
+          )
+        }
+      />
+    </label>
+
+    <label>
+      What happened? Optional
+      <input
+        type="text"
+        value={
+          customHarvestTimingLabel
+        }
+        placeholder="Approximate transplant date"
+        onChange={(
+          event,
+        ) =>
+          setCustomHarvestTimingLabel(
+            event.target.value,
+          )
+        }
+      />
+    </label>
+
+    <button
+      type="button"
+      className="enter-button"
+      disabled={
+        !customHarvestTimingDate
+      }
+      onClick={() =>
+        saveHarvestTimingReference(
+          'custom-date',
+        )
+      }
+    >
+      Use this custom date
+    </button>
+  </div>
+</SprigQuickPeek>
+
+
       {/* =======================================
           GROWING RECIPE QUICK PEEK
       ======================================= */}
@@ -1965,15 +3360,16 @@ export default function PlantDetail({
                           ingredient.id
                         }
                       >
-                        {ingredient.name}
+                        {
+                          ingredient.name
+                        }
                       </li>
                     ),
                   )}
                 </ul>
               ) : (
                 <p>
-                  No ingredients have been
-                  recorded for this recipe yet.
+                  No ingredients have been recorded for this recipe yet.
                 </p>
               )}
             </>
@@ -1987,7 +3383,9 @@ export default function PlantDetail({
               </h3>
 
               <p>
-                {currentGrowingSetup.notes}
+                {
+                  currentGrowingSetup.notes
+                }
               </p>
             </>
           )}

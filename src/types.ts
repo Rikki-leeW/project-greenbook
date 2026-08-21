@@ -545,7 +545,7 @@ export interface PlantStory {
   personality?: string
 
 
-    /*
+  /*
    * =======================================
    * RECORD MANAGEMENT
    * =======================================
@@ -571,7 +571,6 @@ export interface PlantStory {
 
   updatedAt?: string
 
-  
 
   /*
    * =======================================
@@ -750,15 +749,88 @@ export interface PlantStory {
   photoUrls?: string[]
 
 
-  /*
+    /*
    * =======================================
    * HARVEST EXPECTATION
    * =======================================
    */
 
+  /*
+   * The expected number of days until
+   * harvest.
+   *
+   * These values describe the expected
+   * window itself. The reference below
+   * tells Sprig which real date that
+   * countdown should begin from.
+   */
   expectedHarvestDaysMin?: number
   expectedHarvestDaysMax?: number
 
+  /*
+   * =======================================
+   * HARVEST TIMING REFERENCE
+   * =======================================
+   */
+
+  /*
+   * Tells Sprig where to begin counting
+   * the expected harvest window.
+   *
+   * Examples:
+   *
+   * Sown:
+   * sourceType = 'sown'
+   *
+   * Planted out:
+   * sourceType = 'planted-out'
+   *
+   * A particular transplant recorded in
+   * the Journal:
+   * sourceType = 'garden-event'
+   * eventId = that Garden Event's id
+   *
+   * A date the gardener knows but did not
+   * previously record:
+   * sourceType = 'custom-date'
+   * customDate = that date
+   *
+   * This structure also gives the future
+   * Sprig calendar a stable connection to
+   * real dated garden milestones.
+   */
+  harvestTimingReference?: {
+    sourceType:
+      | 'sown'
+      | 'planted'
+      | 'planted-out'
+      | 'purchased'
+      | 'garden-event'
+      | 'custom-date'
+
+    /*
+     * Used when the reference is a specific
+     * Garden Event, such as a transplant,
+     * move or other meaningful milestone.
+     */
+    eventId?: string
+
+    /*
+     * Used when the gardener chooses
+     * "Use another date".
+     */
+    customDate?: string
+
+    /*
+     * Optional gardener wording for a
+     * custom date.
+     *
+     * Examples:
+     * "Recovered after illness"
+     * "Approximate transplant date"
+     */
+    customLabel?: string
+  }
 
   /*
    * =======================================
@@ -829,25 +901,202 @@ export interface GardenEvent {
 
 
 /* =======================================
-   HARVEST
+   HARVEST RECORDS
 ======================================= */
 
-export interface Harvest {
+/*
+ * A Harvest Record represents ONE occasion
+ * when something was gathered from the
+ * garden.
+ *
+ * A Plant Story may therefore have no
+ * Harvest Records, one Harvest Record, or
+ * many Harvest Records over its lifetime.
+ *
+ * Examples:
+ *
+ * Tomato:
+ * many repeated pickings
+ *
+ * Potato:
+ * usually one main/final harvest
+ *
+ * Broccoli:
+ * main head followed by later side shoots
+ *
+ * Herbs:
+ * repeated cuttings over a long period
+ */
+
+export type HarvestType =
+  | 'first'
+  | 'regular'
+  | 'main'
+  | 'secondary'
+  | 'final'
+  | 'other'
+
+
+export type HarvestQuality =
+  | 'poor'
+  | 'fair'
+  | 'good'
+  | 'excellent'
+
+
+export type HarvestPlantOutcome =
+  | 'still-producing'
+  | 'more-expected'
+  | 'main-harvest-complete'
+  | 'finished'
+  | 'no-change'
+  | 'not-sure'
+  | 'other'
+
+
+export type HarvestMeasurementUnit =
+  | 'gram'
+  | 'kilogram'
+  | 'millilitre'
+  | 'litre'
+  | 'bunch'
+  | 'handful'
+  | 'basket'
+  | 'container'
+  | 'other'
+
+
+export interface HarvestRecord {
   id: string
-  plantStoryId: string
+
+  /*
+   * =======================================
+   * WHAT WAS HARVESTED
+   * =======================================
+   */
+
+  /*
+   * Usually this will contain one Plant
+   * Story.
+   *
+   * Multiple Plant Stories are allowed for
+   * occasions where produce was gathered
+   * together and cannot sensibly be divided.
+   */
+  plantStoryIds: string[]
+
+  /*
+   * =======================================
+   * WHEN
+   * =======================================
+   */
+
   date: string
 
-  count?: number
-  weightGrams?: number
-  unitDescription?: string
 
-  quality?:
-    | 'poor'
-    | 'fair'
-    | 'good'
-    | 'excellent'
+  /*
+   * =======================================
+   * HARVEST TYPE
+   * =======================================
+   */
+
+  /*
+   * Describes this harvest's place in the
+   * growing story rather than the crop
+   * itself.
+   *
+   * Examples:
+   * first picking
+   * regular picking
+   * main harvest
+   * secondary harvest
+   * final harvest
+   */
+  harvestType?: HarvestType
+
+  /*
+   * Sprig's lists are never closed.
+   *
+   * Examples:
+   * side shoots
+   * baby leaves
+   * seed harvest
+   */
+  customHarvestTypeLabel?: string
+
+
+  /*
+   * =======================================
+   * HOW MUCH
+   * =======================================
+   */
+
+  /*
+   * Count and measured quantity may BOTH be
+   * recorded.
+   *
+   * Example:
+   * 4 tomatoes weighing 820 grams.
+   */
+  count?: number
+
+  /*
+   * A flexible measurement for harvests
+   * where weight, volume or another useful
+   * garden measure is recorded.
+   */
+  measurementAmount?: number
+
+  measurementUnit?: HarvestMeasurementUnit
+
+  /*
+   * If measurementUnit is 'other', retain
+   * the gardener's own wording here.
+   */
+  customMeasurementUnitLabel?: string
+
+
+  /*
+   * =======================================
+   * WHAT HAPPENS NEXT
+   * =======================================
+   */
+
+  /*
+   * Records what this particular harvest
+   * means for the plant's ongoing story.
+   *
+   * This does not automatically replace the
+   * Plant Story status. The app can decide
+   * when to offer or apply a status change.
+   */
+  plantOutcome?: HarvestPlantOutcome
+
+  customPlantOutcomeLabel?: string
+
+
+  /*
+   * =======================================
+   * EXPERIENCE
+   * =======================================
+   */
+
+  quality?: HarvestQuality
 
   notes?: string
+
+  photoUrls?: string[]
+
+
+  /*
+   * =======================================
+   * RECORD MANAGEMENT
+   * =======================================
+   */
+
+  createdAt: string
+
+  updatedAt?: string
 }
 
 
@@ -897,5 +1146,5 @@ export interface GardenData {
 
   events: GardenEvent[]
 
-  harvests: Harvest[]
+  harvests: HarvestRecord[]
 }
