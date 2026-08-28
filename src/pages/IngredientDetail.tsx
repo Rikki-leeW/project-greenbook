@@ -1,5 +1,6 @@
 import GardenLayout from '../components/layout/GardenLayout'
 import RecordActions from '../components/common/RecordActions'
+import SprigPhotoGallery from '../components/photos/SprigPhotoGallery'
 
 import type {
   AppPage,
@@ -22,6 +23,10 @@ interface IngredientDetailProps {
 
   onBack: () => void
 
+  backLabel?: string
+
+  onBackToOrigin?: () => void
+
   onEdit?: () => void
 
   onToggleFavourite?: () => void
@@ -42,7 +47,7 @@ interface IngredientDetailProps {
     purchase: PurchaseRecord,
   ) => void
 
-  onOpenRecipe?: (
+  onOpenRecipe: (
     recipeId: string,
   ) => void
 
@@ -384,6 +389,8 @@ export default function IngredientDetail({
   recipes,
   purchases,
   onBack,
+  backLabel,
+  onBackToOrigin,
   onEdit,
   onToggleFavourite,
   onSetRating,
@@ -551,58 +558,57 @@ export default function IngredientDetail({
             RECORD ACTIONS
         ======================================= */}
 
-        <RecordActions
-          backLabel="Back to Ingredients"
+<RecordActions
+  onBack={
+    onBack
+  }
 
-          editLabel="Edit Ingredient"
+  backLabel="Ingredients"
 
-          rateLabel="Rate this Ingredient"
+  contextualBackLabel={
+    backLabel
+      ? `Back to ${backLabel}`
+      : undefined
+  }
 
-          archiveLabel={
-            ingredient.isArchived
-              ? 'Restore Ingredient'
-              : 'Archive Ingredient'
-          }
+  onContextualBack={
+    onBackToOrigin
+  }
 
-          deleteLabel="Delete Ingredient permanently"
+  onEdit={
+    onEdit
+  }
 
-          onBack={
-            onBack
-          }
+  onRate={
+    handleRate
+  }
 
-          onEdit={
-            onEdit
-          }
+  rating={
+    ingredient.rating
+  }
 
-          onRate={
-            onSetRating
-              ? handleRate
-              : undefined
-          }
+  onFavourite={
+    onToggleFavourite
+  }
 
-          rating={
-            ingredient.rating
-          }
+  isFavourite={
+    Boolean(
+      ingredient.isFavourite,
+    )
+  }
 
-          onFavourite={
-            onToggleFavourite
-          }
+  onArchive={
+    onArchive
+  }
 
-          isFavourite={
-            ingredient.isFavourite ??
-            false
-          }
+  onRestore={
+    onRestore
+  }
 
-          onArchive={
-            ingredient.isArchived
-              ? onRestore
-              : onArchive
-          }
-
-          onDelete={
-            onDelete
-          }
-        />
+  onDelete={
+    onDelete
+  }
+/>
 
 
         {/* =======================================
@@ -737,48 +743,25 @@ export default function IngredientDetail({
           </article>
 
 
-          {/* =======================================
-              PHOTOGRAPHS
-          ======================================= */}
+                {/* =======================================
+            PHOTOGRAPHS
+        ======================================= */}
 
-          <article className="library-book">
-            <p className="section-label">
-              Photographs
-            </p>
+        <article className="library-book">
+          <p className="section-label">
+            Photographs
+          </p>
 
-            <h2>
-              Ingredient photographs
-            </h2>
-
-            {ingredient.photoUrls &&
-            ingredient.photoUrls.length >
-              0 ? (
-              <div className="sprig-photo-grid">
-                {ingredient.photoUrls.map(
-                  (
-                    photoUrl,
-                    index,
-                  ) => (
-                    <img
-                      key={`${ingredient.id}-photo-${index}`}
-                      src={
-                        photoUrl
-                      }
-                      alt={`${ingredient.name} photograph ${
-                        index + 1
-                      }`}
-                    />
-                  ),
-                )}
-              </div>
-            ) : (
-              <p>
-                No photographs have
-                been tucked into this
-                Ingredient yet.
-              </p>
-            )}
-          </article>
+          <SprigPhotoGallery
+            photoUrls={
+              ingredient.photoUrls ??
+              []
+            }
+            title="Ingredient photographs"
+            emptyMessage="No photographs have been tucked into this Ingredient yet."
+            photoAltPrefix={`${ingredient.name} photograph`}
+          />
+        </article>
 
 
           {/* =======================================

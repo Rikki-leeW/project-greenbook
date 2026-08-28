@@ -1,7 +1,10 @@
 export type AppPage =
   | 'gate'
   | 'plants'
+  | 'comparisons'
+  | 'comparison'
   | 'growing-places'
   | 'journal'
   | 'harvest'
   | 'library'
+  | 'backup'

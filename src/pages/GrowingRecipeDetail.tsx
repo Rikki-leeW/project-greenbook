@@ -12,6 +12,7 @@ import type {
 } from '../types/navigation'
 
 import type {
+  GardenProduct,
   GrowingPlace,
   GrowingSetup,
   Ingredient,
@@ -28,16 +29,30 @@ type RecipeRating =
   | 5
 
 
+type RecipeComponent =
+  NonNullable<
+    GrowingSetup['recipeComponents']
+  >[number]
+
+
 interface GrowingRecipeDetailProps {
   recipe: GrowingSetup
 
   ingredients: Ingredient[]
+
+  products: GardenProduct[]
+
+  growingSetups: GrowingSetup[]
 
   plants: PlantStory[]
 
   growingPlaces: GrowingPlace[]
 
   purchases: PurchaseRecord[]
+
+  backLabel?: string
+
+  onBackToOrigin?: () => void
 
   onBack: () => void
 
@@ -73,6 +88,14 @@ interface GrowingRecipeDetailProps {
 
   onOpenIngredient: (
     ingredientId: string,
+  ) => void
+
+  onOpenProduct: (
+    productId: string,
+  ) => void
+
+  onOpenRecipe: (
+    recipeId: string,
   ) => void
 
   onNavigate: (
@@ -169,6 +192,95 @@ function formatTechnicalLabel(
 
 
 /* =======================================
+   RECIPE COMPONENT MEASUREMENT
+======================================= */
+
+function getRecipeComponentUnitLabel(
+  component: RecipeComponent,
+): string {
+  const quantity =
+    component.quantity
+
+  const isSingular =
+    quantity === 1
+
+  switch (
+    component.unit
+  ) {
+    case 'part':
+      return isSingular
+        ? 'part'
+        : 'parts'
+
+    case 'litre':
+      return isSingular
+        ? 'litre'
+        : 'litres'
+
+    case 'millilitre':
+      return isSingular
+        ? 'millilitre'
+        : 'millilitres'
+
+    case 'kilogram':
+      return isSingular
+        ? 'kilogram'
+        : 'kilograms'
+
+    case 'gram':
+      return isSingular
+        ? 'gram'
+        : 'grams'
+
+    case 'handful':
+      return isSingular
+        ? 'handful'
+        : 'handfuls'
+
+    case 'scoop':
+      return isSingular
+        ? 'scoop'
+        : 'scoops'
+
+    case 'other':
+      return component
+        .customUnitLabel
+        ?.trim() ??
+        ''
+
+    default:
+      return ''
+  }
+}
+
+
+function getRecipeComponentMeasurementLabel(
+  component?: RecipeComponent,
+): string {
+  if (
+    !component ||
+    component.quantity ===
+      undefined
+  ) {
+    return ''
+  }
+
+  const unitLabel =
+    getRecipeComponentUnitLabel(
+      component,
+    )
+
+  if (!unitLabel) {
+    return String(
+      component.quantity,
+    )
+  }
+
+  return `${component.quantity} ${unitLabel}`
+}
+
+
+/* =======================================
    PURCHASE PRICE
 ======================================= */
 
@@ -252,9 +364,13 @@ function getPurchaseAmountLabel(
 export default function GrowingRecipeDetail({
   recipe,
   ingredients,
+  products,
+  growingSetups,
   plants,
   growingPlaces,
   purchases,
+  backLabel,
+  onBackToOrigin,
   onBack,
   onEdit,
   onDuplicate,
@@ -268,6 +384,8 @@ export default function GrowingRecipeDetail({
   onOpenGrowingPlace,
   onOpenPlant,
   onOpenIngredient,
+  onOpenProduct,
+  onOpenRecipe,
   onNavigate,
 }: GrowingRecipeDetailProps) {
 
@@ -283,10 +401,62 @@ export default function GrowingRecipeDetail({
 
 
   /* =======================================
-     RECIPE INGREDIENTS
+     RECIPE COMPONENTS
   ======================================= */
 
-  const recipeIngredients =
+  /*
+   * Modern Growing Recipes can contain
+   * Ingredients, Garden Products and other
+   * Growing Recipes.
+   *
+   * ingredientIds remains supported below
+   * so older Sprig records continue to
+   * display correctly.
+   */
+
+  const recipeComponentIngredients =
+    (
+      recipe.recipeComponents ??
+      []
+    )
+      .filter(
+        (component) =>
+          component.sourceType ===
+          'ingredient',
+      )
+      .map(
+        (component) => {
+          const ingredient =
+            ingredients.find(
+              (item) =>
+                item.id ===
+                component.sourceId,
+            )
+
+          if (!ingredient) {
+            return undefined
+          }
+
+          return {
+            ingredient,
+            component,
+          }
+        },
+      )
+      .filter(
+        (
+          item,
+        ): item is {
+          ingredient: Ingredient
+          component: RecipeComponent
+        } =>
+          Boolean(
+            item,
+          ),
+      )
+
+
+  const legacyRecipeIngredients =
     (
       recipe.ingredientIds ??
       []
@@ -305,6 +475,135 @@ export default function GrowingRecipeDetail({
         ): ingredient is Ingredient =>
           Boolean(
             ingredient,
+          ),
+      )
+
+
+  /*
+   * Avoid showing an Ingredient twice when
+   * a recipe contains both the legacy link
+   * and its newer recipeComponent link.
+   */
+
+  const recipeIngredients = [
+    ...recipeComponentIngredients.map(
+      (
+        item,
+      ) => ({
+        ingredient:
+          item.ingredient,
+
+        component:
+          item.component,
+      }),
+    ),
+
+    ...legacyRecipeIngredients
+      .filter(
+        (
+          legacyIngredient,
+        ) =>
+          !recipeComponentIngredients.some(
+            (
+              item,
+            ) =>
+              item.ingredient.id ===
+              legacyIngredient.id,
+          ),
+      )
+      .map(
+        (
+          ingredient,
+        ) => ({
+          ingredient,
+
+          component:
+            undefined,
+        }),
+      ),
+  ]
+
+
+  const recipeProducts =
+    (
+      recipe.recipeComponents ??
+      []
+    )
+      .filter(
+        (component) =>
+          component.sourceType ===
+          'product',
+      )
+      .map(
+        (component) => {
+          const product =
+            products.find(
+              (item) =>
+                item.id ===
+                component.sourceId,
+            )
+
+          if (!product) {
+            return undefined
+          }
+
+          return {
+            product,
+            component,
+          }
+        },
+      )
+      .filter(
+        (
+          item,
+        ): item is {
+          product: GardenProduct
+          component: RecipeComponent
+        } =>
+          Boolean(
+            item,
+          ),
+      )
+
+
+  const recipeGrowingSetups =
+    (
+      recipe.recipeComponents ??
+      []
+    )
+      .filter(
+        (component) =>
+          component.sourceType ===
+          'growing-setup',
+      )
+      .map(
+        (component) => {
+          const growingSetup =
+            growingSetups.find(
+              (item) =>
+                item.id ===
+                component.sourceId,
+            )
+
+          if (!growingSetup) {
+            return undefined
+          }
+
+          return {
+            growingSetup,
+            component,
+          }
+        },
+      )
+      .filter(
+        (
+          item,
+        ): item is {
+          growingSetup: GrowingSetup
+          component: RecipeComponent
+        } =>
+          Boolean(
+            item,
           ),
       )
 
@@ -478,6 +777,14 @@ export default function GrowingRecipeDetail({
         ======================================= */}
 
         <RecordActions
+          contextualBackLabel={
+            backLabel
+          }
+
+          onContextualBack={
+            onBackToOrigin
+          }
+
           backLabel={
             recipe.isArchived
               ? 'Back to Archived Recipes'
@@ -882,52 +1189,208 @@ export default function GrowingRecipeDetail({
 
 
           {/* =======================================
-              INGREDIENTS
+              RECIPE CONTENTS
           ======================================= */}
 
           {recipe.category ===
             'own-mix' && (
             <article className="library-book">
               <p className="section-label">
-                Ingredients
+                Recipe contents
               </p>
 
               <h2>
-                Ingredients
+                What&apos;s in this recipe
               </h2>
 
-              {recipeIngredients.length >
-              0 ? (
-                <div className="sprig-ingredient-list">
-                  {recipeIngredients.map(
-                    (
-                      ingredient,
-                    ) => (
-                      <button
-                        key={
-                          ingredient.id
-                        }
-                        type="button"
-                        className="sprig-ingredient-chip"
-                        onClick={() =>
-                          onOpenIngredient(
-                            ingredient.id,
-                          )
-                        }
-                      >
-                        🌿{' '}
-                        {
-                          ingredient.name
-                        }
-                      </button>
-                    ),
-                  )}
-                </div>
-              ) : (
+              {recipeIngredients.length ===
+                0 &&
+              recipeProducts.length ===
+                0 &&
+              recipeGrowingSetups.length ===
+                0 ? (
                 <p>
-                  No ingredients have
-                  been added yet.
+                  Nothing has been added to
+                  this recipe yet.
                 </p>
+              ) : (
+                <>
+                  {/* ===================================
+                      GARDEN INGREDIENTS
+                  =================================== */}
+
+                  {recipeIngredients.length >
+                    0 && (
+                    <section className="sprig-form-section">
+                      <p className="section-label">
+                        My own ingredients
+                      </p>
+
+                      <div className="sprig-ingredient-list">
+                        {recipeIngredients.map(
+                          (
+                            item,
+                          ) => {
+                            const measurement =
+                              getRecipeComponentMeasurementLabel(
+                                item.component,
+                              )
+
+                            return (
+                              <button
+                                key={
+                                  item.ingredient.id
+                                }
+                                type="button"
+                                className="sprig-ingredient-chip"
+                                onClick={() =>
+                                  onOpenIngredient(
+                                    item.ingredient.id,
+                                  )
+                                }
+                              >
+                                🌿{' '}
+                                {
+                                  item.ingredient.name
+                                }
+
+                                {measurement && (
+                                  <>
+                                    {' · '}
+                                    {
+                                      measurement
+                                    }
+                                  </>
+                                )}
+                              </button>
+                            )
+                          },
+                        )}
+                      </div>
+                    </section>
+                  )}
+
+
+                  {/* ===================================
+                      BOUGHT PRODUCTS
+                  =================================== */}
+
+                  {recipeProducts.length >
+                    0 && (
+                    <section className="sprig-form-section">
+                      <p className="section-label">
+                        Bought products
+                      </p>
+
+                      <div className="sprig-ingredient-list">
+                        {recipeProducts.map(
+                          (
+                            item,
+                          ) => {
+                            const measurement =
+                              getRecipeComponentMeasurementLabel(
+                                item.component,
+                              )
+
+                            return (
+                              <button
+                                key={
+                                  item.product.id
+                                }
+                                type="button"
+                                className="sprig-ingredient-chip"
+                                onClick={() =>
+                                  onOpenProduct(
+                                    item.product.id,
+                                  )
+                                }
+                              >
+                                🧺{' '}
+                                {
+                                  item.product.name
+                                }
+
+                                {item.product.brand && (
+                                  <>
+                                    {' · '}
+                                    {
+                                      item.product.brand
+                                    }
+                                  </>
+                                )}
+
+                                {measurement && (
+                                  <>
+                                    {' · '}
+                                    {
+                                      measurement
+                                    }
+                                  </>
+                                )}
+                              </button>
+                            )
+                          },
+                        )}
+                      </div>
+                    </section>
+                  )}
+
+
+                  {/* ===================================
+                      OTHER GROWING RECIPES
+                  =================================== */}
+
+                  {recipeGrowingSetups.length >
+                    0 && (
+                    <section className="sprig-form-section">
+                      <p className="section-label">
+                        Other Growing Recipes
+                      </p>
+
+                      <div className="sprig-ingredient-list">
+                        {recipeGrowingSetups.map(
+                          (
+                            item,
+                          ) => {
+                            const measurement =
+                              getRecipeComponentMeasurementLabel(
+                                item.component,
+                              )
+
+                            return (
+                              <button
+                                key={
+                                  item.growingSetup.id
+                                }
+                                type="button"
+                                className="sprig-ingredient-chip"
+                                onClick={() =>
+                                  onOpenRecipe(
+                                    item.growingSetup.id,
+                                  )
+                                }
+                              >
+                                🌱{' '}
+                                {
+                                  item.growingSetup.name
+                                }
+
+                                {measurement && (
+                                  <>
+                                    {' · '}
+                                    {
+                                      measurement
+                                    }
+                                  </>
+                                )}
+                              </button>
+                            )
+                          },
+                        )}
+                      </div>
+                    </section>
+                  )}
+                </>
               )}
             </article>
           )}

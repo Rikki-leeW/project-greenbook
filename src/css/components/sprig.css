@@ -8,859 +8,942 @@
 ===================================================== */
 
 .sprig-paper-panel {
-    overflow: hidden;
-  
-    border: 1px solid rgba(110, 88, 55, 0.16);
-    border-radius: 16px;
-  
-    background-image:
-      url('../../images/backgrounds/base-paper-texture.jpg');
-    background-position: center;
-    background-size: cover;
-  
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
-      inset 0 0 18px rgba(124, 95, 60, 0.05);
-  }
-  
-  
-  /* =====================================================
-     SPRIG CHOICE CARDS
-  ===================================================== */
-  
-  
-  /* ---------- JOURNAL CHOICE CARD ROWS ---------- */
-  
+  overflow: hidden;
+
+  border: 1px solid rgba(110, 88, 55, 0.16);
+  border-radius: 16px;
+
+  background-image:
+    url('../../images/backgrounds/base-paper-texture.jpg');
+  background-position: center;
+  background-size: cover;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 18px rgba(124, 95, 60, 0.05);
+}
+
+
+/* =====================================================
+   SPRIG CHOICE CARDS
+===================================================== */
+
+
+/* ---------- JOURNAL CHOICE CARD ROWS ---------- */
+
+.growing-place-scope-grid,
+.plant-scope-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  align-items: start;
+
+  gap: 7px;
+
+  width: 100%;
+  margin: 9px 0 12px;
+  padding: 0;
+}
+
+.growing-place-scope-grid .sprig-choice-card,
+.plant-scope-grid .sprig-choice-card {
+  justify-self: center;
+
+  width: 100%;
+  max-width: 96px;
+}
+
+
+/*
+ * Stronger selector prevents forms.css button rules
+ * from stretching the cards.
+ */
+
+.add-plant-form .sprig-choice-card {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+  align-content: center;
+
+  gap: 3px;
+
+  justify-self: center;
+
+  width: 100%;
+  max-width: 96px;
+  min-width: 0;
+
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+
+  margin: 0;
+  padding: 8px 5px;
+
+  overflow: hidden;
+
+  border: 0;
+  border-radius: 14px;
+
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  color: #4a3928;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  text-align: center;
+
+  box-shadow: none;
+  cursor: pointer;
+
+  transform: none;
+
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+
+.add-plant-form .sprig-choice-card:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.025);
+}
+
+.add-plant-form .sprig-choice-card:active {
+  transform: translateY(0);
+}
+
+.add-plant-form .sprig-choice-card:focus-visible {
+  outline: 2px solid rgba(95, 112, 64, 0.72);
+  outline-offset: 2px;
+}
+
+.add-plant-form .sprig-choice-card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* ---------- CHOICE CARD CONTENT ---------- */
+
+.sprig-choice-card-icon {
+  display: grid;
+  place-items: center;
+
+  min-height: 19px;
+
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.sprig-choice-card-text {
+  display: grid;
+  place-items: center;
+
+  gap: 1px;
+
+  width: 100%;
+}
+
+.sprig-choice-card-title {
+  display: block;
+
+  max-width: 100%;
+
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.08;
+
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.sprig-choice-card-subtitle {
+  font-size: 0.55rem;
+  font-style: italic;
+  line-height: 1.12;
+}
+
+
+/* ---------- CHOICE CARD SELECTED STATE ---------- */
+
+.add-plant-form .sprig-choice-card.is-selected {
+  color: #3f4e34;
+  filter: saturate(1.04);
+}
+
+
+/* ---------- CHOICE CARDS: SMALL PHONES ---------- */
+
+@media (max-width: 420px) {
   .growing-place-scope-grid,
   .plant-scope-grid {
-    display: grid;
-    grid-template-columns:
-      repeat(3, minmax(0, 1fr));
-    align-items: start;
-  
-    gap: 7px;
-  
-    width: 100%;
-    margin: 9px 0 12px;
-    padding: 0;
+    gap: 5px;
   }
-  
+
   .growing-place-scope-grid .sprig-choice-card,
-  .plant-scope-grid .sprig-choice-card {
-    justify-self: center;
-  
-    width: 100%;
-    max-width: 96px;
-  }
-  
-  
-  /*
-   * Stronger selector prevents forms.css button rules
-   * from stretching the cards.
-   */
-  
+  .plant-scope-grid .sprig-choice-card,
   .add-plant-form .sprig-choice-card {
-    position: relative;
-  
-    display: grid;
-    place-items: center;
-    align-content: center;
-  
-    gap: 3px;
-  
-    justify-self: center;
-  
-    width: 100%;
-    max-width: 96px;
-    min-width: 0;
-  
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 1 / 1;
-  
-    margin: 0;
-    padding: 8px 5px;
-  
-    overflow: hidden;
-  
-    border: 0;
-    border-radius: 14px;
-  
-    background-color: transparent;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-  
-    color: #4a3928;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-    text-align: center;
-  
-    box-shadow: none;
-    cursor: pointer;
-  
-    transform: none;
-  
-    transition:
-      transform 150ms ease,
-      filter 150ms ease;
+    max-width: 84px;
+    padding: 6px 4px;
   }
-  
-  .add-plant-form .sprig-choice-card:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.025);
+
+  .sprig-choice-card {
+    gap: 5px;
   }
-  
-  .add-plant-form .sprig-choice-card:active {
-    transform: translateY(0);
-  }
-  
-  .add-plant-form .sprig-choice-card:focus-visible {
-    outline: 2px solid rgba(95, 112, 64, 0.72);
-    outline-offset: 2px;
-  }
-  
-  .add-plant-form .sprig-choice-card:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-  
-  
-  /* ---------- CHOICE CARD CONTENT ---------- */
-  
+
   .sprig-choice-card-icon {
-    display: grid;
-    place-items: center;
-  
-    min-height: 19px;
-  
-    font-size: 1rem;
-    line-height: 1;
+    min-height: 17px;
+
+    font-size: 0.9rem;
   }
-  
-  .sprig-choice-card-text {
-    display: grid;
-    place-items: center;
-  
-    gap: 1px;
-  
-    width: 100%;
-  }
-  
+
   .sprig-choice-card-title {
-    display: block;
-  
-    max-width: 100%;
-  
-    font-size: 0.62rem;
-    font-weight: 700;
-    line-height: 1.08;
-  
-    overflow-wrap: normal;
-    word-break: normal;
+    font-size: 0.56rem;
   }
-  
+
   .sprig-choice-card-subtitle {
-    font-size: 0.55rem;
-    font-style: italic;
-    line-height: 1.12;
+    font-size: 0.64rem;
   }
-  
-  
-  /* ---------- CHOICE CARD SELECTED STATE ---------- */
-  
-  .add-plant-form .sprig-choice-card.is-selected {
-    color: #3f4e34;
-    filter: saturate(1.04);
-  }
-  
-  
-  /* ---------- CHOICE CARDS: SMALL PHONES ---------- */
-  
-  @media (max-width: 420px) {
-    .growing-place-scope-grid,
-    .plant-scope-grid {
-      gap: 5px;
-    }
-  
-    .growing-place-scope-grid .sprig-choice-card,
-    .plant-scope-grid .sprig-choice-card,
-    .add-plant-form .sprig-choice-card {
-      max-width: 84px;
-      padding: 6px 4px;
-    }
-  
-    .sprig-choice-card {
-      gap: 5px;
-    }
-  
-    .sprig-choice-card-icon {
-      min-height: 17px;
-  
-      font-size: 0.9rem;
-    }
-  
-    .sprig-choice-card-title {
-      font-size: 0.56rem;
-    }
-  
-    .sprig-choice-card-subtitle {
-      font-size: 0.64rem;
-    }
-  }
-  
-  
-  /* =====================================================
-     SPRIG PICKER
-  ===================================================== */
-  
-  .sprig-picker {
-    display: grid;
-  
-    gap: 7px;
-  
-    width: 100%;
-  }
-  
-  
-  /* ---------- PICKER LABEL ---------- */
-  
-  .sprig-picker-label {
-    margin: 0;
-  
-    color: #455842;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-    font-size: 0.92rem;
-    font-weight: 700;
-    line-height: 1.3;
-  }
-  
-  
-  /* ---------- PICKER TRIGGER ---------- */
-  
-  .sprig-picker-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  
-    gap: 10px;
-  
-    width: 100%;
-    min-height: 34px;
-  
-    margin: 0;
-    padding: 5px 14px;
-  
-    border: 0;
-    border-radius: 10px;
-  
-    background-color: transparent;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-  
-    color: #4c4638;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-    font-size: 0.78rem;
-    text-align: left;
-  
-    box-shadow: none;
-    cursor: pointer;
-  
-    transition:
-      transform 150ms ease,
-      filter 150ms ease;
-  }
-  
-  .sprig-picker-trigger:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.02);
-  }
-  
-  .sprig-picker-trigger:active {
-    transform: translateY(0);
-  }
-  
-  .sprig-picker-trigger:focus-visible {
-    outline: 2px solid rgba(95, 112, 64, 0.72);
-    outline-offset: 2px;
-  }
-  
-  .sprig-picker-summary {
-    min-width: 0;
-  
-    overflow: hidden;
-  
-    line-height: 1.35;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .sprig-picker-arrow {
-    flex: 0 0 auto;
-  
-    color: #607957;
-  
-    font-size: 1rem;
-    line-height: 1;
-  }
-  
-  
-  /* ---------- PICKER PANEL ---------- */
-  
-  .sprig-picker-panel {
-    width: 100%;
-    min-width: 0;
-  }
-  
-  
-  /* ---------- PICKER OPTION GRID ---------- */
-  
-  .sprig-picker-options {
-    display: grid;
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  
-    gap: 7px 8px;
-  
-    width: 100%;
-    min-width: 0;
-  }
-  
-  
-  /* ---------- SHARED PICKER OPTION ---------- */
-  
-  .sprig-picker-option {
-    position: relative;
-  
-    min-width: 0;
-    min-height: 36px;
-  
-    margin: 0;
-    padding: 7px 12px;
-  
-    overflow: hidden;
-  
-    border: 0;
-    border-radius: 0;
-  
-    background-color: transparent;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-  
-    color: #4a3928;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-    font-size: 0.74rem;
-    text-align: left;
-  
-    box-shadow: none;
-    cursor: pointer;
-  
-    transition:
-      transform 140ms ease,
-      filter 140ms ease;
-  }
-  
-  .sprig-picker-option:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.02);
-  }
-  
-  .sprig-picker-option:active {
-    transform: translateY(0);
-  }
-  
-  .sprig-picker-option:focus-visible {
-    outline: 2px solid rgba(95, 112, 64, 0.72);
-    outline-offset: 1px;
-  }
-  
-  .sprig-picker-option.is-selected {
-    color: #3f4e34;
-    font-weight: 700;
-  }
-  
-  
-  /* ---------- SHARED OPTION TEXT ---------- */
-  
-  .sprig-picker-option-text {
-    display: flex;
-    flex-direction: column;
-  
-    gap: 3px;
-  
-    min-width: 0;
-    width: 100%;
-  }
-  
-  .sprig-picker-option-title {
-    display: block;
-  
-    min-width: 0;
-  
-    font-size: 0.76rem;
-    font-weight: 700;
-    line-height: 1.15;
-  
-    overflow-wrap: anywhere;
-  }
-  
-  .sprig-picker-option-subtitle {
-    display: block;
-  
-    min-width: 0;
-  
-    color: #5d523f;
-  
-    font-size: 0.62rem;
-    font-weight: 400;
-    line-height: 1.15;
-  
-    overflow-wrap: anywhere;
-  }
-  
-  .sprig-picker-option-meta {
-    display: block;
-  
-    min-width: 0;
-  
-    color: #7b705a;
-  
-    font-size: 0.58rem;
-    font-weight: 400;
-    line-height: 1.1;
-  
-    overflow-wrap: anywhere;
-  }
-  
-  /* =====================================================
+}
+
+
+/* =====================================================
+   SPRIG PICKER
+===================================================== */
+
+.sprig-picker {
+  display: grid;
+
+  gap: 7px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+
+/* ---------- PICKER LABEL ---------- */
+
+.sprig-picker-label {
+  margin: 0;
+
+  color: #455842;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+
+/* ---------- PICKER TRIGGER ---------- */
+
+.sprig-picker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+
+  margin: 0;
+  padding: 5px 14px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  color: #4c4638;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 0.78rem;
+  text-align: left;
+
+  box-shadow: none;
+  cursor: pointer;
+
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+
+.sprig-picker-trigger:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+.sprig-picker-trigger:active {
+  transform: translateY(0);
+}
+
+.sprig-picker-trigger:focus-visible {
+  outline: 2px solid rgba(95, 112, 64, 0.72);
+  outline-offset: 2px;
+}
+
+.sprig-picker-summary {
+  min-width: 0;
+
+  overflow: hidden;
+
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sprig-picker-arrow {
+  flex: 0 0 auto;
+
+  color: #607957;
+
+  font-size: 1rem;
+  line-height: 1;
+}
+
+
+/* ---------- PICKER PANEL ---------- */
+
+.sprig-picker-panel {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+
+  overflow: visible;
+}
+
+
+/* ---------- GROUPED PICKER ---------- */
+
+.sprig-picker-groups {
+  display: grid;
+
+  gap: 14px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.sprig-picker-group {
+  display: grid;
+
+  gap: 6px;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+}
+
+.sprig-picker-group-title {
+  margin: 4px 0 1px;
+
+  color: #586a50;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ---------- PICKER OPTION GRID ---------- */
+
+.sprig-picker-options {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  align-items: stretch;
+
+  gap: 7px 8px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+
+/* ---------- SHARED PICKER OPTION ---------- */
+
+.sprig-picker-option {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+
+  margin: 0;
+  padding: 7px 12px;
+
+  overflow: hidden;
+
+  border: 0;
+  border-radius: 0;
+
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  color: #4a3928;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 0.74rem;
+  text-align: left;
+
+  box-shadow: none;
+  cursor: pointer;
+
+  transform: none;
+
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
+}
+
+.sprig-picker-option:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+.sprig-picker-option:active {
+  transform: translateY(0);
+}
+
+.sprig-picker-option:focus-visible {
+  outline: 2px solid rgba(95, 112, 64, 0.72);
+  outline-offset: 1px;
+}
+
+.sprig-picker-option.is-selected {
+  color: #3f4e34;
+  font-weight: 700;
+}
+
+
+/* ---------- SHARED OPTION TEXT ---------- */
+
+.sprig-picker-option-text {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+  width: 100%;
+}
+
+.sprig-picker-option-title {
+  display: block;
+
+  min-width: 0;
+
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.15;
+
+  overflow-wrap: anywhere;
+}
+
+.sprig-picker-option-subtitle {
+  display: block;
+
+  min-width: 0;
+
+  color: #5d523f;
+
+  font-size: 0.62rem;
+  font-weight: 400;
+  line-height: 1.15;
+
+  overflow-wrap: anywhere;
+}
+
+.sprig-picker-option-meta {
+  display: block;
+
+  min-width: 0;
+
+  color: #7b705a;
+
+  font-size: 0.58rem;
+  font-weight: 400;
+  line-height: 1.1;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
    TAG PICKER VARIANT
 ===================================================== */
 
 .sprig-picker-option:not(
+  .sprig-picker-option-label
+):not(
+  .sprig-picker-option-label-tall
+) {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    16px;
+
+  align-items: center;
+
+  gap: 6px;
+
+  min-height: 36px;
+}
+
+.sprig-picker-option:not(
+  .sprig-picker-option-label
+):not(
+  .sprig-picker-option-label-tall
+) .sprig-picker-option-text {
+  justify-content: center;
+}
+
+.sprig-picker-option:not(
+  .sprig-picker-option-label
+):not(
+  .sprig-picker-option-label-tall
+) .sprig-picker-option-subtitle,
+.sprig-picker-option:not(
+  .sprig-picker-option-label
+):not(
+  .sprig-picker-option-label-tall
+) .sprig-picker-option-meta {
+  display: none;
+}
+
+
+/* ---------- TAG CHECK ---------- */
+
+.sprig-picker-option:not(
+  .sprig-picker-option-label
+):not(
+  .sprig-picker-option-label-tall
+) .sprig-picker-option-check {
+  position: static;
+
+  display: grid;
+  place-items: center;
+
+  width: 16px;
+
+  color: #5f7040;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+
+  pointer-events: none;
+}
+
+
+/* =====================================================
+   SHORT NOTEBOOK LABEL
+===================================================== */
+
+.sprig-picker-option-label {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+
+  height: 32px;
+  min-height: 32px;
+
+  margin: 0;
+  padding: 0 10px;
+
+  overflow: hidden;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+
+  color: #4a3928;
+
+  font-size: 0.70rem;
+  line-height: 1;
+}
+
+.sprig-picker-option-label
+.sprig-picker-option-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-width: 0;
+
+  padding-left: 10px;
+  padding-right: 18px;
+}
+
+.sprig-picker-option-label
+.sprig-picker-option-title {
+  display: block;
+
+  width: 100%;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sprig-picker-option-label
+.sprig-picker-option-subtitle,
+.sprig-picker-option-label
+.sprig-picker-option-meta,
+.sprig-picker-option-label
+.sprig-picker-option-icon {
+  display: none;
+}
+
+.sprig-picker-option-label
+.sprig-picker-option-check {
+  position: absolute;
+
+  top: 50%;
+  right: 8px;
+
+  z-index: 2;
+
+  display: block;
+
+  color: #5f7040;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+
+  pointer-events: none;
+
+  transform: translateY(-50%);
+}
+
+.sprig-picker-option-label.is-selected {
+  color: #3f4e34;
+  filter: saturate(1.04);
+}
+
+
+/* =====================================================
+   TALL NOTEBOOK LABEL
+===================================================== */
+
+.sprig-picker-option-label-tall {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 58px;
+
+  padding:
+    8px
+    12px
+    10px;
+
+  overflow: hidden;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+
+  color: #4a3928;
+
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.sprig-picker-option-label-tall
+.sprig-picker-option-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 3px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+
+  padding-right: 18px;
+  padding-left: 15px;
+}
+
+.sprig-picker-option-label-tall
+.sprig-picker-option-title {
+  color: #4a3928;
+
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.sprig-picker-option-label-tall
+.sprig-picker-option-subtitle {
+  color: #5d523f;
+
+  font-size: 0.62rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.sprig-picker-option-label-tall
+.sprig-picker-option-meta {
+  color: #7b705a;
+
+  font-size: 0.58rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.sprig-picker-option-label-tall
+.sprig-picker-option-icon {
+  display: none;
+}
+
+.sprig-picker-option-label-tall
+.sprig-picker-option-check {
+  position: absolute;
+
+  top: 6px;
+  right: 8px;
+
+  z-index: 2;
+
+  display: block;
+
+  color: #5f7040;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+
+  pointer-events: none;
+}
+
+.sprig-picker-option-label-tall.is-selected {
+  color: #3f4e34;
+  filter: saturate(1.04);
+}
+
+.sprig-picker-option-label-tall.is-selected
+.sprig-picker-option-title {
+  color: #3f4e34;
+}
+
+
+/* =====================================================
+   PICKER DONE BUTTON
+===================================================== */
+
+.sprig-picker-done {
+  justify-self: end;
+
+  min-height: 36px;
+
+  padding: 7px 13px;
+
+  border: 1px solid rgba(49, 77, 50, 0.2);
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(97, 127, 85, 0.68),
+      rgba(61, 93, 64, 0.68)
+    );
+
+  color: #fff9e8;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+
+  cursor: pointer;
+
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
+}
+
+.sprig-picker-done:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.sprig-picker-done:active {
+  transform: translateY(0);
+}
+
+.sprig-picker-done:focus-visible {
+  outline: 2px solid rgba(95, 112, 64, 0.72);
+  outline-offset: 2px;
+}
+
+
+/* =====================================================
+   SPRIG PICKER: SMALL PHONES
+===================================================== */
+
+@media (max-width: 420px) {
+  .sprig-picker-panel {
+    padding:
+      18px
+      14px
+      16px;
+  }
+
+  .sprig-picker-groups {
+    gap: 12px;
+  }
+
+  .sprig-picker-options {
+    gap: 5px 6px;
+  }
+
+  .sprig-picker-option {
+    font-size: 0.66rem;
+  }
+
+
+  /* ---------- COMPACT TAGS ---------- */
+
+  .sprig-picker-option:not(
     .sprig-picker-option-label
   ):not(
     .sprig-picker-option-label-tall
   ) {
-    display: grid;
-    grid-template-columns:
-      minmax(0, 1fr)
-      16px;
-  
-    align-items: center;
-  
-    gap: 6px;
-  
-    min-height: 36px;
+    min-height: 32px;
+
+    padding: 6px 9px;
   }
-  
+
   .sprig-picker-option:not(
     .sprig-picker-option-label
   ):not(
     .sprig-picker-option-label-tall
-  ) .sprig-picker-option-text {
-    justify-content: center;
+  ) .sprig-picker-option-title {
+    font-size: 0.66rem;
   }
-  
-  .sprig-picker-option:not(
-    .sprig-picker-option-label
-  ):not(
-    .sprig-picker-option-label-tall
-  ) .sprig-picker-option-subtitle,
-  
-  .sprig-picker-option:not(
-    .sprig-picker-option-label
-  ):not(
-    .sprig-picker-option-label-tall
-  ) .sprig-picker-option-meta {
-    display: none;
-  }
-  
-  
-  /* ---------- TAG CHECK ---------- */
-  
-  .sprig-picker-option:not(
-    .sprig-picker-option-label
-  ):not(
-    .sprig-picker-option-label-tall
-  ) .sprig-picker-option-check {
-    position: static;
-  
-    display: grid;
-    place-items: center;
-  
-    width: 16px;
-  
-    color: #5f7040;
-  
-    font-size: 0.78rem;
-    font-weight: 700;
-    line-height: 1;
-  
-    pointer-events: none;
-  }
-  
-  
-  /* =====================================================
-     SHORT NOTEBOOK LABEL
-  ===================================================== */
-  
+
+
+  /* ---------- SHORT NOTEBOOK LABELS ---------- */
+
   .sprig-picker-option-label {
-    position: relative;
-  
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  
-    width: 100%;
-  
     height: 32px;
     min-height: 32px;
-  
-    margin: 0;
-    padding: 0 10px;
-  
-    overflow: hidden;
-  
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
-  
-    color: #4a3928;
-  
-    font-size: 0.70rem;
-    line-height: 1;
+
+    padding: 0 8px;
   }
-  
+
   .sprig-picker-option-label
   .sprig-picker-option-text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  
-    width: 100%;
-    min-width: 0;
-  
+    min-height: 0;
+
+    padding-right: 16px;
     padding-left: 10px;
-    padding-right: 18px;
   }
-  
+
   .sprig-picker-option-label
   .sprig-picker-option-title {
-    display: block;
-  
-    width: 100%;
-  
-    font-size: 0.65rem;
-    font-weight: 700;
-    line-height: 1;
-  
-    text-align: center;
-  
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.62rem;
   }
-  
-  .sprig-picker-option-label
-  .sprig-picker-option-subtitle,
-  
-  .sprig-picker-option-label
-  .sprig-picker-option-meta,
-  
-  .sprig-picker-option-label
-  .sprig-picker-option-icon {
-    display: none;
-  }
-  
-  .sprig-picker-option-label
-  .sprig-picker-option-check {
-    position: absolute;
-  
-    top: 50%;
-    right: 8px;
-  
-    z-index: 2;
-  
-    display: block;
-  
-    color: #5f7040;
-  
-    font-size: 0.72rem;
-    font-weight: 700;
-    line-height: 1;
-  
-    pointer-events: none;
-  
-    transform: translateY(-50%);
-  }
-  
-  .sprig-picker-option-label.is-selected {
-    color: #3f4e34;
-    filter: saturate(1.04);
-  }
-  
-  
-  /* =====================================================
-     TALL NOTEBOOK LABEL
-  ===================================================== */
-  
+
+
+  /* ---------- TALL NOTEBOOK LABELS ---------- */
+
   .sprig-picker-option-label-tall {
-    position: relative;
-  
-    display: flex;
-    align-items: center;
-  
     min-height: 58px;
-  
+
     padding:
       8px
-      12px
+      10px
       10px;
-  
-    overflow: hidden;
-  
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
-  
-    color: #4a3928;
-  
-    font-size: 0.72rem;
-    line-height: 1.2;
   }
-  
+
   .sprig-picker-option-label-tall
   .sprig-picker-option-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  
-    gap: 3px;
-  
-    width: 100%;
-    min-width: 0;
-    min-height: 42px;
-  
-    padding-right: 18px;
-    padding-left: 15px;
+    min-height: 40px;
+
+    padding-right: 16px;
+    padding-left: 12px;
   }
-  
+
   .sprig-picker-option-label-tall
   .sprig-picker-option-title {
-    color: #4a3928;
-  
-    font-size: 0.76rem;
-    font-weight: 700;
-    line-height: 1.15;
+    font-size: 0.7rem;
   }
-  
+
   .sprig-picker-option-label-tall
   .sprig-picker-option-subtitle {
-    color: #5d523f;
-  
-    font-size: 0.62rem;
-    font-weight: 400;
-    line-height: 1.15;
+    font-size: 0.58rem;
   }
-  
+
   .sprig-picker-option-label-tall
   .sprig-picker-option-meta {
-    color: #7b705a;
-  
-    font-size: 0.58rem;
-    font-weight: 400;
-    line-height: 1.1;
+    font-size: 0.54rem;
   }
-  
-  .sprig-picker-option-label-tall
-  .sprig-picker-option-icon {
-    display: none;
-  }
-  
+
   .sprig-picker-option-label-tall
   .sprig-picker-option-check {
-    position: absolute;
-  
     top: 6px;
-    right: 8px;
-  
-    z-index: 2;
-  
-    display: block;
-  
-    color: #5f7040;
-  
-    font-size: 0.78rem;
-    font-weight: 700;
-    line-height: 1;
-  
-    pointer-events: none;
+    right: 7px;
+
+    font-size: 0.74rem;
   }
-  
-  .sprig-picker-option-label-tall.is-selected {
-    color: #3f4e34;
-    filter: saturate(1.04);
-  }
-  
-  .sprig-picker-option-label-tall.is-selected
-  .sprig-picker-option-title {
-    color: #3f4e34;
-  }
-  
-  /* =====================================================
-     PICKER DONE BUTTON
-  ===================================================== */
-  
-  .sprig-picker-done {
-    justify-self: end;
-  
-    min-height: 36px;
-  
-    padding: 7px 13px;
-  
-    border: 1px solid rgba(49, 77, 50, 0.2);
-    border-radius: 9px;
-  
-    background:
-      linear-gradient(
-        180deg,
-        rgba(97, 127, 85, 0.68),
-        rgba(61, 93, 64, 0.68)
-      );
-  
-    color: #fff9e8;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-    font-size: 0.75rem;
-    font-weight: 700;
-    line-height: 1.2;
-  
-    cursor: pointer;
-  
-    transition:
-      transform 140ms ease,
-      filter 140ms ease;
-  }
-  
-  .sprig-picker-done:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.03);
-  }
-  
-  .sprig-picker-done:active {
-    transform: translateY(0);
-  }
-  
-  .sprig-picker-done:focus-visible {
-    outline: 2px solid rgba(95, 112, 64, 0.72);
-    outline-offset: 2px;
-  }
-  
-  
-  /* =====================================================
-     SPRIG PICKER: SMALL PHONES
-  ===================================================== */
-  
-  @media (max-width: 420px) {
-    .sprig-picker-panel {
-      padding:
-        18px
-        14px
-        16px;
-    }
-  
-    .sprig-picker-options {
-      gap: 5px 6px;
-    }
-  
-    .sprig-picker-option {
-      font-size: 0.66rem;
-    }
-  
-  
-    /* ---------- COMPACT TAGS ---------- */
-  
-    .sprig-picker-option:not(
-      .sprig-picker-option-label
-    ) {
-      min-height: 32px;
-  
-      padding: 6px 9px;
-    }
-  
-    .sprig-picker-option:not(
-      .sprig-picker-option-label
-    ) .sprig-picker-option-title {
-      font-size: 0.66rem;
-    }
-  
-  
-    /* ---------- NOTEBOOK LABELS ---------- */
-  
-    .sprig-picker-option-label {
-      min-height: 58px;
-  
-      padding:
-        8px
-        10px
-        10px;
-    }
-  
-    .sprig-picker-option-label
-      .sprig-picker-option-text {
-      min-height: 40px;
-  
-      padding-right: 16px;
-      padding-left: 12px;
-    }
-  
-    .sprig-picker-option-label
-      .sprig-picker-option-title {
-      font-size: 0.7rem;
-    }
-  
-    .sprig-picker-option-label
-      .sprig-picker-option-subtitle {
-      font-size: 0.58rem;
-    }
-  
-    .sprig-picker-option-label
-      .sprig-picker-option-meta {
-      font-size: 0.54rem;
-    }
-  
-    .sprig-picker-option-label
-      .sprig-picker-option-check {
-      top: 6px;
-      right: 7px;
-  
-      font-size: 0.74rem;
-    }
-  }
+}
 
 
-  /* =========================================
+/* =========================================
    SPRIG QUICK PEEK
 ========================================= */
 
@@ -894,8 +977,6 @@
 
   background: rgba(255, 252, 239, 0.80);
 
-
-  
   box-shadow:
     0 20px 60px rgba(35, 42, 30, 0.22),
     0 4px 14px rgba(35, 42, 30, 0.10);

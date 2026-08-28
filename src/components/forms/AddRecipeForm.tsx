@@ -14,8 +14,10 @@ import OwnMixSection from './OwnMixSection'
 import BoughtMixSection from './BoughtMixSection'
 import GroundTypeSection from './GroundTypeSection'
 import GrowingSystemSection from './GrowingSystemSection'
+import RecipeComponentsSection from './RecipeComponentsSection'
 
 import type {
+  GardenProduct,
   GrowingGroundMethod,
   GrowingGroundType,
   GrowingSetup,
@@ -25,9 +27,12 @@ import type {
   PurchaseUnit,
 } from '../../types'
 
-
 interface AddRecipeFormProps {
   ingredients: Ingredient[]
+
+  products: GardenProduct[]
+
+  growingSetups: GrowingSetup[]
 
   /*
    * When supplied, the form becomes an
@@ -67,15 +72,17 @@ interface AddRecipeFormProps {
     ingredient: Ingredient,
   ) => void
 
+  onAddProduct: (
+    product: GardenProduct,
+  ) => void
+
   onClose: () => void
 }
-
 
 interface PickerOption {
   value: string
   label: string
 }
-
 
 const CUSTOM_GROUND_TYPES_KEY =
   'sprig-custom-ground-types'
@@ -373,11 +380,14 @@ const growingSystemOptions:
 
 export default function AddRecipeForm({
   ingredients,
+  products,
+  growingSetups,
   recipeToEdit,
   onAddRecipe,
   onUpdateRecipe,
   onAddPurchase,
   onAddIngredient,
+  onAddProduct,
   onClose,
 }: AddRecipeFormProps) {
   const now =
@@ -462,12 +472,22 @@ export default function AddRecipeForm({
     setSelectedIngredientIds,
   ] =
     useState<string[]>(
-      recipeToEdit?.category ===
-        'own-mix'
-        ? recipeToEdit
-            .ingredientIds ??
-          []
-        : [],
+      recipeToEdit
+        ?.ingredientIds ??
+        [],
+    )
+
+
+  const [
+    recipeComponents,
+    setRecipeComponents,
+  ] =
+    useState<
+      GrowingSetup['recipeComponents']
+    >(
+      recipeToEdit
+        ?.recipeComponents ??
+        [],
     )
 
 
@@ -1029,7 +1049,8 @@ export default function AddRecipeForm({
   void createCustomGroundType
   void createCustomGrowingSystem
 
-    /* =======================================
+
+  /* =======================================
      CREATE BOUGHT MIX PURCHASE
   ======================================= */
 
@@ -1211,6 +1232,9 @@ export default function AddRecipeForm({
         ingredientIds:
           selectedIngredientIds,
 
+        recipeComponents:
+          recipeComponents,
+
         notes:
           ownMixNotes
             .trim() ||
@@ -1274,6 +1298,12 @@ export default function AddRecipeForm({
 
         productName:
           trimmedProductName,
+
+        ingredientIds:
+          selectedIngredientIds,
+
+        recipeComponents:
+          recipeComponents,
 
         notes:
           boughtMixNotes
@@ -1341,6 +1371,12 @@ export default function AddRecipeForm({
           isCustom
             ? 'something-else'
             : groundType as GrowingGroundType,
+
+        ingredientIds:
+          selectedIngredientIds,
+
+        recipeComponents:
+          recipeComponents,
 
         notes:
           groundTypeNotes
@@ -1411,6 +1447,12 @@ export default function AddRecipeForm({
           isCustom
             ? 'something-else'
             : growingSystemType as GrowingGroundMethod,
+
+        ingredientIds:
+          selectedIngredientIds,
+
+        recipeComponents:
+          recipeComponents,
 
         notes:
           growingSystemNotes
@@ -1638,21 +1680,6 @@ export default function AddRecipeForm({
                 setOwnMixNotes={
                   setOwnMixNotes
                 }
-
-                ingredients={
-                  ingredients
-                }
-
-                selectedIngredientIds={
-                  selectedIngredientIds
-                }
-                setSelectedIngredientIds={
-                  setSelectedIngredientIds
-                }
-
-                onCreateIngredient={
-                  createIngredient
-                }
               />
             )}
 
@@ -1850,6 +1877,55 @@ export default function AddRecipeForm({
                 }
                 setGrowingSystemNotes={
                   setGrowingSystemNotes
+                }
+              />
+            )}
+
+
+            {/* =======================================
+                SHARED GROWING SETUP COMPONENTS
+            ======================================= */}
+
+            {category && (
+              <RecipeComponentsSection
+                ingredients={
+                  ingredients
+                }
+
+                products={
+                  products
+                }
+
+                growingSetups={
+                  growingSetups
+                }
+
+                currentRecipeId={
+                  recipeToEdit?.id
+                }
+
+                selectedIngredientIds={
+                  selectedIngredientIds
+                }
+
+                setSelectedIngredientIds={
+                  setSelectedIngredientIds
+                }
+
+                recipeComponents={
+                  recipeComponents
+                }
+
+                setRecipeComponents={
+                  setRecipeComponents
+                }
+
+                onCreateIngredient={
+                  createIngredient
+                }
+
+                onAddProduct={
+                  onAddProduct
                 }
               />
             )}

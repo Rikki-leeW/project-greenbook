@@ -115,6 +115,16 @@ export const sprigNavigation:
         },
 
         {
+            id: 'comparisons',
+            label: 'Comparisons',
+            icon: '📊',
+            status: 'live',
+            page: 'comparisons',
+            note:
+              'Saved side-by-side views of your garden stories',
+          },
+          
+        {
           id: 'growing-places',
           label: 'Growing Places',
           icon: '🪴',
@@ -376,13 +386,14 @@ export const sprigNavigation:
         },
 
         {
-          id: 'backup-export',
-          label: 'Backup & Export',
-          icon: '💾',
-          status: 'coming-later',
-          note:
-            'Important before Sprig becomes your everyday garden record',
-        },
+            id: 'backup-restore',
+            label: 'Backup & Restore',
+            icon: '💾',
+            status: 'live',
+            page: 'backup',
+            note:
+              'Keep a safe portable copy of your whole Sprig garden',
+          },
 
         {
           id: 'help',

@@ -199,6 +199,7 @@
   
   /* RESPONSIVE */
   
+  
   @media (max-width: 900px) {
     .plant-grid {
       grid-template-columns: repeat(2, 1fr);
@@ -305,3 +306,170 @@
       font-size: 0.64rem;
     }
   }
+  /* =======================================
+   PLANT COMPARISON
+======================================= */
+
+
+/* ---------- PAGE ACTIONS ---------- */
+
+.plant-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+}
+
+
+/* ---------- COMPARE GUIDANCE ---------- */
+
+.plant-compare-guidance {
+  margin: 0 0 22px;
+  padding: 14px 18px;
+
+  border: 1px solid rgba(66, 91, 57, 0.12);
+  border-radius: 16px;
+
+  background: rgba(255, 253, 247, 0.72);
+
+  box-shadow: var(--shadow-soft);
+}
+
+
+.plant-compare-guidance p {
+  margin: 0;
+}
+
+
+.plant-compare-guidance .form-whisper {
+  margin-top: 5px;
+
+  text-align: left;
+}
+
+
+/* ---------- CARDS WHILE CHOOSING ---------- */
+
+.plant-card-compare-mode {
+  cursor: pointer;
+}
+
+
+.plant-card-compare-mode:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(82, 112, 71, 0.30);
+}
+
+
+/* ---------- SELECTED CARD ---------- */
+
+.plant-card-compare-selected {
+  border-color: rgba(82, 112, 71, 0.52);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(248, 252, 240, 0.98),
+      rgba(235, 242, 222, 0.96)
+    );
+
+  box-shadow:
+    0 18px 38px rgba(55, 77, 48, 0.13),
+    inset 0 0 0 2px rgba(82, 112, 71, 0.08);
+}
+
+
+.plant-card-compare-selected
+.status-pill {
+  background: #dbe9d3;
+  color: #3f613f;
+}
+
+
+/* ---------- FLOATING COMPARE TRAY ---------- */
+
+.plant-compare-tray {
+  position: fixed;
+
+  left: 50%;
+  bottom: 92px;
+  z-index: 450;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  width: min(
+    calc(100% - 36px),
+    760px
+  );
+
+  padding: 13px 15px;
+
+  transform: translateX(-50%);
+
+  border: 1px solid rgba(73, 92, 64, 0.22);
+  border-radius: 18px;
+
+  background: rgba(255, 252, 239, 0.96);
+
+  box-shadow:
+    0 14px 35px rgba(38, 52, 35, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68);
+
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+
+.plant-compare-tray-copy {
+  min-width: 0;
+}
+
+
+.plant-compare-tray-copy
+.section-label {
+  margin: 0 0 3px;
+}
+
+
+.plant-compare-tray-copy
+.form-whisper {
+  margin: 3px 0 0;
+
+  max-width: 500px;
+
+  overflow: hidden;
+
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.plant-compare-tray
+.journal-add-button {
+  flex: 0 0 auto;
+
+  margin: 0;
+}
+
+
+.plant-compare-tray
+.journal-add-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+
+/* Leave enough room to scroll past the tray */
+
+.plant-compare-guidance
+~ .dashboard-section {
+  padding-bottom: 100px;
+}

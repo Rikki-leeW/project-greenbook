@@ -14,9 +14,11 @@ import SprigPicker from '../sprig/SprigPicker'
 import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 
 import type {
+  GardenProduct,
   GrowingPlace,
   GrowingSetup,
   Ingredient,
+  PlantGrowingHistoryEntry,
   PlantOriginType,
   PlantStory,
   StartMethod,
@@ -25,32 +27,31 @@ import type {
 
 interface AddPlantFormProps {
   GrowingPlaces: GrowingPlace[]
-
   GrowingSetups: GrowingSetup[]
-
   Ingredients: Ingredient[]
+  Products: GardenProduct[]
 
-  /*
+  /**
    * Normal create mode.
    */
   onAddPlant: (
     plant: PlantStory,
   ) => void
 
-  /*
+  /**
    * Edit mode.
    */
   onUpdatePlant?: (
     plant: PlantStory,
   ) => void
 
-  /*
+  /**
    * Supplying this turns the form into
    * Edit Plant Story.
    */
   plantToEdit?: PlantStory
 
-  /*
+  /**
    * Supplying this creates a brand-new
    * Plant Story prefilled from another.
    */
@@ -67,6 +68,10 @@ interface AddPlantFormProps {
 
   onAddIngredient: (
     ingredient: Ingredient,
+  ) => void
+
+  onAddProduct: (
+    product: GardenProduct,
   ) => void
 
   onClose: () => void
@@ -97,6 +102,45 @@ function createPlantId(
     safeName ||
     'plant'
   }-${Date.now()}`
+}
+
+
+/* =======================================
+   GROWING HISTORY ID
+======================================= */
+
+function createGrowingHistoryId(
+  plantId: string,
+  suffix: string,
+): string {
+  return `${plantId}-growing-history-${Date.now()}-${suffix}`
+}
+
+
+/* =======================================
+   UNIQUE RELATIONSHIP IDS
+======================================= */
+
+function addUniqueRelationshipId(
+  ids: string[],
+  id?: string,
+): string[] {
+  if (!id) {
+    return ids
+  }
+
+  if (
+    ids.includes(
+      id,
+    )
+  ) {
+    return ids
+  }
+
+  return [
+    ...ids,
+    id,
+  ]
 }
 
 
@@ -176,6 +220,7 @@ export default function AddPlantForm({
   GrowingPlaces,
   GrowingSetups,
   Ingredients,
+  Products,
   onAddPlant,
   onUpdatePlant,
   plantToEdit,
@@ -183,6 +228,7 @@ export default function AddPlantForm({
   onAddGrowingPlace,
   onAddRecipe,
   onAddIngredient,
+  onAddProduct,
   onClose,
 }: AddPlantFormProps) {
   const today =
@@ -448,35 +494,85 @@ export default function AddPlantForm({
     )
 
 
-  /* =======================================
-     PHOTOGRAPHS
-  ======================================= */
+ /* =======================================
+   PHOTOGRAPHS
+======================================= */
 
-  const [
-    photoUrls,
-    setPhotoUrls,
-  ] =
-    useState<string[]>(
-      [
-        ...(
-          sourcePlant
-            ?.photoUrls ??
-          []
-        ),
-      ],
-    )
+/*
+ * Plant Story photographs continue to be
+ * stored as URLs so existing Sprig gardens,
+ * galleries and backup data remain
+ * compatible.
+ */
+const [
+  photoUrls,
+  setPhotoUrls,
+] =
+  useState<string[]>(
+    [
+      ...(
+        sourcePlant
+          ?.photoUrls ??
+        []
+      ),
+    ],
+  )
 
 
-  const beganFromSeed =
-    startMethod ===
-    'seed'
+/*
+ * Each photograph may now carry the date
+ * it was actually taken.
+ *
+ * photoDates[n] belongs to photoUrls[n].
+ *
+ * Older Plant Stories may already contain
+ * photographs without dates. Those entries
+ * deliberately remain undefined rather
+ * than Sprig inventing a date for them.
+ */
+const [
+  photoDates,
+  setPhotoDates,
+] =
+  useState<
+    Array<
+      string | undefined
+    >
+  >(
+    (
+      sourcePlant
+        ?.photoUrls ??
+      []
+    ).map(
+      (
+        _photoUrl,
+        index,
+      ) =>
+        sourcePlant
+          ?.photoDates?.[
+            index
+          ],
+    ),
+  )
 
 
-  const formRef =
-    useRef<HTMLFormElement>(
-      null,
-    )
+/* =======================================
+   PLANT BEGINNING
+======================================= */
 
+const beganFromSeed =
+  startMethod ===
+  'seed'
+
+
+/* =======================================
+   FORM REFERENCE
+======================================= */
+
+const formRef =
+  useRef<HTMLFormElement>(
+    null,
+  )
 
   /* =======================================
      NOTEBOOK LOCK
@@ -628,15 +724,373 @@ export default function AddPlantForm({
         : undefined
 
 
+    /* =======================================
+       RESOLVE CURRENT RELATIONSHIPS
+    ======================================= */
+
+    const selectedGrowingPlaceId =
+      currentGrowingPlaceId ||
+      undefined
+
+
+    const selectedGrowingSetupId =
+      currentGrowingSetupId ||
+      undefined
+
+
+    /*
+     * For a seed-grown Plant Story that has
+     * already been planted out, the current
+     * arrangement generally begins on the
+     * planted-out date.
+     *
+     * Otherwise the Plant Story beginning
+     * date is our best starting point.
+     */
+
+    const initialGrowingArrangementDate =
+      beganFromSeed &&
+      hasBeenPlantedOut &&
+      plantedOutDate
+        ? plantedOutDate
+        : startedDate
+
+
+    /* =======================================
+       PLANT ID
+    ======================================= */
+
+    const savedPlantId =
+      isEditing &&
+      plantToEdit
+        ? plantToEdit.id
+        : createPlantId(
+            displayName,
+          )
+
+
+    /* =======================================
+       PREVIOUS RELATIONSHIPS
+    ======================================= */
+
+    let nextPreviousGrowingPlaceIds:
+      string[] =
+      isEditing &&
+      plantToEdit
+        ? [
+            ...(
+              plantToEdit
+                .previousGrowingPlaceIds ??
+              []
+            ),
+          ]
+        : []
+
+
+    let nextPreviousGrowingSetupIds:
+      string[] =
+      isEditing &&
+      plantToEdit
+        ? [
+            ...(
+              plantToEdit
+                .previousGrowingSetupIds ??
+              []
+            ),
+          ]
+        : []
+
+
+    /* =======================================
+       DATED GROWING HISTORY
+    ======================================= */
+
+    let nextGrowingHistory:
+      PlantGrowingHistoryEntry[] =
+      isEditing &&
+      plantToEdit
+        ? (
+            plantToEdit
+              .growingHistory ??
+            []
+          ).map(
+            (
+              entry,
+            ) => ({
+              ...entry,
+            }),
+          )
+        : []
+
+
+    if (
+      isEditing &&
+      plantToEdit
+    ) {
+      const growingPlaceChanged =
+        plantToEdit
+          .currentGrowingPlaceId !==
+        selectedGrowingPlaceId
+
+
+      const growingSetupChanged =
+        plantToEdit
+          .currentGrowingSetupId !==
+        selectedGrowingSetupId
+
+
+      const growingArrangementChanged =
+        growingPlaceChanged ||
+        growingSetupChanged
+
+
+      /*
+       * Keep the older convenient
+       * previous-ID relationships current.
+       */
+
+      if (
+        growingPlaceChanged
+      ) {
+        nextPreviousGrowingPlaceIds =
+          addUniqueRelationshipId(
+            nextPreviousGrowingPlaceIds,
+            plantToEdit
+              .currentGrowingPlaceId,
+          )
+      }
+
+
+      if (
+        growingSetupChanged
+      ) {
+        nextPreviousGrowingSetupIds =
+          addUniqueRelationshipId(
+            nextPreviousGrowingSetupIds,
+            plantToEdit
+              .currentGrowingSetupId,
+          )
+      }
+
+
+      if (
+        growingArrangementChanged
+      ) {
+        /*
+         * Older Plant Stories may predate
+         * growingHistory entirely.
+         *
+         * Preserve their known former
+         * arrangement before moving forward.
+         * The exact beginning date is inferred
+         * from the best date already available
+         * on the Plant Story, and that fact is
+         * retained in the note rather than
+         * pretending Sprig knows more than it
+         * does.
+         */
+
+        if (
+          nextGrowingHistory.length ===
+            0 &&
+          (
+            plantToEdit
+              .currentGrowingPlaceId ||
+            plantToEdit
+              .currentGrowingSetupId
+          )
+        ) {
+          nextGrowingHistory.push({
+            id:
+              createGrowingHistoryId(
+                savedPlantId,
+                'carried-forward',
+              ),
+
+            startedDate:
+              plantToEdit
+                .plantedOutDate ??
+              plantToEdit
+                .plantedDate,
+
+            endedDate:
+              today,
+
+            growingPlaceId:
+              plantToEdit
+                .currentGrowingPlaceId,
+
+            growingSetupId:
+              plantToEdit
+                .currentGrowingSetupId,
+
+            notes:
+              'Earlier growing arrangement carried forward from this existing Plant Story. Its exact starting date was not separately recorded.',
+          })
+        } else {
+          /*
+           * Close whichever history entry is
+           * currently open.
+           */
+
+          let openEntryIndex =
+            -1
+
+
+          for (
+            let index =
+              nextGrowingHistory.length -
+              1;
+            index >=
+            0;
+            index -=
+            1
+          ) {
+            if (
+              !nextGrowingHistory[
+                index
+              ].endedDate
+            ) {
+              openEntryIndex =
+                index
+
+              break
+            }
+          }
+
+
+          if (
+            openEntryIndex >=
+            0
+          ) {
+            nextGrowingHistory[
+              openEntryIndex
+            ] = {
+              ...nextGrowingHistory[
+                openEntryIndex
+              ],
+
+              endedDate:
+                today,
+            }
+          }
+        }
+
+
+        /*
+         * Start the newly selected
+         * arrangement.
+         *
+         * If both Place and Recipe were
+         * deliberately cleared, there is no
+         * new arrangement to create.
+         */
+
+        if (
+          selectedGrowingPlaceId ||
+          selectedGrowingSetupId
+        ) {
+          nextGrowingHistory.push({
+            id:
+              createGrowingHistoryId(
+                savedPlantId,
+                'current',
+              ),
+
+            startedDate:
+              today,
+
+            growingPlaceId:
+              selectedGrowingPlaceId,
+
+            growingSetupId:
+              selectedGrowingSetupId,
+          })
+        }
+      } else if (
+        nextGrowingHistory.length ===
+          0 &&
+        (
+          selectedGrowingPlaceId ||
+          selectedGrowingSetupId
+        )
+      ) {
+        /*
+         * The Plant Story has not changed
+         * arrangement, but it predates the
+         * history system.
+         *
+         * Establish a baseline so future
+         * changes have something real to
+         * continue from.
+         */
+
+        nextGrowingHistory.push({
+          id:
+            createGrowingHistoryId(
+              savedPlantId,
+              'baseline',
+            ),
+
+          startedDate:
+            plantToEdit
+              .plantedOutDate ??
+            plantToEdit
+              .plantedDate,
+
+          growingPlaceId:
+            selectedGrowingPlaceId,
+
+          growingSetupId:
+            selectedGrowingSetupId,
+
+          notes:
+            'Growing-history starting point carried forward from this existing Plant Story. Its exact arrangement date was not separately recorded.',
+        })
+      }
+    } else if (
+      selectedGrowingPlaceId ||
+      selectedGrowingSetupId
+    ) {
+      /*
+       * Brand-new Plant Stories, including
+       * variations, begin their own history.
+       *
+       * A variation may inherit the selected
+       * Place or Recipe as a useful starting
+       * value, but it does NOT inherit the
+       * original Plant Story's past.
+       */
+
+      nextGrowingHistory = [
+        {
+          id:
+            createGrowingHistoryId(
+              savedPlantId,
+              'initial',
+            ),
+
+          startedDate:
+            initialGrowingArrangementDate,
+
+          growingPlaceId:
+            selectedGrowingPlaceId,
+
+          growingSetupId:
+            selectedGrowingSetupId,
+        },
+      ]
+    }
+
+
+    /* =======================================
+       SAVED PLANT STORY
+    ======================================= */
+
     const savedPlant:
       PlantStory = {
         id:
-          isEditing &&
-          plantToEdit
-            ? plantToEdit.id
-            : createPlantId(
-                displayName,
-              ),
+          savedPlantId,
 
         plantName:
           trimmedPlantName,
@@ -726,44 +1180,98 @@ export default function AddPlantForm({
             : 'growing',
 
         currentGrowingSpaceId:
-          sourcePlant
-            ?.currentGrowingSpaceId,
+          isEditing
+            ? plantToEdit
+                ?.currentGrowingSpaceId
+            : undefined,
 
         previousGrowingSpaceIds:
-          sourcePlant
-            ?.previousGrowingSpaceIds,
+          isEditing
+            ? plantToEdit
+                ?.previousGrowingSpaceIds
+            : undefined,
 
         currentGrowingPlaceId:
-          currentGrowingPlaceId ||
-          undefined,
+          selectedGrowingPlaceId,
 
         previousGrowingPlaceIds:
-          sourcePlant
-            ?.previousGrowingPlaceIds,
+          nextPreviousGrowingPlaceIds.length >
+          0
+            ? nextPreviousGrowingPlaceIds
+            : undefined,
 
         currentGrowingSetupId:
-          currentGrowingSetupId ||
-          undefined,
+          selectedGrowingSetupId,
 
         previousGrowingSetupIds:
-          sourcePlant
-            ?.previousGrowingSetupIds,
+          nextPreviousGrowingSetupIds.length >
+          0
+            ? nextPreviousGrowingSetupIds
+            : undefined,
 
-        notes:
-          notes.trim() ||
-          undefined,
+        growingHistory:
+          nextGrowingHistory.length >
+          0
+            ? nextGrowingHistory
+            : undefined,
 
-        photoUrls,
-
-        expectedHarvestDaysMin:
-          minimumHarvestDays,
+            notes:
+            notes.trim() ||
+            undefined,
+          
+          /*
+           * Keep directly attached Plant Story
+           * photographs and their dates aligned by
+           * array position.
+           *
+           * Older photographs are allowed to have an
+           * undefined date. Sprig will keep them but
+           * will not pretend to know when they were
+           * taken.
+           */
+          photoUrls:
+            photoUrls.length >
+            0
+              ? photoUrls
+              : undefined,
+          
+          photoDates:
+            photoUrls.length >
+            0
+              ? photoUrls.map(
+                  (
+                    _photoUrl,
+                    index,
+                  ) =>
+                    photoDates[
+                      index
+                    ],
+                )
+              : undefined,
+          
+          expectedHarvestDaysMin:
+            minimumHarvestDays,
 
         expectedHarvestDaysMax:
           maximumHarvestDays,
 
+        harvestTimingReference:
+          isEditing
+            ? plantToEdit
+                ?.harvestTimingReference
+            : undefined,
+
         tags:
-          sourcePlant?.tags ??
-          [],
+          isVariation
+            ? [
+                ...(
+                  variationFrom
+                    ?.tags ??
+                  []
+                ),
+              ]
+            : sourcePlant?.tags ??
+              [],
 
         isFavourite:
           isEditing
@@ -1595,21 +2103,43 @@ export default function AddPlantForm({
             ======================================= */}
 
             <section className="sprig-form-section">
-              <SprigPhotoPicker
-                photoUrls={
-                  photoUrls
-                }
-                onChange={
-                  setPhotoUrls
-                }
-                title="Photographs"
-                helperText="Tuck photographs of this plant into its story so Sprig can remember how it looked as it grew."
-                addButtonText="Add plant photographs"
-                photoAltPrefix="Plant Story photograph"
-                maxPhotos={
-                  12
-                }
-              />
+            <SprigPhotoPicker
+  photoUrls={
+    photoUrls
+  }
+
+  onChange={
+    setPhotoUrls
+  }
+
+  photoDates={
+    photoDates
+  }
+
+  onPhotoDatesChange={
+    setPhotoDates
+  }
+
+  title="Photographs"
+
+  helperText="Tuck photographs of this plant into its story so Sprig can remember how it looked as it grew."
+
+  addButtonText="Add plant photographs"
+
+  photoAltPrefix="Plant Story photograph"
+
+  photoDateLabel="When was this photograph taken?"
+
+  photoDateHelperText="Sprig uses this date to place the photograph at the right growing age and find useful side-by-side comparisons."
+
+  defaultNewPhotosToToday={
+    true
+  }
+
+  maxPhotos={
+    12
+  }
+/>
             </section>
 
 
@@ -1655,8 +2185,16 @@ export default function AddPlantForm({
             GrowingSetups
           }
 
+          products={
+            Products
+          }
+
           onAddIngredient={
             onAddIngredient
+          }
+
+          onAddProduct={
+            onAddProduct
           }
 
           onAddPlace={(
@@ -1668,18 +2206,15 @@ export default function AddPlantForm({
               setup,
             )
 
-
             setCurrentGrowingPlaceId(
               place.id,
             )
-
 
             setCurrentGrowingSetupId(
               setup?.id ||
               place.growingSetupId ||
               '',
             )
-
 
             setIsGrowingPlacePickerOpen(
               false,
@@ -1713,8 +2248,20 @@ export default function AddPlantForm({
             Ingredients
           }
 
+          products={
+            Products
+          }
+
+          growingSetups={
+            GrowingSetups
+          }
+
           onAddIngredient={
             onAddIngredient
+          }
+
+          onAddProduct={
+            onAddProduct
           }
 
           onAddRecipe={(
@@ -1724,11 +2271,9 @@ export default function AddPlantForm({
               recipe,
             )
 
-
             setCurrentGrowingSetupId(
               recipe.id,
             )
-
 
             setIsGrowingSetupPickerOpen(
               false,
@@ -1746,6 +2291,7 @@ export default function AddPlantForm({
           }
         />
       )}
+
     </div>
   )
 }

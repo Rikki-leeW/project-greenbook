@@ -13,6 +13,7 @@ import SprigQuickPeek from '../components/common/SprigQuickPeek'
 
 import type {
   GardenEvent,
+  GardenProduct,
   GrowingPlace,
   GrowingSetup,
   Ingredient,
@@ -34,6 +35,8 @@ interface PlantDetailProps {
   growingSetups: GrowingSetup[]
 
   ingredients: Ingredient[]
+
+  products: GardenProduct[]
 
   events: GardenEvent[]
 
@@ -78,6 +81,10 @@ interface PlantDetailProps {
 
   onAddIngredient: (
     ingredient: Ingredient,
+  ) => void
+
+  onAddProduct: (
+    product: GardenProduct,
   ) => void
 
   onDeleteEvent: (
@@ -144,6 +151,78 @@ function formatDate(
   )
 }
 
+
+/* =======================================
+   PHOTO GROWING AGE
+======================================= */
+
+function getPhotoGrowingAge(
+  photoDate: string,
+  plantedDate: string,
+): string {
+  const photoDateObject =
+    new Date(
+      `${photoDate}T00:00:00`,
+    )
+
+
+  const plantedDateObject =
+    new Date(
+      `${plantedDate}T00:00:00`,
+    )
+
+
+  const daysDifference =
+    Math.round(
+      (
+        photoDateObject.getTime() -
+        plantedDateObject.getTime()
+      ) /
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        ),
+    )
+
+
+  if (
+    daysDifference ===
+    0
+  ) {
+    return 'the day this story began'
+  }
+
+
+  if (
+    daysDifference ===
+    1
+  ) {
+    return '1 day after planting'
+  }
+
+
+  if (
+    daysDifference >
+    1
+  ) {
+    return `${daysDifference} days after planting`
+  }
+
+
+  if (
+    daysDifference ===
+    -1
+  ) {
+    return '1 day before planting'
+  }
+
+
+  return `${Math.abs(
+    daysDifference,
+  )} days before planting`
+}
 
 /* =======================================
    GROWING RECIPE LABEL
@@ -520,12 +599,12 @@ function createSafeFileName(
 /* =======================================
    PLANT DETAIL
 ======================================= */
-
 export default function PlantDetail({
   plant,
   growingPlaces,
   growingSetups,
   ingredients,
+  products,
   events,
   harvests,
   onBack,
@@ -539,6 +618,7 @@ export default function PlantDetail({
   onAddGrowingPlace,
   onAddRecipe,
   onAddIngredient,
+  onAddProduct,
   onDeleteEvent,
   onDeletePlant,
   onUpdatePlant,
@@ -594,24 +674,46 @@ export default function PlantDetail({
     useState('')
 
 
-  /* =======================================
-     PHOTO ADDER
-  ======================================= */
+ /* =======================================
+   PHOTO ADDER
+======================================= */
+
+const [
+  isPhotoQuickAddOpen,
+  setIsPhotoQuickAddOpen,
+] =
+  useState(false)
+
+
+const [
+  photoDraft,
+  setPhotoDraft,
+] =
+  useState<string[]>(
+    plant.photoUrls ??
+      [],
+  )
+
 
   const [
-    isPhotoQuickAddOpen,
-    setIsPhotoQuickAddOpen,
+    photoDateDraft,
+    setPhotoDateDraft,
   ] =
-    useState(false)
-
-
-  const [
-    photoDraft,
-    setPhotoDraft,
-  ] =
-    useState<string[]>(
-      plant.photoUrls ??
-        [],
+    useState<
+      (string | undefined)[]
+    >(
+      (
+        plant.photoUrls ??
+        []
+      ).map(
+        (
+          _photoUrl,
+          index,
+        ) =>
+          plant.photoDates?.[
+            index
+          ],
+      ),
     )
 
 
@@ -753,6 +855,67 @@ export default function PlantDetail({
           ),
       ) ??
     []
+
+
+      /* =======================================
+     GROWING JOURNEY
+  ======================================= */
+
+  const growingJourney =
+  (
+    plant.growingHistory ??
+    []
+  )
+    .map(
+      (
+        historyEntry,
+      ) => {
+        const growingPlace =
+          historyEntry.growingPlaceId
+            ? growingPlaces.find(
+                (
+                  place,
+                ) =>
+                  place.id ===
+                  historyEntry.growingPlaceId,
+              )
+            : undefined
+
+
+        const growingSetup =
+          historyEntry.growingSetupId
+            ? growingSetups.find(
+                (
+                  setup,
+                ) =>
+                  setup.id ===
+                  historyEntry.growingSetupId,
+              )
+            : undefined
+
+
+        return {
+          ...historyEntry,
+
+          growingPlace,
+
+          growingSetup,
+        }
+      },
+    )
+    .sort(
+      (
+        first,
+        second,
+      ) =>
+        new Date(
+          first.startedDate,
+        ).getTime() -
+        new Date(
+          second.startedDate,
+        ).getTime(),
+    )
+
 
   /* =======================================
      GROWING TIME
@@ -1537,39 +1700,143 @@ export default function PlantDetail({
   ======================================= */
 
   function openPhotoAdder() {
-    setPhotoDraft(
+    const existingPhotoUrls =
       [
         ...(
           plant.photoUrls ??
           []
         ),
-      ],
+      ]
+  
+  
+    /*
+     * Reload both photographs and their
+     * dates every time the Quick Peek opens.
+     *
+     * This is important because the Plant
+     * Story may have changed since this page
+     * first rendered, for example after an
+     * edit through AddPlantForm.
+     */
+    setPhotoDraft(
+      existingPhotoUrls,
     )
-
-
+  
+  
+    setPhotoDateDraft(
+      existingPhotoUrls.map(
+        (
+          _photoUrl,
+          index,
+        ) =>
+          plant.photoDates?.[
+            index
+          ],
+      ),
+    )
+  
+  
     setIsPhotoQuickAddOpen(
       true,
     )
   }
 
+  
+/* =======================================
+   SAVE PHOTOGRAPHS
+======================================= */
 
-  function savePhotos() {
-    onUpdatePlant({
-      ...plant,
-
-      photoUrls:
-        photoDraft,
-
-      updatedAt:
-        new Date()
-          .toISOString(),
-    })
-
-
-    setIsPhotoQuickAddOpen(
-      false,
+function savePhotos() {
+  /*
+   * Keep the photograph dates aligned
+   * with their photographs by index.
+   *
+   * A blank date is deliberately kept as
+   * undefined. Sprig should never invent
+   * when a photograph was taken.
+   */
+  const savedPhotoDates =
+    photoDraft.map(
+      (
+        _photoUrl,
+        index,
+      ) =>
+        photoDateDraft[
+          index
+        ] ||
+        undefined,
     )
-  }
+
+
+  onUpdatePlant({
+    ...plant,
+
+    photoUrls:
+      photoDraft,
+
+    photoDates:
+      savedPhotoDates,
+
+    updatedAt:
+      new Date()
+        .toISOString(),
+  })
+
+
+  setIsPhotoQuickAddOpen(
+    false,
+  )
+}
+
+
+/* =======================================
+   PLANT PHOTOGRAPH CONTEXT
+======================================= */
+
+const plantPhotoContexts =
+  (
+    plant.photoUrls ??
+    []
+  ).map(
+    (
+      _photoUrl,
+      index,
+    ) => {
+      const photoDate =
+        plant.photoDates?.[
+          index
+        ]
+
+
+      /*
+       * Older photographs may not have
+       * dates recorded.
+       *
+       * Leave those honestly without
+       * historical context rather than
+       * inventing a date for them.
+       */
+      if (
+        !photoDate
+      ) {
+        return undefined
+      }
+
+
+      return {
+        heading:
+          'Along the way',
+
+        detail:
+          `${formatDate(
+            photoDate,
+          )} · ${getPhotoGrowingAge(
+            photoDate,
+            plant.plantedDate,
+          )}`,
+      }
+    },
+  )
 
 
   return (
@@ -2090,6 +2357,133 @@ export default function PlantDetail({
             </section>
           </section>
 
+        {/* =======================================
+            GROWING JOURNEY
+        ======================================= */}
+
+{growingJourney.length > 0 && (
+          <section className="story-section">
+            <p className="section-label">
+              Growing journey
+            </p>
+
+            <h2>
+              Where this story has put down roots
+            </h2>
+
+            <p className="journal-intro">
+              A little history of where this
+              plant has grown and what it was
+              growing in along the way.
+            </p>
+
+            <div className="timeline">
+              {growingJourney.map(
+                (
+                  historyEntry,
+                ) => (
+                  <article
+                    key={
+                      historyEntry.id
+                    }
+                    className="timeline-entry"
+                  >
+                    <div className="timeline-marker">
+                      🌱
+                    </div>
+
+                    <div className="timeline-entry-header">
+                      <div>
+                        <div className="timeline-entry-meta">
+                          <time>
+                            {formatDate(
+                              historyEntry.startedDate,
+                            )}
+
+                            {' → '}
+
+                            {historyEntry.endedDate
+                              ? formatDate(
+                                  historyEntry.endedDate,
+                                )
+                              : 'Now'}
+                          </time>
+                        </div>
+
+                        <h3>
+                          {historyEntry.growingPlace
+                            ?.name ??
+                            historyEntry.growingSetup
+                              ?.name ??
+                            'Growing arrangement'}
+                        </h3>
+                      </div>
+                    </div>
+
+
+                    {historyEntry.growingPlace && (
+                      <p>
+                        <strong>
+                          Growing Place:
+                        </strong>{' '}
+
+                        {onOpenGrowingPlace ? (
+                          <button
+                            type="button"
+                            className="garden-place-link"
+                            onClick={() =>
+                              onOpenGrowingPlace(
+                                historyEntry
+                                  .growingPlace!
+                                  .id,
+                              )
+                            }
+                          >
+                            {
+                              historyEntry
+                                .growingPlace
+                                .name
+                            }
+                          </button>
+                        ) : (
+                          historyEntry
+                            .growingPlace
+                            .name
+                        )}
+                      </p>
+                    )}
+
+
+                    {historyEntry.growingSetup && (
+                      <p>
+                        <strong>
+                          Growing Recipe:
+                        </strong>{' '}
+
+                        {
+                          historyEntry
+                            .growingSetup
+                            .name
+                        }
+                      </p>
+                    )}
+
+
+                    {historyEntry.notes && (
+                      <p>
+                        {
+                          historyEntry.notes
+                        }
+                      </p>
+                    )}
+                  </article>
+                ),
+              )}
+            </div>
+          </section>
+        )}
+
+        
           {/* =======================================
               HARVEST TIMING
           ======================================= */}
@@ -2571,11 +2965,11 @@ export default function PlantDetail({
           </section>
 
 
-          {/* =======================================
+                    {/* =======================================
               PHOTOGRAPHS
           ======================================= */}
 
-          <section className="story-section">
+<section className="story-section">
             <div className="section-heading">
               <div>
                 <p className="section-label">
@@ -2593,6 +2987,10 @@ export default function PlantDetail({
               photoUrls={
                 plant.photoUrls ??
                 []
+              }
+
+              photoContexts={
+                plantPhotoContexts
               }
 
               title="Plant photographs"
@@ -2963,7 +3361,7 @@ export default function PlantDetail({
       </GardenLayout>
 
 
-      {/* =======================================
+     {/* =======================================
           EDIT PLANT STORY
       ======================================= */}
 
@@ -2979,6 +3377,10 @@ export default function PlantDetail({
 
           Ingredients={
             ingredients
+          }
+
+          Products={
+            products
           }
 
           plantToEdit={
@@ -3005,6 +3407,10 @@ export default function PlantDetail({
             onAddIngredient
           }
 
+          onAddProduct={
+            onAddProduct
+          }
+
           onClose={() =>
             setIsEditOpen(
               false,
@@ -3014,48 +3420,44 @@ export default function PlantDetail({
       )}
 
 
-      {/* =======================================
+                {/* =======================================
           CREATE VARIATION
       ======================================= */}
-
       {isVariationOpen && (
         <AddPlantForm
           GrowingPlaces={
             growingPlaces
           }
-
           GrowingSetups={
             growingSetups
           }
-
           Ingredients={
             ingredients
           }
-
+          Products={
+            products
+          }
           variationFrom={
             plant
           }
-
           onAddPlant={
             onAddPlant
           }
-
           onUpdatePlant={
             onUpdatePlant
           }
-
           onAddGrowingPlace={
             onAddGrowingPlace
           }
-
           onAddRecipe={
             onAddRecipe
           }
-
           onAddIngredient={
             onAddIngredient
           }
-
+          onAddProduct={
+            onAddProduct
+          }
           onClose={() =>
             setIsVariationOpen(
               false,
@@ -3089,26 +3491,42 @@ export default function PlantDetail({
         }
       >
         <SprigPhotoPicker
-          photoUrls={
-            photoDraft
-          }
+  photoUrls={
+    photoDraft
+  }
 
-          onChange={
-            setPhotoDraft
-          }
+  onChange={
+    setPhotoDraft
+  }
 
-          title="Plant photographs"
+  photoDates={
+    photoDateDraft
+  }
 
-          helperText="Add photographs without leaving this Plant Story."
+  onPhotoDatesChange={
+    setPhotoDateDraft
+  }
 
-          addButtonText="Add photographs"
+  title="Plant photographs"
 
-          photoAltPrefix={`${plant.displayName} photograph`}
+  helperText="Add photographs without leaving this Plant Story."
 
-          maxPhotos={
-            12
-          }
-        />
+  addButtonText="Add photographs"
+
+  photoAltPrefix={`${plant.displayName} photograph`}
+
+  photoDateLabel="When was this photograph taken?"
+
+  photoDateHelperText="Sprig uses this date to place the photograph at the right growing age and find useful side-by-side comparisons."
+
+  defaultNewPhotosToToday={
+    true
+  }
+
+  maxPhotos={
+    12
+  }
+/>
 
 
         <button

@@ -21,3 +21,6 @@ I’d probably choose Completed Plant Stories or Today in the Garden before fina
 
 Rikki-'s notes
 * Add Headings to the pages: so I know what page I am on!
+
+
+Creating a new plant and creating new mix. cant add new bought items to mix

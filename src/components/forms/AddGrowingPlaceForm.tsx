@@ -6,11 +6,12 @@ import {
 } from 'react'
 
 import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
-
+import RecipeComponentsSection from './RecipeComponentsSection'
 import SprigPicker from '../sprig/SprigPicker'
 import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 
 import type {
+  GardenProduct,
   GrowingGroundMethod,
   GrowingGroundType,
   GrowingPlace,
@@ -28,8 +29,8 @@ import GrowingSystemSection from './GrowingSystemSection'
 
 interface AddGrowingPlaceFormProps {
   ingredients: Ingredient[]
-
   growingSetups: GrowingSetup[]
+  products: GardenProduct[]
 
   onAddPlace: (
     place: GrowingPlace,
@@ -38,6 +39,10 @@ interface AddGrowingPlaceFormProps {
 
   onAddIngredient: (
     ingredient: Ingredient,
+  ) => void
+
+  onAddProduct: (
+    product: GardenProduct,
   ) => void
 
   onClose: () => void
@@ -470,8 +475,10 @@ function getGrowingSetupCategoryLabel(
 export default function AddGrowingPlaceForm({
   ingredients,
   growingSetups,
+  products,
   onAddPlace,
   onAddIngredient,
+  onAddProduct,
   onClose,
 }: AddGrowingPlaceFormProps) {
   const now =
@@ -667,43 +674,47 @@ export default function AddGrowingPlaceForm({
     useState<string[]>(
       [],
     )
+/* =======================================
+   MY OWN MIX
+======================================= */
 
+const [
+  ownMixName,
+  setOwnMixName,
+] =
+  useState('')
 
-  /* =======================================
-     MY OWN MIX
-  ======================================= */
+const [
+  ownMixCreatedDate,
+  setOwnMixCreatedDate,
+] =
+  useState(
+    today,
+  )
 
-  const [
-    ownMixName,
-    setOwnMixName,
-  ] =
-    useState('')
+const [
+  ownMixNotes,
+  setOwnMixNotes,
+] =
+  useState('')
 
+const [
+  selectedIngredientIds,
+  setSelectedIngredientIds,
+] =
+  useState<string[]>(
+    [],
+  )
 
-  const [
-    ownMixCreatedDate,
-    setOwnMixCreatedDate,
-  ] =
-    useState(
-      today,
-    )
-
-
-  const [
-    ownMixNotes,
-    setOwnMixNotes,
-  ] =
-    useState('')
-
-
-  const [
-    selectedIngredientIds,
-    setSelectedIngredientIds,
-  ] =
-    useState<string[]>(
-      [],
-    )
-
+const [
+  recipeComponents,
+  setRecipeComponents,
+] =
+  useState<
+    GrowingSetup['recipeComponents']
+  >(
+    [],
+  )
 
   /* =======================================
      INGREDIENT CREATION
@@ -1907,7 +1918,7 @@ export default function AddGrowingPlaceForm({
             )}
 
 
-            {/* =======================================
+                                    {/* =======================================
                 MY OWN MIX
             ======================================= */}
 
@@ -1935,24 +1946,8 @@ export default function AddGrowingPlaceForm({
                 setOwnMixNotes={
                   setOwnMixNotes
                 }
-
-                ingredients={
-                  ingredients
-                }
-
-                selectedIngredientIds={
-                  selectedIngredientIds
-                }
-                setSelectedIngredientIds={
-                  setSelectedIngredientIds
-                }
-
-                onCreateIngredient={
-                  createIngredient
-                }
               />
             )}
-
 
             {/* =======================================
                 BOUGHT MIX
@@ -2063,6 +2058,52 @@ export default function AddGrowingPlaceForm({
                 }
               />
             )}
+
+
+{/* =======================================
+    WHAT'S PART OF THIS GROWING RECIPE
+======================================= */}
+
+{growingSetupCategory &&
+  shouldShowNewSetupBuilder && (
+  <RecipeComponentsSection
+    ingredients={
+      ingredients
+    }
+
+    products={
+      products
+    }
+
+    growingSetups={
+      growingSetups
+    }
+
+    selectedIngredientIds={
+      selectedIngredientIds
+    }
+
+    setSelectedIngredientIds={
+      setSelectedIngredientIds
+    }
+
+    recipeComponents={
+      recipeComponents
+    }
+
+    setRecipeComponents={
+      setRecipeComponents
+    }
+
+    onCreateIngredient={
+      createIngredient
+    }
+    
+    onAddProduct={
+      onAddProduct
+    }
+  />
+)}
 
 
             {/* =======================================

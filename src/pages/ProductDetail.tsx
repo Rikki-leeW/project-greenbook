@@ -11,13 +11,16 @@ import type {
   AppPage,
 } from '../types/navigation'
 
-
 interface ProductDetailProps {
   product: GardenProduct
 
   purchases: PurchaseRecord[]
 
   onBack: () => void
+
+  backLabel?: string
+
+  onBackToOrigin?: () => void
 
   onEdit?: () => void
 
@@ -251,7 +254,9 @@ function formatPackageSize(
 export default function ProductDetail({
   product,
   purchases,
-  onBack,
+  onBack,  
+  backLabel,
+  onBackToOrigin,
   onEdit,
   onCreateVariation,
   onAddPhotographs,
@@ -435,6 +440,20 @@ export default function ProductDetail({
           className="plant-record-actions"
           aria-label="Product actions"
         >
+          {onBackToOrigin &&
+            backLabel && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={
+                  onBackToOrigin
+                }
+              >
+                ← Back to{' '}
+                {backLabel}
+              </button>
+            )}
+
           <button
             type="button"
             className="secondary-button"
@@ -442,7 +461,7 @@ export default function ProductDetail({
               onBack
             }
           >
-            ← Back
+            ← Products
           </button>
 
 

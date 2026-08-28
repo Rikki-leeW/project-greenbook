@@ -923,3 +923,471 @@ reusable proper PDF + XLSX exporter for Harvest, Plants, Comparisons and Trials.
 
 COMPARISONS - harvests to start with but growth and photos and plants should be compared.
 --------------------------------------------------
+24/08
+MAJOR ROADMAP CHANGE
+My recipes - What is this growing in ha now changed 
+I realised that the initial 4 categories were too restrictive and didnt actually crossover. I wanted to add bought products into My recipe which was proving too difficult unless I added ingredients first. 
+[ My Recipe ]
+[ Bought Mix ]
+[ Native Ground ]
+[ Growing System ]
+
+Then I realised they should all be available to each other. Including bought products. as hydroponic systems would nee fertisliers in the system and native grounds might want to add clay breakers and mulch to their growing in holes. so everything eeds a dropdown from the other categories.
+
+Back from each page now has back to the page just came from AND back to the Main category
+---------------------------------------------------
+25/08
+
+Backups, Library Exporters/Comparisons, Calendars, App Level State adn then further down the road more financials and styling. (I THINK we finished Harvest but cannot remember). You had specific Roadmaps. Now a small deviation again with photos.
+
+
+
+
+
+
+******************************************************************************************************************************************************
+ROADMAP AFTER HANDOVER
+
+1. 🛟 Backup & Data Safety
+
+I agree with our previous ordering: this should be next.
+
+Sprig has crossed an important threshold. It's no longer a toy app containing disposable sample data. You're actually building garden history in it.
+
+And it's still in localStorage.
+
+Before we build more cleverness on top, we should give the gardener a way to get the garden out of the browser and safely back in again.
+
+But I don't think this should just mean a button saying "Download JSON."
+
+We should design a small proper Sprig Backup architecture:
+
+Whole Garden Backup
+
+all persistent Sprig data
+one backup package/file
+backup creation date
+Sprig data/schema version
+enough metadata to identify what the backup contains
+
+Restore
+
+select a Sprig backup
+validate it before touching current data
+recognise incompatible/malformed files
+preferably warn what is about to happen
+never casually wipe the existing garden
+
+Version/migration groundwork
+
+backups know what version of Sprig's data structure created them
+future Sprig can migrate older data instead of saying, "Sorry, 2026 potatoes have become hieroglyphics."
+
+This is data safety, not the pretty PDF exporter. They are separate jobs.
+
+2. 📚 Comparison / Library Export Architecture
+
+Then we tackle your lovely rule:
+
+Everything is comparable.
+
+And I think your notes contain the answer to how we should architect it:
+
+Comparison is not data. Comparison is a view over existing records.
+
+That's crucial.
+
+We shouldn't create a special ComparisonPlant or stuff comparison fields into HarvestRecord.
+
+Instead Sprig selects real records and assembles their connected stories.
+
+Your potatoes are the perfect test case.
+
+A future comparison might pull:
+
+Sebago Bag 10 | Sebago Bag 11 | Royal Blue Bag 9
+
+and derive:
+
+variety
+sowing/planting dates
+age
+Growing Place
+Growing Recipe
+emergence
+significant Journal events
+flowering
+expected harvest
+actual harvests
+total yield
+quality
+photos at useful points
+costs later
+
+And the gardener chooses what matters rather than receiving Spreadsheetzilla with 47 columns. 🦖
+
+This branch is also where the reusable exporters begin to make sense:
+
+Garden Report → PDF
+Human-readable, attractive, printable/shareable.
+
+Garden Data → XLSX
+Structured analysis.
+
+Those exporters should eventually be reusable by Plants, Harvests, Comparisons and Garden Trials rather than four unrelated export implementations.
+
+3. 📅 Calendar / Garden Timeline Architecture
+
+Then Calendar.
+
+And we already made an important decision without technically building Calendar: we've been creating the dates Calendar will consume.
+
+Plant Stories already know dates.
+
+Journal entries know dates.
+
+Purchases know dates.
+
+Harvests know dates.
+
+Expected harvest timing can reference sowing, planting out, a Garden Event or another custom reference date.
+
+So Calendar should read the garden's existing records, not create parallel calendar copies of them.
+
+That fits perfectly with:
+
+Just one story, viewed from different places.
+
+A Harvest appearing on September 12 in Calendar should still be that Harvest Record.
+
+Click it → Quick Peek/context → full Harvest Detail.
+
+No secret CalendarHarvest lurking beneath the floorboards. 😂
+
+4. 🧭 App-Level State & Navigation
+
+Only after those systems put enough pressure on navigation/state do I think we should address this.
+
+Right now App.tsx has accumulated selected Plant, Journal Event, Harvest, Growing Place, etc., while AppLibrary.tsx manages another layer internally.
+
+Calendar and Comparison will add more cross-feature navigation.
+
+That is when we examine the pressure.
+
+Not:
+
+"Big React app detected. Deploy Redux cannon."
+
+Instead:
+
+What navigation/state problem do we now genuinely have, and what is the smallest architecture that solves it?
+
+That was absolutely the right instinct in our previous roadmap.
+
+5. 💰 Financial Sprig
+
+Then the groundwork we've already laid with PurchaseRecord starts paying dividends.
+
+Not accounting software.
+
+Rather garden questions:
+
+What did this potato crop actually cost me?
+
+Did the expensive Bought Mix outperform my own Recipe?
+
+How has this Product's price changed?
+
+How much of that 50L bag did these plants actually consume?
+
+Eventually cost can become another dimension of Everything is comparable.
+
+6. 🎨 Proper Styling Pass
+
+And then Sprig gets its larger visual refinement.
+
+Not because appearance is unimportant. Quite the opposite.
+
+But there's little value exquisitely polishing a component that gets replaced when Calendar/navigation architecture changes.
+
+We'll continue fixing genuine usability blemishes as they appear, exactly as we just did with photographs.
+
+And there are two threads running through that roadmap
+
+Journal relationships shouldn't be treated as an isolated page feature. Your principle is stronger:
+
+Write once. Remember everywhere.
+
+One Garden Event can belong to several Plants, a Growing Place and ultimately Calendar. Plant Story should derive its relevant Journal memories rather than require duplicate entries.
+
+And Garden Trials / Sprig intelligence sit further downstream.
+
+Garden Trials become especially interesting after Comparison exists, because a Trial is essentially a deliberately structured garden question whose evidence comes from real records.
+
+And future Sprig intelligence depends on everything we're doing now:
+
+"These broccoli were started together, but this one headed 24 days earlier."
+
+That becomes possible because dates, places, recipes, events and harvests remain connected historical evidence.
+
+So I don't think you need to go hunting for a prettier roadmap.
+
+We found it.
+
+The working major sequence is:
+
+NOW: ✅ Shared detail photographs
+NEXT: 🛟 Backup & Restore / data safety
+THEN: 📊 Comparison + reusable PDF/XLSX export architecture
+THEN: 📅 Calendar / timeline architecture
+THEN: 🧭 App-level state/navigation review
+LATER: 💰 deeper financial intelligence
+LATER: 🎨 broader styling refinement
+
+With Journal relationships, Growing Places, picker improvements and other smaller functional jobs fitted into sensible places rather than automatically becoming new major branches.
+
+And I think Backup should genuinely be our next coding project.
+
+But I don't want to write a line of it yet.
+
+First I want to inspect how Sprig currently persists its data, because Backup should wrap the existing persistence architecture rather than invent another one. From your screenshot I can see:
+
+
+Garden Trials
+Calendar & Planning
+Garden Notes / Almanac
+Plant Reference
+Saved Tips & Sources
+Garden Gallery
+Purchases
+Supplies
+Suppliers
+Costs & Allocations
+
+***************************************************************************************************************************************************
+
+Comparison:
+The comparison engine itself is now doing the hard things: save, reopen, edit membership, rename, delete, PDF export, XLSX export with embedded photos. The next logical job is to make Comparisons.tsx feel like a proper destination rather than a utility list.
+
+I’d do these in this order:
+
+Show better card summaries
+Instead of only “5 records” and a plant-name string, each saved comparison card should surface useful context such as plant count, most recent update date, maybe a tiny photo strip, and eventually which comparison dimensions exist.
+Show updatedAt properly
+If a comparison was edited or renamed, the page should say something like:
+Updated 26 August 2026
+rather than only showing the original saved date.
+Improve actions
+Right now Rename / Open / Delete are plain text links. We can make the card hierarchy clearer and keep Delete visually secondary so it does not sit beside Open with equal weight.
+Then style for mobile
+Because this page will ultimately live on the phone, we should make the cards thumb-friendly and compact without turning them into chunky dashb oard bricks.
+
+My pick for the very next code task is updatedAt + better card metadata, because it is small, functional, and uses data we already store.
+
+We can do that in a couple of tiny chunks.
+ 
+***************************************************************
+28/08/26
+🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿
+🌿 SPRIG ROADMAP: AFTER PLANT COMPARISON
+1. Visual Clickable Calendar & Planning
+
+Build Sprig's garden calendar into a genuinely visual, interactive part of the garden story rather than simply another list of dates.
+
+The calendar should bring together the dates Sprig already knows and the things the gardener is planning, eventually allowing the gardener to see and move through:
+
+sowing and planting dates
+expected harvest periods
+actual harvests
+Journal events
+garden tasks and reminders
+planned sowings and succession planting
+important Plant Story dates
+other seasonal garden events
+
+The goal is for the gardener to be able to look at the garden through time, move backwards through what happened and forwards through what is planned.
+
+This returns to one of Sprig's original foundations:
+
+Journal. Notes. Dates.
+
+2–4. Sprig's Garden Knowledge
+
+These three areas belong closely together.
+
+A large part of the knowledge a gardener accumulates does not belong to a particular Plant Story or Journal event.
+
+At present, this information often ends up scattered through apps such as Google Keep and Notes:
+
+personal gardening notes
+information learned through experience
+reference information about particular plants
+useful guidance gathered through conversations with ChatGPT
+techniques worth trying
+snippets copied from gardening groups
+another gardener's useful observation
+links, articles and reference material
+things worth remembering next season
+
+Sprig needs a home for this accumulated knowledge without turning it into one enormous miscellaneous Notes drawer.
+
+The three areas below provide different ways into that knowledge.
+
+2. Garden Notes / Almanac
+
+The gardener's own evolving notebook of garden knowledge.
+
+This is the natural home for observations, instructions, ideas, seasonal notes, methods and useful information that the gardener wants to keep.
+
+It should feel closer to a well-used garden notebook than a formal reference database.
+
+Over time it can become a personal garden almanac built from the gardener's own climate, garden and experience.
+
+3. Plant Reference
+
+Knowledge that belongs specifically to a kind of plant rather than to one individual Plant Story.
+
+For example:
+
+Broccoli
+
+preferred conditions
+feeding observations
+expected behaviour
+harvest patterns
+useful growing notes
+things learned from previous broccoli Plant Stories
+saved knowledge about side shoots, heading, timing, etc.
+
+A Plant Story records:
+
+What happened to this broccoli?
+
+Plant Reference helps answer:
+
+What do I know about growing broccoli?
+
+The two should eventually connect without becoming the same record.
+
+4. Saved Tips & Sources
+
+A home for useful knowledge gathered from elsewhere.
+
+Examples:
+
+advice from another gardener in a Facebook gardening group
+a useful article
+a website
+a nursery's growing guide
+something learned from ChatGPT
+a technique worth trying
+a particularly useful comment or explanation
+a source the gardener wants to return to
+
+Sprig should preserve where the information came from whenever possible.
+
+A useful piece of gardening knowledge should not become an orphaned sentence whose origin is forgotten six months later.
+
+Garden Notes, Plant Reference and Saved Tips & Sources should ultimately connect with one another rather than becoming three isolated filing cabinets.
+
+The gardener gathers knowledge once. Sprig helps it find the places where it is useful.
+
+5. Garden Gallery
+
+Create a garden-wide visual history using photographs already belonging to records throughout Sprig.
+
+The Gallery should not become a second disconnected photo library.
+
+Instead, it should provide another view into photographs that already belong to:
+
+Plant Stories
+Journal entries
+Harvests
+Growing Places
+Garden Trials
+and future photographic records
+
+Where dates exist, those dates remain meaningful.
+
+Where source records exist, the gardener should be able to reach them.
+
+One photograph. One piece of garden history. Viewed from another place.
+
+6. Purchases + Costs & Allocations
+
+Develop Sprig's purchase and cost architecture together.
+
+The real-world workflow should remain extremely simple:
+
+“I bought soil today.”
+
+Sprig can then remember the useful detail behind that simple action:
+
+what was bought
+quantity
+unit
+price
+supplier
+purchase date
+price history
+Product
+what the purchase was eventually used for
+
+Costs & Allocations should allow those purchases to flow naturally into:
+
+Growing Recipes
+Plant Stories
+Growing Places
+harvests
+experiments/trials
+other appropriate garden records
+
+The gardener should not need to behave like an accountant for Sprig to understand what the garden costs.
+
+7. Supplies + Suppliers
+
+Build the practical garden-resource layer around the purchase system.
+
+Supplies
+
+Understand what the gardener has, uses and may need again.
+
+This can eventually connect Products, Ingredients, Growing Recipes and purchase history without duplicating those records.
+
+Suppliers
+
+Give nurseries, garden centres, landscape suppliers and other sellers their own meaningful records.
+
+Supplier history can eventually answer questions such as:
+
+Where did I buy this?
+What did I pay last time?
+Which products have I bought there?
+Which plants came from this nursery?
+Where did that particular growing mix come from?
+
+Purchases, Supplies and Suppliers should form a connected system rather than three separate lists.
+
+🍃 THE THREAD THROUGH THIS ROADMAP
+
+Sprig began with Journal, Notes and Dates.
+
+Plant Comparison has considerably strengthened the Journal/history/evidence side of that original idea.
+
+The next phase returns deliberately to the other two foundations:
+
+Dates → Calendar & Planning
+
+Notes → Garden Notes, Plant Reference and Saved Tips & Sources
+
+Only after that core garden-memory system is substantially established do we move deeper into Gallery, purchasing, costs, supplies and suppliers.
+
+Sprig is not simply recording what is in the garden.
+
+It is gradually becoming the place where the gardener can remember:
+
+what happened, when it happened, what they learned, where that knowledge came from, and what they want to do next.
+
+I think that last distinction is particularly important for our future architecture. Plant Reference shouldn't become Wikipedia-inside-Sprig. The valuable thing is that it can eventually combine reference knowledge with your own accumulated garden knowledge and evidence. That's what makes it different from simply Googling “how to grow broccoli.”
+
+And yes, this corrected roadmap is now the one I'm carrying forward. 🌱

@@ -268,7 +268,74 @@ export interface GrowingSetup {
 
   archivedAt?: string
 
+
+  /*
+   * =======================================
+   * RECIPE CONTENTS
+   * =======================================
+   */
+
+  /*
+   * Legacy ingredient links.
+   *
+   * Keep these so existing Growing Setup
+   * records continue to work while Sprig
+   * moves toward the more flexible recipe
+   * component system below.
+   */
   ingredientIds?: string[]
+
+  /*
+   * A Growing Recipe can contain different
+   * kinds of real Sprig records.
+   *
+   * Examples:
+   *
+   * Homemade compost
+   * → Ingredient
+   *
+   * Guinea pig manure
+   * → Ingredient
+   *
+   * Blood & Bone
+   * → Garden Product
+   *
+   * Slow-release NPK pellets
+   * → Garden Product
+   *
+   * A bought potting mix
+   * → Growing Setup
+   *
+   * Another reusable growing recipe
+   * → Growing Setup
+   *
+   * Keeping the source type alongside the ID
+   * means Sprig can retain the identity of
+   * the original record rather than creating
+   * duplicate Ingredients.
+   */
+  recipeComponents?: Array<{
+    sourceType:
+      | 'ingredient'
+      | 'product'
+      | 'growing-setup'
+
+    sourceId: string
+
+    quantity?: number
+
+    unit?:
+      | 'part'
+      | 'litre'
+      | 'millilitre'
+      | 'kilogram'
+      | 'gram'
+      | 'handful'
+      | 'scoop'
+      | 'other'
+
+    customUnitLabel?: string
+  }>
 
   brand?: string
   productName?: string
@@ -504,6 +571,78 @@ export interface GrowingSpace {
 
 
 /* =======================================
+   PLANT GROWING HISTORY
+======================================= */
+
+/*
+ * A Plant Story can move between Growing
+ * Places and Growing Setups during its life.
+ *
+ * These records preserve WHEN those changes
+ * happened.
+ *
+ * This is deliberately separate from the
+ * currentGrowingPlaceId and
+ * currentGrowingSetupId fields.
+ *
+ * The current fields remain useful for
+ * quickly answering:
+ *
+ * "Where is this plant now?"
+ *
+ * The history answers:
+ *
+ * "Where was this plant at this point in
+ * its story?"
+ *
+ * This becomes especially important for
+ * comparisons, photographs, Journal
+ * evidence and future Sprig observations.
+ */
+
+export interface PlantGrowingHistoryEntry {
+  id: string
+
+  /*
+   * The date this growing arrangement began.
+   */
+  startedDate: string
+
+  /*
+   * Optional because an arrangement may
+   * still be current.
+   */
+  endedDate?: string
+
+  /*
+   * Either or both may be recorded.
+   *
+   * A plant can change place without
+   * changing recipe, or change recipe while
+   * remaining in the same place.
+   */
+  growingPlaceId?: string
+
+  growingSetupId?: string
+
+  /*
+   * Optional connection to the Garden Event
+   * that caused or recorded the change.
+   *
+   * Example:
+   * "Moved potatoes away from cold pebbles."
+   */
+  gardenEventId?: string
+
+  /*
+   * Allows useful context even when the
+   * gardener did not create a Journal entry.
+   */
+  notes?: string
+}
+
+
+/* =======================================
    PLANT STORY RECORD
 ======================================= */
 
@@ -724,6 +863,12 @@ export interface PlantStory {
    * =======================================
    */
 
+  /*
+   * Current and previous IDs remain as
+   * convenient relationship fields and for
+   * compatibility with existing Plant
+   * Stories.
+   */
   currentGrowingSetupId?: string
   previousGrowingSetupIds?: string[]
 
@@ -740,16 +885,69 @@ export interface PlantStory {
 
   /*
    * =======================================
-   * NOTES AND PHOTOGRAPHS
+   * GROWING HISTORY
    * =======================================
    */
 
-  notes?: string
+  /*
+   * Dated history of where and how this
+   * Plant Story has grown.
+   *
+   * Existing Plant Stories do not require
+   * this field, so introducing it does not
+   * invalidate older saved gardens.
+   */
+  growingHistory?: PlantGrowingHistoryEntry[]
 
-  photoUrls?: string[]
 
+/*
+ * =======================================
+ * NOTES AND PHOTOGRAPHS
+ * =======================================
+ */
 
-    /*
+notes?: string
+
+/*
+ * The photographs attached directly to
+ * this Plant Story.
+ *
+ * Kept as the existing string array so
+ * older saved gardens and Sprig's current
+ * photograph galleries remain compatible.
+ */
+photoUrls?: string[]
+
+/*
+ * Optional dates belonging to the Plant
+ * Story photographs above.
+ *
+ * Each date occupies the same array
+ * position as its photograph in photoUrls.
+ *
+ * Example:
+ *
+ * photoUrls[0]
+ * → photoDates[0]
+ *
+ * photoUrls[1]
+ * → photoDates[1]
+ *
+ * A date may be undefined because older
+ * Plant Stories already contain photographs
+ * that were saved before Sprig allowed the
+ * gardener to record when a photograph was
+ * taken.
+ *
+ * This lets Sprig gradually gain dated
+ * photographic history without inventing
+ * dates for existing photographs.
+ */
+photoDates?: Array<
+  string | undefined
+>
+
+  /*
    * =======================================
    * HARVEST EXPECTATION
    * =======================================
@@ -1101,6 +1299,58 @@ export interface HarvestRecord {
 
 
 /* =======================================
+   SAVED COMPARISONS
+======================================= */
+
+/*
+ * A Comparison is a saved lens across
+ * real Sprig records.
+ *
+ * It does NOT duplicate the records being
+ * compared or the evidence connected to
+ * them.
+ *
+ * When reopened, Sprig reads the current
+ * source records again. This means new
+ * Journal entries, Harvests, photographs,
+ * costs and other connected information
+ * can appear automatically.
+ *
+ * The order of items is meaningful because
+ * it controls their left-to-right order in
+ * comparison views.
+ */
+
+export type ComparisonRecordType =
+  | 'plant-story'
+  | 'growing-place'
+  | 'growing-setup'
+
+
+export interface ComparisonItem {
+  recordType:
+    ComparisonRecordType
+
+  recordId:
+    string
+}
+
+
+export interface SavedComparison {
+  id: string
+
+  name: string
+
+  items:
+    ComparisonItem[]
+
+  createdAt: string
+
+  updatedAt?: string
+}
+
+
+/* =======================================
    COMPLETE SAVED GARDEN
 ======================================= */
 
@@ -1147,4 +1397,6 @@ export interface GardenData {
   events: GardenEvent[]
 
   harvests: HarvestRecord[]
+
+  savedComparisons: SavedComparison[]
 }

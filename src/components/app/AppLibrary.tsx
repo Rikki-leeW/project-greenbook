@@ -252,6 +252,44 @@ export default function AppLibrary({
     )
 
 
+     /* =======================================
+     LIBRARY NAVIGATION ORIGIN
+  ======================================= */
+
+  type LibraryNavigationOrigin =
+  | {
+      view: 'recipe-detail'
+      recordId: string
+      label: string
+    }
+  | {
+      view: 'ingredient-detail'
+      recordId: string
+      label: string
+    }
+  | {
+      view: 'product-detail'
+      recordId: string
+      label: string
+    }
+  | {
+      view:
+        | 'growing-recipes'
+        | 'ingredients'
+        | 'products'
+        | 'library'
+      recordId?: never
+      label: string
+    }
+
+const [
+  navigationOrigin,
+  setNavigationOrigin,
+] =
+  useState<LibraryNavigationOrigin | null>(
+    null,
+  ) 
+
   /* =======================================
      RESPOND TO LIBRARY NAVIGATION
   ======================================= */
@@ -532,6 +570,45 @@ export default function AppLibrary({
         ingredient.id ===
         selectedIngredientId,
     )
+
+    /* =======================================
+   RELEASE STALE PAGE LOCK
+======================================= */
+
+useEffect(() => {
+  const hasOpenEditor =
+    isRecipeEditorOpen ||
+    isIngredientEditorOpen ||
+    isProductEditorOpen ||
+    isPurchaseEditorOpen
+
+  if (
+    hasOpenEditor
+  ) {
+    return
+  }
+
+  document.body.style.overflow =
+    ''
+
+  document.body.style.position =
+    ''
+
+  document.body.style.top =
+    ''
+
+  document.body.style.width =
+    ''
+
+  document.documentElement.style.overflow =
+    ''
+}, [
+  isRecipeEditorOpen,
+  isIngredientEditorOpen,
+  isProductEditorOpen,
+  isPurchaseEditorOpen,
+])
+
 
 
   /* =======================================
@@ -1857,7 +1934,7 @@ export default function AppLibrary({
   let pageContent
 
 
-  /* =======================================
+    /* =======================================
      INGREDIENT DETAIL
   ======================================= */
 
@@ -1880,7 +1957,42 @@ export default function AppLibrary({
           purchases
         }
 
+        backLabel={
+          navigationOrigin?.label
+        }
+
+        onBackToOrigin={
+          navigationOrigin
+            ? () => {
+                if (
+                  navigationOrigin.view ===
+                  'recipe-detail'
+                ) {
+                  setSelectedRecipeId(
+                    navigationOrigin.recordId,
+                  )
+
+                  setSelectedIngredientId(
+                    null,
+                  )
+
+                  setCurrentView(
+                    'recipe-detail',
+                  )
+                }
+
+                setNavigationOrigin(
+                  null,
+                )
+              }
+            : undefined
+        }
+
         onBack={() => {
+          setNavigationOrigin(
+            null,
+          )
+
           setSelectedIngredientId(
             null,
           )
@@ -1970,8 +2082,24 @@ export default function AppLibrary({
         onOpenRecipe={(
           recipeId,
         ) => {
-          handleOpenRecipe(
+          setNavigationOrigin({
+            view: 'ingredient-detail',
+            recordId:
+              selectedIngredient.id,
+            label:
+              selectedIngredient.name,
+          })
+
+          setSelectedIngredientId(
+            null,
+          )
+
+          setSelectedRecipeId(
             recipeId,
+          )
+
+          setCurrentView(
+            'recipe-detail',
           )
         }}
 
@@ -2005,9 +2133,17 @@ export default function AppLibrary({
           archivedIngredients.length
         }
 
-        onOpenIngredient={
-          handleOpenIngredient
-        }
+        onOpenIngredient={(
+          ingredientId,
+        ) => {
+          setNavigationOrigin(
+            null,
+          )
+
+          handleOpenIngredient(
+            ingredientId,
+          )
+        }}
 
         onAddIngredient={
           handleOpenCreateIngredient
@@ -2055,9 +2191,17 @@ export default function AppLibrary({
 
         showArchivedStatus
 
-        onOpenIngredient={
-          handleOpenIngredient
-        }
+        onOpenIngredient={(
+          ingredientId,
+        ) => {
+          setNavigationOrigin(
+            null,
+          )
+
+          handleOpenIngredient(
+            ingredientId,
+          )
+        }}
 
         onAddIngredient={
           handleOpenCreateIngredient
@@ -2098,6 +2242,14 @@ export default function AppLibrary({
           ingredients
         }
 
+        products={
+          products
+        }
+
+        growingSetups={
+          recipes
+        }
+
         plants={
           plants
         }
@@ -2108,6 +2260,37 @@ export default function AppLibrary({
 
         purchases={
           purchases
+        }
+
+        backLabel={
+          navigationOrigin?.label
+        }
+
+        onBackToOrigin={
+          navigationOrigin
+            ? () => {
+                if (
+                  navigationOrigin.view ===
+                  'ingredient-detail'
+                ) {
+                  setSelectedIngredientId(
+                    navigationOrigin.recordId,
+                  )
+
+                  setSelectedRecipeId(
+                    null,
+                  )
+
+                  setCurrentView(
+                    'ingredient-detail',
+                  )
+                }
+
+                setNavigationOrigin(
+                  null,
+                )
+              }
+            : undefined
         }
 
         onEdit={() =>
@@ -2162,6 +2345,10 @@ export default function AppLibrary({
         }
 
         onBack={() => {
+          setNavigationOrigin(
+            null,
+          )
+
           setSelectedRecipeId(
             null,
           )
@@ -2222,8 +2409,56 @@ export default function AppLibrary({
         onOpenIngredient={(
           ingredientId,
         ) => {
-          handleOpenIngredient(
+          setNavigationOrigin({
+            view: 'recipe-detail',
+            recordId:
+              selectedRecipe.id,
+            label:
+              selectedRecipe.name,
+          })
+
+          setSelectedRecipeId(
+            null,
+          )
+
+          setSelectedIngredientId(
             ingredientId,
+          )
+
+          setCurrentView(
+            'ingredient-detail',
+          )
+        }}
+
+        onOpenProduct={(
+          productId,
+        ) => {
+          setNavigationOrigin({
+            view: 'recipe-detail',
+            recordId:
+              selectedRecipe.id,
+            label:
+              selectedRecipe.name,
+          })
+
+          setSelectedProductId(
+            productId,
+          )
+
+          setCurrentView(
+            'product-detail',
+          )
+        }}
+
+        onOpenRecipe={(
+          recipeId,
+        ) => {
+          setSelectedRecipeId(
+            recipeId,
+          )
+
+          setCurrentView(
+            'recipe-detail',
           )
         }}
 
@@ -2233,7 +2468,6 @@ export default function AppLibrary({
       />
     )
   }
-
 
   /* =======================================
      ARCHIVED RECIPE INDEX
@@ -2342,7 +2576,42 @@ export default function AppLibrary({
           purchases
         }
 
+        backLabel={
+          navigationOrigin?.label
+        }
+
+        onBackToOrigin={
+          navigationOrigin
+            ? () => {
+                if (
+                  navigationOrigin.view ===
+                  'recipe-detail'
+                ) {
+                  setSelectedRecipeId(
+                    navigationOrigin.recordId,
+                  )
+
+                  setSelectedProductId(
+                    null,
+                  )
+
+                  setCurrentView(
+                    'recipe-detail',
+                  )
+                }
+
+                setNavigationOrigin(
+                  null,
+                )
+              }
+            : undefined
+        }
+
         onBack={() => {
+          setNavigationOrigin(
+            null,
+          )
+
           setSelectedProductId(
             null,
           )
@@ -2558,7 +2827,6 @@ export default function AppLibrary({
     )
   }
 
-
   /* =======================================
      SHARED EDITORS
   ======================================= */
@@ -2567,11 +2835,18 @@ export default function AppLibrary({
     <>
       {pageContent}
 
-
       {isRecipeEditorOpen && (
         <AddRecipeForm
           ingredients={
             ingredients
+          }
+
+          products={
+            products
+          }
+
+          growingSetups={
+            recipes
           }
 
           recipeToEdit={
@@ -2589,6 +2864,10 @@ export default function AppLibrary({
 
           onAddIngredient={
             onAddIngredient
+          }
+
+          onAddProduct={
+            onAddProduct
           }
 
           onAddPurchase={

@@ -20,6 +20,10 @@ import Gate from './pages/Gate'
 import Welcome from './pages/Welcome'
 import GardenPlaces from './pages/GrowingPlaces'
 import GrowingPlaceDetail from './pages/GrowingPlaceDetail'
+import BackupRestore from './pages/BackupRestore'
+import PlantComparison from './pages/PlantComparison'
+import Comparisons from './pages/Comparisons'
+
 
 import type {
   AppPage,
@@ -30,6 +34,10 @@ import {
   saveGardenData,
 } from './services/storage'
 
+import {
+  downloadGardenBackup,
+} from './services/backup'
+
 import type {
   GardenEvent,
   GardenProduct,
@@ -39,6 +47,7 @@ import type {
   PlantStory,
   PurchaseRecord,
   HarvestRecord,
+  SavedComparison,
 } from './types'
 
 
@@ -157,6 +166,26 @@ const [
   )
 
   /* =======================================
+   COMPARISON
+======================================= */
+
+const [
+  comparisonPlantIds,
+  setComparisonPlantIds,
+] =
+  useState<string[]>(
+    [],
+  )
+
+  const [
+    activeSavedComparisonId,
+    setActiveSavedComparisonId,
+  ] =
+    useState<string | null>(
+      null,
+    )
+
+  /* =======================================
      LIBRARY DESTINATION
   ======================================= */
 
@@ -198,95 +227,130 @@ const [
     )
 
   /* =======================================
-     CENTRAL APP NAVIGATION
-  ======================================= */
+   CENTRAL APP NAVIGATION
+======================================= */
 
-  function handleNavigate(
-    page: AppPage,
-    libraryView?:
-      | 'library'
-      | 'growing-recipes'
-      | 'ingredients'
-      | 'products',
+function handleNavigate(
+  page: AppPage,
+  libraryView?:
+    | 'library'
+    | 'growing-recipes'
+    | 'ingredients'
+    | 'products',
+) {
+  /*
+   * A detail record sits over one of
+   * Sprig's main pages.
+   *
+   * When the gardener deliberately
+   * navigates somewhere else, release
+   * every selected detail record first.
+   */
+
+  setSelectedPlantId(
+    null,
+  )
+
+  setSelectedEventId(
+    null,
+  )
+
+  setSelectedHarvestId(
+    null,
+  )
+
+  setSelectedGrowingPlaceId(
+    null,
+  )
+
+
+  setLibraryRecipeIdToOpen(
+    null,
+  )
+
+
+  setIsAddPlantOpen(
+    false,
+  )
+
+  setIsAddEventOpen(
+    false,
+  )
+
+  setIsAddHarvestOpen(
+    false,
+  )
+
+  setIsAddRecipeOpen(
+    false,
+  )
+
+  setIsAddGrowingPlaceOpen(
+    false,
+  )
+
+
+  setHarvestEditorRecord(
+    null,
+  )
+
+  setHarvestInitialPlantStoryIds(
+    [],
+  )
+
+
+  /*
+   * A comparison is a temporary working
+   * session.
+   *
+   * Ordinary navigation away from that
+   * workflow should clear the working
+   * selection without deleting the saved
+   * comparison record itself.
+   *
+   * Reopening a saved comparison later
+   * will rebuild this state from the
+   * SavedComparison record.
+   */
+
+  if (
+    page !==
+    'comparison'
   ) {
-    /*
-     * A detail record sits over one of
-     * Sprig's main pages.
-     *
-     * When the gardener deliberately
-     * navigates somewhere else, release
-     * every selected detail record first.
-     */
+    setComparisonPlantIds(
+      [],
+    )
 
-    setSelectedPlantId(
+    setActiveSavedComparisonId(
       null,
-    )
-    setSelectedEventId(
-      null,
-    )
-    setSelectedHarvestId(
-      null,
-    )
-    setSelectedGrowingPlaceId(
-      null,
-    )
-
-    setLibraryRecipeIdToOpen(
-      null,
-    )
-
-
-    setIsAddPlantOpen(
-      false,
-    )
-    setIsAddEventOpen(
-      false,
-    )
-    setIsAddHarvestOpen(
-      false,
-    )
-    setIsAddRecipeOpen(
-      false,
-    )
-    setIsAddGrowingPlaceOpen(
-      false,
-    )
-
-
-setHarvestEditorRecord(
-  null,
-)
-
-setHarvestInitialPlantStoryIds(
-  [],
-)
-
-
-
-    /*
-     * If the gardener chose a particular
-     * Garden Library shelf from the Satchel,
-     * remember that destination.
-     *
-     * Ordinary navigation to the Library
-     * opens its main bookshelf.
-     */
-
-    if (
-      page === 'library'
-    ) {
-      setLibraryViewToOpen(
-        libraryView ??
-          'library',
-      )
-    }
-
-
-    setActivePage(
-      page,
     )
   }
 
+
+  /*
+   * If the gardener chose a particular
+   * Garden Library shelf from the Satchel,
+   * remember that destination.
+   *
+   * Ordinary navigation to the Library
+   * opens its main bookshelf.
+   */
+
+  if (
+    page ===
+    'library'
+  ) {
+    setLibraryViewToOpen(
+      libraryView ??
+        'library',
+    )
+  }
+
+
+  setActivePage(
+    page,
+  )
+}
 
   /* =======================================
      OPEN PLANT RECORD
@@ -902,6 +966,138 @@ setHarvestInitialPlantStoryIds(
     )
   }
 
+ /* =======================================
+   SAVE OR UPDATE PLANT COMPARISON
+======================================= */
+
+function handleSavePlantComparison(
+  name: string,
+  plantStoryIds: string[],
+) {
+  const now =
+    new Date()
+      .toISOString()
+
+  const comparisonItems =
+    plantStoryIds.map(
+      (
+        plantStoryId,
+      ) => ({
+        recordType:
+          'plant-story' as const,
+
+        recordId:
+          plantStoryId,
+      }),
+    )
+
+
+  /* =======================================
+     UPDATE EXISTING SAVED COMPARISON
+  ======================================= */
+
+  if (
+    activeSavedComparisonId
+  ) {
+    const updatedGardenData = {
+      ...gardenData,
+
+      savedComparisons:
+        (
+          gardenData.savedComparisons ??
+          []
+        ).map(
+          (
+            comparison,
+          ) =>
+            comparison.id ===
+            activeSavedComparisonId
+              ? {
+                  ...comparison,
+
+                  name:
+                    name.trim(),
+
+                  items:
+                    comparisonItems,
+
+                  updatedAt:
+                    now,
+                }
+              : comparison,
+        ),
+    }
+
+
+    setGardenData(
+      updatedGardenData,
+    )
+
+
+    saveGardenData(
+      updatedGardenData,
+    )
+
+
+    return
+  }
+
+
+  /* =======================================
+     CREATE NEW SAVED COMPARISON
+  ======================================= */
+
+  const newComparison:
+    SavedComparison = {
+      id:
+        crypto.randomUUID(),
+
+      name:
+        name.trim(),
+
+      items:
+        comparisonItems,
+
+      createdAt:
+        now,
+    }
+
+
+  const updatedGardenData = {
+    ...gardenData,
+
+    savedComparisons: [
+      ...(gardenData.savedComparisons ??
+        []),
+
+      newComparison,
+    ],
+  }
+
+
+  setGardenData(
+    updatedGardenData,
+  )
+
+
+  saveGardenData(
+    updatedGardenData,
+  )
+
+
+  /*
+   * Once saved, this comparison is now
+   * an existing Sprig record.
+   *
+   * Remember its id so any later save
+   * updates this record rather than
+   * creating a duplicate.
+   */
+
+  setActiveSavedComparisonId(
+    newComparison.id,
+  )
+}
 
   /* =======================================
      ADD JOURNAL EVENT
@@ -932,6 +1128,119 @@ setHarvestInitialPlantStoryIds(
       false,
     )
   }
+
+  /* =======================================
+   RENAME SAVED COMPARISON
+======================================= */
+
+function handleRenameSavedComparison(
+  comparisonId: string,
+  name: string,
+) {
+  const trimmedName =
+    name.trim()
+
+  if (!trimmedName) {
+    return
+  }
+
+
+  const now =
+    new Date()
+      .toISOString()
+
+
+  const updatedGardenData = {
+    ...gardenData,
+
+    savedComparisons:
+      (
+        gardenData.savedComparisons ??
+        []
+      ).map(
+        (
+          comparison,
+        ) =>
+          comparison.id ===
+          comparisonId
+            ? {
+                ...comparison,
+
+                name:
+                  trimmedName,
+
+                updatedAt:
+                  now,
+              }
+            : comparison,
+      ),
+  }
+
+
+  setGardenData(
+    updatedGardenData,
+  )
+
+
+  saveGardenData(
+    updatedGardenData,
+  )
+}
+
+/* =======================================
+   DELETE SAVED COMPARISON
+======================================= */
+
+function handleDeleteSavedComparison(
+  comparisonId: string,
+) {
+  const updatedGardenData = {
+    ...gardenData,
+
+    savedComparisons:
+      (
+        gardenData.savedComparisons ??
+        []
+      ).filter(
+        (
+          comparison,
+        ) =>
+          comparison.id !==
+          comparisonId,
+      ),
+  }
+
+
+  setGardenData(
+    updatedGardenData,
+  )
+
+
+  saveGardenData(
+    updatedGardenData,
+  )
+
+
+  /*
+   * If the comparison being deleted
+   * happens to be the one currently
+   * remembered as active, release that
+   * temporary comparison session too.
+   */
+
+  if (
+    activeSavedComparisonId ===
+    comparisonId
+  ) {
+    setActiveSavedComparisonId(
+      null,
+    )
+
+    setComparisonPlantIds(
+      [],
+    )
+  }
+}
 
 
   /* =======================================
@@ -1212,6 +1521,131 @@ function handleCloseHarvestEditor() {
       updatedGardenData,
     )
   }
+
+
+  /* =======================================
+   RESTORE GARDEN BACKUP
+======================================= */
+
+function handleRestoreGarden(
+  restoredGardenData:
+    typeof gardenData,
+) {
+  /*
+   * Before replacing anything, automatically
+   * download a safety backup of the garden
+   * currently open in Sprig.
+   *
+   * We deliberately download this rather than
+   * duplicating the whole garden in localStorage.
+   * Photographs can make GardenData large, and
+   * keeping two complete copies in browser
+   * storage could exceed its storage allowance.
+   */
+  const safetyBackupTime =
+  new Date()
+    .toISOString()
+    .slice(
+      0,
+      16,
+    )
+    .replace(
+      'T',
+      '-',
+    )
+    .replace(
+      ':',
+      '',
+    )
+
+downloadGardenBackup(
+  gardenData,
+  `sprig-safety-backup-before-restore-${safetyBackupTime}.json`,
+)
+
+
+  /*
+   * The selected backup has already passed
+   * through Sprig's backup parser and
+   * normalisation before reaching this handler.
+   */
+  saveGardenData(
+    restoredGardenData,
+  )
+
+  setGardenData(
+    restoredGardenData,
+  )
+
+
+  /*
+   * Release any record or editor belonging to
+   * the garden that has just been replaced.
+   */
+  setSelectedPlantId(
+    null,
+  )
+
+  setSelectedEventId(
+    null,
+  )
+
+  setSelectedHarvestId(
+    null,
+  )
+
+  setSelectedGrowingPlaceId(
+    null,
+  )
+
+  setLibraryRecipeIdToOpen(
+    null,
+  )
+
+  setLibraryViewToOpen(
+    null,
+  )
+
+
+  setIsAddPlantOpen(
+    false,
+  )
+
+  setIsAddEventOpen(
+    false,
+  )
+
+  setIsAddHarvestOpen(
+    false,
+  )
+
+  setIsAddRecipeOpen(
+    false,
+  )
+
+  setIsAddGrowingPlaceOpen(
+    false,
+  )
+
+
+  setHarvestEditorRecord(
+    null,
+  )
+
+  setHarvestInitialPlantStoryIds(
+    [],
+  )
+
+
+  /*
+   * Return to Today in the Garden after the
+   * restore so Sprig opens the restored garden
+   * from a neutral destination.
+   */
+  setActivePage(
+    'gate',
+  )
+}
 
   /* =======================================
    CURRENT HARVEST
@@ -1503,7 +1937,6 @@ if (
     )
   }
 
-
   /* =======================================
      GROWING PLACE DETAIL
   ======================================= */
@@ -1618,8 +2051,83 @@ if (
       />
     )
   }
+/* =======================================
+   PLANT COMPARISON
+======================================= */
 
+if (
+  activePage ===
+  'comparison'
+) {
+  return (
+    <PlantComparison
+      plantIds={
+        comparisonPlantIds
+      }
 
+      activeSavedComparisonId={
+        activeSavedComparisonId
+      }
+
+      plants={
+        gardenData.plantStories
+      }
+
+      growingPlaces={
+        gardenData.growingPlaces
+      }
+
+      growingSetups={
+        gardenData.growingSetups ??
+        []
+      }
+
+      ingredients={
+        gardenData.ingredients ??
+        []
+      }
+
+      products={
+        gardenData.products ??
+        []
+      }
+
+      events={
+        gardenData.events
+      }
+
+      harvests={
+        gardenData.harvests
+      }
+
+      onBack={() => {
+        setActivePage(
+          'plants',
+        )
+      }}
+
+      onEditComparison={(
+        plantStoryIds,
+      ) => {
+        setComparisonPlantIds(
+          plantStoryIds,
+        )
+
+        setActivePage(
+          'plants',
+        )
+      }}
+
+      onSaveComparison={
+        handleSavePlantComparison
+      }
+
+      onNavigate={
+        handleNavigate
+      }
+    />
+  )
+}
   /* =======================================
      PLANT DETAIL
   ======================================= */
@@ -1645,6 +2153,11 @@ if (
 
           ingredients={
             gardenData.ingredients ??
+            []
+          }
+
+          products={
+            gardenData.products ??
             []
           }
 
@@ -1752,6 +2265,10 @@ if (
             handleAddIngredient
           }
 
+          onAddProduct={
+            handleAddProduct
+          }
+
           onDeleteEvent={
             handleDeleteEvent
           }
@@ -1766,34 +2283,42 @@ if (
         />
 
 
+        {/* =======================================
+             ADD EVENT
+        ======================================= */}
+
         {isAddEventOpen &&
           selectedPlantId && (
-          <AddEventForm
-            plantId={
-              selectedPlantId
-            }
+            <AddEventForm
+              plantId={
+                selectedPlantId
+              }
 
-            plants={
-              gardenData.plantStories
-            }
+              plants={
+                gardenData.plantStories
+              }
 
-            growingPlaces={
-              gardenData.growingPlaces
-            }
+              growingPlaces={
+                gardenData.growingPlaces
+              }
 
-            onAddEvent={
-              handleAddEvent
-            }
+              onAddEvent={
+                handleAddEvent
+              }
 
-            onClose={() =>
-              setIsAddEventOpen(
-                false,
-              )
-            }
-          />
-        )}
+              onClose={() =>
+                setIsAddEventOpen(
+                  false,
+                )
+              }
+            />
+          )}
 
-{isAddHarvestOpen && (
+        {/* =======================================
+             ADD / EDIT HARVEST
+        ======================================= */}
+
+        {isAddHarvestOpen && (
           <AddHarvestForm
             plants={
               gardenData.plantStories
@@ -1826,7 +2351,6 @@ if (
                 )
               }
 
-
               handleCloseHarvestEditor()
             }}
 
@@ -1836,10 +2360,24 @@ if (
           />
         )}
 
+        {/* =======================================
+             ADD GARDEN RECIPE
+        ======================================= */}
+
         {isAddRecipeOpen && (
           <AddRecipeForm
             ingredients={
               gardenData.ingredients ??
+              []
+            }
+
+            products={
+              gardenData.products ??
+              []
+            }
+
+            growingSetups={
+              gardenData.growingSetups ??
               []
             }
 
@@ -1849,6 +2387,14 @@ if (
 
             onAddIngredient={
               handleAddIngredient
+            }
+
+            onAddProduct={
+              handleAddProduct
+            }
+
+            onAddPurchase={
+              handleAddPurchase
             }
 
             onClose={() =>
@@ -1862,7 +2408,74 @@ if (
     )
   }
 
-    /* =======================================
+/* =======================================
+   COMPARISONS
+======================================= */
+
+if (
+  activePage ===
+  'comparisons'
+) {
+  return (
+    <Comparisons
+      comparisons={
+        gardenData.savedComparisons ??
+        []
+      }
+
+      plants={
+        gardenData.plantStories
+      }
+
+      onOpenComparison={(
+        comparison,
+      ) => {
+        const plantIds =
+          comparison.items
+            .filter(
+              (
+                item,
+              ) =>
+                item.recordType ===
+                'plant-story',
+            )
+            .map(
+              (
+                item,
+              ) =>
+                item.recordId,
+            )
+
+        setComparisonPlantIds(
+          plantIds,
+        )
+
+        setActiveSavedComparisonId(
+          comparison.id,
+        )
+
+        setActivePage(
+          'comparison',
+        )
+      }}
+
+      onRenameComparison={
+        handleRenameSavedComparison
+      }
+
+      onDeleteComparison={
+        handleDeleteSavedComparison
+      }
+
+      onNavigate={
+        handleNavigate
+      }
+    />
+  )
+}
+
+
+  /* =======================================
      JOURNAL
   ======================================= */
 
@@ -1916,7 +2529,6 @@ if (
           }
         />
 
-
         {isAddEventOpen && (
           <AddEventForm
             plantId=""
@@ -1941,11 +2553,20 @@ if (
           />
         )}
 
-
         {isAddRecipeOpen && (
           <AddRecipeForm
             ingredients={
               gardenData.ingredients ??
+              []
+            }
+
+            products={
+              gardenData.products ??
+              []
+            }
+
+            growingSetups={
+              gardenData.growingSetups ??
               []
             }
 
@@ -1955,6 +2576,14 @@ if (
 
             onAddIngredient={
               handleAddIngredient
+            }
+
+            onAddProduct={
+              handleAddProduct
+            }
+
+            onAddPurchase={
+              handleAddPurchase
             }
 
             onClose={() =>
@@ -1968,7 +2597,6 @@ if (
     )
   }
 
-
   /* =======================================
      PLANTS
   ======================================= */
@@ -1979,28 +2607,50 @@ if (
   ) {
     return (
       <>
-        <Plants
-          plants={
-            gardenData.plantStories
-          }
+                          <Plants
+                    plants={
+                      gardenData.plantStories
+                    }
 
-          onOpenPlant={
-            handleOpenPlantRecord
-          }
+                    onOpenPlant={
+                      handleOpenPlantRecord
+                    }
 
-          onAddPlant={() =>
-            setIsAddPlantOpen(
-              true,
-            )
-          }
+                    onAddPlant={() =>
+                      setIsAddPlantOpen(
+                        true,
+                      )
+                    }
 
-          onNavigate={
-            handleNavigate
-          }
-        />
+                    initialComparePlantIds={
+                      activeSavedComparisonId
+                        ? comparisonPlantIds
+                        : []
+                    }
+
+                    onComparePlants={(
+                      plantIds,
+                    ) => {
+                      setComparisonPlantIds(
+                        plantIds,
+                      )
+
+                      setActivePage(
+                        'comparison',
+                      )
+                    }}
+
+                    onNavigate={
+                      handleNavigate
+                    }
+                  />
 
 
-        {isAddPlantOpen && (
+        {/* =======================================
+             ADD PLANT
+        ======================================= */}
+
+{isAddPlantOpen && (
           <AddPlantForm
             GrowingPlaces={
               gardenData.growingPlaces
@@ -2016,6 +2666,11 @@ if (
               []
             }
 
+            Products={
+              gardenData.products ??
+              []
+            }
+
             onAddPlant={
               handleAddPlant
             }
@@ -2026,6 +2681,10 @@ if (
 
             onAddIngredient={
               handleAddIngredient
+            }
+
+            onAddProduct={
+              handleAddProduct
             }
 
             onAddRecipe={
@@ -2041,10 +2700,24 @@ if (
         )}
 
 
+        {/* =======================================
+             ADD GROWING RECIPE
+        ======================================= */}
+
         {isAddRecipeOpen && (
           <AddRecipeForm
             ingredients={
               gardenData.ingredients ??
+              []
+            }
+
+            products={
+              gardenData.products ??
+              []
+            }
+
+            growingSetups={
+              gardenData.growingSetups ??
               []
             }
 
@@ -2054,6 +2727,14 @@ if (
 
             onAddIngredient={
               handleAddIngredient
+            }
+
+            onAddProduct={
+              handleAddProduct
+            }
+
+            onAddPurchase={
+              handleAddPurchase
             }
 
             onClose={() =>
@@ -2066,8 +2747,6 @@ if (
       </>
     )
   }
-
-
   /* =======================================
      GROWING PLACES
   ======================================= */
@@ -2082,22 +2761,18 @@ if (
           gardenPlaces={
             gardenData.growingPlaces
           }
-
           onAddPlace={() =>
             setIsAddGrowingPlaceOpen(
               true,
             )
           }
-
           onOpenPlace={
             handleOpenGrowingPlaceRecord
           }
-
           onNavigate={
             handleNavigate
           }
         />
-
 
         {isAddGrowingPlaceOpen && (
           <AddGrowingPlaceForm
@@ -2105,16 +2780,20 @@ if (
               gardenData.ingredients ??
               []
             }
-
             growingSetups={
               gardenData.growingSetups ??
               []
             }
-
+            products={
+              gardenData.products ??
+              []
+            }
             onAddIngredient={
               handleAddIngredient
             }
-
+            onAddProduct={
+              handleAddProduct
+            }
             onAddPlace={(
               newPlace,
               newSetup,
@@ -2128,7 +2807,6 @@ if (
                 false,
               )
             }}
-
             onClose={() =>
               setIsAddGrowingPlaceOpen(
                 false,
@@ -2139,102 +2817,123 @@ if (
       </>
     )
   }
-
   /* =======================================
-   HARVEST
-======================================= */
+     HARVEST
+  ======================================= */
 
-if (
-  activePage ===
-  'harvest'
-) {
-  return (
-    <>
-      <Harvest
-  harvests={
-    gardenData.harvests
-  }
+  if (
+    activePage ===
+    'harvest'
+  ) {
+    return (
+      <>
+        <Harvest
+          harvests={
+            gardenData.harvests
+          }
 
-  plants={
-    gardenData.plantStories
-  }
-
-  onRecordHarvest={() =>
-    handleOpenNewHarvest()
-  }
-
-  onOpenHarvest={(
-    harvestId,
-  ) =>
-    setSelectedHarvestId(
-      harvestId,
-    )
-  }
-
-  onNavigate={
-    handleNavigate
-  }
-/>
-
-
-      {isAddHarvestOpen && (
-        <AddHarvestForm
           plants={
             gardenData.plantStories
           }
 
-          growingPlaces={
-            gardenData.growingPlaces
+          onRecordHarvest={() =>
+            handleOpenNewHarvest()
           }
 
-          harvest={
-            harvestEditorRecord
-          }
-
-          initialPlantStoryIds={
-            harvestInitialPlantStoryIds
-          }
-
-          onSaveHarvest={(
-            harvest,
-          ) => {
-            if (
-              harvestEditorRecord
-            ) {
-              handleUpdateHarvest(
-                harvest,
-              )
-            } else {
-              handleAddHarvest(
-                harvest,
-              )
-            }
-
-
-            /*
-             * Open the record after saving.
-             *
-             * This also gives clear confirmation
-             * that the Harvest was actually saved,
-             * preventing accidental double entries.
-             */
+          onOpenHarvest={(
+            harvestId,
+          ) =>
             setSelectedHarvestId(
-              harvest.id,
+              harvestId,
             )
+          }
 
-
-            handleCloseHarvestEditor()
-          }}
-
-          onClose={
-            handleCloseHarvestEditor
+          onNavigate={
+            handleNavigate
           }
         />
-      )}
-    </>
+
+        {isAddHarvestOpen && (
+          <AddHarvestForm
+            plants={
+              gardenData.plantStories
+            }
+
+            growingPlaces={
+              gardenData.growingPlaces
+            }
+
+            harvest={
+              harvestEditorRecord
+            }
+
+            initialPlantStoryIds={
+              harvestInitialPlantStoryIds
+            }
+
+            onSaveHarvest={(
+              harvest,
+            ) => {
+              if (
+                harvestEditorRecord
+              ) {
+                handleUpdateHarvest(
+                  harvest,
+                )
+              } else {
+                handleAddHarvest(
+                  harvest,
+                )
+              }
+
+              /*
+               * Open the record after saving.
+               *
+               * This also gives clear confirmation
+               * that the Harvest was actually saved,
+               * preventing accidental double entries.
+               */
+              setSelectedHarvestId(
+                harvest.id,
+              )
+
+              handleCloseHarvestEditor()
+            }}
+
+            onClose={
+              handleCloseHarvestEditor
+            }
+          />
+        )}
+      </>
+    )
+  }
+
+
+  /* =======================================
+   BACKUP & RESTORE
+======================================= */
+
+if (
+  activePage ===
+  'backup'
+) {
+  return (
+    <BackupRestore
+      gardenData={
+        gardenData
+      }
+
+      onRestoreGarden={
+        handleRestoreGarden
+      }
+
+      onNavigate={
+        handleNavigate
+      }
+    />
   )
 }
-
 
 
   /* =======================================
@@ -2341,8 +3040,6 @@ if (
       />
     )
   }
-
-
   /* =======================================
      GATE
   ======================================= */
@@ -2391,7 +3088,6 @@ if (
         }
       />
 
-
       {isAddPlantOpen && (
         <AddPlantForm
           GrowingPlaces={
@@ -2408,6 +3104,11 @@ if (
             []
           }
 
+          Products={
+            gardenData.products ??
+            []
+          }
+
           onAddPlant={
             handleAddPlant
           }
@@ -2418,6 +3119,10 @@ if (
 
           onAddIngredient={
             handleAddIngredient
+          }
+
+          onAddProduct={
+            handleAddProduct
           }
 
           onAddRecipe={
@@ -2431,7 +3136,6 @@ if (
           }
         />
       )}
-
 
       {isAddEventOpen && (
         <AddEventForm
@@ -2457,11 +3161,20 @@ if (
         />
       )}
 
-
       {isAddRecipeOpen && (
         <AddRecipeForm
           ingredients={
             gardenData.ingredients ??
+            []
+          }
+
+          products={
+            gardenData.products ??
+            []
+          }
+
+          growingSetups={
+            gardenData.growingSetups ??
             []
           }
 
@@ -2471,6 +3184,14 @@ if (
 
           onAddIngredient={
             handleAddIngredient
+          }
+
+          onAddProduct={
+            handleAddProduct
+          }
+
+          onAddPurchase={
+            handleAddPurchase
           }
 
           onClose={() =>
@@ -2483,6 +3204,5 @@ if (
     </>
   )
 }
-
 
 export default App
