@@ -106,4 +106,5 @@ export const sampleGardenData: GardenData = {
   costAllocations: [],
   
   harvests: [],
+  savedComparisons: [],
   }
