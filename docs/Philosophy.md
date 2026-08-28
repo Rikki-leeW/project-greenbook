@@ -22,3 +22,17 @@ No picker in Sprig is ever final.
 ------------------------
 Pages are destinations. Records are things. Relationships are clickable. Quick Peek gives context. Full detail gives the source. Navigation should never make you backtrack through unrelated screens.
 ---------------------------------
+
+1. Gardener knowledge
+What you enter initially from your own research or experience.
+
+2. Sprig evidence
+What actually happened in your garden.
+
+3. Sprig-derived knowledge
+Patterns calculated from your historical records.
+
+4. Optional future AI
+A layer that can interpret, explain, summarise or suggest, but does not become the owner of the garden's facts.
+
+A future possibility should always remember what gave rise to it.

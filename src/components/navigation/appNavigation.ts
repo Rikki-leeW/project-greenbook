@@ -123,7 +123,7 @@ export const sprigNavigation:
             note:
               'Saved side-by-side views of your garden stories',
           },
-          
+
         {
           id: 'growing-places',
           label: 'Growing Places',
@@ -219,11 +219,14 @@ export const sprigNavigation:
           status: 'coming-later',
         },
 
-        {
-          id: 'calendar-planning',
-          label: 'Calendar & Planning',
-          icon: '📅',
-          status: 'coming-later',
+       {
+        id: 'calendar-planning',
+        label: 'Calendar & Planning',
+        icon: '📅',
+        status: 'live',
+        page: 'calendar',
+        note:
+            'Your garden through time: what happened, what is expected and what you are planning',
         },
       ],
     },

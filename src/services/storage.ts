@@ -322,7 +322,53 @@ export function normalizeGardenData(
      */
 
     harvests:
-      data.harvests ?? [],
+    data.harvests ?? [],
+  
+  /**
+   * Garden Plans were introduced after the
+   * original GardenData format.
+   *
+   * Older saved gardens therefore simply
+   * begin with no Plans.
+   *
+   * Nothing is migrated, invented or removed.
+   */
+  plans:
+  (data.plans ?? []).map(
+    plan => ({
+      ...plan,
+
+      /*
+       * Plans created before the Plan lifecycle
+       * was introduced are still ordinary
+       * future intentions.
+       */
+      status:
+        plan.status ??
+        'planned',
+
+      /*
+       * Keep relationship collections tidy and
+       * predictable while remaining compatible
+       * with older saved gardens.
+       */
+      plantStoryIds:
+        plan.plantStoryIds ??
+        [],
+
+      growingPlaceIds:
+        plan.growingPlaceIds ??
+        [],
+
+      growingSetupIds:
+        plan.growingSetupIds ??
+        [],
+
+      results:
+        plan.results ??
+        [],
+    }),
+  ),
 
 
     /**

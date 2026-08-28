@@ -9,6 +9,7 @@ import {
   import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
   
   import type {
+    GardenPlan,
     GrowingPlace,
     HarvestMeasurementUnit,
     HarvestPlantOutcome,
@@ -27,6 +28,13 @@ import {
     harvest?: HarvestRecord | null
   
     initialPlantStoryIds?: string[]
+  
+    /*
+     * Optional source intention.
+     *
+     * This Harvest remains its own real record.
+     */
+    planToRecord?: GardenPlan
   
     onSaveHarvest: (
       harvest: HarvestRecord,
@@ -217,6 +225,7 @@ import {
     growingPlaces,
     harvest = null,
     initialPlantStoryIds = [],
+    planToRecord,
     onSaveHarvest,
     onClose,
   }: AddHarvestFormProps) {
@@ -224,7 +233,24 @@ import {
       getTodayDate()
   
     const isEditing =
-      harvest !== null
+      harvest !==
+      null
+  
+    const isRecordingPlan =
+      !isEditing &&
+      Boolean(
+        planToRecord,
+      )
+  
+  
+    const startingPlantIds =
+      isRecordingPlan
+        ? (
+            planToRecord
+              ?.plantStoryIds ??
+            []
+          )
+        : initialPlantStoryIds
   
   
     /* =======================================
@@ -237,6 +263,7 @@ import {
     ] =
       useState(
         harvest?.date ??
+        planToRecord?.date ??
         today,
       )
   
@@ -251,7 +278,7 @@ import {
     ] =
       useState<string[]>(
         harvest?.plantStoryIds ??
-        initialPlantStoryIds,
+        startingPlantIds,
       )
   
   
@@ -432,6 +459,7 @@ import {
     ] =
       useState(
         harvest?.notes ??
+        planToRecord?.notes ??
         '',
       )
   
@@ -469,14 +497,10 @@ import {
   
     const plantOptions =
       sortedPlants.map(
-        (
-          plant,
-        ) => {
+        plant => {
           const growingPlace =
             growingPlaces.find(
-              (
-                place,
-              ) =>
+              place =>
                 place.id ===
                 plant.currentGrowingPlaceId,
             )
@@ -517,24 +541,16 @@ import {
       )
   
   
-    /* =======================================
-       TOGGLE PLANT
-    ======================================= */
-  
     function togglePlant(
       plantId: string,
     ) {
       setPlantStoryIds(
-        (
-          current,
-        ) =>
+        current =>
           current.includes(
             plantId,
           )
             ? current.filter(
-                (
-                  id,
-                ) =>
+                id =>
                   id !==
                   plantId,
               )
@@ -546,10 +562,6 @@ import {
     }
   
   
-    /* =======================================
-       TOGGLE HARVEST TYPE
-    ======================================= */
-  
     function toggleHarvestType(
       value: string,
     ) {
@@ -558,9 +570,7 @@ import {
   
   
       setHarvestType(
-        (
-          current,
-        ) =>
+        current =>
           current ===
             nextType
             ? undefined
@@ -584,10 +594,6 @@ import {
     }
   
   
-    /* =======================================
-       TOGGLE MEASUREMENT UNIT
-    ======================================= */
-  
     function toggleMeasurementUnit(
       value: string,
     ) {
@@ -596,9 +602,7 @@ import {
   
   
       setMeasurementUnit(
-        (
-          current,
-        ) =>
+        current =>
           current ===
             nextUnit
             ? undefined
@@ -622,10 +626,6 @@ import {
     }
   
   
-    /* =======================================
-       TOGGLE PLANT OUTCOME
-    ======================================= */
-  
     function togglePlantOutcome(
       value: string,
     ) {
@@ -634,9 +634,7 @@ import {
   
   
       setPlantOutcome(
-        (
-          current,
-        ) =>
+        current =>
           current ===
             nextOutcome
             ? undefined
@@ -660,10 +658,6 @@ import {
     }
   
   
-    /* =======================================
-       TOGGLE QUALITY
-    ======================================= */
-  
     function toggleQuality(
       value: string,
     ) {
@@ -672,9 +666,7 @@ import {
   
   
       setQuality(
-        (
-          current,
-        ) =>
+        current =>
           current ===
             nextQuality
             ? undefined
@@ -841,7 +833,9 @@ import {
             >
               {isEditing
                 ? 'Edit Harvest'
-                : 'Gather a Harvest'}
+                : isRecordingPlan
+                  ? 'Record what happened'
+                  : 'Gather a Harvest'}
             </h2>
   
   
@@ -863,12 +857,40 @@ import {
                 handleSubmit
               }
             >
-              <p className="form-whisper">
-                🧺{' '}
-                {isEditing
-                  ? 'Tend the details Sprig remembers about this harvest.'
-                  : 'Tuck this gathering into Sprig’s harvest story.'}
-              </p>
+              {isRecordingPlan &&
+                planToRecord && (
+                <section className="sprig-form-section growing-setup-details">
+                  <p className="section-label">
+                    From Garden Plan
+                  </p>
+  
+                  <h3>
+                    {planToRecord.title}
+                  </h3>
+  
+                  <p className="form-whisper">
+                    Sprig has carried across the Plant
+                    Stories, planned date and notes.
+                    Change anything that happened
+                    differently before saving.
+                  </p>
+  
+                  <p className="form-whisper">
+                    The Plan stays as the intention.
+                    This Harvest Record becomes reality.
+                  </p>
+                </section>
+              )}
+  
+  
+              {!isRecordingPlan && (
+                <p className="form-whisper">
+                  🧺{' '}
+                  {isEditing
+                    ? 'Tend the details Sprig remembers about this harvest.'
+                    : 'Tuck this gathering into Sprig’s harvest story.'}
+                </p>
+              )}
   
   
               <section className="sprig-form-section">
@@ -887,9 +909,7 @@ import {
                   }
                   onToggleOpen={() =>
                     setIsPlantPickerOpen(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         !current,
                     )
                   }
@@ -926,6 +946,13 @@ import {
                     required
                   />
                 </label>
+  
+                {isRecordingPlan && (
+                  <p className="form-whisper">
+                    This began with your planned date.
+                    Change it to the actual harvest date.
+                  </p>
+                )}
               </section>
   
   
@@ -948,9 +975,7 @@ import {
                   }
                   onToggleOpen={() =>
                     setIsHarvestTypePickerOpen(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         !current,
                     )
                   }
@@ -1060,9 +1085,7 @@ import {
                   }
                   onToggleOpen={() =>
                     setIsMeasurementPickerOpen(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         !current,
                     )
                   }
@@ -1122,9 +1145,7 @@ import {
                   }
                   onToggleOpen={() =>
                     setIsPlantOutcomePickerOpen(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         !current,
                     )
                   }
@@ -1185,9 +1206,7 @@ import {
                   }
                   onToggleOpen={() =>
                     setIsQualityPickerOpen(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         !current,
                     )
                   }
@@ -1245,6 +1264,21 @@ import {
               />
   
   
+              {isRecordingPlan && (
+                <section className="sprig-form-section growing-setup-details">
+                  <p className="section-label">
+                    Plan and reality
+                  </p>
+  
+                  <p className="form-whisper">
+                    Saving creates a separate Harvest
+                    Record. Sprig will link it back to
+                    the Plan after the Harvest saves.
+                  </p>
+                </section>
+              )}
+  
+  
               <div className="form-actions">
                 <button
                   type="button"
@@ -1263,7 +1297,9 @@ import {
                 >
                   {isEditing
                     ? 'Save harvest changes'
-                    : 'Gather this harvest'}
+                    : isRecordingPlan
+                      ? 'Record this harvest'
+                      : 'Gather this harvest'}
                 </button>
               </div>
             </form>

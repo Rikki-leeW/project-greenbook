@@ -161,29 +161,17 @@ export type IngredientCategory =
 
 export interface Ingredient {
   id: string
-
   name: string
-
   category?: IngredientCategory
-
   customCategoryLabel?: string
-
   manufacturer?: string
-
   source?: string
-
   notes?: string
-
   photoUrls?: string[]
-
   isFavourite?: boolean
-
   rating?: 1 | 2 | 3 | 4 | 5
-
   isArchived?: boolean
-
   archivedAt?: string
-
   createdAt: string
   updatedAt?: string
 }
@@ -212,29 +200,17 @@ export type GardenProductCategory =
 
 export interface GardenProduct {
   id: string
-
   name: string
-
   category?: GardenProductCategory
-
   customCategoryLabel?: string
-
   brand?: string
-
   productName?: string
-
   notes?: string
-
   photoUrls?: string[]
-
   isFavourite?: boolean
-
   rating?: 1 | 2 | 3 | 4 | 5
-
   isArchived?: boolean
-
   archivedAt?: string
-
   createdAt: string
   updatedAt?: string
 }
@@ -253,67 +229,19 @@ export type GrowingSetupCategory =
 
 export interface GrowingSetup {
   id: string
-
   name: string
-
   category: GrowingSetupCategory
-
   basedOnRecipeId?: string
-
   isFavourite?: boolean
-
   rating?: 1 | 2 | 3 | 4 | 5
-
   isArchived?: boolean
-
   archivedAt?: string
-
-
-  /*
-   * =======================================
-   * RECIPE CONTENTS
-   * =======================================
-   */
 
   /*
    * Legacy ingredient links.
-   *
-   * Keep these so existing Growing Setup
-   * records continue to work while Sprig
-   * moves toward the more flexible recipe
-   * component system below.
    */
   ingredientIds?: string[]
 
-  /*
-   * A Growing Recipe can contain different
-   * kinds of real Sprig records.
-   *
-   * Examples:
-   *
-   * Homemade compost
-   * → Ingredient
-   *
-   * Guinea pig manure
-   * → Ingredient
-   *
-   * Blood & Bone
-   * → Garden Product
-   *
-   * Slow-release NPK pellets
-   * → Garden Product
-   *
-   * A bought potting mix
-   * → Growing Setup
-   *
-   * Another reusable growing recipe
-   * → Growing Setup
-   *
-   * Keeping the source type alongside the ID
-   * means Sprig can retain the identity of
-   * the original record rather than creating
-   * duplicate Ingredients.
-   */
   recipeComponents?: Array<{
     sourceType:
       | 'ingredient'
@@ -339,15 +267,10 @@ export interface GrowingSetup {
 
   brand?: string
   productName?: string
-
   groundType?: GrowingGroundType
-
   growingSystemType?: GrowingGroundMethod
-
   notes?: string
-
   photoUrls?: string[]
-
   createdAt: string
   updatedAt?: string
 }
@@ -359,25 +282,15 @@ export interface GrowingSetup {
 
 export interface GrowingPlace {
   id: string
-
   name: string
-
   kind: GrowingPlaceKind
-
   customKindLabel?: string
-
   growingSetupId?: string
-
   aspect?: GardenAspect
-
   sunlight?: SunlightLevel
-
   shelter?: ShelterLevel
-
   notes?: string
-
   photoUrls?: string[]
-
   createdAt: string
   updatedAt?: string
 }
@@ -416,38 +329,22 @@ export type PurchaseUnit =
 
 export interface PurchaseRecord {
   id: string
-
   itemType: PurchaseItemType
-
   itemId?: string
-
   itemName: string
-
   date: string
-
   supplier?: string
-
   brand?: string
-
   pricePaid: number
-
   currency?: string
-
   quantity?: number
-
   unit?: PurchaseUnit
-
   packageSize?: number
   packageUnit?: PurchaseUnit
-
   reusable?: boolean
-
   expectedUses?: number
-
   notes?: string
-
   photoUrls?: string[]
-
   createdAt: string
   updatedAt?: string
 }
@@ -468,21 +365,13 @@ export type CostAllocationTargetType =
 
 export interface CostAllocation {
   id: string
-
   purchaseId: string
-
   targetType: CostAllocationTargetType
-
   targetId: string
-
   quantityUsed?: number
-
   unit?: PurchaseUnit
-
   allocatedCost?: number
-
   notes?: string
-
   createdAt: string
   updatedAt?: string
 }
@@ -510,32 +399,6 @@ export type StartMethod =
    PLANT ORIGIN
 ======================================= */
 
-/*
- * Describes WHERE the plant material came
- * from before this Plant Story began.
- *
- * This is deliberately separate from
- * StartMethod.
- *
- * Examples:
- *
- * Royal Blue:
- * startMethod = 'seed-potato'
- * originType = 'bought'
- * source = 'Bunnings'
- *
- * Saved tomato seed:
- * startMethod = 'seed'
- * originType = 'saved-from-garden'
- *
- * Rosemary cutting from another plant:
- * startMethod = 'cutting'
- * originType = 'propagated-from-plant'
- *
- * Seedling given by a friend:
- * startMethod = 'seedling'
- * originType = 'gifted'
- */
 export type PlantOriginType =
   | 'bought'
   | 'saved-from-garden'
@@ -574,70 +437,13 @@ export interface GrowingSpace {
    PLANT GROWING HISTORY
 ======================================= */
 
-/*
- * A Plant Story can move between Growing
- * Places and Growing Setups during its life.
- *
- * These records preserve WHEN those changes
- * happened.
- *
- * This is deliberately separate from the
- * currentGrowingPlaceId and
- * currentGrowingSetupId fields.
- *
- * The current fields remain useful for
- * quickly answering:
- *
- * "Where is this plant now?"
- *
- * The history answers:
- *
- * "Where was this plant at this point in
- * its story?"
- *
- * This becomes especially important for
- * comparisons, photographs, Journal
- * evidence and future Sprig observations.
- */
-
 export interface PlantGrowingHistoryEntry {
   id: string
-
-  /*
-   * The date this growing arrangement began.
-   */
   startedDate: string
-
-  /*
-   * Optional because an arrangement may
-   * still be current.
-   */
   endedDate?: string
-
-  /*
-   * Either or both may be recorded.
-   *
-   * A plant can change place without
-   * changing recipe, or change recipe while
-   * remaining in the same place.
-   */
   growingPlaceId?: string
-
   growingSetupId?: string
-
-  /*
-   * Optional connection to the Garden Event
-   * that caused or recorded the change.
-   *
-   * Example:
-   * "Moved potatoes away from cold pebbles."
-   */
   gardenEventId?: string
-
-  /*
-   * Allows useful context even when the
-   * gardener did not create a Journal entry.
-   */
   notes?: string
 }
 
@@ -649,303 +455,49 @@ export interface PlantGrowingHistoryEntry {
 export interface PlantStory {
   id: string
 
-  /*
-   * =======================================
-   * WHAT IS GROWING
-   * =======================================
-   */
-
-  /*
-   * The TYPE of plant.
-   *
-   * Examples:
-   * Potato
-   * Tomato
-   * Broccoli
-   * Lettuce
-   * Thyme
-   */
   plantName: string
-
-  /*
-   * The variety or cultivar.
-   *
-   * Examples:
-   * Royal Blue
-   * Mortgage Lifter
-   *
-   * Optional because the gardener may
-   * genuinely not know.
-   */
   variety?: string
-
   displayName: string
-
   personality?: string
 
-
-  /*
-   * =======================================
-   * RECORD MANAGEMENT
-   * =======================================
-   */
-
-  /*
-   * A variation can remember which Plant
-   * Story it was based on.
-   */
   basedOnPlantStoryId?: string
-
   isFavourite?: boolean
-
   isArchived?: boolean
-
   archivedAt?: string
-
-  /*
-   * Normal completion is different from
-   * archiving or deleting.
-   */
   completedAt?: string
-
   updatedAt?: string
 
-
-  /*
-   * =======================================
-   * HOW THIS STORY BEGAN
-   * =======================================
-   */
-
-  /*
-   * Number of plants or starting pieces
-   * represented by this Plant Story.
-   *
-   * Examples:
-   * 3 seed potatoes
-   * 6 broccoli seedlings
-   * 1 tomato seedling
-   */
   quantity?: number
-
   startMethod: StartMethod
-
-  /*
-   * Sprig's lists are never closed.
-   *
-   * If startMethod is 'other', the gardener
-   * can retain their own description here.
-   */
   customStartMethodLabel?: string
 
-
-  /*
-   * =======================================
-   * BEGINNING DATES
-   * =======================================
-   */
-
-  /*
-   * Date seed was originally sown,
-   * when relevant.
-   */
   sownDate?: string
-
-  /*
-   * The primary beginning date currently
-   * used throughout Sprig.
-   *
-   * Existing Plant Stories rely on this,
-   * so it remains required.
-   */
   plantedDate: string
-
-  /*
-   * For plants started earlier from seed,
-   * this can record when they eventually
-   * moved into their planted-out location.
-   */
   plantedOutDate?: string
-
-  /*
-   * When the Plant Story was entered into
-   * Sprig. This is different from when the
-   * growing story actually began.
-   */
   enteredDate: string
 
-
-  /*
-   * =======================================
-   * WHERE DID IT COME FROM?
-   * =======================================
-   */
-
-  /*
-   * Describes the origin of the plant
-   * material.
-   *
-   * Examples:
-   * bought
-   * gifted
-   * saved from the garden
-   * propagated from another plant
-   */
   originType?: PlantOriginType
-
-  /*
-   * Human-readable source.
-   *
-   * This intentionally remains useful even
-   * without a formal Purchase record.
-   *
-   * Examples:
-   * Bunnings
-   * Mr Fothergill's
-   * Local nursery
-   * Hayley's garden
-   * Saved from 2025 Mortgage Lifter
-   */
   source?: string
-
-  /*
-   * Optional connection to the Purchase
-   * record from which this plant material
-   * came.
-   *
-   * This lets Add Plant work NOW with a
-   * simple source such as "Bunnings", while
-   * allowing Accountant Sprig to connect the
-   * exact purchase later.
-   */
   originPurchaseId?: string
-
-  /*
-   * Optional connection to another Plant
-   * Story when this plant was propagated
-   * from something already growing in Sprig.
-   *
-   * Example:
-   * a thyme cutting taken from an existing
-   * thyme Plant Story.
-   */
   originPlantStoryId?: string
-
-  /*
-   * If originType is 'other', the gardener's
-   * own wording can live here.
-   */
   customOriginLabel?: string
 
-
-  /*
-   * =======================================
-   * CURRENT STATUS
-   * =======================================
-   */
-
   status: PlantStatus
-
-
-  /*
-   * =======================================
-   * LEGACY GROWING SPACE
-   * =======================================
-   */
 
   currentGrowingSpaceId?: string
   previousGrowingSpaceIds?: string[]
 
-
-  /*
-   * =======================================
-   * GROWING SETUP
-   * =======================================
-   */
-
-  /*
-   * Current and previous IDs remain as
-   * convenient relationship fields and for
-   * compatibility with existing Plant
-   * Stories.
-   */
   currentGrowingSetupId?: string
   previousGrowingSetupIds?: string[]
-
-
-  /*
-   * =======================================
-   * GROWING PLACE
-   * =======================================
-   */
 
   currentGrowingPlaceId?: string
   previousGrowingPlaceIds?: string[]
 
-
-  /*
-   * =======================================
-   * GROWING HISTORY
-   * =======================================
-   */
-
-  /*
-   * Dated history of where and how this
-   * Plant Story has grown.
-   *
-   * Existing Plant Stories do not require
-   * this field, so introducing it does not
-   * invalidate older saved gardens.
-   */
   growingHistory?: PlantGrowingHistoryEntry[]
 
-
-/*
- * =======================================
- * NOTES AND PHOTOGRAPHS
- * =======================================
- */
-
-notes?: string
-
-/*
- * The photographs attached directly to
- * this Plant Story.
- *
- * Kept as the existing string array so
- * older saved gardens and Sprig's current
- * photograph galleries remain compatible.
- */
-photoUrls?: string[]
-
-/*
- * Optional dates belonging to the Plant
- * Story photographs above.
- *
- * Each date occupies the same array
- * position as its photograph in photoUrls.
- *
- * Example:
- *
- * photoUrls[0]
- * → photoDates[0]
- *
- * photoUrls[1]
- * → photoDates[1]
- *
- * A date may be undefined because older
- * Plant Stories already contain photographs
- * that were saved before Sprig allowed the
- * gardener to record when a photograph was
- * taken.
- *
- * This lets Sprig gradually gain dated
- * photographic history without inventing
- * dates for existing photographs.
- */
-photoDates?: Array<
-  string | undefined
->
+  notes?: string
+  photoUrls?: string[]
+  photoDates?: Array<string | undefined>
 
   /*
    * =======================================
@@ -953,15 +505,6 @@ photoDates?: Array<
    * =======================================
    */
 
-  /*
-   * The expected number of days until
-   * harvest.
-   *
-   * These values describe the expected
-   * window itself. The reference below
-   * tells Sprig which real date that
-   * countdown should begin from.
-   */
   expectedHarvestDaysMin?: number
   expectedHarvestDaysMax?: number
 
@@ -971,32 +514,6 @@ photoDates?: Array<
    * =======================================
    */
 
-  /*
-   * Tells Sprig where to begin counting
-   * the expected harvest window.
-   *
-   * Examples:
-   *
-   * Sown:
-   * sourceType = 'sown'
-   *
-   * Planted out:
-   * sourceType = 'planted-out'
-   *
-   * A particular transplant recorded in
-   * the Journal:
-   * sourceType = 'garden-event'
-   * eventId = that Garden Event's id
-   *
-   * A date the gardener knows but did not
-   * previously record:
-   * sourceType = 'custom-date'
-   * customDate = that date
-   *
-   * This structure also gives the future
-   * Sprig calendar a stable connection to
-   * real dated garden milestones.
-   */
   harvestTimingReference?: {
     sourceType:
       | 'sown'
@@ -1006,35 +523,10 @@ photoDates?: Array<
       | 'garden-event'
       | 'custom-date'
 
-    /*
-     * Used when the reference is a specific
-     * Garden Event, such as a transplant,
-     * move or other meaningful milestone.
-     */
     eventId?: string
-
-    /*
-     * Used when the gardener chooses
-     * "Use another date".
-     */
     customDate?: string
-
-    /*
-     * Optional gardener wording for a
-     * custom date.
-     *
-     * Examples:
-     * "Recovered after illness"
-     * "Approximate transplant date"
-     */
     customLabel?: string
   }
-
-  /*
-   * =======================================
-   * ORGANISATION
-   * =======================================
-   */
 
   tags?: string[]
 }
@@ -1077,23 +569,17 @@ export type PlantScope =
 
 export interface GardenEvent {
   id: string
-
   date: string
   type: EventType
   activityTypes?: EventType[]
   title: string
-
   notes?: string
   productUsed?: string
-
   photoUrls?: string[]
-
   growingPlaceScope?: GrowingPlaceScope
   growingPlaceIds?: string[]
-
   plantScope?: PlantScope
   plantStoryIds: string[]
-
   plantCategory?: string
 }
 
@@ -1101,30 +587,6 @@ export interface GardenEvent {
 /* =======================================
    HARVEST RECORDS
 ======================================= */
-
-/*
- * A Harvest Record represents ONE occasion
- * when something was gathered from the
- * garden.
- *
- * A Plant Story may therefore have no
- * Harvest Records, one Harvest Record, or
- * many Harvest Records over its lifetime.
- *
- * Examples:
- *
- * Tomato:
- * many repeated pickings
- *
- * Potato:
- * usually one main/final harvest
- *
- * Broccoli:
- * main head followed by later side shoots
- *
- * Herbs:
- * repeated cuttings over a long period
- */
 
 export type HarvestType =
   | 'first'
@@ -1166,131 +628,275 @@ export type HarvestMeasurementUnit =
 
 export interface HarvestRecord {
   id: string
-
-  /*
-   * =======================================
-   * WHAT WAS HARVESTED
-   * =======================================
-   */
-
-  /*
-   * Usually this will contain one Plant
-   * Story.
-   *
-   * Multiple Plant Stories are allowed for
-   * occasions where produce was gathered
-   * together and cannot sensibly be divided.
-   */
   plantStoryIds: string[]
-
-  /*
-   * =======================================
-   * WHEN
-   * =======================================
-   */
-
   date: string
-
-
-  /*
-   * =======================================
-   * HARVEST TYPE
-   * =======================================
-   */
-
-  /*
-   * Describes this harvest's place in the
-   * growing story rather than the crop
-   * itself.
-   *
-   * Examples:
-   * first picking
-   * regular picking
-   * main harvest
-   * secondary harvest
-   * final harvest
-   */
   harvestType?: HarvestType
-
-  /*
-   * Sprig's lists are never closed.
-   *
-   * Examples:
-   * side shoots
-   * baby leaves
-   * seed harvest
-   */
   customHarvestTypeLabel?: string
-
-
-  /*
-   * =======================================
-   * HOW MUCH
-   * =======================================
-   */
-
-  /*
-   * Count and measured quantity may BOTH be
-   * recorded.
-   *
-   * Example:
-   * 4 tomatoes weighing 820 grams.
-   */
   count?: number
-
-  /*
-   * A flexible measurement for harvests
-   * where weight, volume or another useful
-   * garden measure is recorded.
-   */
   measurementAmount?: number
-
   measurementUnit?: HarvestMeasurementUnit
-
-  /*
-   * If measurementUnit is 'other', retain
-   * the gardener's own wording here.
-   */
   customMeasurementUnitLabel?: string
-
-
-  /*
-   * =======================================
-   * WHAT HAPPENS NEXT
-   * =======================================
-   */
-
-  /*
-   * Records what this particular harvest
-   * means for the plant's ongoing story.
-   *
-   * This does not automatically replace the
-   * Plant Story status. The app can decide
-   * when to offer or apply a status change.
-   */
   plantOutcome?: HarvestPlantOutcome
-
   customPlantOutcomeLabel?: string
+  quality?: HarvestQuality
+  notes?: string
+  photoUrls?: string[]
+  createdAt: string
+  updatedAt?: string
+}
 
+
+/* =======================================
+   GARDEN PLANS
+======================================= */
+
+/*
+ * A Garden Plan records intention.
+ *
+ * It does NOT record something that has
+ * already happened.
+ *
+ * Real garden history belongs to real Sprig
+ * records:
+ *
+ * Plant Story
+ * Garden Event
+ * Harvest
+ * Purchase
+ * Growing Journey
+ *
+ * When a Plan eventually happens, Sprig can
+ * use the Plan to PREFILL the appropriate
+ * real record.
+ *
+ * The Plan then remains as evidence of what
+ * was originally intended.
+ */
+
+
+/* =======================================
+   PLAN KIND
+======================================= */
+
+export type GardenPlanKind =
+  | 'sow'
+  | 'plant'
+  | 'plant-out'
+  | 'move'
+  | 'feed'
+  | 'treat'
+  | 'harvest'
+  | 'buy'
+  | 'garden-task'
+  | 'other'
+
+
+/* =======================================
+   PLAN STATUS
+======================================= */
+
+export type GardenPlanStatus =
+  | 'planned'
+  | 'recorded'
+  | 'not-done'
+
+
+/* =======================================
+   FUTURE PLANT DETAILS
+======================================= */
+
+/*
+ * This describes something that MAY become
+ * a Plant Story later.
+ *
+ * It is deliberately not a miniature
+ * PlantStory record.
+ */
+
+export interface PlannedPlantDetails {
+  plantName?: string
+  variety?: string
+  quantity?: number
+  startMethod?: StartMethod
+  customStartMethodLabel?: string
+}
+
+
+/* =======================================
+   PLAN TIMING
+======================================= */
+
+/*
+ * A Garden Plan may contain a timing
+ * assumption.
+ *
+ * This is NOT a saved predicted harvest date.
+ *
+ * It records only the knowledge Sprig needs
+ * to calculate a possibility from the Plan.
+ *
+ * Example:
+ *
+ * "I am planning to sow Royal Blue potatoes
+ *  on 5 September."
+ *
+ * "I currently expect them to take
+ *  90 to 110 days from planting."
+ *
+ * Sprig can derive the possible harvest
+ * window whenever the Plan is viewed.
+ *
+ * If the intended date changes, the
+ * projection changes automatically.
+ *
+ * This structure belongs to the PLAN rather
+ * than PlannedPlantDetails because a
+ * Plant-out Plan can refer to an existing
+ * Plant Story and still need a future timing
+ * calculation.
+ */
+
+export type GardenPlanTimingReference =
+  | 'sown'
+  | 'planted'
+  | 'planted-out'
+
+
+export type GardenPlanTimingKnowledgeSource =
+  | 'gardener'
+  | 'sprig-history'
+  | 'reference'
+  | 'unknown'
+
+
+export interface GardenPlanTimingAssumption {
+  /*
+   * Which intended milestone starts the
+   * timing clock?
+   */
+  referenceType:
+    GardenPlanTimingReference
 
   /*
-   * =======================================
-   * EXPERIENCE
-   * =======================================
+   * The expected number of days after that
+   * milestone.
+   *
+   * Either edge may be omitted.
    */
+  daysMin?: number
+  daysMax?: number
 
-  quality?: HarvestQuality
+  /*
+   * Where Sprig got these numbers.
+   *
+   * Right now Calendar-created assumptions
+   * are gardener supplied.
+   *
+   * Later the same structure can hold timing
+   * derived from the gardener's own history.
+   */
+  knowledgeSource?:
+    GardenPlanTimingKnowledgeSource
+
+  /*
+   * Used later when Sprig derives timing from
+   * historical Plant Stories.
+   */
+  evidenceCount?: number
+}
+
+
+/* =======================================
+   PLAN RESULT
+======================================= */
+
+export type GardenPlanResultRecordType =
+  | 'plant-story'
+  | 'garden-event'
+  | 'harvest'
+  | 'purchase'
+
+
+export interface GardenPlanResult {
+  recordType:
+    GardenPlanResultRecordType
+
+  recordId:
+    string
+
+  recordedAt:
+    string
+}
+
+
+/* =======================================
+   GARDEN PLAN RECORD
+======================================= */
+
+export interface GardenPlan {
+  id: string
+
+  /* =======================================
+     WHAT IS INTENDED
+  ======================================= */
+
+  title: string
+
+  kind:
+    GardenPlanKind
+
+  customKindLabel?: string
 
   notes?: string
 
-  photoUrls?: string[]
+  /* =======================================
+     WHEN IT IS INTENDED
+  ======================================= */
 
+  date: string
+
+  endDate?: string
+
+  /* =======================================
+     EXISTING SPRIG RECORDS
+  ======================================= */
+
+  plantStoryIds?: string[]
+  growingPlaceIds?: string[]
+  growingSetupIds?: string[]
+
+  /* =======================================
+     SOMETHING THAT MAY EXIST LATER
+  ======================================= */
+
+  plannedPlant?: PlannedPlantDetails
+
+  /* =======================================
+     WHAT MAY FOLLOW
+  ======================================= */
 
   /*
-   * =======================================
-   * RECORD MANAGEMENT
-   * =======================================
+   * Optional assumptions used to derive
+   * future timing from this Plan.
+   *
+   * We deliberately save the assumptions,
+   * not the calculated dates.
    */
+  timingAssumption?:
+    GardenPlanTimingAssumption
+
+  /* =======================================
+     PLAN LIFE
+  ======================================= */
+
+  status:
+    GardenPlanStatus
+
+  results?: GardenPlanResult[]
+
+  /* =======================================
+     RECORD MANAGEMENT
+  ======================================= */
 
   createdAt: string
 
@@ -1301,25 +907,6 @@ export interface HarvestRecord {
 /* =======================================
    SAVED COMPARISONS
 ======================================= */
-
-/*
- * A Comparison is a saved lens across
- * real Sprig records.
- *
- * It does NOT duplicate the records being
- * compared or the evidence connected to
- * them.
- *
- * When reopened, Sprig reads the current
- * source records again. This means new
- * Journal entries, Harvests, photographs,
- * costs and other connected information
- * can appear automatically.
- *
- * The order of items is meaningful because
- * it controls their left-to-right order in
- * comparison views.
- */
 
 export type ComparisonRecordType =
   | 'plant-story'
@@ -1338,14 +925,9 @@ export interface ComparisonItem {
 
 export interface SavedComparison {
   id: string
-
   name: string
-
-  items:
-    ComparisonItem[]
-
+  items: ComparisonItem[]
   createdAt: string
-
   updatedAt?: string
 }
 
@@ -1397,6 +979,12 @@ export interface GardenData {
   events: GardenEvent[]
 
   harvests: HarvestRecord[]
+
+  /*
+   * Future intentions belonging to the
+   * Calendar and planning system.
+   */
+  plans: GardenPlan[]
 
   savedComparisons: SavedComparison[]
 }

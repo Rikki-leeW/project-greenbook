@@ -6,5 +6,6 @@ export type AppPage =
   | 'growing-places'
   | 'journal'
   | 'harvest'
+  | 'calendar'
   | 'library'
   | 'backup'

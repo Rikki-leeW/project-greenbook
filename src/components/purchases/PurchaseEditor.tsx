@@ -7,6 +7,7 @@ import {
   import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
   
   import type {
+    GardenPlan,
     PurchaseRecord,
     PurchaseUnit,
   } from '../../types'
@@ -26,12 +27,17 @@ import {
     mode?: PurchaseEditorMode
   
     itemType: PurchaseRecord['itemType']
-  
     itemId?: string
-  
     itemName: string
-  
     brand?: string
+  
+    /*
+     * Optional source Garden Plan.
+     *
+     * PurchaseEditor does not alter the Plan.
+     * App links the saved Purchase back to it.
+     */
+    planToRecord?: GardenPlan
   
     onSave: (
       purchase: PurchaseRecord,
@@ -48,9 +54,18 @@ import {
     itemId,
     itemName,
     brand,
+    planToRecord,
     onSave,
     onClose,
   }: PurchaseEditorProps) {
+  
+    const isRecordingPlan =
+      mode ===
+        'new' &&
+      Boolean(
+        planToRecord,
+      )
+  
   
     /* =======================================
        PURCHASE STATE
@@ -62,13 +77,11 @@ import {
     ] =
       useState('')
   
-  
     const [
       purchaseDate,
       setPurchaseDate,
     ] =
       useState('')
-  
   
     const [
       pricePaid,
@@ -76,13 +89,11 @@ import {
     ] =
       useState('')
   
-  
     const [
       quantity,
       setQuantity,
     ] =
       useState('')
-  
   
     const [
       unit,
@@ -92,13 +103,11 @@ import {
         'each',
       )
   
-  
     const [
       packageSize,
       setPackageSize,
     ] =
       useState('')
-  
   
     const [
       packageUnit,
@@ -107,7 +116,6 @@ import {
       useState<PurchaseUnit>(
         'each',
       )
-  
   
     const [
       purchaseNotes,
@@ -140,81 +148,67 @@ import {
           )
   
   
-      /* =======================================
-         EDIT EXISTING PURCHASE
-      ======================================= */
-  
       if (
-        mode === 'edit' &&
+        mode ===
+          'edit' &&
         purchase
       ) {
         setSupplier(
           purchase.supplier ??
           '',
         )
-  
   
         setPurchaseDate(
           purchase.date ??
           '',
         )
   
-  
         setPricePaid(
           String(
             purchase.pricePaid,
           ),
         )
   
-  
         setQuantity(
           purchase.quantity !==
-          undefined
+            undefined
             ? String(
                 purchase.quantity,
               )
             : '',
         )
   
-  
         setUnit(
           purchase.unit ??
           'each',
         )
   
-  
         setPackageSize(
           purchase.packageSize !==
-          undefined
+            undefined
             ? String(
                 purchase.packageSize,
               )
             : '',
         )
   
-  
         setPackageUnit(
           purchase.packageUnit ??
           'each',
         )
-  
   
         setPurchaseNotes(
           purchase.notes ??
           '',
         )
   
-  
         return
       }
   
   
-      /* =======================================
-         REPEAT PURCHASE
-      ======================================= */
-  
       if (
-        mode === 'repeat' &&
+        mode ===
+          'repeat' &&
         purchase
       ) {
         setSupplier(
@@ -222,11 +216,9 @@ import {
           '',
         )
   
-  
         setPurchaseDate(
           today,
         )
-  
   
         setPricePaid(
           String(
@@ -234,92 +226,118 @@ import {
           ),
         )
   
-  
         setQuantity(
           purchase.quantity !==
-          undefined
+            undefined
             ? String(
                 purchase.quantity,
               )
             : '',
         )
   
-  
         setUnit(
           purchase.unit ??
           'each',
         )
   
-  
         setPackageSize(
           purchase.packageSize !==
-          undefined
+            undefined
             ? String(
                 purchase.packageSize,
               )
             : '',
         )
   
-  
         setPackageUnit(
           purchase.packageUnit ??
           'each',
         )
   
-  
-        /*
-         * Notes belong to the individual
-         * purchase, so a repeat purchase
-         * starts with a clean note.
-         */
-  
         setPurchaseNotes(
           '',
         )
-  
   
         return
       }
   
   
-      /* =======================================
-         NEW PURCHASE
-      ======================================= */
+      /*
+       * NEW PURCHASE FROM A PLAN
+       */
+  
+      if (
+        planToRecord
+      ) {
+        setSupplier(
+          '',
+        )
+  
+        setPurchaseDate(
+          planToRecord.date ??
+          today,
+        )
+  
+        setPricePaid(
+          '',
+        )
+  
+        setQuantity(
+          '',
+        )
+  
+        setUnit(
+          'each',
+        )
+  
+        setPackageSize(
+          '',
+        )
+  
+        setPackageUnit(
+          'each',
+        )
+  
+        setPurchaseNotes(
+          planToRecord.notes ??
+          '',
+        )
+  
+        return
+      }
+  
+  
+      /*
+       * ORDINARY NEW PURCHASE
+       */
   
       setSupplier(
         '',
       )
   
-  
       setPurchaseDate(
         today,
       )
-  
   
       setPricePaid(
         '',
       )
   
-  
       setQuantity(
         '',
       )
-  
   
       setUnit(
         'each',
       )
   
-  
       setPackageSize(
         '',
       )
   
-  
       setPackageUnit(
         'each',
       )
-  
   
       setPurchaseNotes(
         '',
@@ -327,6 +345,7 @@ import {
     }, [
       purchase,
       mode,
+      planToRecord,
     ])
   
   
@@ -354,14 +373,11 @@ import {
       const previousOverflow =
         document.body.style.overflow
   
-  
       const previousPosition =
         document.body.style.position
   
-  
       const previousTop =
         document.body.style.top
-  
   
       const previousWidth =
         document.body.style.width
@@ -370,14 +386,11 @@ import {
       document.body.style.overflow =
         'hidden'
   
-  
       document.body.style.position =
         'fixed'
   
-  
       document.body.style.top =
         `-${scrollY}px`
-  
   
       document.body.style.width =
         '100%'
@@ -387,14 +400,11 @@ import {
         document.body.style.overflow =
           previousOverflow
   
-  
         document.body.style.position =
           previousPosition
   
-  
         document.body.style.top =
           previousTop
-  
   
         document.body.style.width =
           previousWidth
@@ -450,14 +460,6 @@ import {
   
       const savedPurchase:
         PurchaseRecord = {
-          /*
-           * Only an edit keeps the existing
-           * Purchase ID.
-           *
-           * Repeat and new purchases always
-           * become new Purchase records.
-           */
-  
           id:
             isEditing
               ? purchase!.id
@@ -546,10 +548,6 @@ import {
     }
   
   
-    /* =======================================
-       HEADING
-    ======================================= */
-  
     function getHeading(): string {
       if (
         mode ===
@@ -567,13 +565,16 @@ import {
       }
   
   
+      if (
+        isRecordingPlan
+      ) {
+        return 'Record what happened'
+      }
+  
+  
       return 'Add a purchase'
     }
   
-  
-    /* =======================================
-       SAVE BUTTON LABEL
-    ======================================= */
   
     function getSaveButtonLabel(): string {
       if (
@@ -592,13 +593,16 @@ import {
       }
   
   
+      if (
+        isRecordingPlan
+      ) {
+        return 'Record this purchase'
+      }
+  
+  
       return 'Add purchase'
     }
   
-  
-    /* =======================================
-       RENDER
-    ======================================= */
   
     return (
       <div
@@ -630,7 +634,9 @@ import {
             <div className="form-heading">
               <div>
                 <p className="section-label">
-                  Purchase history
+                  {isRecordingPlan
+                    ? 'From Garden Plan'
+                    : 'Purchase history'}
                 </p>
   
   
@@ -642,6 +648,25 @@ import {
                 <p className="form-whisper">
                   {itemName}
                 </p>
+  
+  
+                {isRecordingPlan &&
+                  planToRecord && (
+                  <>
+                    <p className="form-whisper">
+                      Sprig has carried the planned
+                      date and notes across. Add what
+                      you actually bought and what you
+                      actually paid.
+                    </p>
+  
+                    <p className="form-whisper">
+                      The Garden Plan remains the
+                      intention. This Purchase Record
+                      becomes the real transaction.
+                    </p>
+                  </>
+                )}
               </div>
   
   
@@ -725,6 +750,15 @@ import {
                   setPurchaseNotes
                 }
               />
+  
+  
+              {isRecordingPlan && (
+                <p className="form-whisper">
+                  Saving this Purchase will let Sprig
+                  link the real transaction back to
+                  the original Plan.
+                </p>
+              )}
   
   
               <div className="form-actions">

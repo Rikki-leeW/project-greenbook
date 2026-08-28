@@ -1,0 +1,1691 @@
+/* ==========================================
+   SPRIG CALENDAR
+========================================== */
+
+.sprig-calendar-page {
+    padding-bottom: 8rem;
+  }
+  
+  
+  /* ==========================================
+     CONTROLS
+  ========================================== */
+  
+  .sprig-calendar-controls {
+    display: grid;
+    gap: 1rem;
+    margin: 1.1rem 0 1.5rem;
+  }
+  
+  
+  /* ==========================================
+     SEARCH
+  ========================================== */
+  
+  .sprig-calendar-search {
+    padding: 1rem;
+  
+    border: 1px solid
+      rgba(88, 78, 56, 0.14);
+  
+    border-radius: 18px;
+  
+    background:
+      rgba(255, 252, 242, 0.66);
+  
+    box-shadow:
+      0 8px 22px
+      rgba(68, 58, 41, 0.045);
+  }
+  
+  
+  .sprig-calendar-search-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.45rem;
+  }
+  
+  
+  .sprig-calendar-search-input {
+    width: 100%;
+    min-width: 0;
+  
+    padding:
+      0.78rem
+      0.9rem;
+  
+    border: 1px solid
+      rgba(66, 82, 59, 0.2);
+  
+    border-radius: 14px;
+  
+    background:
+      rgba(255, 255, 255, 0.62);
+  
+    color: inherit;
+    font: inherit;
+  
+    outline: none;
+  }
+  
+  
+  .sprig-calendar-search-input:focus {
+    border-color:
+      rgba(55, 86, 60, 0.56);
+  
+    box-shadow:
+      0 0 0 3px
+      rgba(78, 111, 76, 0.1);
+  }
+  
+  
+  .sprig-calendar-search-input::placeholder {
+    opacity: 0.56;
+  }
+  
+  
+  .sprig-calendar-clear-search {
+    flex: 0 0 auto;
+  
+    padding:
+      0.72rem
+      0.85rem;
+  
+    border: 1px solid
+      rgba(66, 82, 59, 0.18);
+  
+    border-radius: 999px;
+  
+    background:
+      rgba(255, 255, 255, 0.54);
+  
+    color: inherit;
+    font: inherit;
+  
+    cursor: pointer;
+  }
+  
+  
+  /* ==========================================
+     FILTERS
+  ========================================== */
+  
+  .sprig-calendar-filter-panel {
+    padding: 1rem;
+  
+    border: 1px solid
+      rgba(88, 78, 56, 0.14);
+  
+    border-radius: 18px;
+  
+    background:
+      rgba(255, 252, 242, 0.66);
+  
+    box-shadow:
+      0 8px 22px
+      rgba(68, 58, 41, 0.045);
+  }
+  
+  
+  .sprig-calendar-filter-intro {
+    margin:
+      0.2rem
+      0
+      0;
+  
+    opacity: 0.72;
+  }
+  
+  
+  .sprig-calendar-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  
+    margin-top: 0.85rem;
+  }
+  
+  
+  .sprig-calendar-filter-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  
+    padding:
+      0.55rem
+      0.78rem;
+  
+    border: 1px solid
+      rgba(66, 82, 59, 0.18);
+  
+    border-radius: 999px;
+  
+    background:
+      rgba(255, 255, 255, 0.46);
+  
+    color: inherit;
+    font: inherit;
+    font-size: 0.9rem;
+  
+    cursor: pointer;
+  
+    transition:
+      background 120ms ease,
+      border-color 120ms ease,
+      transform 120ms ease;
+  }
+  
+  
+  .sprig-calendar-filter-button:hover {
+    transform:
+      translateY(-1px);
+  }
+  
+  
+  .sprig-calendar-filter-button--selected {
+    border-color:
+      rgba(56, 82, 58, 0.5);
+  
+    background:
+      rgba(133, 158, 113, 0.2);
+  }
+  
+  
+  .sprig-calendar-filter-button--all:not(
+    .sprig-calendar-filter-button--selected
+  ) {
+    border-style: dashed;
+  }
+  
+  
+  .sprig-calendar-filter-status {
+    margin:
+      0.65rem
+      0
+      0;
+  
+    font-size: 0.82rem;
+    opacity: 0.58;
+  }
+  
+  
+  /* ==========================================
+     GENERAL SECTION HEADINGS
+  ========================================== */
+  
+  .sprig-calendar-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  
+    margin-bottom: 0.85rem;
+  }
+  
+  
+  /* ==========================================
+     SEARCH RESULTS
+  ========================================== */
+  
+  .sprig-calendar-search-results {
+    margin:
+      1.3rem
+      0
+      1.7rem;
+  }
+  
+  
+  .sprig-calendar-search-list {
+    display: grid;
+    gap: 0.45rem;
+  }
+  
+  
+  .sprig-calendar-search-result {
+    display: grid;
+  
+    grid-template-columns:
+      auto
+      minmax(0, 1fr)
+      auto;
+  
+    align-items: center;
+    gap: 0.75rem;
+  
+    width: 100%;
+  
+    padding:
+      0.75rem
+      0.85rem;
+  
+    border: 1px solid
+      rgba(76, 71, 54, 0.12);
+  
+    border-radius: 14px;
+  
+    background:
+      rgba(255, 253, 246, 0.72);
+  
+    color: inherit;
+    font: inherit;
+    text-align: left;
+  
+    cursor: pointer;
+  }
+  
+  
+  .sprig-calendar-search-result:hover {
+    background:
+      rgba(255, 255, 255, 0.88);
+  }
+  
+  
+  .sprig-calendar-search-result-date {
+    min-width: 4.4rem;
+  
+    font-size: 0.78rem;
+    opacity: 0.63;
+  }
+  
+  
+  .sprig-calendar-search-result-body {
+    display: grid;
+    gap: 0.12rem;
+  
+    min-width: 0;
+  }
+  
+  
+  .sprig-calendar-search-result-body strong,
+  .sprig-calendar-search-result-body span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  
+  .sprig-calendar-search-result-body span {
+    opacity: 0.68;
+  }
+  
+  
+  .sprig-calendar-search-result-arrow {
+    opacity: 0.58;
+  }
+  
+  
+  /* ==========================================
+     MONTH
+  ========================================== */
+  
+  .sprig-calendar-month-section {
+    margin:
+      1.4rem
+      0
+      2rem;
+  }
+  
+  
+  .sprig-calendar-month-heading {
+    display: grid;
+  
+    grid-template-columns:
+      2.6rem
+      minmax(0, 1fr)
+      2.6rem;
+  
+    align-items: center;
+    gap: 0.65rem;
+  
+    margin-bottom: 0.55rem;
+  
+    text-align: center;
+  }
+  
+  
+  .sprig-calendar-month-heading h2 {
+    margin: 0;
+  }
+  
+  
+  .sprig-calendar-month-button {
+    display: grid;
+    place-items: center;
+  
+    width: 2.45rem;
+    height: 2.45rem;
+  
+    padding: 0;
+  
+    border: 1px solid
+      rgba(62, 79, 58, 0.16);
+  
+    border-radius: 12px;
+  
+    background:
+      rgba(255, 255, 255, 0.5);
+  
+    color: inherit;
+  
+    font: inherit;
+    font-size: 1.4rem;
+    line-height: 1;
+  
+    cursor: pointer;
+  }
+  
+  
+  .sprig-calendar-today-row {
+    display: flex;
+    justify-content: center;
+  
+    margin-bottom: 1rem;
+  }
+  
+  
+  .sprig-calendar-today-button {
+    padding:
+      0.46rem
+      0.85rem;
+  
+    border: 1px solid
+      rgba(62, 79, 58, 0.18);
+  
+    border-radius: 999px;
+  
+    background:
+      rgba(255, 255, 255, 0.5);
+  
+    color: inherit;
+    font: inherit;
+    font-size: 0.86rem;
+  
+    cursor: pointer;
+  }
+  
+  
+  /* ==========================================
+     WEEKDAYS
+  ========================================== */
+  
+  .sprig-calendar-weekdays {
+    display: grid;
+  
+    grid-template-columns:
+      repeat(
+        7,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  
+    gap: 0.25rem;
+  
+    margin-bottom: 0.3rem;
+  
+    text-align: center;
+  }
+  
+  
+  .sprig-calendar-weekdays > div {
+    overflow: hidden;
+  
+    font-size: 0.63rem;
+    font-weight: 700;
+  
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  
+    opacity: 0.58;
+  }
+  
+  
+  /* ==========================================
+     CALENDAR GRID
+  ========================================== */
+  
+  .sprig-calendar-grid {
+    display: grid;
+  
+    grid-template-columns:
+      repeat(
+        7,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  
+    gap: 0.25rem;
+  }
+  
+  
+  .sprig-calendar-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  
+    min-width: 0;
+    min-height: 3.6rem;
+  
+    padding:
+      0.42rem
+      0.1rem;
+  
+    border: 1px solid
+      rgba(65, 71, 51, 0.13);
+  
+    border-radius: 12px;
+  
+    background:
+      rgba(255, 255, 255, 0.34);
+  
+    color: inherit;
+    font: inherit;
+  
+    cursor: pointer;
+  
+    transition:
+      background 120ms ease,
+      border-color 120ms ease,
+      transform 120ms ease;
+  }
+  
+  
+  .sprig-calendar-day:hover {
+    background:
+      rgba(255, 255, 255, 0.62);
+  }
+  
+  
+  .sprig-calendar-day--outside {
+    opacity: 0.34;
+  }
+  
+  
+  .sprig-calendar-day--today {
+    border-color:
+      rgba(61, 91, 60, 0.52);
+  }
+  
+  
+  .sprig-calendar-day--selected {
+    border:
+      2px solid
+      rgba(43, 72, 46, 0.92);
+  
+    background:
+      rgba(255, 255, 255, 0.76);
+  }
+  
+  
+  .sprig-calendar-day-indicators {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.16rem;
+  
+    min-height: 0.7rem;
+  
+    margin-top: 0.36rem;
+  }
+  
+  
+  .sprig-calendar-indicator {
+    font-size: 0.59rem;
+    line-height: 1;
+  }
+  
+  
+  .sprig-calendar-indicator--expected {
+    opacity: 0.56;
+  }
+  
+  
+  /* ==========================================
+     LEGEND
+  ========================================== */
+  
+  .sprig-calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.55rem;
+  
+    margin-top: 0.75rem;
+  
+    font-size: 0.79rem;
+    font-style: italic;
+  
+    opacity: 0.63;
+  }
+  
+  
+  /* ==========================================
+     DAY STORY
+  ========================================== */
+  
+  .sprig-calendar-day-story {
+    margin-top: 1.2rem;
+  }
+  
+  
+  .sprig-calendar-day-groups {
+    display: grid;
+    gap: 1.5rem;
+  }
+  
+  
+  .sprig-calendar-day-group {
+    display: grid;
+    gap: 0.7rem;
+  }
+  
+  
+  .sprig-calendar-day-group-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  
+    padding:
+      0
+      0.15rem;
+  }
+  
+  
+  .sprig-calendar-day-group-heading h3 {
+    margin:
+      0.08rem
+      0
+      0;
+  
+    font-size: 1.05rem;
+  }
+  
+  
+  .sprig-calendar-group-mark {
+    display: grid;
+    place-items: center;
+  
+    width: 1.9rem;
+    height: 1.9rem;
+  
+    flex: 0 0 auto;
+  
+    border-radius: 50%;
+  
+    background:
+      rgba(255, 255, 255, 0.5);
+  }
+  
+  
+  .sprig-calendar-group-mark--expected {
+    opacity: 0.68;
+  }
+  
+  
+  .sprig-calendar-day-group-items {
+    display: grid;
+    gap: 0.7rem;
+  }
+  
+  
+  /* ==========================================
+     STORY CARD
+  ========================================== */
+  
+  .sprig-calendar-story-card {
+    position: relative;
+  
+    padding:
+      0.9rem
+      0.95rem;
+  
+    border: 1px solid
+      rgba(79, 71, 51, 0.11);
+  
+    border-radius: 18px;
+  
+    background:
+      rgba(255, 253, 246, 0.78);
+  
+    box-shadow:
+      0 7px 18px
+      rgba(66, 56, 39, 0.04);
+  }
+  
+  
+  .sprig-calendar-story-card--openable {
+    cursor: pointer;
+  
+    transition:
+      transform 120ms ease,
+      background 120ms ease,
+      box-shadow 120ms ease;
+  }
+  
+  
+  .sprig-calendar-story-card--openable:hover {
+    transform:
+      translateY(-1px);
+  
+    background:
+      rgba(255, 255, 255, 0.9);
+  
+    box-shadow:
+      0 10px 24px
+      rgba(66, 56, 39, 0.065);
+  }
+  
+  
+  .sprig-calendar-story-card--openable:focus-visible {
+    outline:
+      2px solid
+      rgba(51, 81, 55, 0.62);
+  
+    outline-offset: 2px;
+  }
+  
+  
+  .sprig-calendar-story-card--expected {
+    border-style: dashed;
+  }
+  
+  
+  .sprig-calendar-story-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+  
+    margin-bottom: 0.45rem;
+  
+    font-size: 0.67rem;
+    font-weight: 700;
+  
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  
+    opacity: 0.59;
+  }
+  
+  
+  .sprig-calendar-story-context {
+    margin:
+      0
+      0
+      0.14rem;
+  
+    font-size: 0.94rem;
+    font-weight: 700;
+  }
+  
+  
+  .sprig-calendar-story-title {
+    margin:
+      0
+      0
+      0.28rem;
+  
+    font-size: 1.15rem;
+  }
+  
+  
+  .sprig-calendar-story-description {
+    margin:
+      0.28rem
+      0
+      0;
+  
+    line-height: 1.46;
+    opacity: 0.77;
+  }
+  
+  
+  /* ==========================================
+     EXPECTED WINDOW
+  ========================================== */
+  
+  .sprig-calendar-window {
+    display: grid;
+    gap: 0.1rem;
+  
+    margin-top: 0.72rem;
+  
+    padding:
+      0.55rem
+      0.65rem;
+  
+    border-radius: 12px;
+  
+    background:
+      rgba(221, 220, 194, 0.24);
+  
+    font-size: 0.84rem;
+  }
+  
+  
+  .sprig-calendar-window-label {
+    font-size: 0.67rem;
+    font-weight: 700;
+  
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  
+    opacity: 0.57;
+  }
+  
+  
+  /* ==========================================
+     RELATIONSHIPS
+  ========================================== */
+  
+  .sprig-calendar-relationships {
+    display: grid;
+    gap: 0.72rem;
+  
+    margin-top: 0.82rem;
+  
+    padding-top: 0.72rem;
+  
+    border-top: 1px solid
+      rgba(75, 73, 54, 0.09);
+  }
+  
+  
+  .sprig-calendar-relationship-group {
+    display: grid;
+    gap: 0.28rem;
+  }
+  
+  
+  .sprig-calendar-relationship-label {
+    margin: 0;
+  
+    font-size: 0.72rem;
+    font-style: italic;
+  
+    opacity: 0.57;
+  }
+  
+  
+  .sprig-calendar-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.38rem;
+  }
+  
+  
+  .sprig-calendar-chip {
+    max-width: 100%;
+  
+    padding:
+      0.42rem
+      0.65rem;
+  
+    border: 1px solid
+      rgba(61, 83, 58, 0.15);
+  
+    border-radius: 999px;
+  
+    background:
+      rgba(248, 249, 237, 0.86);
+  
+    color: inherit;
+    font: inherit;
+    font-size: 0.82rem;
+  
+    cursor: pointer;
+  }
+  
+  
+  .sprig-calendar-chip:hover {
+    background:
+      rgba(238, 242, 222, 0.95);
+  }
+  
+  
+  /* ==========================================
+     STORY FOOTER
+  ========================================== */
+  
+  .sprig-calendar-story-footer {
+    display: flex;
+    justify-content: flex-end;
+  
+    margin-top: 0.72rem;
+  }
+  
+  
+  .sprig-calendar-open-hint,
+  .sprig-calendar-source-note {
+    font-size: 0.78rem;
+    font-style: italic;
+  
+    opacity: 0.57;
+  }
+  
+  
+  /* ==========================================
+     EMPTY / PLACEHOLDER CARDS
+  ========================================== */
+  
+  .sprig-calendar-empty-card {
+    padding:
+      1rem
+      1.05rem;
+  
+    border: 1px solid
+      rgba(79, 71, 51, 0.11);
+  
+    border-radius: 18px;
+  
+    background:
+      rgba(255, 253, 246, 0.72);
+  }
+  
+  
+  .sprig-calendar-empty-card h3 {
+    margin:
+      0.18rem
+      0
+      0.35rem;
+  }
+  
+  
+  .sprig-calendar-empty-card p:last-child {
+    margin-bottom: 0;
+  }
+  
+  
+  .sprig-calendar-planning-placeholder {
+    margin-top: 1.8rem;
+  }
+  
+  
+  /* ==========================================
+     PHONE
+  ========================================== */
+  
+  @media (
+    max-width: 640px
+  ) {
+    .sprig-calendar-page {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  
+  
+    .sprig-calendar-controls {
+      gap: 0.75rem;
+    }
+  
+  
+    .sprig-calendar-search,
+    .sprig-calendar-filter-panel {
+      padding: 0.82rem;
+    }
+  
+  
+    .sprig-calendar-search-row {
+      align-items: stretch;
+    }
+  
+  
+    .sprig-calendar-search-input {
+      padding:
+        0.7rem
+        0.72rem;
+  
+      font-size: 0.9rem;
+    }
+  
+  
+    .sprig-calendar-clear-search {
+      padding:
+        0.65rem
+        0.72rem;
+  
+      font-size: 0.82rem;
+    }
+  
+  
+    .sprig-calendar-filter-buttons {
+      gap: 0.35rem;
+    }
+  
+  
+    .sprig-calendar-filter-button {
+      padding:
+        0.48rem
+        0.62rem;
+  
+      font-size: 0.8rem;
+    }
+  
+  
+    .sprig-calendar-month-heading {
+      grid-template-columns:
+        2.25rem
+        minmax(0, 1fr)
+        2.25rem;
+  
+      gap: 0.4rem;
+    }
+  
+  
+    .sprig-calendar-month-button {
+      width: 2.2rem;
+      height: 2.2rem;
+    }
+  
+  
+    .sprig-calendar-weekdays {
+      gap: 0.18rem;
+    }
+  
+  
+    .sprig-calendar-weekdays > div {
+      font-size: 0.56rem;
+      letter-spacing: 0.05em;
+    }
+  
+  
+    .sprig-calendar-grid {
+      gap: 0.18rem;
+    }
+  
+  
+    .sprig-calendar-day {
+      min-height: 3.25rem;
+  
+      padding:
+        0.34rem
+        0.06rem;
+  
+      border-radius: 10px;
+  
+      font-size: 0.84rem;
+    }
+  
+  
+    .sprig-calendar-day-indicators {
+      gap: 0.1rem;
+  
+      margin-top: 0.3rem;
+    }
+  
+  
+    .sprig-calendar-indicator {
+      font-size: 0.53rem;
+    }
+  
+  
+    .sprig-calendar-legend {
+      gap: 0.42rem;
+  
+      font-size: 0.71rem;
+    }
+  
+  
+    .sprig-calendar-day-groups {
+      gap: 1.25rem;
+    }
+  
+  
+    .sprig-calendar-story-card {
+      padding:
+        0.82rem
+        0.82rem;
+  
+      border-radius: 16px;
+    }
+  
+  
+    .sprig-calendar-story-title {
+      font-size: 1.08rem;
+    }
+  
+  
+    .sprig-calendar-story-context {
+      font-size: 0.89rem;
+    }
+  
+  
+    .sprig-calendar-story-description {
+      font-size: 0.89rem;
+    }
+  
+  
+    .sprig-calendar-search-result {
+      grid-template-columns:
+        auto
+        minmax(0, 1fr);
+  
+      gap:
+        0.2rem
+        0.65rem;
+  
+      padding:
+        0.68rem
+        0.72rem;
+    }
+  
+  
+    .sprig-calendar-search-result-arrow {
+      display: none;
+    }
+  
+  
+    .sprig-calendar-search-result-date {
+      min-width: 3.7rem;
+      font-size: 0.7rem;
+    }
+  
+  
+    .sprig-calendar-search-result-body {
+      font-size: 0.87rem;
+    }
+  }
+
+  /* ==========================================
+   GARDEN PLAN COMPOSER
+========================================== */
+/* ==========================================
+   GARDEN PLAN MODAL LAYOUT
+========================================== */
+
+.sprig-calendar-plan-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    box-sizing: border-box;
+  
+    /*
+     * Leave breathing room around the sheet
+     * and, most importantly, keep its bottom
+     * above Sprig's fixed navigation.
+     */
+    padding:
+      18px
+      18px
+      calc(
+        96px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+  
+    background:
+      rgba(
+        35,
+        35,
+        26,
+        0.34
+      );
+  
+    backdrop-filter:
+      blur(2px);
+  
+    overflow: hidden;
+  }
+  
+  
+  .sprig-calendar-plan-sheet {
+    width:
+      min(
+        100%,
+        620px
+      );
+  
+    /*
+     * The modal itself owns the scroll.
+     * The page behind it stays still.
+     */
+    max-height:
+      calc(
+        100dvh -
+        132px
+      );
+  
+    box-sizing:
+      border-box;
+  
+    overflow-x:
+      hidden;
+  
+    overflow-y:
+      auto;
+  
+    overscroll-behavior:
+      contain;
+  
+    -webkit-overflow-scrolling:
+      touch;
+  
+    padding:
+      1.15rem
+      1.05rem
+      1.5rem;
+  
+    border:
+      1px solid
+      rgba(
+        76,
+        71,
+        53,
+        0.16
+      );
+  
+    border-radius:
+      24px;
+  
+    background:
+      #faf7ec;
+  
+    box-shadow:
+      0 18px 52px
+      rgba(
+        46,
+        39,
+        28,
+        0.2
+      );
+  }
+  
+  
+  /* ==========================================
+     GARDEN PLAN PHONE LAYOUT
+  ========================================== */
+  
+  @media (
+    max-width:
+      640px
+  ) {
+    .sprig-calendar-plan-backdrop {
+      align-items:
+        flex-start;
+  
+      padding:
+        10px
+        8px
+        calc(
+          88px +
+          env(
+            safe-area-inset-bottom
+          )
+        );
+    }
+  
+  
+    .sprig-calendar-plan-sheet {
+      width:
+        100%;
+  
+      max-height:
+        calc(
+          100dvh -
+          108px -
+          env(
+            safe-area-inset-bottom
+          )
+        );
+  
+      padding:
+        1rem
+        0.9rem
+        1.4rem;
+  
+      border-radius:
+        20px;
+    }
+  }
+  
+  
+  .sprig-calendar-plan-sheet-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  
+    margin-bottom:
+      1.15rem;
+  }
+  
+  
+  .sprig-calendar-plan-sheet-heading h2 {
+    margin:
+      0.1rem
+      0
+      0.35rem;
+  }
+  
+  
+  .sprig-calendar-plan-sheet-heading p:last-child {
+    margin:
+      0;
+  
+    opacity:
+      0.72;
+  }
+  
+  
+  .sprig-calendar-plan-close {
+    display: grid;
+    place-items: center;
+  
+    width:
+      2.3rem;
+  
+    height:
+      2.3rem;
+  
+    flex:
+      0 0 auto;
+  
+    padding:
+      0;
+  
+    border:
+      1px solid
+      rgba(
+        66,
+        78,
+        58,
+        0.14
+      );
+  
+    border-radius:
+      50%;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.52
+      );
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    font-size:
+      1.4rem;
+  
+    line-height:
+      1;
+  
+    cursor:
+      pointer;
+  }
+  
+  
+  .sprig-calendar-plan-field {
+    display: grid;
+    gap: 0.42rem;
+  
+    margin-top:
+      1rem;
+  }
+  
+  
+  .sprig-calendar-plan-field > label,
+  .sprig-calendar-plan-field > span {
+    font-size:
+      0.88rem;
+  
+    font-weight:
+      700;
+  }
+  
+  
+  .sprig-calendar-plan-field input,
+  .sprig-calendar-plan-field textarea {
+    width: 100%;
+    box-sizing:
+      border-box;
+  
+    padding:
+      0.72rem
+      0.78rem;
+  
+    border:
+      1px solid
+      rgba(
+        64,
+        78,
+        58,
+        0.18
+      );
+  
+    border-radius:
+      13px;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.6
+      );
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    outline:
+      none;
+  }
+  
+  
+  .sprig-calendar-plan-field textarea {
+    resize:
+      vertical;
+  
+    min-height:
+      6rem;
+  }
+  
+  
+  .sprig-calendar-plan-field input:focus,
+  .sprig-calendar-plan-field textarea:focus {
+    border-color:
+      rgba(
+        55,
+        86,
+        60,
+        0.54
+      );
+  
+    box-shadow:
+      0 0 0 3px
+      rgba(
+        78,
+        111,
+        76,
+        0.09
+      );
+  }
+  
+  
+  .sprig-calendar-plan-optional {
+    font-size:
+      0.76rem;
+  
+    font-weight:
+      400;
+  
+    font-style:
+      italic;
+  
+    opacity:
+      0.58;
+  }
+  
+  
+  /* ==========================================
+     PLAN KIND PICKER
+  ========================================== */
+  
+  .sprig-calendar-plan-kind-grid {
+    display: grid;
+  
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  
+    gap:
+      0.45rem;
+  }
+  
+  
+  .sprig-calendar-plan-kind {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  
+    min-width: 0;
+  
+    padding:
+      0.65rem
+      0.7rem;
+  
+    border:
+      1px solid
+      rgba(
+        67,
+        80,
+        59,
+        0.14
+      );
+  
+    border-radius:
+      13px;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.42
+      );
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    text-align:
+      left;
+  
+    cursor:
+      pointer;
+  }
+  
+  
+  .sprig-calendar-plan-kind--selected {
+    border-color:
+      rgba(
+        57,
+        86,
+        58,
+        0.48
+      );
+  
+    background:
+      rgba(
+        136,
+        157,
+        116,
+        0.2
+      );
+  }
+  
+  
+  /* ==========================================
+     PLAN DATES
+  ========================================== */
+  
+  .sprig-calendar-plan-date-grid {
+    display: grid;
+  
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  
+    gap:
+      0.7rem;
+  }
+  
+  
+  /* ==========================================
+     PLAN ACTIONS
+  ========================================== */
+  
+  .sprig-calendar-plan-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.55rem;
+  
+    margin-top:
+      1.35rem;
+  
+    padding-top:
+      1rem;
+  
+    border-top:
+      1px solid
+      rgba(
+        77,
+        70,
+        53,
+        0.1
+      );
+  }
+  
+  
+  .sprig-calendar-plan-cancel,
+  .sprig-calendar-plan-save {
+    padding:
+      0.68rem
+      0.85rem;
+  
+    border-radius:
+      999px;
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    cursor:
+      pointer;
+  }
+  
+  
+  .sprig-calendar-plan-cancel {
+    border:
+      1px solid
+      rgba(
+        65,
+        76,
+        59,
+        0.14
+      );
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.42
+      );
+  }
+  
+  
+  .sprig-calendar-plan-save {
+    border:
+      1px solid
+      rgba(
+        55,
+        82,
+        57,
+        0.42
+      );
+  
+    background:
+      rgba(
+        128,
+        155,
+        111,
+        0.24
+      );
+  }
+  
+  
+  .sprig-calendar-plan-save:disabled {
+    cursor:
+      default;
+  
+    opacity:
+      0.42;
+  }
+  
+  
+  /* ==========================================
+     PLAN PHONE
+  ========================================== */
+  
+  @media (
+    max-width:
+      640px
+  ) {
+    .sprig-calendar-plan-backdrop {
+      padding:
+        0;
+    }
+  
+  
+    .sprig-calendar-plan-sheet {
+      max-height:
+        94vh;
+  
+      padding:
+        1rem
+        0.9rem
+        calc(
+          1.25rem +
+          env(
+            safe-area-inset-bottom
+          )
+        );
+    }
+  
+  
+    .sprig-calendar-plan-date-grid {
+      grid-template-columns:
+        1fr;
+    }
+  
+  
+    .sprig-calendar-plan-actions {
+      display:
+        grid;
+  
+      grid-template-columns:
+        1fr
+        1fr;
+    }
+  
+  
+    .sprig-calendar-plan-cancel,
+    .sprig-calendar-plan-save {
+      width:
+        100%;
+    }
+  }

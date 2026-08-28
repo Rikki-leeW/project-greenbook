@@ -14,6 +14,7 @@ import SprigPicker from '../sprig/SprigPicker'
 import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 
 import type {
+  GardenPlan,
   GardenProduct,
   GrowingPlace,
   GrowingSetup,
@@ -56,6 +57,20 @@ interface AddPlantFormProps {
    * Plant Story prefilled from another.
    */
   variationFrom?: PlantStory
+
+  /**
+   * Supplying this begins a brand-new
+   * Plant Story from a Garden Plan.
+   *
+   * The Plan remains an intention.
+   * This form merely carries useful
+   * particulars forward so the gardener
+   * does not have to type them again.
+   *
+   * The Plant Story created here owns
+   * what actually happened.
+   */
+  planToRecord?: GardenPlan
 
   onAddGrowingPlace: (
     place: GrowingPlace,
@@ -213,6 +228,84 @@ function getPlantOriginLabel(
 
 
 /* =======================================
+   PLAN START METHOD
+======================================= */
+
+function getPlanStartingMethod(
+  plan:
+    GardenPlan | undefined,
+): StartMethod {
+  if (
+    plan
+      ?.plannedPlant
+      ?.startMethod
+  ) {
+    return plan
+      .plannedPlant
+      .startMethod
+  }
+
+
+  /*
+   * A Sow Plan means the story began by
+   * sowing something.
+   *
+   * Seed is the safest neutral starting
+   * value available in the present model.
+   * The gardener can immediately change it
+   * to seed potato, tuber, bulb, etc.
+   *
+   * Sprig does not infer crop biology from
+   * the plant name.
+   */
+
+  if (
+    plan?.kind ===
+    'sow'
+  ) {
+    return 'seed'
+  }
+
+
+  /*
+   * A Plant Plan normally means a plant
+   * already exists as a starting piece.
+   *
+   * Seedling is a useful editable default,
+   * not a claim about what actually happened.
+   */
+
+  return 'seedling'
+}
+
+
+/* =======================================
+   PLAN TIMING REFERENCE
+======================================= */
+
+function getPlanHarvestTimingReference(
+  plan:
+    GardenPlan | undefined,
+): PlantStory['harvestTimingReference'] {
+  const timingAssumption =
+    plan?.timingAssumption
+
+
+  if (
+    !timingAssumption
+  ) {
+    return undefined
+  }
+
+
+  return {
+    sourceType:
+      timingAssumption.referenceType,
+  }
+}
+
+
+/* =======================================
    ADD / EDIT PLANT
 ======================================= */
 
@@ -225,6 +318,7 @@ export default function AddPlantForm({
   onUpdatePlant,
   plantToEdit,
   variationFrom,
+  planToRecord,
   onAddGrowingPlace,
   onAddRecipe,
   onAddIngredient,
@@ -245,6 +339,23 @@ export default function AddPlantForm({
     variationFrom
 
 
+  /*
+   * A Plan can only seed a brand-new
+   * Plant Story.
+   *
+   * Edit and variation modes deliberately
+   * take precedence so Sprig never mixes
+   * two different source records into one
+   * form state.
+   */
+
+  const recordingPlan =
+    !plantToEdit &&
+    !variationFrom
+      ? planToRecord
+      : undefined
+
+
   const isEditing =
     Boolean(
       plantToEdit,
@@ -254,6 +365,12 @@ export default function AddPlantForm({
   const isVariation =
     Boolean(
       variationFrom,
+    )
+
+
+  const isRecordingPlan =
+    Boolean(
+      recordingPlan,
     )
 
 
@@ -267,7 +384,10 @@ export default function AddPlantForm({
   ] =
     useState(
       sourcePlant?.plantName ??
-        '',
+      recordingPlan
+        ?.plannedPlant
+        ?.plantName ??
+      '',
     )
 
 
@@ -277,7 +397,10 @@ export default function AddPlantForm({
   ] =
     useState(
       sourcePlant?.variety ??
-        '',
+      recordingPlan
+        ?.plannedPlant
+        ?.variety ??
+      '',
     )
 
 
@@ -288,7 +411,10 @@ export default function AddPlantForm({
     useState(
       String(
         sourcePlant?.quantity ??
-          1,
+        recordingPlan
+          ?.plannedPlant
+          ?.quantity ??
+        1,
       ),
     )
 
@@ -303,7 +429,9 @@ export default function AddPlantForm({
   ] =
     useState<StartMethod>(
       sourcePlant?.startMethod ??
-        'seedling',
+      getPlanStartingMethod(
+        recordingPlan,
+      ),
     )
 
 
@@ -314,7 +442,10 @@ export default function AddPlantForm({
     useState(
       sourcePlant
         ?.customStartMethodLabel ??
-        '',
+      recordingPlan
+        ?.plannedPlant
+        ?.customStartMethodLabel ??
+      '',
     )
 
 
@@ -324,7 +455,8 @@ export default function AddPlantForm({
   ] =
     useState(
       sourcePlant?.plantedDate ??
-        today,
+      recordingPlan?.date ??
+      today,
     )
 
 
@@ -347,7 +479,7 @@ export default function AddPlantForm({
     useState(
       sourcePlant
         ?.plantedOutDate ??
-        '',
+      '',
     )
 
 
@@ -361,7 +493,7 @@ export default function AddPlantForm({
   ] =
     useState<PlantOriginType>(
       sourcePlant?.originType ??
-        'unknown',
+      'unknown',
     )
 
 
@@ -371,7 +503,7 @@ export default function AddPlantForm({
   ] =
     useState(
       sourcePlant?.source ??
-        '',
+      '',
     )
 
 
@@ -382,7 +514,7 @@ export default function AddPlantForm({
     useState(
       sourcePlant
         ?.customOriginLabel ??
-        '',
+      '',
     )
 
 
@@ -404,7 +536,10 @@ export default function AddPlantForm({
     useState(
       sourcePlant
         ?.currentGrowingPlaceId ??
-        '',
+      recordingPlan
+        ?.growingPlaceIds
+        ?.[0] ??
+      '',
     )
 
 
@@ -426,7 +561,10 @@ export default function AddPlantForm({
     useState(
       sourcePlant
         ?.currentGrowingSetupId ??
-        '',
+      recordingPlan
+        ?.growingSetupIds
+        ?.[0] ??
+      '',
     )
 
 
@@ -460,7 +598,16 @@ export default function AddPlantForm({
             sourcePlant
               .expectedHarvestDaysMin,
           )
-        : '',
+        : recordingPlan
+            ?.timingAssumption
+            ?.daysMin !==
+          undefined
+          ? String(
+              recordingPlan
+                .timingAssumption
+                .daysMin,
+            )
+          : '',
     )
 
 
@@ -476,7 +623,16 @@ export default function AddPlantForm({
             sourcePlant
               .expectedHarvestDaysMax,
           )
-        : '',
+        : recordingPlan
+            ?.timingAssumption
+            ?.daysMax !==
+          undefined
+          ? String(
+              recordingPlan
+                .timingAssumption
+                .daysMax,
+            )
+          : '',
     )
 
 
@@ -490,89 +646,93 @@ export default function AddPlantForm({
   ] =
     useState(
       sourcePlant?.notes ??
-        '',
+      recordingPlan?.notes ??
+      '',
     )
 
 
- /* =======================================
-   PHOTOGRAPHS
-======================================= */
+  /* =======================================
+     PHOTOGRAPHS
+  ======================================= */
 
-/*
- * Plant Story photographs continue to be
- * stored as URLs so existing Sprig gardens,
- * galleries and backup data remain
- * compatible.
- */
-const [
-  photoUrls,
-  setPhotoUrls,
-] =
-  useState<string[]>(
-    [
-      ...(
+  /*
+   * Plant Story photographs continue to be
+   * stored as URLs so existing Sprig gardens,
+   * galleries and backup data remain
+   * compatible.
+   */
+
+  const [
+    photoUrls,
+    setPhotoUrls,
+  ] =
+    useState<string[]>(
+      [
+        ...(
+          sourcePlant
+            ?.photoUrls ??
+          []
+        ),
+      ],
+    )
+
+
+  /*
+   * Each photograph may now carry the date
+   * it was actually taken.
+   *
+   * photoDates[n] belongs to photoUrls[n].
+   *
+   * Older Plant Stories may already contain
+   * photographs without dates. Those entries
+   * deliberately remain undefined rather
+   * than Sprig inventing a date for them.
+   */
+
+  const [
+    photoDates,
+    setPhotoDates,
+  ] =
+    useState<
+      Array<
+        string | undefined
+      >
+    >(
+      (
         sourcePlant
           ?.photoUrls ??
         []
+      ).map(
+        (
+          _photoUrl,
+          index,
+        ) =>
+          sourcePlant
+            ?.photoDates?.[
+              index
+            ],
       ),
-    ],
-  )
+    )
 
 
-/*
- * Each photograph may now carry the date
- * it was actually taken.
- *
- * photoDates[n] belongs to photoUrls[n].
- *
- * Older Plant Stories may already contain
- * photographs without dates. Those entries
- * deliberately remain undefined rather
- * than Sprig inventing a date for them.
- */
-const [
-  photoDates,
-  setPhotoDates,
-] =
-  useState<
-    Array<
-      string | undefined
-    >
-  >(
-    (
-      sourcePlant
-        ?.photoUrls ??
-      []
-    ).map(
-      (
-        _photoUrl,
-        index,
-      ) =>
-        sourcePlant
-          ?.photoDates?.[
-            index
-          ],
-    ),
-  )
+  /* =======================================
+     PLANT BEGINNING
+  ======================================= */
+
+  const beganFromSeed =
+    startMethod ===
+    'seed'
 
 
-/* =======================================
-   PLANT BEGINNING
-======================================= */
+  /* =======================================
+     FORM REFERENCE
+  ======================================= */
 
-const beganFromSeed =
-  startMethod ===
-  'seed'
+  const formRef =
+    useRef<HTMLFormElement>(
+      null,
+    )
 
-
-/* =======================================
-   FORM REFERENCE
-======================================= */
-
-const formRef =
-  useRef<HTMLFormElement>(
-    null,
-  )
 
   /* =======================================
      NOTEBOOK LOCK
@@ -698,7 +858,9 @@ const formRef =
       customStartMethodLabel.trim()
 
 
-    if (!trimmedPlantName) {
+    if (
+      !trimmedPlantName
+    ) {
       return
     }
 
@@ -814,9 +976,7 @@ const formRef =
               .growingHistory ??
             []
           ).map(
-            (
-              entry,
-            ) => ({
+            entry => ({
               ...entry,
             }),
           )
@@ -1054,12 +1214,13 @@ const formRef =
     ) {
       /*
        * Brand-new Plant Stories, including
-       * variations, begin their own history.
+       * variations and stories created from
+       * Garden Plans, begin their own history.
        *
-       * A variation may inherit the selected
-       * Place or Recipe as a useful starting
-       * value, but it does NOT inherit the
-       * original Plant Story's past.
+       * A Plan can suggest its intended Place
+       * and Recipe, but once this form is saved
+       * the relationship belongs to the actual
+       * Plant Story.
        */
 
       nextGrowingHistory = [
@@ -1215,51 +1376,67 @@ const formRef =
             ? nextGrowingHistory
             : undefined,
 
-            notes:
-            notes.trim() ||
-            undefined,
-          
-          /*
-           * Keep directly attached Plant Story
-           * photographs and their dates aligned by
-           * array position.
-           *
-           * Older photographs are allowed to have an
-           * undefined date. Sprig will keep them but
-           * will not pretend to know when they were
-           * taken.
-           */
-          photoUrls:
-            photoUrls.length >
-            0
-              ? photoUrls
-              : undefined,
-          
-          photoDates:
-            photoUrls.length >
-            0
-              ? photoUrls.map(
-                  (
-                    _photoUrl,
-                    index,
-                  ) =>
-                    photoDates[
-                      index
-                    ],
-                )
-              : undefined,
-          
-          expectedHarvestDaysMin:
-            minimumHarvestDays,
+        notes:
+          notes.trim() ||
+          undefined,
+
+        /*
+         * Keep directly attached Plant Story
+         * photographs and their dates aligned by
+         * array position.
+         *
+         * Older photographs are allowed to have an
+         * undefined date. Sprig will keep them but
+         * will not pretend to know when they were
+         * taken.
+         */
+
+        photoUrls:
+          photoUrls.length >
+          0
+            ? photoUrls
+            : undefined,
+
+        photoDates:
+          photoUrls.length >
+          0
+            ? photoUrls.map(
+                (
+                  _photoUrl,
+                  index,
+                ) =>
+                  photoDates[
+                    index
+                  ],
+              )
+            : undefined,
+
+        expectedHarvestDaysMin:
+          minimumHarvestDays,
 
         expectedHarvestDaysMax:
           maximumHarvestDays,
+
+        /*
+         * When reality is being recorded from
+         * a Garden Plan, carry forward the
+         * timing REFERENCE, not the projected
+         * harvest dates.
+         *
+         * The actual Plant Story beginning date
+         * entered above now becomes the real
+         * reference date for Expected timing.
+         */
 
         harvestTimingReference:
           isEditing
             ? plantToEdit
                 ?.harvestTimingReference
-            : undefined,
+            : isRecordingPlan
+              ? getPlanHarvestTimingReference(
+                  recordingPlan,
+                )
+              : undefined,
 
         tags:
           isVariation
@@ -1319,6 +1496,16 @@ const formRef =
     }
 
 
+    /*
+     * For normal create, variation and
+     * Plan-to-reality modes alike, the caller
+     * receives a genuine new Plant Story.
+     *
+     * When this came from a Plan, App.tsx will
+     * separately link this Plant Story back to
+     * that Garden Plan after creation.
+     */
+
     onAddPlant(
       savedPlant,
     )
@@ -1334,17 +1521,21 @@ const formRef =
   const pageTitle =
     isEditing
       ? 'Edit Plant Story'
-      : isVariation
-        ? 'Create a variation'
-        : 'Begin a new growing story'
+      : isRecordingPlan
+        ? 'Record what happened'
+        : isVariation
+          ? 'Create a variation'
+          : 'Begin a new growing story'
 
 
   const saveLabel =
     isEditing
       ? 'Save changes'
-      : isVariation
-        ? 'Create this variation'
-        : 'Add this Plant Story'
+      : isRecordingPlan
+        ? 'Create this Plant Story'
+        : isVariation
+          ? 'Create this variation'
+          : 'Add this Plant Story'
 
 
   return (
@@ -1398,7 +1589,33 @@ const formRef =
             }
           >
 
-            {isVariation ? (
+            {isRecordingPlan &&
+            recordingPlan ? (
+              <section className="sprig-form-section growing-setup-details">
+                <p className="section-label">
+                  From Garden Plan
+                </p>
+
+                <h3>
+                  {recordingPlan.title}
+                </h3>
+
+                <p className="form-whisper">
+                  🌱 Sprig has carried the useful
+                  details from your Plan into this
+                  Plant Story. They are only a
+                  starting point. Change anything
+                  that happened differently.
+                </p>
+
+                <p className="form-whisper">
+                  The Plan will remain exactly what
+                  you intended. This new Plant Story
+                  will remember what actually
+                  happened.
+                </p>
+              </section>
+            ) : isVariation ? (
               <p className="form-whisper">
                 🌱 Begin with what Sprig
                 already knows, then change
@@ -1539,6 +1756,17 @@ const formRef =
               </label>
 
 
+              {isRecordingPlan && (
+                <p className="form-whisper">
+                  Confirm what you actually started
+                  with. Sprig will not guess that a
+                  potato was a seed potato, a tomato
+                  was a seedling, or anything else
+                  just from its name.
+                </p>
+              )}
+
+
               {startMethod ===
                 'other' && (
                 <label>
@@ -1590,6 +1818,9 @@ const formRef =
               <p className="form-whisper">
                 For example: 3 seed potatoes,
                 6 seedlings or 1 cutting.
+                {isRecordingPlan
+                  ? ' Change this if reality differed from the Plan.'
+                  : ''}
               </p>
             </section>
 
@@ -1619,7 +1850,15 @@ const formRef =
               </label>
 
 
-              {beganFromSeed ? (
+              {isRecordingPlan ? (
+                <p className="form-whisper">
+                  Sprig began with the date from your
+                  Plan. Change it to the date you
+                  actually did it. This actual date
+                  will drive the Plant Story's
+                  Expected timing.
+                </p>
+              ) : beganFromSeed ? (
                 <p className="form-whisper">
                   For a seed-grown plant,
                   this is the date the seed
@@ -1831,9 +2070,7 @@ const formRef =
                 emptySummary="Choose a Growing Place"
                 options={
                   GrowingPlaces.map(
-                    (
-                      place,
-                    ) => ({
+                    place => ({
                       value:
                         place.id,
 
@@ -1854,9 +2091,7 @@ const formRef =
                 }
                 onToggleOpen={() =>
                   setIsGrowingPlacePickerOpen(
-                    (
-                      current,
-                    ) =>
+                    current =>
                       !current,
                   )
                 }
@@ -1870,9 +2105,7 @@ const formRef =
 
                   const selectedPlace =
                     GrowingPlaces.find(
-                      (
-                        place,
-                      ) =>
+                      place =>
                         place.id ===
                         id,
                     )
@@ -1881,7 +2114,7 @@ const formRef =
                   setCurrentGrowingSetupId(
                     selectedPlace
                       ?.growingSetupId ||
-                      '',
+                    '',
                   )
 
 
@@ -1890,6 +2123,19 @@ const formRef =
                   )
                 }}
               />
+
+
+              {isRecordingPlan &&
+                recordingPlan
+                  ?.growingPlaceIds
+                  ?.[0] && (
+                <p className="form-whisper">
+                  This began with the Growing Place
+                  from your Plan. Choose somewhere
+                  else if the plant actually ended
+                  up in a different place.
+                </p>
+              )}
 
 
               <button
@@ -1917,9 +2163,7 @@ const formRef =
                 emptySummary="Choose a Garden Recipe"
                 options={
                   GrowingSetups.map(
-                    (
-                      setup,
-                    ) => ({
+                    setup => ({
                       value:
                         setup.id,
 
@@ -1967,9 +2211,7 @@ const formRef =
                 }
                 onToggleOpen={() =>
                   setIsGrowingSetupPickerOpen(
-                    (
-                      current,
-                    ) =>
+                    current =>
                       !current,
                   )
                 }
@@ -1985,6 +2227,18 @@ const formRef =
                   )
                 }}
               />
+
+
+              {isRecordingPlan &&
+                recordingPlan
+                  ?.growingSetupIds
+                  ?.[0] && (
+                <p className="form-whisper">
+                  This began with the Growing Recipe
+                  from your Plan. Change it if you
+                  actually used something different.
+                </p>
+              )}
 
 
               <button
@@ -2018,11 +2272,24 @@ const formRef =
                 When might this story begin giving back?
               </h3>
 
-              <p className="form-whisper">
-                Optional. Leave this blank
-                when harvest timing does not
-                apply or you do not know yet.
-              </p>
+              {isRecordingPlan &&
+              recordingPlan
+                ?.timingAssumption ? (
+                <p className="form-whisper">
+                  Sprig carried your timing estimate
+                  from the Plan. You can keep it or
+                  change it here. Once this Plant
+                  Story is saved, its actual beginning
+                  date becomes the reference for the
+                  Expected harvest window.
+                </p>
+              ) : (
+                <p className="form-whisper">
+                  Optional. Leave this blank
+                  when harvest timing does not
+                  apply or you do not know yet.
+                </p>
+              )}
 
 
               <div className="form-row">
@@ -2095,6 +2362,18 @@ const formRef =
                   }
                 />
               </label>
+
+
+              {isRecordingPlan &&
+                recordingPlan
+                  ?.notes
+                  ?.trim() && (
+                <p className="form-whisper">
+                  Your Plan note came across as a
+                  starting point too. Rewrite it if
+                  the reality needs a different note.
+                </p>
+              )}
             </section>
 
 
@@ -2103,44 +2382,76 @@ const formRef =
             ======================================= */}
 
             <section className="sprig-form-section">
-            <SprigPhotoPicker
-  photoUrls={
-    photoUrls
-  }
+              <SprigPhotoPicker
+                photoUrls={
+                  photoUrls
+                }
 
-  onChange={
-    setPhotoUrls
-  }
+                onChange={
+                  setPhotoUrls
+                }
 
-  photoDates={
-    photoDates
-  }
+                photoDates={
+                  photoDates
+                }
 
-  onPhotoDatesChange={
-    setPhotoDates
-  }
+                onPhotoDatesChange={
+                  setPhotoDates
+                }
 
-  title="Photographs"
+                title="Photographs"
 
-  helperText="Tuck photographs of this plant into its story so Sprig can remember how it looked as it grew."
+                helperText="Tuck photographs of this plant into its story so Sprig can remember how it looked as it grew."
 
-  addButtonText="Add plant photographs"
+                addButtonText="Add plant photographs"
 
-  photoAltPrefix="Plant Story photograph"
+                photoAltPrefix="Plant Story photograph"
 
-  photoDateLabel="When was this photograph taken?"
+                photoDateLabel="When was this photograph taken?"
 
-  photoDateHelperText="Sprig uses this date to place the photograph at the right growing age and find useful side-by-side comparisons."
+                photoDateHelperText="Sprig uses this date to place the photograph at the right growing age and find useful side-by-side comparisons."
 
-  defaultNewPhotosToToday={
-    true
-  }
+                defaultNewPhotosToToday={
+                  true
+                }
 
-  maxPhotos={
-    12
-  }
-/>
+                maxPhotos={
+                  12
+                }
+              />
             </section>
+
+
+            {/* =======================================
+                PLAN / REALITY REMINDER
+            ======================================= */}
+
+            {isRecordingPlan &&
+              recordingPlan && (
+              <section className="sprig-form-section growing-setup-details">
+                <p className="section-label">
+                  Plan and reality
+                </p>
+
+                <h3>
+                  Two related stories, not one overwritten record
+                </h3>
+
+                <p className="form-whisper">
+                  Your Garden Plan will stay as the
+                  record of what you meant to do.
+                  Saving this page creates the
+                  separate Plant Story for what
+                  actually happened.
+                </p>
+
+                <p className="form-whisper">
+                  After this Plant Story is saved,
+                  Sprig will link it back to
+                  “{recordingPlan.title}”.
+                </p>
+              </section>
+            )}
 
 
             {/* =======================================

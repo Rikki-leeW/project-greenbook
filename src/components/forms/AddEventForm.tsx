@@ -12,6 +12,7 @@ import notebookEntryBackground from '../../images/notebook/notebook-entry-backgr
 import type {
   EventType,
   GardenEvent,
+  GardenPlan,
   GrowingPlace,
   GrowingPlaceScope,
   PlantScope,
@@ -26,6 +27,15 @@ interface AddEventFormProps {
 
   growingPlaces: GrowingPlace[]
 
+  /*
+   * Optional Garden Plan source.
+   *
+   * The Plan is not changed by this form.
+   * It merely provides useful starting values
+   * for the real Journal record.
+   */
+  planToRecord?: GardenPlan
+
   onAddEvent: (
     event: GardenEvent,
   ) => void
@@ -34,10 +44,116 @@ interface AddEventFormProps {
 }
 
 
+/* =======================================
+   PLAN → JOURNAL ACTIVITY
+======================================= */
+
+function getPlanActivityType(
+  plan?: GardenPlan,
+): EventType | undefined {
+  if (
+    !plan
+  ) {
+    return undefined
+  }
+
+
+  switch (
+    plan.kind
+  ) {
+    case 'plant-out':
+    case 'move':
+      return 'moved'
+
+    case 'feed':
+      return 'fed'
+
+    case 'treat':
+      return 'treated'
+
+    case 'garden-task':
+    case 'other':
+      return 'note'
+
+    default:
+      return undefined
+  }
+}
+
+
+/* =======================================
+   PLAN → PLANT SCOPE
+======================================= */
+
+function getPlanPlantScope(
+  plan?: GardenPlan,
+): PlantScope {
+  const count =
+    plan
+      ?.plantStoryIds
+      ?.length ??
+    0
+
+
+  if (
+    count ===
+    1
+  ) {
+    return 'single'
+  }
+
+
+  if (
+    count >
+    1
+  ) {
+    return 'multiple'
+  }
+
+
+  return 'none'
+}
+
+
+/* =======================================
+   PLAN → PLACE SCOPE
+======================================= */
+
+function getPlanPlaceScope(
+  plan?: GardenPlan,
+): GrowingPlaceScope {
+  const count =
+    plan
+      ?.growingPlaceIds
+      ?.length ??
+    0
+
+
+  if (
+    count ===
+    1
+  ) {
+    return 'single'
+  }
+
+
+  if (
+    count >
+    1
+  ) {
+    return 'multiple'
+  }
+
+
+  return 'none'
+}
+
+
 export default function AddEventForm({
   plantId,
   plants,
   growingPlaces,
+  planToRecord,
   onAddEvent,
   onClose,
 }: AddEventFormProps) {
@@ -50,6 +166,12 @@ export default function AddEventForm({
       )
 
 
+  const isRecordingPlan =
+    Boolean(
+      planToRecord,
+    )
+
+
   /* =======================================
      ORIGINATING PLANT
   ======================================= */
@@ -57,9 +179,7 @@ export default function AddEventForm({
   const startingPlant =
     plantId
       ? plants.find(
-          (
-            plant,
-          ) =>
+          plant =>
             plant.id ===
             plantId,
         )
@@ -72,6 +192,24 @@ export default function AddEventForm({
     ''
 
 
+  const planPlantIds =
+    planToRecord
+      ?.plantStoryIds ??
+    []
+
+
+  const planPlaceIds =
+    planToRecord
+      ?.growingPlaceIds ??
+    []
+
+
+  const plannedActivity =
+    getPlanActivityType(
+      planToRecord,
+    )
+
+
   /* =======================================
      ACTIVITY
   ======================================= */
@@ -81,7 +219,11 @@ export default function AddEventForm({
     setActivityTypes,
   ] =
     useState<EventType[]>(
-      [],
+      plannedActivity
+        ? [
+            plannedActivity,
+          ]
+        : [],
     )
 
 
@@ -123,6 +265,7 @@ export default function AddEventForm({
     setDate,
   ] =
     useState(
+      planToRecord?.date ??
       today,
     )
 
@@ -131,7 +274,10 @@ export default function AddEventForm({
     title,
     setTitle,
   ] =
-    useState('')
+    useState(
+      planToRecord?.title ??
+      '',
+    )
 
 
   const [
@@ -145,7 +291,10 @@ export default function AddEventForm({
     notes,
     setNotes,
   ] =
-    useState('')
+    useState(
+      planToRecord?.notes ??
+      '',
+    )
 
 
   /* =======================================
@@ -170,9 +319,13 @@ export default function AddEventForm({
     setGrowingPlaceScope,
   ] =
     useState<GrowingPlaceScope>(
-      startingGrowingPlaceId
-        ? 'single'
-        : 'none',
+      isRecordingPlan
+        ? getPlanPlaceScope(
+            planToRecord,
+          )
+        : startingGrowingPlaceId
+          ? 'single'
+          : 'none',
     )
 
 
@@ -181,11 +334,15 @@ export default function AddEventForm({
     setGrowingPlaceIds,
   ] =
     useState<string[]>(
-      startingGrowingPlaceId
+      isRecordingPlan
         ? [
-            startingGrowingPlaceId,
+            ...planPlaceIds,
           ]
-        : [],
+        : startingGrowingPlaceId
+          ? [
+              startingGrowingPlaceId,
+            ]
+          : [],
     )
 
 
@@ -198,9 +355,13 @@ export default function AddEventForm({
     setPlantScope,
   ] =
     useState<PlantScope>(
-      startingPlant
-        ? 'single'
-        : 'none',
+      isRecordingPlan
+        ? getPlanPlantScope(
+            planToRecord,
+          )
+        : startingPlant
+          ? 'single'
+          : 'none',
     )
 
 
@@ -209,11 +370,15 @@ export default function AddEventForm({
     setPlantStoryIds,
   ] =
     useState<string[]>(
-      startingPlant
+      isRecordingPlan
         ? [
-            startingPlant.id,
+            ...planPlantIds,
           ]
-        : [],
+        : startingPlant
+          ? [
+              startingPlant.id,
+            ]
+          : [],
     )
 
 
@@ -228,13 +393,9 @@ export default function AddEventForm({
       0
       ? plants
       : plants.filter(
-          (
-            plant,
-          ) =>
+          plant =>
             growingPlaceIds.some(
-              (
-                placeId,
-              ) =>
+              placeId =>
                 placeId ===
                 plant.currentGrowingPlaceId,
             ),
@@ -406,18 +567,14 @@ export default function AddEventForm({
     activity: EventType,
   ) {
     setActivityTypes(
-      (
-        current,
-      ) => {
+      current => {
         if (
           current.includes(
             activity,
           )
         ) {
           return current.filter(
-            (
-              item,
-            ) =>
+            item =>
               item !==
               activity,
           )
@@ -452,17 +609,13 @@ export default function AddEventForm({
     const generatedTitle =
       activityOptions
         .filter(
-          (
-            option,
-          ) =>
+          option =>
             activityTypes.includes(
               option.value,
             ),
         )
         .map(
-          (
-            option,
-          ) =>
+          option =>
             option.label,
         )
         .join(
@@ -531,15 +684,13 @@ export default function AddEventForm({
 
         <div className="chronicle-content">
 
-          {/* =======================================
-              HEADING
-          ======================================= */}
-
           <h2
             id="add-event-title"
             className="notebook-page-title"
           >
-            Journal Entry
+            {isRecordingPlan
+              ? 'Record what happened'
+              : 'Journal Entry'}
           </h2>
 
 
@@ -561,11 +712,35 @@ export default function AddEventForm({
             }
           >
 
-            {/* =======================================
-                PLANT STORY CONTEXT
-            ======================================= */}
+            {isRecordingPlan &&
+              planToRecord && (
+              <section className="sprig-form-section growing-setup-details">
+                <p className="section-label">
+                  From Garden Plan
+                </p>
 
-            {startingPlant && (
+                <h3>
+                  {planToRecord.title}
+                </h3>
+
+                <p className="form-whisper">
+                  Sprig has carried the intention
+                  into this Journal page. Change
+                  anything that happened differently
+                  before you save it.
+                </p>
+
+                <p className="form-whisper">
+                  The Garden Plan will remain as the
+                  record of what you intended. This
+                  page records what actually happened.
+                </p>
+              </section>
+            )}
+
+
+            {startingPlant &&
+              !isRecordingPlan && (
               <p className="form-whisper">
                 🌱 Adding to{' '}
                 {startingPlant.displayName}
@@ -573,10 +748,6 @@ export default function AddEventForm({
               </p>
             )}
 
-
-            {/* =======================================
-                TITLE + DATE
-            ======================================= */}
 
             <div className="journal-entry-heading-row">
               <label className="journal-title-field">
@@ -618,9 +789,14 @@ export default function AddEventForm({
             </div>
 
 
-            {/* =======================================
-                WHAT HAPPENED
-            ======================================= */}
+            {isRecordingPlan && (
+              <p className="form-whisper">
+                This began with the planned date.
+                Change it to the date it actually
+                happened.
+              </p>
+            )}
+
 
             <SprigPicker
               title="What happened?"
@@ -635,9 +811,7 @@ export default function AddEventForm({
               }
               onToggleOpen={() =>
                 setIsActivityPickerOpen(
-                  (
-                    current,
-                  ) =>
+                  current =>
                     !current,
                 )
               }
@@ -646,10 +820,6 @@ export default function AddEventForm({
               }
             />
 
-
-            {/* =======================================
-                GROWING PLACE CONNECTION
-            ======================================= */}
 
             <section className="journal-connection-section">
               <div className="journal-section-heading">
@@ -717,9 +887,7 @@ export default function AddEventForm({
                   emptySummary="Choose a Growing Place"
                   options={
                     growingPlaces.map(
-                      (
-                        place,
-                      ) => ({
+                      place => ({
                         value:
                           place.id,
 
@@ -736,9 +904,7 @@ export default function AddEventForm({
                   }
                   onToggleOpen={() =>
                     setIsGrowingPlacePickerOpen(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         !current,
                     )
                   }
@@ -755,27 +921,21 @@ export default function AddEventForm({
                         ],
                       )
 
-
                       setIsGrowingPlacePickerOpen(
                         false,
                       )
-
 
                       return
                     }
 
 
                     setGrowingPlaceIds(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         current.includes(
                           id,
                         )
                           ? current.filter(
-                              (
-                                item,
-                              ) =>
+                              item =>
                                 item !==
                                 id,
                             )
@@ -789,10 +949,6 @@ export default function AddEventForm({
               )}
             </section>
 
-
-            {/* =======================================
-                PLANT CONNECTION
-            ======================================= */}
 
             <section className="journal-connection-section">
               <div className="journal-section-heading">
@@ -861,14 +1017,10 @@ export default function AddEventForm({
                   emptySummary="Choose a Plant"
                   options={
                     sortedAvailablePlants.map(
-                      (
-                        plant,
-                      ) => {
+                      plant => {
                         const growingPlace =
                           growingPlaces.find(
-                            (
-                              place,
-                            ) =>
+                            place =>
                               place.id ===
                               plant.currentGrowingPlaceId,
                           )
@@ -916,9 +1068,7 @@ export default function AddEventForm({
                   }
                   onToggleOpen={() =>
                     setIsPlantPickerOpen(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         !current,
                     )
                   }
@@ -935,27 +1085,21 @@ export default function AddEventForm({
                         ],
                       )
 
-
                       setIsPlantPickerOpen(
                         false,
                       )
-
 
                       return
                     }
 
 
                     setPlantStoryIds(
-                      (
-                        current,
-                      ) =>
+                      current =>
                         current.includes(
                           id,
                         )
                           ? current.filter(
-                              (
-                                item,
-                              ) =>
+                              item =>
                                 item !==
                                 id,
                             )
@@ -969,10 +1113,6 @@ export default function AddEventForm({
               )}
             </section>
 
-
-            {/* =======================================
-                PRODUCT USED
-            ======================================= */}
 
             <label>
               What did you use?
@@ -992,10 +1132,6 @@ export default function AddEventForm({
               />
             </label>
 
-
-            {/* =======================================
-                NOTES
-            ======================================= */}
 
             <label>
               Notes to the story
@@ -1019,30 +1155,54 @@ export default function AddEventForm({
             </label>
 
 
-            {/* =======================================
-                PHOTOGRAPHS
-            ======================================= */}
+            {isRecordingPlan &&
+              planToRecord?.notes && (
+              <p className="form-whisper">
+                Your Plan note was carried across
+                as a starting point. Rewrite it if
+                reality needs different wording.
+              </p>
+            )}
+
 
             <SprigPhotoPicker
               photoUrls={
                 photoUrls
               }
+
               onChange={
                 setPhotoUrls
               }
+
               title="Photographs"
+
               helperText="Tuck garden photographs into this page so Sprig can remember what this moment looked like."
+
               addButtonText="Add journal photographs"
+
               photoAltPrefix="Journal photograph"
+
               maxPhotos={
                 12
               }
             />
 
 
-            {/* =======================================
-                ACTIONS
-            ======================================= */}
+            {isRecordingPlan && (
+              <section className="sprig-form-section growing-setup-details">
+                <p className="section-label">
+                  Plan and reality
+                </p>
+
+                <p className="form-whisper">
+                  Saving this page creates a real
+                  Journal record. Sprig will then
+                  link it back to the Garden Plan
+                  rather than replacing the Plan.
+                </p>
+              </section>
+            )}
+
 
             <div className="form-actions">
               <button
@@ -1060,7 +1220,9 @@ export default function AddEventForm({
                 type="submit"
                 className="enter-button"
               >
-                Add this page
+                {isRecordingPlan
+                  ? 'Record this moment'
+                  : 'Add this page'}
               </button>
             </div>
 
