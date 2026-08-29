@@ -21,7 +21,12 @@ interface HarvestDetailProps {
 
   plants: PlantStory[]
 
+  journeyBackLabel:
+    string | null
+
   onBack: () => void
+
+  onOpenHarvests: () => void
 
   onEdit: (
     harvest: HarvestRecord,
@@ -576,13 +581,16 @@ export default function HarvestDetail({
   harvest,
   harvests,
   plants,
+  journeyBackLabel,
   onBack,
+  onOpenHarvests,
   onEdit,
   onRecordAnotherHarvest,
   onDelete,
   onOpenPlant,
   onNavigate,
 }: HarvestDetailProps) {
+
   const storyKey =
     getHarvestStoryKey(
       harvest,
@@ -639,6 +647,21 @@ export default function HarvestDetail({
     )
 
 
+  /* =======================================
+     NAVIGATION
+  ======================================= */
+
+  const hasJourneyBack =
+    Boolean(
+      journeyBackLabel,
+    )
+
+
+  const journeyAlreadyReturnsToHarvests =
+    journeyBackLabel ===
+    'Harvests'
+
+
   function handlePrint() {
     window.print()
   }
@@ -682,6 +705,58 @@ export default function HarvestDetail({
       }
     >
       <main className="journal-page harvest-detail-page">
+
+        {/* =======================================
+            NAVIGATION
+        ======================================= */}
+
+        <div
+          className="sprig-detail-navigation"
+          style={{
+            display:
+              'flex',
+
+            flexWrap:
+              'wrap',
+
+            gap:
+              '10px',
+
+            marginBottom:
+              '18px',
+          }}
+        >
+
+          {hasJourneyBack && (
+            <button
+              type="button"
+              className="garden-return-button"
+              onClick={
+                onBack
+              }
+            >
+              ← Back to{' '}
+              {
+                journeyBackLabel
+              }
+            </button>
+          )}
+
+
+          {!journeyAlreadyReturnsToHarvests && (
+            <button
+              type="button"
+              className="garden-return-button"
+              onClick={
+                onOpenHarvests
+              }
+            >
+              ← Harvests
+            </button>
+          )}
+
+        </div>
+
 
         {/* =======================================
             HEADER
@@ -738,17 +813,6 @@ export default function HarvestDetail({
           className="harvest-detail-actions"
           aria-label="Harvest story actions"
         >
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={
-              onBack
-            }
-          >
-            ← Back
-          </button>
-
-
           <button
             type="button"
             className="secondary-button"

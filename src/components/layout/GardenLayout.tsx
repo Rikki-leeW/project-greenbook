@@ -8,7 +8,9 @@ import type {
 } from '../../types/navigation'
 
 import BottomNavigation from '../navigation/BottomNavigation'
+
 import SatchelMenu from '../navigation/SatchelMenu'
+
 
 type LibraryDestination =
   | 'library'
@@ -16,15 +18,16 @@ type LibraryDestination =
   | 'ingredients'
   | 'products'
 
+
 interface GardenLayoutProps {
   children: ReactNode
 
   activePage: AppPage
 
   onNavigate: (
-  page: AppPage,
-  libraryView?: LibraryDestination,
-) => void
+    page: AppPage,
+    libraryView?: LibraryDestination,
+  ) => void
 }
 
 
@@ -33,29 +36,32 @@ export default function GardenLayout({
   activePage,
   onNavigate,
 }: GardenLayoutProps) {
+
   const [
     isSatchelOpen,
     setIsSatchelOpen,
   ] =
     useState(false)
 
-    function handleNavigate(
-      page: AppPage,
-      libraryView?: LibraryDestination,
-    ) {
-      setIsSatchelOpen(
-        false,
-      )
-    
-      onNavigate(
-        page,
-        libraryView,
-      )
-    }
+
+  function handleNavigate(
+    page: AppPage,
+    libraryView?: LibraryDestination,
+  ) {
+    setIsSatchelOpen(
+      false,
+    )
+
+    onNavigate(
+      page,
+      libraryView,
+    )
+  }
 
 
   return (
     <>
+
       {/* =======================================
           TOP SATCHEL BUTTON
       ======================================= */}
@@ -120,22 +126,6 @@ export default function GardenLayout({
             '74px',
         }}
       >
-        {activePage !==
-          'gate' && (
-          <button
-            type="button"
-            className="garden-return-button"
-            onClick={() =>
-              handleNavigate(
-                'gate',
-              )
-            }
-          >
-            ← Return to the garden
-          </button>
-        )}
-
-
         {children}
       </main>
 
@@ -148,9 +138,11 @@ export default function GardenLayout({
         activePage={
           activePage
         }
+
         onNavigate={
           handleNavigate
         }
+
         onOpenSatchel={() =>
           setIsSatchelOpen(
             true,
@@ -167,15 +159,18 @@ export default function GardenLayout({
         isOpen={
           isSatchelOpen
         }
+
         onClose={() =>
           setIsSatchelOpen(
             false,
           )
         }
+
         onNavigate={
           handleNavigate
         }
       />
+
     </>
   )
 }

@@ -190,7 +190,45 @@ Plants
 ✅ Ingredients 
 ✅ Pricing
 ✅ Harvest
+✅ Comparison
+
     Calendar
+
+    Every Sprig screen should know both where you came from and where it lives.
+
+******************************************************
+    
+    29/08/06 upgrade of Menu architecture 
+    If you came from somewhere specific:
+← Back to [where you came from]
+
+If the record also has a useful home category:
+← [Category]
+
+Examples:
+
+Ingredient opened from a Growing Recipe
+← Back to My Potato Mix + Rotting Food
+← Ingredients
+Journal entry opened from Calendar
+← Back to Calendar
+← Journal
+Harvest opened from a Plant Story
+← Back to Royal Blue
+← Harvests
+Plant Story opened from Growing Place
+← Back to Potato Bag 6
+← Plants
+
+If you opened the record directly from its own category, we don't need two identical buttons. Just:
+
+← Back to Ingredients
+
+or
+
+← Back to Journal
+
+That is much cleaner on mobile too. No third “Return to the garden” button hovering around asking to be useful.
 
 
 

@@ -93,7 +93,11 @@ import {
     | 'single'
     | 'range'
   
-  
+    type PlantOutPlanSubjectMode =
+    | 'existing'
+    | 'new'
+
+
   type DayStoryGroupId =
     | 'recorded'
     | 'expected'
@@ -1064,6 +1068,14 @@ import {
         ],
       )
   
+      const [
+        plantOutSubjectMode,
+        setPlantOutSubjectMode,
+      ] =
+        useState<PlantOutPlanSubjectMode>(
+          'existing',
+        )
+
   
     const isEditingPlan =
       Boolean(
@@ -1071,16 +1083,29 @@ import {
       )
   
   
+        const isPlantOutPlan =
+      planKind ===
+      'plant-out'
+
+
+    const isPlantOutNewPlant =
+      isPlantOutPlan &&
+      plantOutSubjectMode ===
+        'new'
+
+
     const isFuturePlantPlan =
       planKindCreatesFuturePlant(
         planKind,
-      )
-  
-  
+      ) ||
+      isPlantOutNewPlant
+
+
     const usesExistingPlants =
       planKindUsesExistingPlants(
         planKind,
-      )
+      ) &&
+      !isPlantOutNewPlant
   
   
     const canUseGrowingPlace =
@@ -1295,6 +1320,10 @@ import {
       setEditingPlanId(
         null,
       )
+
+      setPlantOutSubjectMode(
+        'existing',
+      )
   
       setPlanTitle(
         '',
@@ -1352,6 +1381,35 @@ import {
       setEditingPlanId(
         plan.id,
       )
+      if (
+        plan.kind ===
+        'plant-out'
+      ) {
+        const hasExistingPlantStories =
+          (
+            plan.plantStoryIds ??
+            []
+          ).length >
+          0
+
+
+        const hasPlannedPlant =
+          Boolean(
+            plan.plannedPlant,
+          )
+
+
+        setPlantOutSubjectMode(
+          !hasExistingPlantStories &&
+          hasPlannedPlant
+            ? 'new'
+            : 'existing',
+        )
+      } else {
+        setPlantOutSubjectMode(
+          'existing',
+        )
+      }
   
       setPlanTitle(
         plan.title ??
@@ -1464,6 +1522,9 @@ import {
   
       setPlanKind(
         kind,
+      )
+      setPlantOutSubjectMode(
+        'existing',
       )
   
       setPlanTitle(
@@ -1598,15 +1659,86 @@ import {
         )
   
   
-      const now =
+        const now =
         new Date()
           .toISOString()
-  
-  
+
+
       const basePlan =
         editingPlan
-  
-  
+
+
+      /*
+       * =======================================
+       * PLAN SCHEDULE HISTORY
+       * =======================================
+       *
+       * A changed intention is not a garden
+       * event.
+       *
+       * If an existing Plan moves to another
+       * date or range, preserve that change
+       * inside the Plan itself.
+       *
+       * Other edits must never manufacture a
+       * schedule-history entry.
+       */
+
+      const nextEndDate =
+        planDateMode ===
+          'range' &&
+        planEndDate &&
+        planEndDate >=
+          planDate
+          ? planEndDate
+          : undefined
+
+
+      const scheduleChanged =
+        Boolean(
+          basePlan,
+        ) &&
+        (
+          basePlan?.date !==
+            planDate ||
+          (
+            basePlan?.endDate ??
+            undefined
+          ) !==
+            nextEndDate
+        )
+
+
+      const scheduleHistory =
+        basePlan
+          ? [
+              ...(basePlan.scheduleHistory ??
+                []),
+
+              ...(scheduleChanged
+                ? [
+                    {
+                      fromDate:
+                        basePlan.date,
+
+                      fromEndDate:
+                        basePlan.endDate,
+
+                      toDate:
+                        planDate,
+
+                      toEndDate:
+                        nextEndDate,
+
+                      changedAt:
+                        now,
+                    },
+                  ]
+                : []),
+            ]
+          : []
+
+
       return {
         ...(basePlan ??
           {}),
@@ -1621,15 +1753,9 @@ import {
         date:
           planDate,
   
-        endDate:
-          planDateMode ===
-            'range' &&
-          planEndDate &&
-          planEndDate >=
-            planDate
-            ? planEndDate
-            : undefined,
-  
+          endDate:
+          nextEndDate,
+
         kind:
           planKind,
   
@@ -1728,15 +1854,17 @@ import {
               }
             : undefined,
   
-        status:
-          basePlan?.status ??
-          'planned',
+            status:
+            basePlan?.status ??
+            'planned',
   
-        results:
-          [
-            ...(basePlan?.results ??
-              []),
-          ],
+          scheduleHistory,
+  
+          results:
+            [
+              ...(basePlan?.results ??
+                []),
+            ],
   
         createdAt:
           basePlan?.createdAt ??
@@ -4224,18 +4352,26 @@ import {
 
 
                 <button
-                  type="button"
+                    type="button"
 
-                  className="sprig-calendar-plan-close"
+                    className="sprig-calendar-plan-close"
 
-                  onClick={
-                    closePlanComposer
-                  }
+                    onClick={
+                        closePlanComposer
+                    }
 
-                  aria-label="Close plan"
-                >
-                  ×
-                </button>
+                    aria-label="Close Garden Plan"
+                    >
+                    <span
+                        aria-hidden="true"
+                    >
+                        ×
+                    </span>
+
+                    <span>
+                        Close
+                    </span>
+                    </button>
               </div>
 
 
@@ -4260,6 +4396,70 @@ import {
                       editingPlan.status,
                     )}
                   </p>
+
+
+                  {editingPlan.scheduleHistory &&
+                    editingPlan.scheduleHistory.length >
+                      0 && (
+                    <>
+                      <p className="section-label">
+                        Plan journey
+                      </p>
+
+                      <div className="sprig-calendar-relationships">
+                        {editingPlan.scheduleHistory.map(
+                          (
+                            change,
+                            index,
+                          ) => (
+                            <div
+                              key={`${change.changedAt}-${index}`}
+
+                              className="sprig-calendar-window"
+                            >
+                              <span className="sprig-calendar-window-label">
+                                Rescheduled
+                              </span>
+
+                              <span>
+                                {formatShortDate(
+                                  change.fromDate,
+                                )}
+
+                                {change.fromEndDate &&
+                                  change.fromEndDate !==
+                                    change.fromDate && (
+                                  <>
+                                    {' '}to{' '}
+                                    {formatShortDate(
+                                      change.fromEndDate,
+                                    )}
+                                  </>
+                                )}
+
+                                {' '}→{' '}
+
+                                {formatShortDate(
+                                  change.toDate,
+                                )}
+
+                                {change.toEndDate &&
+                                  change.toEndDate !==
+                                    change.toDate && (
+                                  <>
+                                    {' '}to{' '}
+                                    {formatShortDate(
+                                      change.toEndDate,
+                                    )}
+                                  </>
+                                )}
+                              </span>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </>
+                  )}
 
 
                   {editingPlan.results &&
@@ -4397,36 +4597,46 @@ import {
 
 
                             if (
-                              result.recordType ===
-                              'purchase'
-                            ) {
-                              const resultPurchase =
-                                findPurchase(
-                                  result.recordId,
-                                )
-
-
-                              if (
-                                !resultPurchase
+                                result.recordType ===
+                                'purchase'
                               ) {
-                                return null
+                                const resultPurchase =
+                                  findPurchase(
+                                    result.recordId,
+                                  )
+  
+  
+                                if (
+                                  !resultPurchase
+                                ) {
+                                  return null
+                                }
+  
+  
+                                return (
+                                  <button
+                                    key={`${result.recordType}-${result.recordId}`}
+  
+                                    type="button"
+  
+                                    className="sprig-calendar-chip"
+  
+                                    onClick={() => {
+                                      closePlanComposer()
+  
+                                      onOpenPurchase(
+                                        resultPurchase.id,
+                                      )
+                                    }}
+                                  >
+                                    🛒 Open{' '}
+                                    {getPurchaseContext(
+                                      resultPurchase,
+                                    ) ||
+                                      'Purchase'}
+                                  </button>
+                                )
                               }
-
-
-                              return (
-                                <span
-                                  key={`${result.recordType}-${result.recordId}`}
-
-                                  className="sprig-calendar-chip"
-                                >
-                                  🛒{' '}
-                                  {getPurchaseContext(
-                                    resultPurchase,
-                                  ) ||
-                                    'Purchase recorded'}
-                                </span>
-                              )
-                            }
 
 
                             return null
@@ -4571,6 +4781,110 @@ import {
                 </div>
               )}
 
+              {/* =================================
+                  PLANT-OUT SUBJECT
+              ================================= */}
+
+{isPlantOutPlan && (
+                <div className="sprig-calendar-plan-field">
+                  <p className="section-label">
+                    Which plant are you planning to plant out?
+                  </p>
+
+                  <p>
+                    It can already have a Plant Story,
+                    or it can be a plant Sprig does not
+                    know about yet.
+                  </p>
+
+
+                  <div className="sprig-calendar-plan-kind-grid">
+                    <button
+                      type="button"
+
+                      className={`sprig-calendar-plan-kind${
+                        plantOutSubjectMode ===
+                        'existing'
+                          ? ' sprig-calendar-plan-kind--selected'
+                          : ''
+                      }`}
+
+                      aria-pressed={
+                        plantOutSubjectMode ===
+                        'existing'
+                      }
+
+                      onClick={() => {
+                        setPlantOutSubjectMode(
+                          'existing',
+                        )
+
+                        setPlannedPlantName(
+                          '',
+                        )
+
+                        setPlannedPlantVariety(
+                          '',
+                        )
+
+                        setPlannedPlantQuantity(
+                          '',
+                        )
+                      }}
+                    >
+                      <span aria-hidden="true">
+                        🌱
+                      </span>
+
+                      Existing Plant Story
+                    </button>
+
+
+                    <button
+                      type="button"
+
+                      className={`sprig-calendar-plan-kind${
+                        plantOutSubjectMode ===
+                        'new'
+                          ? ' sprig-calendar-plan-kind--selected'
+                          : ''
+                      }`}
+
+                      aria-pressed={
+                        plantOutSubjectMode ===
+                        'new'
+                      }
+
+                      onClick={() => {
+                        setPlantOutSubjectMode(
+                          'new',
+                        )
+
+                        setSelectedPlanPlantIds(
+                          [],
+                        )
+                      }}
+                    >
+                      <span aria-hidden="true">
+                        🪴
+                      </span>
+
+                      Not in Sprig yet
+                    </button>
+                  </div>
+
+
+                  {plantOutSubjectMode ===
+                    'new' && (
+                    <p className="form-whisper">
+                      Describe the plant for the Plan.
+                      Sprig will not create its Plant
+                      Story until you record what
+                      actually happened.
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* =================================
                   FUTURE PLANT

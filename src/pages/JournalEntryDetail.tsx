@@ -19,7 +19,12 @@ interface JournalEntryDetailProps {
 
   growingPlaces: GrowingPlace[]
 
+  journeyBackLabel:
+    string | null
+
   onBack: () => void
+
+  onOpenJournal: () => void
 
   onOpenPlant: (
     plantId: string,
@@ -173,7 +178,9 @@ export default function JournalEntryDetail({
   event,
   plants,
   growingPlaces,
+  journeyBackLabel,
   onBack,
+  onOpenJournal,
   onOpenPlant,
   onOpenGrowingPlace,
   onNavigate,
@@ -224,6 +231,21 @@ export default function JournalEntryDetail({
         ]
 
 
+  /* =======================================
+     NAVIGATION
+  ======================================= */
+
+  const hasJourneyBack =
+    Boolean(
+      journeyBackLabel,
+    )
+
+
+  const journeyAlreadyReturnsToJournal =
+    journeyBackLabel ===
+    'Journal'
+
+
   return (
     <GardenLayout
       activePage="journal"
@@ -234,18 +256,55 @@ export default function JournalEntryDetail({
       <div className="journal-page">
 
         {/* =======================================
-            BACK
+            NAVIGATION
         ======================================= */}
 
-        <button
-          type="button"
-          className="garden-return-button"
-          onClick={
-            onBack
-          }
+        <div
+          className="sprig-detail-navigation"
+          style={{
+            display:
+              'flex',
+
+            flexWrap:
+              'wrap',
+
+            gap:
+              '10px',
+
+            marginBottom:
+              '18px',
+          }}
         >
-          ← Back to the Journal
-        </button>
+
+          {hasJourneyBack && (
+            <button
+              type="button"
+              className="garden-return-button"
+              onClick={
+                onBack
+              }
+            >
+              ← Back to{' '}
+              {
+                journeyBackLabel
+              }
+            </button>
+          )}
+
+
+          {!journeyAlreadyReturnsToJournal && (
+            <button
+              type="button"
+              className="garden-return-button"
+              onClick={
+                onOpenJournal
+              }
+            >
+              ← Journal
+            </button>
+          )}
+
+        </div>
 
 
         {/* =======================================

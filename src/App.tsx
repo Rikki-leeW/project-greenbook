@@ -5,25 +5,43 @@ import './css/App.css'
 import AppLibrary from './components/app/AppLibrary'
 
 import AddEventForm from './components/forms/AddEventForm'
+
 import AddPlantForm from './components/forms/AddPlantForm'
+
 import AddRecipeForm from './components/forms/AddRecipeForm'
+
 import AddGrowingPlaceForm from './components/forms/AddGrowingPlaceForm'
+
 import AddHarvestForm from './components/forms/AddHarvestForm'
+
 import PurchaseEditor from './components/purchases/PurchaseEditor'
+
 import HarvestDetail from './pages/HarvestDetail'
 
 import Journal from './pages/Journal'
+
 import JournalEntryDetail from './pages/JournalEntryDetail'
+
 import Plants from './pages/Plants'
+
 import PlantDetail from './pages/PlantDetail'
+
 import Harvest from './pages/Harvest'
+
 import Gate from './pages/Gate'
+
 import Welcome from './pages/Welcome'
+
 import GardenPlaces from './pages/GrowingPlaces'
+
 import GrowingPlaceDetail from './pages/GrowingPlaceDetail'
+
 import BackupRestore from './pages/BackupRestore'
+
 import PlantComparison from './pages/PlantComparison'
+
 import Comparisons from './pages/Comparisons'
+
 import Calendar from './pages/Calendar'
 
 import type {
@@ -51,6 +69,50 @@ import type {
   HarvestRecord,
   SavedComparison,
 } from './types'
+
+
+type SprigLibraryDestination =
+  | 'library'
+  | 'growing-recipes'
+  | 'ingredients'
+  | 'products'
+  | null
+
+
+interface SprigJourneyState {
+  activePage: AppPage
+
+  selectedPlantId: string | null
+
+  selectedEventId: string | null
+
+  selectedHarvestId: string | null
+
+  selectedGrowingPlaceId: string | null
+
+  libraryRecipeIdToOpen: string | null
+
+  libraryViewToOpen:
+    SprigLibraryDestination
+
+  comparisonPlantIds: string[]
+
+  activeSavedComparisonId:
+    string | null
+
+  /**
+   * Human-facing identity of the screen that
+   * was being viewed when this journey step
+   * was remembered.
+   *
+   * Examples:
+   * Calendar
+   * Imaginary
+   * Potato Bag 6
+   * My Potato Mix
+   */
+  label: string
+}
 
 
 function App() {
@@ -140,7 +202,7 @@ function App() {
      PLAN → REALITY
   ======================================= */
 
-  /*
+  /**
    * One temporary bridge carries a saved Plan
    * into whichever real Sprig record owns what
    * actually happened.
@@ -189,31 +251,31 @@ function App() {
     )
 
 
-    const [
-      selectedGrowingPlaceId,
-      setSelectedGrowingPlaceId,
-    ] =
-      useState<string | null>(
-        null,
-      )
-    
-    
-      /* =======================================
-         SELECTED PURCHASE
-      ======================================= */
-    
-      const [
-        selectedPurchase,
-        setSelectedPurchase,
-      ] =
-        useState<PurchaseRecord | null>(
-          null,
-        )
-    
-    
-      /* =======================================
-       COMPARISON
-    ======================================= */
+  const [
+    selectedGrowingPlaceId,
+    setSelectedGrowingPlaceId,
+  ] =
+    useState<string | null>(
+      null,
+    )
+
+
+  /* =======================================
+     SELECTED PURCHASE
+  ======================================= */
+
+  const [
+    selectedPurchase,
+    setSelectedPurchase,
+  ] =
+    useState<PurchaseRecord | null>(
+      null,
+    )
+
+
+  /* =======================================
+     COMPARISON
+  ======================================= */
 
   const [
     comparisonPlantIds,
@@ -250,13 +312,7 @@ function App() {
     libraryViewToOpen,
     setLibraryViewToOpen,
   ] =
-    useState<
-      | 'library'
-      | 'growing-recipes'
-      | 'ingredients'
-      | 'products'
-      | null
-    >(
+    useState<SprigLibraryDestination>(
       null,
     )
 
@@ -275,17 +331,654 @@ function App() {
 
 
   /* =======================================
-     CENTRAL APP NAVIGATION
+     NAVIGATION JOURNEY
   ======================================= */
+
+  /**
+   * The application map knows where Sprig can go.
+   *
+   * This history remembers where the gardener
+   * actually came from.
+   *
+   * Each remembered destination also carries its
+   * human-facing identity. That means the screen
+   * being opened does not have to guess what
+   * "Back" means.
+   *
+   * Sprig can therefore understand journeys such as:
+   *
+   * Calendar
+   *   → Feed Imaginary
+   *
+   * Imaginary
+   *   → Journal entry
+   *
+   * Potato Bag 6
+   *   → Plant Story
+   *
+   * and later present:
+   *
+   * Back to Calendar
+   * Back to Imaginary
+   * Back to Potato Bag 6
+   *
+   * Forms and temporary overlays do not become
+   * journey steps.
+   */
+
+  const [
+    journeyHistory,
+    setJourneyHistory,
+  ] =
+    useState<SprigJourneyState[]>(
+      [],
+    )
+
+
+  /* =======================================
+     PAGE JOURNEY LABEL
+  ======================================= */
+
+  function getPageJourneyLabel(
+    page: AppPage,
+  ): string {
+
+    switch (
+      page
+    ) {
+
+      case 'gate':
+        return 'Today in the Garden'
+
+
+      case 'plants':
+        return 'Plants'
+
+
+      case 'comparisons':
+        return 'Comparisons'
+
+
+      case 'comparison':
+        return 'Comparison'
+
+
+      case 'growing-places':
+        return 'Growing Places'
+
+
+      case 'journal':
+        return 'Journal'
+
+
+      case 'harvest':
+        return 'Harvests'
+
+
+      case 'calendar':
+        return 'Calendar'
+
+
+      case 'library':
+        return 'Garden Library'
+
+
+      case 'backup':
+        return 'Backup & Restore'
+
+
+      default:
+        return 'Sprig'
+    }
+  }
+
+
+  /* =======================================
+     CURRENT JOURNEY LABEL
+  ======================================= */
+
+  function getCurrentJourneyLabel():
+    string {
+
+    /**
+     * A selected record is more specific than
+     * the page that contains it.
+     *
+     * Record identity therefore takes priority
+     * over the broad page name.
+     */
+
+
+    /* ---------------------------------------
+       PLANT STORY
+    --------------------------------------- */
+
+    if (
+      selectedPlantId
+    ) {
+
+      const plant =
+        gardenData.plantStories.find(
+          story =>
+            story.id ===
+            selectedPlantId,
+        )
+
+
+      if (
+        plant
+      ) {
+
+        return (
+          plant.displayName ||
+          plant.variety ||
+          plant.plantName ||
+          'Plant Story'
+        )
+      }
+    }
+
+
+    /* ---------------------------------------
+       JOURNAL ENTRY
+    --------------------------------------- */
+
+    if (
+      selectedEventId
+    ) {
+
+      const event =
+        gardenData.events.find(
+          journalEvent =>
+            journalEvent.id ===
+            selectedEventId,
+        )
+
+
+      if (
+        event
+      ) {
+
+        return (
+          event.title ||
+          'Journal Entry'
+        )
+      }
+    }
+
+
+    /* ---------------------------------------
+       HARVEST STORY
+    --------------------------------------- */
+
+    if (
+      selectedHarvestId
+    ) {
+
+      const harvest =
+        gardenData.harvests.find(
+          item =>
+            item.id ===
+            selectedHarvestId,
+        )
+
+
+      if (
+        harvest
+      ) {
+
+        const harvestPlantNames =
+          harvest.plantStoryIds
+            .map(
+              plantId => {
+
+                const plant =
+                  gardenData.plantStories.find(
+                    story =>
+                      story.id ===
+                      plantId,
+                  )
+
+
+                if (
+                  !plant
+                ) {
+                  return null
+                }
+
+
+                return (
+                  plant.displayName ||
+                  plant.variety ||
+                  plant.plantName ||
+                  null
+                )
+              },
+            )
+            .filter(
+              (
+                name,
+              ): name is string =>
+                Boolean(
+                  name,
+                ),
+            )
+
+
+        if (
+          harvestPlantNames.length ===
+          1
+        ) {
+
+          return (
+            `${harvestPlantNames[0]} Harvest`
+          )
+        }
+
+
+        return 'Harvest Story'
+      }
+    }
+
+
+    /* ---------------------------------------
+       GROWING PLACE
+    --------------------------------------- */
+
+    if (
+      selectedGrowingPlaceId
+    ) {
+
+      const place =
+        gardenData.growingPlaces.find(
+          growingPlace =>
+            growingPlace.id ===
+            selectedGrowingPlaceId,
+        )
+
+
+      if (
+        place
+      ) {
+
+        return (
+          place.name ||
+          'Growing Place'
+        )
+      }
+    }
+
+
+    /* ---------------------------------------
+       GROWING RECIPE
+    --------------------------------------- */
+
+    if (
+      libraryRecipeIdToOpen
+    ) {
+
+      const recipe =
+        gardenData.growingSetups.find(
+          growingSetup =>
+            growingSetup.id ===
+            libraryRecipeIdToOpen,
+        )
+
+
+      if (
+        recipe
+      ) {
+
+        return (
+          recipe.name ||
+          'Growing Recipe'
+        )
+      }
+    }
+
+
+    /* ---------------------------------------
+       LIBRARY SHELVES
+    --------------------------------------- */
+
+    if (
+      activePage ===
+      'library'
+    ) {
+
+      switch (
+        libraryViewToOpen
+      ) {
+
+        case 'growing-recipes':
+          return 'Growing Recipes'
+
+
+        case 'ingredients':
+          return 'Ingredients'
+
+
+        case 'products':
+          return 'Products'
+
+
+        case 'library':
+        case null:
+        default:
+          return 'Garden Library'
+      }
+    }
+
+
+    /* ---------------------------------------
+       COMPARISON
+    --------------------------------------- */
+
+    if (
+      activePage ===
+      'comparison'
+    ) {
+
+      /*
+       * The structural destination is enough
+       * here for now.
+       *
+       * Saved comparison naming can be layered
+       * onto this later without changing the
+       * journey architecture.
+       */
+
+      return 'Comparison'
+    }
+
+
+    /* ---------------------------------------
+       ORDINARY PAGE
+    --------------------------------------- */
+
+    return getPageJourneyLabel(
+      activePage,
+    )
+  }
+
+
+  /* =======================================
+     CURRENT JOURNEY STATE
+  ======================================= */
+
+  function getCurrentJourneyState():
+    SprigJourneyState {
+
+    return {
+
+      activePage,
+
+      selectedPlantId,
+
+      selectedEventId,
+
+      selectedHarvestId,
+
+      selectedGrowingPlaceId,
+
+      libraryRecipeIdToOpen,
+
+      libraryViewToOpen,
+
+      comparisonPlantIds: [
+        ...comparisonPlantIds,
+      ],
+
+      activeSavedComparisonId,
+
+      label:
+        getCurrentJourneyLabel(),
+
+    }
+  }
+
+
+  /* =======================================
+     REMEMBER CURRENT DESTINATION
+  ======================================= */
+
+  function rememberCurrentJourneyState() {
+
+    const currentLocation =
+      getCurrentJourneyState()
+
+
+    setJourneyHistory(
+      history => [
+        ...history,
+        currentLocation,
+      ],
+    )
+  }
+
+
+  /* =======================================
+     PREVIOUS DESTINATION
+  ======================================= */
+
+  /**
+   * This is the current answer to:
+   *
+   * "Where would Back take me?"
+   *
+   * It deliberately remains derived from the
+   * journey stack rather than being stored as
+   * another independent piece of navigation state.
+   */
+
+  const previousJourneyState =
+    journeyHistory[
+      journeyHistory.length - 1
+    ] ??
+    null
+
+
+    const journeyBackLabel =
+    previousJourneyState
+      ? previousJourneyState.label
+      : null
+
+  void journeyBackLabel
+
+
+  /* =======================================
+     CLOSE TRANSIENT NAVIGATION STATE
+  ======================================= */
+
+  function closeTransientNavigationState() {
+
+    setIsAddPlantOpen(
+      false,
+    )
+
+
+    setIsAddEventOpen(
+      false,
+    )
+
+
+    setIsAddHarvestOpen(
+      false,
+    )
+
+
+    setIsAddRecipeOpen(
+      false,
+    )
+
+
+    setIsAddGrowingPlaceOpen(
+      false,
+    )
+
+
+    setHarvestEditorRecord(
+      null,
+    )
+
+
+    setHarvestInitialPlantStoryIds(
+      [],
+    )
+
+
+    setPlanToRecord(
+      null,
+    )
+
+
+    setSelectedPurchase(
+      null,
+    )
+  }
+
+
+  /* =======================================
+     RESTORE JOURNEY STATE
+  ======================================= */
+
+  function restoreJourneyState(
+    destination:
+      SprigJourneyState,
+  ) {
+
+    closeTransientNavigationState()
+
+
+    setSelectedPlantId(
+      destination.selectedPlantId,
+    )
+
+
+    setSelectedEventId(
+      destination.selectedEventId,
+    )
+
+
+    setSelectedHarvestId(
+      destination.selectedHarvestId,
+    )
+
+
+    setSelectedGrowingPlaceId(
+      destination.selectedGrowingPlaceId,
+    )
+
+
+    setLibraryRecipeIdToOpen(
+      destination.libraryRecipeIdToOpen,
+    )
+
+
+    setLibraryViewToOpen(
+      destination.libraryViewToOpen,
+    )
+
+
+    setComparisonPlantIds(
+      [
+        ...destination.comparisonPlantIds,
+      ],
+    )
+
+
+    setActiveSavedComparisonId(
+      destination.activeSavedComparisonId,
+    )
+
+
+    setActivePage(
+      destination.activePage,
+    )
+  }
+
+
+  /* =======================================
+     JOURNEY BACK
+  ======================================= */
+
+  function handleJourneyBack(
+    fallbackPage: AppPage,
+  ) {
+
+    const previousLocation =
+      journeyHistory[
+        journeyHistory.length - 1
+      ]
+
+
+    if (
+      !previousLocation
+    ) {
+
+      closeTransientNavigationState()
+
+
+      setSelectedPlantId(
+        null,
+      )
+
+
+      setSelectedEventId(
+        null,
+      )
+
+
+      setSelectedHarvestId(
+        null,
+      )
+
+
+      setSelectedGrowingPlaceId(
+        null,
+      )
+
+
+      setLibraryRecipeIdToOpen(
+        null,
+      )
+
+
+      setActivePage(
+        fallbackPage,
+      )
+
+
+      return
+    }
+
+
+    setJourneyHistory(
+      history =>
+        history.slice(
+          0,
+          -1,
+        ),
+    )
+
+
+    restoreJourneyState(
+      previousLocation,
+    )
+  }
 
   function handleNavigate(
     page: AppPage,
     libraryView?:
-      | 'library'
-      | 'growing-recipes'
-      | 'ingredients'
-      | 'products',
+      Exclude<
+        SprigLibraryDestination,
+        null
+      >,
   ) {
+    setJourneyHistory(
+      [],
+    )
+
     setSelectedPlantId(
       null,
     )
@@ -338,6 +1031,10 @@ function App() {
       null,
     )
 
+    setSelectedPurchase(
+      null,
+    )
+
 
     if (
       page !==
@@ -377,6 +1074,8 @@ function App() {
   function handleOpenPlantRecord(
     plantId: string,
   ) {
+    rememberCurrentJourneyState()
+
     setSelectedEventId(
       null,
     )
@@ -410,6 +1109,8 @@ function App() {
   function handleOpenGrowingPlaceRecord(
     growingPlaceId: string,
   ) {
+    rememberCurrentJourneyState()
+
     setSelectedPlantId(
       null,
     )
@@ -439,6 +1140,8 @@ function App() {
   function handleOpenJournalRecord(
     eventId: string,
   ) {
+    rememberCurrentJourneyState()
+
     setSelectedPlantId(
       null,
     )
@@ -472,6 +1175,8 @@ function App() {
   function handleOpenHarvestRecord(
     harvestId: string,
   ) {
+    rememberCurrentJourneyState()
+
     setSelectedPlantId(
       null,
     )
@@ -536,6 +1241,8 @@ function App() {
   function handleOpenGrowingRecipeRecord(
     recipeId: string,
   ) {
+    rememberCurrentJourneyState()
+
     setSelectedPlantId(
       null,
     )
@@ -651,16 +1358,50 @@ function App() {
         )
         return
 
-      case 'plant-out':
-      case 'move':
-      case 'feed':
-      case 'treat':
-      case 'garden-task':
-      case 'other':
-        setIsAddEventOpen(
-          true,
-        )
-        return
+        case 'plant-out': {
+          const hasExistingPlantStories =
+            (
+              plan.plantStoryIds ??
+              []
+            ).length >
+            0
+  
+  
+          const hasPlannedPlant =
+            Boolean(
+              plan.plannedPlant,
+            )
+  
+  
+          if (
+            !hasExistingPlantStories &&
+            hasPlannedPlant
+          ) {
+            setIsAddPlantOpen(
+              true,
+            )
+  
+            return
+          }
+  
+  
+          setIsAddEventOpen(
+            true,
+          )
+  
+          return
+        }
+  
+  
+        case 'move':
+        case 'feed':
+        case 'treat':
+        case 'garden-task':
+        case 'other':
+          setIsAddEventOpen(
+            true,
+          )
+          return
 
       case 'harvest':
         setHarvestInitialPlantStoryIds(
@@ -825,27 +1566,7 @@ function App() {
     )
 
 
-    setSelectedEventId(
-      null,
-    )
-
-    setSelectedHarvestId(
-      null,
-    )
-
-    setSelectedGrowingPlaceId(
-      null,
-    )
-
-    setLibraryRecipeIdToOpen(
-      null,
-    )
-
-    setActivePage(
-      'plants',
-    )
-
-    setSelectedPlantId(
+    handleOpenPlantRecord(
       newPlant.id,
     )
   }
@@ -1965,9 +2686,7 @@ function App() {
       updatedGardenData,
     )
   }
-
-
-  /* =======================================
+    /* =======================================
      RENAME SAVED COMPARISON
   ======================================= */
 
@@ -2391,6 +3110,10 @@ function App() {
     setSelectedPlantId(
       null,
     )
+
+    setJourneyHistory(
+      [],
+    )
   }
 
 
@@ -2423,7 +3146,9 @@ function App() {
       updatedGardenData,
     )
   }
-    /* =======================================
+
+
+  /* =======================================
      RESTORE GARDEN BACKUP
   ======================================= */
 
@@ -2462,6 +3187,10 @@ function App() {
       restoredGardenData,
     )
 
+    setJourneyHistory(
+      [],
+    )
+
     setSelectedPlantId(
       null,
     )
@@ -2475,6 +3204,10 @@ function App() {
     )
 
     setSelectedGrowingPlaceId(
+      null,
+    )
+
+    setSelectedPurchase(
       null,
     )
 
@@ -2591,7 +3324,7 @@ function App() {
   }
 
 
-  /* =======================================
+    /* =======================================
      HARVEST DETAIL
   ======================================= */
 
@@ -2613,15 +3346,21 @@ function App() {
             gardenData.plantStories
           }
 
-          onBack={() => {
-            setSelectedHarvestId(
-              null,
-            )
+          journeyBackLabel={
+            journeyBackLabel
+          }
 
-            setActivePage(
+          onBack={() =>
+            handleJourneyBack(
               'harvest',
             )
-          }}
+          }
+
+          onOpenHarvests={() =>
+            handleNavigate(
+              'harvest',
+            )
+          }
 
           onEdit={
             handleOpenEditHarvest
@@ -2642,42 +3381,14 @@ function App() {
               harvestId,
             )
 
-            setSelectedHarvestId(
-              null,
-            )
-
-            setActivePage(
+            handleJourneyBack(
               'harvest',
             )
           }}
 
-          onOpenPlant={(
-            plantId,
-          ) => {
-            setSelectedHarvestId(
-              null,
-            )
-
-            setSelectedEventId(
-              null,
-            )
-
-            setSelectedGrowingPlaceId(
-              null,
-            )
-
-            setLibraryRecipeIdToOpen(
-              null,
-            )
-
-            setActivePage(
-              'plants',
-            )
-
-            setSelectedPlantId(
-              plantId,
-            )
-          }}
+          onOpenPlant={
+            handleOpenPlantRecord
+          }
 
           onNavigate={
             handleNavigate
@@ -2756,55 +3467,29 @@ function App() {
           gardenData.growingPlaces
         }
 
-        onBack={() => {
-          setSelectedEventId(
-            null,
-          )
+        journeyBackLabel={
+          journeyBackLabel
+        }
 
-          setActivePage(
+        onBack={() =>
+          handleJourneyBack(
             'journal',
           )
-        }}
+        }
 
-        onOpenPlant={(
-          plantId,
-        ) => {
-          setSelectedEventId(
-            null,
+        onOpenJournal={() =>
+          handleNavigate(
+            'journal',
           )
+        }
 
-          setSelectedGrowingPlaceId(
-            null,
-          )
+        onOpenPlant={
+          handleOpenPlantRecord
+        }
 
-          setActivePage(
-            'plants',
-          )
-
-          setSelectedPlantId(
-            plantId,
-          )
-        }}
-
-        onOpenGrowingPlace={(
-          growingPlaceId,
-        ) => {
-          setSelectedEventId(
-            null,
-          )
-
-          setSelectedPlantId(
-            null,
-          )
-
-          setActivePage(
-            'growing-places',
-          )
-
-          setSelectedGrowingPlaceId(
-            growingPlaceId,
-          )
-        }}
+        onOpenGrowingPlace={
+          handleOpenGrowingPlaceRecord
+        }
 
         onNavigate={
           handleNavigate
@@ -2840,87 +3525,33 @@ function App() {
           []
         }
 
+        journeyBackLabel={
+          journeyBackLabel
+        }
+
         onBack={() =>
-          setSelectedGrowingPlaceId(
-            null,
+          handleJourneyBack(
+            'growing-places',
           )
         }
 
-        onOpenPlant={(
-          plantId,
-        ) => {
-          setSelectedGrowingPlaceId(
-            null,
+        onOpenGrowingPlaces={() =>
+          handleNavigate(
+            'growing-places',
           )
+        }
 
-          setSelectedEventId(
-            null,
-          )
+        onOpenPlant={
+          handleOpenPlantRecord
+        }
 
-          setLibraryRecipeIdToOpen(
-            null,
-          )
+        onOpenEvent={
+          handleOpenJournalRecord
+        }
 
-          setActivePage(
-            'plants',
-          )
-
-          setSelectedPlantId(
-            plantId,
-          )
-        }}
-
-        onOpenEvent={(
-          eventId,
-        ) => {
-          setSelectedGrowingPlaceId(
-            null,
-          )
-
-          setSelectedPlantId(
-            null,
-          )
-
-          setLibraryRecipeIdToOpen(
-            null,
-          )
-
-          setActivePage(
-            'journal',
-          )
-
-          setSelectedEventId(
-            eventId,
-          )
-        }}
-
-        onOpenRecipe={(
-          recipeId,
-        ) => {
-          setLibraryRecipeIdToOpen(
-            recipeId,
-          )
-
-          setLibraryViewToOpen(
-            'growing-recipes',
-          )
-
-          setSelectedGrowingPlaceId(
-            null,
-          )
-
-          setSelectedPlantId(
-            null,
-          )
-
-          setSelectedEventId(
-            null,
-          )
-
-          setActivePage(
-            'library',
-          )
-        }}
+        onOpenRecipe={
+          handleOpenGrowingRecipeRecord
+        }
 
         onNavigate={
           handleNavigate
@@ -2979,15 +3610,21 @@ function App() {
           gardenData.harvests
         }
 
-        onBack={() => {
-          setActivePage(
-            'plants',
+        onBack={() =>
+          handleJourneyBack(
+            activeSavedComparisonId
+              ? 'comparisons'
+              : 'plants',
           )
-        }}
+        }
 
         onEditComparison={(
           plantStoryIds,
         ) => {
+          setJourneyHistory(
+            [],
+          )
+
           setComparisonPlantIds(
             plantStoryIds,
           )
@@ -3050,6 +3687,10 @@ function App() {
             gardenData.harvests
           }
 
+          journeyBackLabel={
+            journeyBackLabel
+          }
+
           onNavigate={
             handleNavigate
           }
@@ -3074,11 +3715,17 @@ function App() {
             handleOpenJournalRecord
           }
 
-          onBack={() => {
-            setSelectedPlantId(
-              null,
+                    onBack={() =>
+            handleJourneyBack(
+              'plants',
             )
-          }}
+          }
+
+          onOpenPlants={() =>
+            handleNavigate(
+              'plants',
+            )
+          }
 
           onAddEvent={() =>
             setIsAddEventOpen(
@@ -3258,6 +3905,8 @@ function App() {
         onOpenComparison={(
           comparison,
         ) => {
+          rememberCurrentJourneyState()
+
           const plantIds =
             comparison.items
               .filter(
@@ -3342,7 +3991,7 @@ function App() {
           }}
 
           onOpenEntry={
-            setSelectedEventId
+            handleOpenJournalRecord
           }
 
           onDeleteEvent={
@@ -3463,6 +4112,8 @@ function App() {
           onComparePlants={(
             plantIds,
           ) => {
+            rememberCurrentJourneyState()
+
             setComparisonPlantIds(
               plantIds,
             )
@@ -3688,12 +4339,8 @@ function App() {
             handleOpenNewHarvest()
           }
 
-          onOpenHarvest={(
-            harvestId,
-          ) =>
-            setSelectedHarvestId(
-              harvestId,
-            )
+          onOpenHarvest={
+            handleOpenHarvestRecord
           }
 
           onNavigate={
@@ -3790,11 +4437,11 @@ function App() {
           onOpenHarvest={
             handleOpenHarvestRecord
           }
-          
+
           onOpenPurchase={
             handleOpenPurchaseRecord
           }
-          
+
           onOpenGrowingPlace={
             handleOpenGrowingPlaceRecord
           }
@@ -3844,13 +4491,27 @@ function App() {
         )}
 
 
-        {isAddPlantOpen &&
+{isAddPlantOpen &&
           planToRecord &&
           (
             planToRecord.kind ===
               'sow' ||
             planToRecord.kind ===
-              'plant'
+              'plant' ||
+            (
+              planToRecord.kind ===
+                'plant-out' &&
+              (
+                planToRecord
+                  .plantStoryIds ??
+                []
+              ).length ===
+                0 &&
+              Boolean(
+                planToRecord
+                  .plannedPlant,
+              )
+            )
           ) && (
           <AddPlantForm
             GrowingPlaces={
@@ -3906,8 +4567,16 @@ function App() {
         {isAddEventOpen &&
           planToRecord &&
           (
-            planToRecord.kind ===
-              'plant-out' ||
+            (
+              planToRecord.kind ===
+                'plant-out' &&
+              (
+                planToRecord
+                  .plantStoryIds ??
+                []
+              ).length >
+                0
+            ) ||
             planToRecord.kind ===
               'move' ||
             planToRecord.kind ===

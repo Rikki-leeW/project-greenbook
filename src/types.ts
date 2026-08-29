@@ -807,6 +807,47 @@ export interface GardenPlanTimingAssumption {
 
 
 /* =======================================
+   PLAN SCHEDULE HISTORY
+======================================= */
+
+/*
+ * A Garden Plan records intention, and an
+ * intention can move before anything actually
+ * happens in the garden.
+ *
+ * This history remembers those changes without
+ * pretending they were garden events.
+ *
+ * The Plan's current `date` / `endDate` remain
+ * the active intended schedule.
+ *
+ * Example:
+ *
+ * Originally planned:
+ * 29 August
+ *
+ * Rescheduled:
+ * 29 August → 2 September
+ *
+ * Rescheduled again:
+ * 2 September → 5 September
+ *
+ * Nothing here is Recorded garden history.
+ * It is simply the history of the intention.
+ */
+
+export interface GardenPlanScheduleChange {
+  fromDate: string
+  fromEndDate?: string
+
+  toDate: string
+  toEndDate?: string
+
+  changedAt: string
+}
+
+
+/* =======================================
    PLAN RESULT
 ======================================= */
 
@@ -890,13 +931,25 @@ export interface GardenPlan {
   ======================================= */
 
   status:
-    GardenPlanStatus
+  GardenPlanStatus
 
-  results?: GardenPlanResult[]
+/*
+ * Earlier intended schedules for this
+ * same Plan.
+ *
+ * This is Plan history, not garden history.
+ *
+ * `date` and `endDate` above always describe
+ * the Plan's current intended schedule.
+ */
+scheduleHistory?:
+  GardenPlanScheduleChange[]
 
-  /* =======================================
-     RECORD MANAGEMENT
-  ======================================= */
+results?: GardenPlanResult[]
+
+/* =======================================
+   RECORD MANAGEMENT
+======================================= */
 
   createdAt: string
 

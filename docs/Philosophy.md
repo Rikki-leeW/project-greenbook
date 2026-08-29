@@ -36,3 +36,8 @@ Patterns calculated from your historical records.
 A layer that can interpret, explain, summarise or suggest, but does not become the owner of the garden's facts.
 
 A future possibility should always remember what gave rise to it.
+
+Records own the photographs.
+Relationships gather the story.
+
+The Plant Gallery doesn't own photographs. It reveals the Plant Story through photographs.

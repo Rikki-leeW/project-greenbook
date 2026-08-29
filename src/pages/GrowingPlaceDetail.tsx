@@ -21,7 +21,12 @@ interface GrowingPlaceDetailProps {
 
   growingSetups: GrowingSetup[]
 
+  journeyBackLabel:
+    string | null
+
   onBack: () => void
+
+  onOpenGrowingPlaces: () => void
 
   onOpenPlant: (
     plantId: string,
@@ -116,7 +121,9 @@ export default function GrowingPlaceDetail({
   plants,
   events,
   growingSetups,
+  journeyBackLabel,
   onBack,
+  onOpenGrowingPlaces,
   onOpenPlant,
   onOpenEvent,
   onOpenRecipe,
@@ -182,6 +189,21 @@ export default function GrowingPlaceDetail({
       : undefined
 
 
+  /* =======================================
+     NAVIGATION
+  ======================================= */
+
+  const hasJourneyBack =
+    Boolean(
+      journeyBackLabel,
+    )
+
+
+  const journeyAlreadyReturnsToGrowingPlaces =
+    journeyBackLabel ===
+    'Growing Places'
+
+
   return (
     <GardenLayout
       activePage="growing-places"
@@ -192,18 +214,55 @@ export default function GrowingPlaceDetail({
       <div className="garden-page">
 
         {/* =======================================
-            BACK
+            NAVIGATION
         ======================================= */}
 
-        <button
-          type="button"
-          className="garden-return-button"
-          onClick={
-            onBack
-          }
+        <div
+          className="sprig-detail-navigation"
+          style={{
+            display:
+              'flex',
+
+            flexWrap:
+              'wrap',
+
+            gap:
+              '10px',
+
+            marginBottom:
+              '18px',
+          }}
         >
-          ← Back to Growing Places
-        </button>
+
+          {hasJourneyBack && (
+            <button
+              type="button"
+              className="garden-return-button"
+              onClick={
+                onBack
+              }
+            >
+              ← Back to{' '}
+              {
+                journeyBackLabel
+              }
+            </button>
+          )}
+
+
+          {!journeyAlreadyReturnsToGrowingPlaces && (
+            <button
+              type="button"
+              className="garden-return-button"
+              onClick={
+                onOpenGrowingPlaces
+              }
+            >
+              ← Growing Places
+            </button>
+          )}
+
+        </div>
 
 
         {/* =======================================

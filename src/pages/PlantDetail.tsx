@@ -42,11 +42,16 @@ interface PlantDetailProps {
 
   harvests: HarvestRecord[]
 
-  onBack: () => void
+  journeyBackLabel:
+  string | null
 
-  onNavigate: (
-    page: AppPage,
-  ) => void
+onBack: () => void
+
+onOpenPlants: () => void
+
+onNavigate: (
+  page: AppPage,
+) => void
 
   onOpenGrowingPlace: (
     growingPlaceId: string,
@@ -607,7 +612,9 @@ export default function PlantDetail({
   products,
   events,
   harvests,
+  journeyBackLabel,
   onBack,
+  onOpenPlants,
   onNavigate,
   onOpenGrowingPlace,
   onOpenJournalEntry,
@@ -1839,6 +1846,21 @@ const plantPhotoContexts =
   )
 
 
+   /* =======================================
+     NAVIGATION
+  ======================================= */
+
+  const hasJourneyBack =
+    Boolean(
+      journeyBackLabel,
+    )
+
+
+  const journeyAlreadyReturnsToPlants =
+    journeyBackLabel ===
+    'Plants'
+
+
   return (
     <>
       <GardenLayout
@@ -1915,15 +1937,33 @@ const plantPhotoContexts =
             className="plant-record-actions"
             aria-label="Plant Story actions"
           >
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={
-                onBack
-              }
-            >
-              ← Back
-            </button>
+            {hasJourneyBack && (
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={
+              onBack
+            }
+          >
+            ← Back to{' '}
+            {
+              journeyBackLabel
+            }
+          </button>
+        )}
+
+
+        {!journeyAlreadyReturnsToPlants && (
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={
+              onOpenPlants
+            }
+          >
+            ← Plants
+          </button>
+        )}
 
 
             <button

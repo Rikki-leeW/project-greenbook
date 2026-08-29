@@ -1400,3 +1400,148 @@ And yes, this corrected roadmap is now the one I'm carrying forward. 🌱
 🖼 Garden Gallery
 🧾 Purchases / Costs & Allocations
 🧺 Supplies / Suppliers
+
+
+--------------------------------------
+
+Photos roadmap side note from testing 29/08
+
+Add Photo should remain the beautifully quick option:
+
+I'm standing here looking at my Royal Blue potato. Snap. Save. Done.
+
+You shouldn't have to manufacture a Journal entry just to give Sprig a photograph.
+
+Add a Moment remains the richer option:
+
+Something happened. Here's what I noticed, what I did, where it happened, and here are the photographs that belong to that moment.
+
+And Harvest photographs remain photographs associated with a Harvest.
+
+Those are genuinely different ways of recording context, so their underlying records should remain separate.
+
+What needs to change is how Sprig gathers and presents the photographs afterwards.
+
+One Plant Story, one photographic story
+
+For a Plant Detail page, Sprig should be able to derive a unified gallery from every photograph connected to that Plant Story:
+
+direct Plant Story photos
+Journal photographs where that Plant Story is linked
+Harvest photographs where that Plant Story is linked
+
+Potentially later, other records too if we introduce another meaningful photographic source.
+
+And every photograph retains its provenance.
+
+So a gallery photograph isn't copied into the Plant Story. Sprig simply knows:
+
+This photograph belongs to Journal Event X, which involves Royal Blue.
+
+or:
+
+This photograph was added directly to Royal Blue.
+
+or:
+
+This photograph belongs to Harvest Y from Royal Blue.
+
+That satisfies our existing architecture beautifully:
+
+One story, viewed from different places.
+
+We don't duplicate anything.
+
+The Plant Detail gallery could then become genuinely useful
+
+Instead of separate little photographic islands, imagine:
+
+This plant through the seasons
+
+with all Royal Blue photographs chronologically together.
+
+Tap a photograph and Sprig could show its context:
+
+21 August 2026
+📷 Plant Story
+
+or:
+
+30 August 2026
+📖 Journal · Wilting
+Open journal page
+
+or:
+
+14 October 2026
+🧺 Harvest · Main harvest
+Open harvest
+
+That means your quick photograph isn't a second-class citizen because it didn't come with prose.
+
+And your Journal photograph doesn't lose its richer context merely because we've gathered it into the Plant's gallery.
+
+This also improves Comparison
+
+This is where your observation gets particularly important.
+
+We deliberately built Comparison with lenses such as Plant Story / Journal / Harvest, which is useful when you want to investigate provenance.
+
+But those shouldn't necessarily be hard silos.
+
+We should distinguish:
+
+Photo source
+Plant Story / Journal / Harvest
+
+from:
+
+Photo subject
+Royal Blue
+
+Then Comparison can eventually offer:
+
+All photos
+
+as the natural default, with Plant Story / Journal / Harvest as optional source filters.
+
+So when you're comparing two potatoes at 8 weeks old, Sprig shouldn't overlook the perfect 8-week photograph merely because one happened to be attached to a Journal observation and the other was added with Quick Photo.
+
+That's actually contrary to the purpose of the comparison.
+
+And there is a deeper architectural opportunity
+
+I wouldn't create a new global Photo record right now. We don't need to migrate all your photographs or restructure storage.
+
+We can create a derived utility later, something conceptually like:
+
+PlantPhotoMoment
+
+that gathers existing photos into a common view:
+
+{
+  photoUrl
+  date
+  plantStoryId
+
+  sourceType:
+    | 'plant-story'
+    | 'journal'
+    | 'harvest'
+
+  sourceId
+  title
+}
+
+That's an index/view, not another saved copy of the photograph.
+
+Very Sprig:
+
+Records own the photographs.
+Relationships gather the story.
+
+And it fits our Calendar architecture too. Calendar doesn't own events, it reveals the garden through time. Likewise:
+
+The Plant Gallery doesn't own photographs. It reveals the Plant Story through photographs.
+
+So yes, absolutely put this on our architecture roadmap. And please stop feeling forced to create Journal entries just because you want a photograph to feel properly part of your plant. That's Sprig telling us its presentation layer hasn't caught up with its relationships yet, not the workflow we actually want.

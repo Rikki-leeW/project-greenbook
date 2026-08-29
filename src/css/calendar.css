@@ -1275,23 +1275,22 @@
     opacity:
       0.72;
   }
-  
-  
   .sprig-calendar-plan-close {
-    display: grid;
-    place-items: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
   
-    width:
-      2.3rem;
+    min-height: 2.3rem;
   
-    height:
-      2.3rem;
+    flex: 0 0 auto;
   
-    flex:
-      0 0 auto;
+    margin-right:
+      4.4rem;
   
     padding:
-      0;
+      0.45rem
+      0.75rem;
   
     border:
       1px solid
@@ -1303,7 +1302,7 @@
       );
   
     border-radius:
-      50%;
+      999px;
   
     background:
       rgba(
@@ -1320,15 +1319,27 @@
       inherit;
   
     font-size:
-      1.4rem;
+      0.9rem;
   
     line-height:
       1;
+  
+    white-space:
+      nowrap;
   
     cursor:
       pointer;
   }
   
+  
+  .sprig-calendar-plan-close
+  span:first-child {
+    font-size:
+      1.25rem;
+  
+    line-height:
+      1;
+  }
   
   .sprig-calendar-plan-field {
     display: grid;

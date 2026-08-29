@@ -360,8 +360,21 @@ export function normalizeGardenData(
         plan.growingPlaceIds ??
         [],
 
-      growingSetupIds:
+        growingSetupIds:
         plan.growingSetupIds ??
+        [],
+
+      /*
+       * Plans saved before rescheduling history
+       * existed simply begin with no previous
+       * schedule changes.
+       *
+       * Nothing is invented from the current
+       * Plan date because Sprig cannot know
+       * whether that date was ever changed.
+       */
+      scheduleHistory:
+        plan.scheduleHistory ??
         [],
 
       results:

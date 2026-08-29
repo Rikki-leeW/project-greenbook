@@ -1,4 +1,6 @@
 import {
+  useEffect,
+  useRef,
   useState,
   type FormEvent,
 } from 'react'
@@ -41,6 +43,38 @@ interface AddEventFormProps {
   ) => void
 
   onClose: () => void
+}
+
+
+/* =======================================
+   TODAY
+======================================= */
+
+function getTodayDate(): string {
+  const now =
+    new Date()
+
+  const year =
+    now.getFullYear()
+
+  const month =
+    String(
+      now.getMonth() +
+        1,
+    ).padStart(
+      2,
+      '0',
+    )
+
+  const day =
+    String(
+      now.getDate(),
+    ).padStart(
+      2,
+      '0',
+    )
+
+  return `${year}-${month}-${day}`
 }
 
 
@@ -149,6 +183,10 @@ function getPlanPlaceScope(
 }
 
 
+/* =======================================
+   SPRIG JOURNAL FORM
+======================================= */
+
 export default function AddEventForm({
   plantId,
   plants,
@@ -158,18 +196,34 @@ export default function AddEventForm({
   onClose,
 }: AddEventFormProps) {
   const today =
-    new Date()
-      .toISOString()
-      .slice(
-        0,
-        10,
-      )
+    getTodayDate()
 
 
   const isRecordingPlan =
     Boolean(
       planToRecord,
     )
+
+
+  /*
+   * This ref is the hard submission gate.
+   *
+   * React state disables the button visually,
+   * but state updates are asynchronous.
+   *
+   * A rapid second tap can therefore arrive
+   * before the disabled button has rendered.
+   * The ref closes that tiny gap immediately.
+   */
+  const isSubmittingRef =
+    useRef(false)
+
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] =
+    useState(false)
 
 
   /* =======================================
@@ -266,7 +320,7 @@ export default function AddEventForm({
   ] =
     useState(
       planToRecord?.date ??
-      today,
+        today,
     )
 
 
@@ -276,7 +330,7 @@ export default function AddEventForm({
   ] =
     useState(
       planToRecord?.title ??
-      '',
+        '',
     )
 
 
@@ -293,7 +347,7 @@ export default function AddEventForm({
   ] =
     useState(
       planToRecord?.notes ??
-      '',
+        '',
     )
 
 
@@ -383,23 +437,201 @@ export default function AddEventForm({
 
 
   /* =======================================
+     PLAN → REALITY RESET
+  ======================================= */
+
+  useEffect(
+    () => {
+      if (
+        !planToRecord
+      ) {
+        return
+      }
+
+
+      const nextActivity =
+        getPlanActivityType(
+          planToRecord,
+        )
+
+
+      /*
+       * A Plan may be opened after this form
+       * component has already existed.
+       *
+       * useState initial values only run when
+       * the component first mounts, so Sprig
+       * deliberately refreshes the form when
+       * the source Plan itself changes.
+       *
+       * This is what ensures the intended
+       * Plan date becomes the starting actual
+       * date rather than today's date.
+       */
+      setDate(
+        planToRecord.date,
+      )
+
+      setTitle(
+        planToRecord.title ??
+          '',
+      )
+
+      setNotes(
+        planToRecord.notes ??
+          '',
+      )
+
+      setProductUsed(
+        '',
+      )
+
+      setActivityTypes(
+        nextActivity
+          ? [
+              nextActivity,
+            ]
+          : [],
+      )
+
+      setGrowingPlaceScope(
+        getPlanPlaceScope(
+          planToRecord,
+        ),
+      )
+
+      setGrowingPlaceIds(
+        [
+          ...(
+            planToRecord
+              .growingPlaceIds ??
+            []
+          ),
+        ],
+      )
+
+      setPlantScope(
+        getPlanPlantScope(
+          planToRecord,
+        ),
+      )
+
+      setPlantStoryIds(
+        [
+          ...(
+            planToRecord
+              .plantStoryIds ??
+            []
+          ),
+        ],
+      )
+
+      setPhotoUrls(
+        [],
+      )
+
+      setIsActivityPickerOpen(
+        false,
+      )
+
+      setIsGrowingPlacePickerOpen(
+        false,
+      )
+
+      setIsPlantPickerOpen(
+        false,
+      )
+
+      isSubmittingRef.current =
+        false
+
+      setIsSubmitting(
+        false,
+      )
+    },
+    [
+      planToRecord?.id,
+    ],
+  )
+
+
+  /* =======================================
+     LOCK BACKGROUND PAGE
+  ======================================= */
+
+  useEffect(
+    () => {
+      const body =
+        document.body
+
+      const html =
+        document.documentElement
+
+      const previousBodyOverflow =
+        body.style.overflow
+
+      const previousBodyOverscroll =
+        body.style.overscrollBehavior
+
+      const previousHtmlOverflow =
+        html.style.overflow
+
+      const previousHtmlOverscroll =
+        html.style.overscrollBehavior
+
+
+      body.style.overflow =
+        'hidden'
+
+      body.style.overscrollBehavior =
+        'none'
+
+      html.style.overflow =
+        'hidden'
+
+      html.style.overscrollBehavior =
+        'none'
+
+
+      return () => {
+        body.style.overflow =
+          previousBodyOverflow
+
+        body.style.overscrollBehavior =
+          previousBodyOverscroll
+
+        html.style.overflow =
+          previousHtmlOverflow
+
+        html.style.overscrollBehavior =
+          previousHtmlOverscroll
+      }
+    },
+    [],
+  )
+
+
+  /* =======================================
      AVAILABLE PLANTS
   ======================================= */
 
   const availablePlants =
-    growingPlaceScope ===
-      'entire-garden' ||
-    growingPlaceIds.length ===
-      0
-      ? plants
-      : plants.filter(
-          plant =>
-            growingPlaceIds.some(
-              placeId =>
-                placeId ===
-                plant.currentGrowingPlaceId,
-            ),
-        )
+  growingPlaceScope ===
+    'entire-garden' ||
+  growingPlaceIds.length ===
+    0
+    ? plants
+    : plants.filter(
+        plant =>
+          growingPlaceIds.some(
+            placeId =>
+              placeId ===
+              plant.currentGrowingPlaceId,
+          ) ||
+          plantStoryIds.includes(
+            plant.id,
+          ),
+      )
 
 
   const sortedAvailablePlants = [
@@ -601,6 +833,29 @@ export default function AddEventForm({
     event.preventDefault()
 
 
+    /*
+     * First tap owns this submission.
+     *
+     * This check happens synchronously, before
+     * React has time to render the disabled
+     * button, so rapid mobile taps cannot
+     * create duplicate Journal records.
+     */
+    if (
+      isSubmittingRef.current
+    ) {
+      return
+    }
+
+
+    isSubmittingRef.current =
+      true
+
+    setIsSubmitting(
+      true,
+    )
+
+
     const primaryType =
       activityTypes[0] ??
       'observation'
@@ -661,16 +916,41 @@ export default function AddEventForm({
       }
 
 
-    onAddEvent(
-      newEvent,
-    )
+    try {
+      onAddEvent(
+        newEvent,
+      )
+    } catch (
+      error
+    ) {
+      /*
+       * If the parent save genuinely throws,
+       * allow another attempt rather than
+       * trapping the gardener in a disabled
+       * form.
+       */
+      isSubmittingRef.current =
+        false
+
+      setIsSubmitting(
+        false,
+      )
+
+      throw error
+    }
   }
 
 
   return (
-    <div className="form-backdrop">
+    <div
+      className="form-backdrop"
+      role="presentation"
+    >
       <section
         className="add-plant-panel chronicle-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-event-title"
       >
         <img
           className="chronicle-page-image"
@@ -700,17 +980,22 @@ export default function AddEventForm({
             onClick={
               onClose
             }
+            disabled={
+              isSubmitting
+            }
+            aria-label="Close Journal entry"
           >
             ×
           </button>
 
 
           <form
-            className="add-plant-form"
-            onSubmit={
-              handleSubmit
-            }
-          >
+          id="sprig-journal-entry-form"
+          className="add-plant-form journal-entry-form"
+          onSubmit={
+            handleSubmit
+          }
+        >
 
             {isRecordingPlan &&
               planToRecord && (
@@ -1204,12 +1489,15 @@ export default function AddEventForm({
             )}
 
 
-            <div className="form-actions">
+<div className="chronicle-page-actions">
               <button
                 type="button"
                 className="secondary-button"
                 onClick={
                   onClose
+                }
+                disabled={
+                  isSubmitting
                 }
               >
                 Leave it for now
@@ -1219,10 +1507,15 @@ export default function AddEventForm({
               <button
                 type="submit"
                 className="enter-button"
+                disabled={
+                  isSubmitting
+                }
               >
-                {isRecordingPlan
-                  ? 'Record this moment'
-                  : 'Add this page'}
+                {isSubmitting
+                  ? 'Adding this page…'
+                  : isRecordingPlan
+                    ? 'Record this moment'
+                    : 'Add this page'}
               </button>
             </div>
 

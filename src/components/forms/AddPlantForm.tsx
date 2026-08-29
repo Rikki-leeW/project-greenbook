@@ -245,35 +245,12 @@ function getPlanStartingMethod(
       .startMethod
   }
 
-
-  /*
-   * A Sow Plan means the story began by
-   * sowing something.
-   *
-   * Seed is the safest neutral starting
-   * value available in the present model.
-   * The gardener can immediately change it
-   * to seed potato, tuber, bulb, etc.
-   *
-   * Sprig does not infer crop biology from
-   * the plant name.
-   */
-
   if (
     plan?.kind ===
     'sow'
   ) {
     return 'seed'
   }
-
-
-  /*
-   * A Plant Plan normally means a plant
-   * already exists as a starting piece.
-   *
-   * Seedling is a useful editable default,
-   * not a claim about what actually happened.
-   */
 
   return 'seedling'
 }
@@ -290,13 +267,11 @@ function getPlanHarvestTimingReference(
   const timingAssumption =
     plan?.timingAssumption
 
-
   if (
     !timingAssumption
   ) {
     return undefined
   }
-
 
   return {
     sourceType:
@@ -333,21 +308,9 @@ export default function AddPlantForm({
         10,
       )
 
-
   const sourcePlant =
     plantToEdit ??
     variationFrom
-
-
-  /*
-   * A Plan can only seed a brand-new
-   * Plant Story.
-   *
-   * Edit and variation modes deliberately
-   * take precedence so Sprig never mixes
-   * two different source records into one
-   * form state.
-   */
 
   const recordingPlan =
     !plantToEdit &&
@@ -355,18 +318,35 @@ export default function AddPlantForm({
       ? planToRecord
       : undefined
 
+  /*
+   * A Plant-out Plan can refer either to a
+   * Plant Story Sprig already knows, or to a
+   * physical plant that has not entered Sprig
+   * yet.
+   *
+   * In the second case this form creates the
+   * Plant Story at the moment reality catches
+   * up with the Plan. We do not invent an
+   * earlier sowing or planting history.
+   */
+  const isNewPlantOutFromPlan =
+    recordingPlan?.kind ===
+      'plant-out' &&
+    (
+      recordingPlan
+        .plantStoryIds ??
+      []
+    ).length === 0
 
   const isEditing =
     Boolean(
       plantToEdit,
     )
 
-
   const isVariation =
     Boolean(
       variationFrom,
     )
-
 
   const isRecordingPlan =
     Boolean(
@@ -390,7 +370,6 @@ export default function AddPlantForm({
       '',
     )
 
-
   const [
     variety,
     setVariety,
@@ -402,7 +381,6 @@ export default function AddPlantForm({
         ?.variety ??
       '',
     )
-
 
   const [
     quantity,
@@ -429,11 +407,14 @@ export default function AddPlantForm({
   ] =
     useState<StartMethod>(
       sourcePlant?.startMethod ??
-      getPlanStartingMethod(
-        recordingPlan,
+      (
+        isNewPlantOutFromPlan
+          ? 'bought-plant'
+          : getPlanStartingMethod(
+              recordingPlan,
+            )
       ),
     )
-
 
   const [
     customStartMethodLabel,
@@ -448,7 +429,6 @@ export default function AddPlantForm({
       '',
     )
 
-
   const [
     startedDate,
     setStartedDate,
@@ -459,7 +439,6 @@ export default function AddPlantForm({
       today,
     )
 
-
   const [
     hasBeenPlantedOut,
     setHasBeenPlantedOut,
@@ -467,10 +446,10 @@ export default function AddPlantForm({
     useState(
       Boolean(
         sourcePlant
-          ?.plantedOutDate,
+          ?.plantedOutDate ||
+        isNewPlantOutFromPlan,
       ),
     )
-
 
   const [
     plantedOutDate,
@@ -479,7 +458,12 @@ export default function AddPlantForm({
     useState(
       sourcePlant
         ?.plantedOutDate ??
-      '',
+      (
+        isNewPlantOutFromPlan
+          ? recordingPlan?.date ??
+            today
+          : ''
+      ),
     )
 
 
@@ -496,7 +480,6 @@ export default function AddPlantForm({
       'unknown',
     )
 
-
   const [
     source,
     setSource,
@@ -505,7 +488,6 @@ export default function AddPlantForm({
       sourcePlant?.source ??
       '',
     )
-
 
   const [
     customOriginLabel,
@@ -528,7 +510,6 @@ export default function AddPlantForm({
   ] =
     useState(false)
 
-
   const [
     currentGrowingPlaceId,
     setCurrentGrowingPlaceId,
@@ -541,7 +522,6 @@ export default function AddPlantForm({
         ?.[0] ??
       '',
     )
-
 
   const [
     isGrowingPlacePickerOpen,
@@ -567,13 +547,11 @@ export default function AddPlantForm({
       '',
     )
 
-
   const [
     isGrowingSetupPickerOpen,
     setIsGrowingSetupPickerOpen,
   ] =
     useState(false)
-
 
   const [
     isAddRecipeOpen,
@@ -609,7 +587,6 @@ export default function AddPlantForm({
             )
           : '',
     )
-
 
   const [
     expectedHarvestDaysMax,
@@ -655,13 +632,6 @@ export default function AddPlantForm({
      PHOTOGRAPHS
   ======================================= */
 
-  /*
-   * Plant Story photographs continue to be
-   * stored as URLs so existing Sprig gardens,
-   * galleries and backup data remain
-   * compatible.
-   */
-
   const [
     photoUrls,
     setPhotoUrls,
@@ -675,19 +645,6 @@ export default function AddPlantForm({
         ),
       ],
     )
-
-
-  /*
-   * Each photograph may now carry the date
-   * it was actually taken.
-   *
-   * photoDates[n] belongs to photoUrls[n].
-   *
-   * Older Plant Stories may already contain
-   * photographs without dates. Those entries
-   * deliberately remain undefined rather
-   * than Sprig inventing a date for them.
-   */
 
   const [
     photoDates,
@@ -742,7 +699,6 @@ export default function AddPlantForm({
     const scrollY =
       window.scrollY
 
-
     requestAnimationFrame(
       () => {
         if (
@@ -753,7 +709,6 @@ export default function AddPlantForm({
         }
       },
     )
-
 
     const previousOverflow =
       document.body
@@ -775,7 +730,6 @@ export default function AddPlantForm({
         .style
         .width
 
-
     document.body
       .style
       .overflow =
@@ -795,7 +749,6 @@ export default function AddPlantForm({
       .style
       .width =
         '100%'
-
 
     return () => {
       document.body
@@ -818,7 +771,6 @@ export default function AddPlantForm({
         .width =
           previousWidth
 
-
       window.scrollTo(
         0,
         scrollY,
@@ -837,26 +789,20 @@ export default function AddPlantForm({
   ) {
     event.preventDefault()
 
-
     const trimmedPlantName =
       plantName.trim()
-
 
     const trimmedVariety =
       variety.trim()
 
-
     const trimmedSource =
       source.trim()
-
 
     const trimmedCustomOriginLabel =
       customOriginLabel.trim()
 
-
     const trimmedCustomStartMethodLabel =
       customStartMethodLabel.trim()
-
 
     if (
       !trimmedPlantName
@@ -864,11 +810,9 @@ export default function AddPlantForm({
       return
     }
 
-
     const displayName =
       trimmedVariety ||
       trimmedPlantName
-
 
     const minimumHarvestDays =
       expectedHarvestDaysMin
@@ -876,7 +820,6 @@ export default function AddPlantForm({
             expectedHarvestDaysMin,
           )
         : undefined
-
 
     const maximumHarvestDays =
       expectedHarvestDaysMax
@@ -894,25 +837,27 @@ export default function AddPlantForm({
       currentGrowingPlaceId ||
       undefined
 
-
     const selectedGrowingSetupId =
       currentGrowingSetupId ||
       undefined
 
-
     /*
-     * For a seed-grown Plant Story that has
-     * already been planted out, the current
-     * arrangement generally begins on the
-     * planted-out date.
+     * For a newly introduced Plant-out
+     * story, the first real arrangement
+     * begins when the plant was actually
+     * planted out.
      *
-     * Otherwise the Plant Story beginning
-     * date is our best starting point.
+     * Seed-grown stories that already have
+     * a Plant-out date follow the same rule.
      */
-
     const initialGrowingArrangementDate =
-      beganFromSeed &&
-      hasBeenPlantedOut &&
+      (
+        isNewPlantOutFromPlan ||
+        (
+          beganFromSeed &&
+          hasBeenPlantedOut
+        )
+      ) &&
       plantedOutDate
         ? plantedOutDate
         : startedDate
@@ -948,7 +893,6 @@ export default function AddPlantForm({
           ]
         : []
 
-
     let nextPreviousGrowingSetupIds:
       string[] =
       isEditing &&
@@ -982,7 +926,6 @@ export default function AddPlantForm({
           )
         : []
 
-
     if (
       isEditing &&
       plantToEdit
@@ -992,22 +935,14 @@ export default function AddPlantForm({
           .currentGrowingPlaceId !==
         selectedGrowingPlaceId
 
-
       const growingSetupChanged =
         plantToEdit
           .currentGrowingSetupId !==
         selectedGrowingSetupId
 
-
       const growingArrangementChanged =
         growingPlaceChanged ||
         growingSetupChanged
-
-
-      /*
-       * Keep the older convenient
-       * previous-ID relationships current.
-       */
 
       if (
         growingPlaceChanged
@@ -1020,7 +955,6 @@ export default function AddPlantForm({
           )
       }
 
-
       if (
         growingSetupChanged
       ) {
@@ -1032,24 +966,9 @@ export default function AddPlantForm({
           )
       }
 
-
       if (
         growingArrangementChanged
       ) {
-        /*
-         * Older Plant Stories may predate
-         * growingHistory entirely.
-         *
-         * Preserve their known former
-         * arrangement before moving forward.
-         * The exact beginning date is inferred
-         * from the best date already available
-         * on the Plant Story, and that fact is
-         * retained in the note rather than
-         * pretending Sprig knows more than it
-         * does.
-         */
-
         if (
           nextGrowingHistory.length ===
             0 &&
@@ -1088,14 +1007,8 @@ export default function AddPlantForm({
               'Earlier growing arrangement carried forward from this existing Plant Story. Its exact starting date was not separately recorded.',
           })
         } else {
-          /*
-           * Close whichever history entry is
-           * currently open.
-           */
-
           let openEntryIndex =
             -1
-
 
           for (
             let index =
@@ -1118,7 +1031,6 @@ export default function AddPlantForm({
             }
           }
 
-
           if (
             openEntryIndex >=
             0
@@ -1135,16 +1047,6 @@ export default function AddPlantForm({
             }
           }
         }
-
-
-        /*
-         * Start the newly selected
-         * arrangement.
-         *
-         * If both Place and Recipe were
-         * deliberately cleared, there is no
-         * new arrangement to create.
-         */
 
         if (
           selectedGrowingPlaceId ||
@@ -1175,16 +1077,6 @@ export default function AddPlantForm({
           selectedGrowingSetupId
         )
       ) {
-        /*
-         * The Plant Story has not changed
-         * arrangement, but it predates the
-         * history system.
-         *
-         * Establish a baseline so future
-         * changes have something real to
-         * continue from.
-         */
-
         nextGrowingHistory.push({
           id:
             createGrowingHistoryId(
@@ -1212,17 +1104,6 @@ export default function AddPlantForm({
       selectedGrowingPlaceId ||
       selectedGrowingSetupId
     ) {
-      /*
-       * Brand-new Plant Stories, including
-       * variations and stories created from
-       * Garden Plans, begin their own history.
-       *
-       * A Plan can suggest its intended Place
-       * and Recipe, but once this form is saved
-       * the relationship belongs to the actual
-       * Plant Story.
-       */
-
       nextGrowingHistory = [
         {
           id:
@@ -1291,17 +1172,40 @@ export default function AddPlantForm({
               undefined
             : undefined,
 
+        /*
+         * For a plant Sprig first meets at
+         * Plant-out, plantedDate means the
+         * beginning of Sprig's known Plant
+         * Story. It does not claim the plant
+         * biologically began on this day.
+         */
         plantedDate:
           startedDate,
 
+        /*
+         * Never manufacture a sowing date for
+         * an already-existing plant entering
+         * Sprig through Plant-out.
+         */
         sownDate:
-          beganFromSeed
+          beganFromSeed &&
+          !isNewPlantOutFromPlan
             ? startedDate
             : undefined,
 
+        /*
+         * A new Plant-out Plant Story owns a
+         * real plantedOutDate even though it
+         * was not previously in Sprig.
+         */
         plantedOutDate:
-          beganFromSeed &&
-          hasBeenPlantedOut &&
+          (
+            isNewPlantOutFromPlan ||
+            (
+              beganFromSeed &&
+              hasBeenPlantedOut
+            )
+          ) &&
           plantedOutDate
             ? plantedOutDate
             : undefined,
@@ -1380,17 +1284,6 @@ export default function AddPlantForm({
           notes.trim() ||
           undefined,
 
-        /*
-         * Keep directly attached Plant Story
-         * photographs and their dates aligned by
-         * array position.
-         *
-         * Older photographs are allowed to have an
-         * undefined date. Sprig will keep them but
-         * will not pretend to know when they were
-         * taken.
-         */
-
         photoUrls:
           photoUrls.length >
           0
@@ -1416,17 +1309,6 @@ export default function AddPlantForm({
 
         expectedHarvestDaysMax:
           maximumHarvestDays,
-
-        /*
-         * When reality is being recorded from
-         * a Garden Plan, carry forward the
-         * timing REFERENCE, not the projected
-         * harvest dates.
-         *
-         * The actual Plant Story beginning date
-         * entered above now becomes the real
-         * reference date for Expected timing.
-         */
 
         harvestTimingReference:
           isEditing
@@ -1481,7 +1363,6 @@ export default function AddPlantForm({
             : undefined,
       }
 
-
     if (
       isEditing &&
       onUpdatePlant
@@ -1494,17 +1375,6 @@ export default function AddPlantForm({
 
       return
     }
-
-
-    /*
-     * For normal create, variation and
-     * Plan-to-reality modes alike, the caller
-     * receives a genuine new Plant Story.
-     *
-     * When this came from a Plan, App.tsx will
-     * separately link this Plant Story back to
-     * that Garden Plan after creation.
-     */
 
     onAddPlant(
       savedPlant,
@@ -1526,7 +1396,6 @@ export default function AddPlantForm({
         : isVariation
           ? 'Create a variation'
           : 'Begin a new growing story'
-
 
   const saveLabel =
     isEditing
@@ -1614,6 +1483,16 @@ export default function AddPlantForm({
                   will remember what actually
                   happened.
                 </p>
+
+                {isNewPlantOutFromPlan && (
+                  <p className="form-whisper">
+                    🌿 This plant was not in Sprig yet.
+                    That is completely fine. Recording
+                    the Plant-out creates its real Plant
+                    Story now, without pretending Sprig
+                    knows what happened before this day.
+                  </p>
+                )}
               </section>
             ) : isVariation ? (
               <p className="form-whisper">
@@ -1756,7 +1635,15 @@ export default function AddPlantForm({
               </label>
 
 
-              {isRecordingPlan && (
+              {isNewPlantOutFromPlan ? (
+                <p className="form-whisper">
+                  Sprig has started with “Bought plant”
+                  because this is an already-existing
+                  plant entering Sprig at Plant-out.
+                  Change it if that is not how this
+                  particular plant began.
+                </p>
+              ) : isRecordingPlan && (
                 <p className="form-whisper">
                   Confirm what you actually started
                   with. Sprig will not guess that a
@@ -1826,59 +1713,108 @@ export default function AddPlantForm({
 
 
             {/* =======================================
-                BEGINNING DATE
-            ======================================= */}
+    BEGINNING DATE
+======================================= */}
 
-            <section className="sprig-form-section growing-setup-details">
-              <label>
-                When did this story begin?
+{!isNewPlantOutFromPlan && (
+  <section className="sprig-form-section growing-setup-details">
+    <label>
+      When did this story begin?
 
-                <input
-                  type="date"
-                  value={
-                    startedDate
-                  }
-                  onChange={(
-                    event,
-                  ) =>
-                    setStartedDate(
-                      event.target.value,
-                    )
-                  }
-                  required
-                />
-              </label>
+      <input
+        type="date"
+        value={
+          startedDate
+        }
+        onChange={(
+          event,
+        ) =>
+          setStartedDate(
+            event.target.value,
+          )
+        }
+        required
+      />
+    </label>
 
 
-              {isRecordingPlan ? (
-                <p className="form-whisper">
-                  Sprig began with the date from your
-                  Plan. Change it to the date you
-                  actually did it. This actual date
-                  will drive the Plant Story's
-                  Expected timing.
-                </p>
-              ) : beganFromSeed ? (
-                <p className="form-whisper">
-                  For a seed-grown plant,
-                  this is the date the seed
-                  was first sown.
-                </p>
-              ) : (
-                <p className="form-whisper">
-                  Use the first date you
-                  consider this growing
-                  story to have begun.
-                </p>
-              )}
-            </section>
+    {isRecordingPlan ? (
+      <p className="form-whisper">
+        Sprig began with the date from your
+        Plan. Change it to the date you
+        actually did it. This actual date
+        will drive the Plant Story&apos;s
+        Expected timing.
+      </p>
+    ) : beganFromSeed ? (
+      <p className="form-whisper">
+        For a seed-grown plant,
+        this is the date the seed
+        was first sown.
+      </p>
+    ) : (
+      <p className="form-whisper">
+        Use the first date you
+        consider this growing
+        story to have begun.
+      </p>
+    )}
+  </section>
+)}
 
 
             {/* =======================================
                 PLANTED OUT
             ======================================= */}
 
-            {beganFromSeed && (
+            {isNewPlantOutFromPlan && (
+              <section className="sprig-form-section growing-setup-details">
+                <p className="section-label">
+                  Planting out
+                </p>
+
+                <h3>
+                  The moment this plant joined the garden
+                </h3>
+
+                <label>
+                  When was it actually planted out?
+
+                  <input
+                    type="date"
+                    value={
+                      plantedOutDate
+                    }
+                    onChange={(
+                      event,
+                    ) => {
+                      const nextDate =
+                        event.target.value
+
+                      setPlantedOutDate(
+                        nextDate,
+                      )
+
+                      setStartedDate(
+                        nextDate,
+                      )
+                    }}
+                    required
+                  />
+                </label>
+
+                <p className="form-whisper">
+                  This is the real Plant-out date. It
+                  will become this Plant Story's
+                  planted-out date and the beginning of
+                  its first Growing Journey arrangement.
+                </p>
+              </section>
+            )}
+
+
+            {beganFromSeed &&
+              !isNewPlantOutFromPlan && (
               <section className="sprig-form-section growing-setup-details">
                 <label>
                   Has it been planted out yet?
@@ -2057,13 +1993,11 @@ export default function AddPlantForm({
                   : ''}
               </p>
             </section>
-
-
-            {/* =======================================
+                        {/* =======================================
                 GROWING PLACE
             ======================================= */}
 
-            <section className="sprig-form-section">
+<section className="sprig-form-section">
               <SprigPicker
                 title="Where is it growing?"
                 variant="label"
@@ -2279,9 +2213,10 @@ export default function AddPlantForm({
                   Sprig carried your timing estimate
                   from the Plan. You can keep it or
                   change it here. Once this Plant
-                  Story is saved, its actual beginning
-                  date becomes the reference for the
-                  Expected harvest window.
+                  Story is saved, the appropriate
+                  actual date in this Plant Story becomes
+                  the reference for the Expected harvest
+                  window.
                 </p>
               ) : (
                 <p className="form-whisper">
