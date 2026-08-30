@@ -7,5 +7,6 @@ export type AppPage =
   | 'journal'
   | 'harvest'
   | 'calendar'
+  | 'search'
   | 'library'
   | 'backup'

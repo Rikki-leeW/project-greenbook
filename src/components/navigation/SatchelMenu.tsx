@@ -335,10 +335,92 @@ import type {
                               }
   
   
+                             /* =======================================
+   CALENDAR DESTINATIONS
+======================================= */
+
+if (
+  item.page ===
+  'calendar'
+) {
+  if (
+    item.calendarView ===
+    'calculator'
+  ) {
+    window.location.hash =
+      'sprig-sowing-harvest-calculator'
+
+
+    handleNavigate(
+      'calendar',
+    )
+
+    return
+  }
+
+
+  /*
+   * Ordinary Calendar & Planning always
+   * means the top of Calendar, even when
+   * the gardener is already somewhere
+   * further down the Calendar page.
+   */
+
+  window.history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}`,
+  )
+
+
+  handleNavigate(
+    'calendar',
+  )
+
+
+  window.requestAnimationFrame(
+    () => {
+      window.requestAnimationFrame(
+        () => {
+          const calendarTop =
+            document.getElementById(
+              'sprig-calendar-top',
+            )
+
+
+          if (
+            calendarTop
+          ) {
+            calendarTop.scrollIntoView({
+              behavior:
+                'smooth',
+
+              block:
+                'start',
+            })
+          } else {
+            window.scrollTo({
+              top:
+                0,
+
+              behavior:
+                'smooth',
+            })
+          }
+        },
+      )
+    },
+  )
+
+
+  return
+}
+
+
                               /* =======================================
-                                 STANDARD APP DESTINATION
+                                STANDARD APP DESTINATION
                               ======================================= */
-  
+
                               handleNavigate(
                                 item.page,
                               )

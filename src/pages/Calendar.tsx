@@ -1,7 +1,9 @@
 import {
-    useMemo,
-    useState,
-  } from 'react'
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
   
   import type {
     KeyboardEvent,
@@ -43,6 +45,21 @@ import {
   interface CalendarProps {
     gardenData: GardenData
   
+    /*
+     * Optional navigation doorway.
+     *
+     * Search can ask Calendar to reveal one
+     * exact day or one exact Garden Plan.
+     *
+     * These are transient navigation values,
+     * not persisted Calendar data.
+     */
+    initialDate?: string | null
+  
+    initialPlanId?: string | null
+  
+    onDestinationConsumed?: () => void
+  
     onAddPlan: (
       plan: GardenPlan,
     ) => void
@@ -68,16 +85,16 @@ import {
     ) => void
   
     onOpenHarvest: (
-        harvestId: string,
-      ) => void
-    
-      onOpenPurchase: (
-        purchaseId: string,
-      ) => void
-    
-      onOpenGrowingPlace: (
-        growingPlaceId: string,
-      ) => void
+      harvestId: string,
+    ) => void
+  
+    onOpenPurchase: (
+      purchaseId: string,
+    ) => void
+  
+    onOpenGrowingPlace: (
+      growingPlaceId: string,
+    ) => void
   
     onOpenGrowingRecipe: (
       growingSetupId: string,
@@ -820,6 +837,9 @@ import {
   
   function Calendar({
     gardenData,
+    initialDate,
+    initialPlanId,
+    onDestinationConsumed,
     onAddPlan,
     onUpdatePlan,
     onRecordPlan,
@@ -831,6 +851,73 @@ import {
     onOpenGrowingPlace,
     onOpenGrowingRecipe,
   }: CalendarProps) {
+  
+    /* =======================================
+       CALENDAR DOORWAYS
+    ======================================= */
+  
+    const calculatorSectionRef =
+      useRef<HTMLElement | null>(
+        null,
+      )
+  
+  
+    useEffect(
+      () => {
+        if (
+          window.location.hash !==
+          '#sprig-sowing-harvest-calculator'
+        ) {
+          return
+        }
+  
+  
+        /*
+         * Satchel can open Calendar directly at
+         * the existing garden timing calculator.
+         *
+         * Calendar remains the destination.
+         * The calculator remains a tool inside it.
+         */
+  
+        const animationFrame =
+          window.requestAnimationFrame(
+            () => {
+              calculatorSectionRef
+                .current
+                ?.scrollIntoView({
+                  behavior:
+                    'smooth',
+  
+                  block:
+                    'start',
+                })
+  
+  
+              /*
+               * The hash is only a hand-off signal.
+               * Once Calendar has used it, remove it
+               * so an ordinary later visit to Calendar
+               * behaves normally.
+               */
+              window.history.replaceState(
+                null,
+                '',
+                `${window.location.pathname}${window.location.search}`,
+              )
+            },
+          )
+  
+  
+        return () => {
+          window.cancelAnimationFrame(
+            animationFrame,
+          )
+        }
+      },
+      [],
+    )
+  
   
     /* =======================================
        TODAY
@@ -1497,7 +1584,109 @@ import {
         true,
       )
     }
-  
+      /* =======================================
+       EXTERNAL CALENDAR DESTINATION
+    ======================================= */
+
+    useEffect(
+      () => {
+        if (
+          !initialDate &&
+          !initialPlanId
+        ) {
+          return
+        }
+
+
+        /*
+         * A specific Plan takes priority over a
+         * plain date because the Plan itself
+         * already owns its intended date.
+         */
+        const destinationPlan =
+          initialPlanId
+            ? (
+                gardenData.plans ??
+                []
+              ).find(
+                plan =>
+                  plan.id ===
+                  initialPlanId,
+              )
+            : undefined
+
+
+        const destinationDate =
+          destinationPlan?.date ??
+          initialDate ??
+          undefined
+
+
+        if (
+          destinationDate
+        ) {
+          const destinationDateObject =
+            fromDateString(
+              destinationDate,
+            )
+
+
+          setVisibleMonth(
+            new Date(
+              destinationDateObject.getFullYear(),
+              destinationDateObject.getMonth(),
+              1,
+            ),
+          )
+
+
+          setSelectedDate(
+            destinationDate,
+          )
+        }
+
+
+        if (
+          destinationPlan
+        ) {
+          /*
+           * This opens Calendar's existing Plan
+           * sheet. Search does not recreate or
+           * own any Plan presentation.
+           */
+          openExistingPlan(
+            destinationPlan,
+          )
+
+
+          setSelectedFilters(
+            current =>
+              current.includes(
+                'planned',
+              )
+                ? current
+                : [
+                    ...current,
+                    'planned',
+                  ],
+          )
+        }
+
+
+        /*
+         * App's doorway values are one-shot.
+         *
+         * Clearing them prevents an ordinary
+         * later Calendar visit from reopening
+         * the old Search destination.
+         */
+        onDestinationConsumed?.()
+      },
+      [
+        initialDate,
+        initialPlanId,
+      ],
+    )
   
     function closePlanComposer() {
       setIsPlanComposerOpen(
@@ -3592,7 +3781,10 @@ import {
         onNavigate
       }
     >
-      <main className="journal-page sprig-calendar-page">
+      <main
+  id="sprig-calendar-top"
+  className="journal-page sprig-calendar-page"
+  >
 
         {/* =======================================
             HEADER
@@ -4213,47 +4405,62 @@ import {
         </section>
 
 
-        {/* =======================================
+{/* =======================================
+            {/* =======================================
             WHAT IF?
         ======================================= */}
 
-        <section className="sprig-calendar-planning-placeholder">
-          <div className="sprig-calendar-empty-card">
-            <p className="section-label">
-              What if?
-            </p>
+<section
+          ref={
+            calculatorSectionRef
+          }
 
-            <h3>
-              Do the garden maths
-            </h3>
+          id="sprig-sowing-harvest-calculator"
 
-            <p>
-              Try a date and growing time without creating a Plant Story or a Plan.
-            </p>
+          className="
+            sprig-calendar-tool-section
+            sprig-calendar-tool-section--calculator
+          "
+        >
+          <div className="sprig-calendar-tool-heading">
+            <div>
+            <div>
+  <p className="section-label">
+    What if?
+  </p>
+</div>
+            </div>
 
-
-            <GardenTimingCalculator
-              referenceType="sown"
-
-              referenceDate={
-                selectedDate
-              }
-
-              allowDirectionSwitch={
-                true
-              }
-
-              direction="forward"
-
-              showDateInputs={
-                true
-              }
-
-              title="Do the garden maths"
-
-              intro="Try a date and growing time without creating a Plant Story or a Plan."
-            />
+            <span
+              className="sprig-calendar-tool-icon"
+              aria-hidden="true"
+            >
+              🧮
+            </span>
           </div>
+
+
+          <GardenTimingCalculator
+            referenceType="sown"
+
+            referenceDate={
+              selectedDate
+            }
+
+            allowDirectionSwitch={
+              true
+            }
+
+            direction="forward"
+
+            showDateInputs={
+              true
+            }
+
+            title="Do the garden maths"
+
+            intro="Try a date and growing time without creating a Plant Story or a Plan."
+          />
         </section>
 
 
@@ -4261,37 +4468,54 @@ import {
             PLANNING
         ======================================= */}
 
-        <section className="sprig-calendar-planning-placeholder">
-          <div className="sprig-calendar-empty-card">
-            <p className="section-label">
-              Planning
-            </p>
+        <section
+          className="
+            sprig-calendar-tool-section
+            sprig-calendar-tool-section--planning
+          "
+        >
+          <div className="sprig-calendar-tool-heading">
+            <div>
+              <p className="section-label">
+                Planning
+              </p>
 
-            <h3>
-              Looking further ahead
-            </h3>
+              <h3>
+                Looking further ahead
+              </h3>
 
-            <p>
-              Save something you intend to do without
-              turning it into garden history before it
-              actually happens.
-            </p>
+              <p>
+                Save something you intend to do without
+                turning it into garden history before it
+                actually happens.
+              </p>
+            </div>
 
-
-            <button
-              type="button"
-
-              className="sprig-calendar-today-button"
-
-              onClick={() =>
-                openPlanComposer(
-                  selectedDate,
-                )
-              }
+            <span
+              className="sprig-calendar-tool-icon"
+              aria-hidden="true"
             >
-              + Add a plan
-            </button>
+              📅
+            </span>
           </div>
+
+
+          <button
+            type="button"
+
+            className="
+              sprig-calendar-today-button
+              sprig-calendar-tool-action
+            "
+
+            onClick={() =>
+              openPlanComposer(
+                selectedDate,
+              )
+            }
+          >
+            + Add a plan
+          </button>
         </section>
 
 

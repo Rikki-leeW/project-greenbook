@@ -49,7 +49,28 @@ interface AppLibraryProps {
 
   growingPlaces: GrowingPlace[]
 
+  /*
+   * DIRECT LIBRARY DESTINATIONS
+   *
+   * A Library shelf and a Library record are
+   * different destinations.
+   *
+   * The shelf props answer:
+   *   "Which part of the Library?"
+   *
+   * The record ID props answer:
+   *   "Which actual thing?"
+   *
+   * Search and other Sprig relationships can
+   * therefore open the real saved record rather
+   * than merely opening its containing shelf.
+   */
+
   initialRecipeId?: string | null
+
+  initialIngredientId?: string | null
+
+  initialProductId?: string | null
 
   initialView?:
     | 'library'
@@ -219,6 +240,8 @@ export default function AppLibrary({
   plants,
   growingPlaces,
   initialRecipeId,
+  initialIngredientId,
+  initialProductId,
   initialView,
   onAddRecipe,
   onUpdateRecipe,
@@ -247,100 +270,53 @@ export default function AppLibrary({
     useState<LibraryView>(
       initialRecipeId
         ? 'recipe-detail'
-        : initialView ??
-          'library',
+        : initialIngredientId
+          ? 'ingredient-detail'
+          : initialProductId
+            ? 'product-detail'
+            : initialView ??
+              'library',
     )
 
 
-     /* =======================================
+  /* =======================================
      LIBRARY NAVIGATION ORIGIN
   ======================================= */
 
   type LibraryNavigationOrigin =
-  | {
-      view: 'recipe-detail'
-      recordId: string
-      label: string
-    }
-  | {
-      view: 'ingredient-detail'
-      recordId: string
-      label: string
-    }
-  | {
-      view: 'product-detail'
-      recordId: string
-      label: string
-    }
-  | {
-      view:
-        | 'growing-recipes'
-        | 'ingredients'
-        | 'products'
-        | 'library'
-      recordId?: never
-      label: string
-    }
-
-const [
-  navigationOrigin,
-  setNavigationOrigin,
-] =
-  useState<LibraryNavigationOrigin | null>(
-    null,
-  ) 
-
-  /* =======================================
-     RESPOND TO LIBRARY NAVIGATION
-  ======================================= */
-
-  useEffect(() => {
-    if (
-      initialRecipeId
-    ) {
-      setSelectedRecipeId(
-        initialRecipeId,
-      )
-
-      setSelectedIngredientId(
-        null,
-      )
-
-      setSelectedProductId(
-        null,
-      )
-
-      setCurrentView(
-        'recipe-detail',
-      )
-
-      return
-    }
+    | {
+        view: 'recipe-detail'
+        recordId: string
+        label: string
+      }
+    | {
+        view: 'ingredient-detail'
+        recordId: string
+        label: string
+      }
+    | {
+        view: 'product-detail'
+        recordId: string
+        label: string
+      }
+    | {
+        view:
+          | 'growing-recipes'
+          | 'ingredients'
+          | 'products'
+          | 'library'
+        recordId?: never
+        label: string
+      }
 
 
-    if (
-      initialView
-    ) {
-      setSelectedRecipeId(
-        null,
-      )
-
-      setSelectedIngredientId(
-        null,
-      )
-
-      setSelectedProductId(
-        null,
-      )
-
-      setCurrentView(
-        initialView,
-      )
-    }
-  }, [
-    initialRecipeId,
-    initialView,
-  ])
+  const [
+    navigationOrigin,
+    setNavigationOrigin,
+  ] =
+    useState<LibraryNavigationOrigin | null>(
+      null,
+    )
 
 
   /* =======================================
@@ -391,6 +367,7 @@ const [
     setSelectedIngredientId,
   ] =
     useState<string | null>(
+      initialIngredientId ??
       null,
     )
 
@@ -420,6 +397,7 @@ const [
     setSelectedProductId,
   ] =
     useState<string | null>(
+      initialProductId ??
       null,
     )
 
@@ -456,6 +434,136 @@ const [
     useState<PurchaseRecord | null>(
       null,
     )
+
+
+  /* =======================================
+     RESPOND TO EXTERNAL LIBRARY DESTINATION
+  ======================================= */
+
+  useEffect(() => {
+
+    /*
+     * Direct records always win over shelves.
+     *
+     * This is the external doorway used by
+     * Search and other Sprig relationships.
+     *
+     * Internal navigation between Recipe,
+     * Ingredient and Product detail records
+     * continues to use navigationOrigin.
+     */
+
+    if (
+      initialRecipeId
+    ) {
+      setNavigationOrigin(
+        null,
+      )
+
+      setSelectedRecipeId(
+        initialRecipeId,
+      )
+
+      setSelectedIngredientId(
+        null,
+      )
+
+      setSelectedProductId(
+        null,
+      )
+
+      setCurrentView(
+        'recipe-detail',
+      )
+
+      return
+    }
+
+
+    if (
+      initialIngredientId
+    ) {
+      setNavigationOrigin(
+        null,
+      )
+
+      setSelectedRecipeId(
+        null,
+      )
+
+      setSelectedIngredientId(
+        initialIngredientId,
+      )
+
+      setSelectedProductId(
+        null,
+      )
+
+      setCurrentView(
+        'ingredient-detail',
+      )
+
+      return
+    }
+
+
+    if (
+      initialProductId
+    ) {
+      setNavigationOrigin(
+        null,
+      )
+
+      setSelectedRecipeId(
+        null,
+      )
+
+      setSelectedIngredientId(
+        null,
+      )
+
+      setSelectedProductId(
+        initialProductId,
+      )
+
+      setCurrentView(
+        'product-detail',
+      )
+
+      return
+    }
+
+
+    if (
+      initialView
+    ) {
+      setNavigationOrigin(
+        null,
+      )
+
+      setSelectedRecipeId(
+        null,
+      )
+
+      setSelectedIngredientId(
+        null,
+      )
+
+      setSelectedProductId(
+        null,
+      )
+
+      setCurrentView(
+        initialView,
+      )
+    }
+  }, [
+    initialRecipeId,
+    initialIngredientId,
+    initialProductId,
+    initialView,
+  ])
+
 
   /* =======================================
      PURCHASE STATE
@@ -571,44 +679,44 @@ const [
         selectedIngredientId,
     )
 
-    /* =======================================
-   RELEASE STALE PAGE LOCK
-======================================= */
 
-useEffect(() => {
-  const hasOpenEditor =
-    isRecipeEditorOpen ||
-    isIngredientEditorOpen ||
-    isProductEditorOpen ||
-    isPurchaseEditorOpen
+  /* =======================================
+     RELEASE STALE PAGE LOCK
+  ======================================= */
 
-  if (
-    hasOpenEditor
-  ) {
-    return
-  }
+  useEffect(() => {
+    const hasOpenEditor =
+      isRecipeEditorOpen ||
+      isIngredientEditorOpen ||
+      isProductEditorOpen ||
+      isPurchaseEditorOpen
 
-  document.body.style.overflow =
-    ''
+    if (
+      hasOpenEditor
+    ) {
+      return
+    }
 
-  document.body.style.position =
-    ''
+    document.body.style.overflow =
+      ''
 
-  document.body.style.top =
-    ''
+    document.body.style.position =
+      ''
 
-  document.body.style.width =
-    ''
+    document.body.style.top =
+      ''
 
-  document.documentElement.style.overflow =
-    ''
-}, [
-  isRecipeEditorOpen,
-  isIngredientEditorOpen,
-  isProductEditorOpen,
-  isPurchaseEditorOpen,
-])
+    document.body.style.width =
+      ''
 
+    document.documentElement.style.overflow =
+      ''
+  }, [
+    isRecipeEditorOpen,
+    isIngredientEditorOpen,
+    isProductEditorOpen,
+    isPurchaseEditorOpen,
+  ])
 
 
   /* =======================================
@@ -671,6 +779,10 @@ useEffect(() => {
       page === 'library' &&
       libraryView
     ) {
+      setNavigationOrigin(
+        null,
+      )
+
       setSelectedRecipeId(
         null,
       )
@@ -781,6 +893,10 @@ useEffect(() => {
   function handleOpenRecipe(
     recipeId: string,
   ) {
+    setNavigationOrigin(
+      null,
+    )
+
     setSelectedIngredientId(
       null,
     )
@@ -806,6 +922,10 @@ useEffect(() => {
   function handleOpenIngredient(
     ingredientId: string,
   ) {
+    setNavigationOrigin(
+      null,
+    )
+
     setSelectedRecipeId(
       null,
     )
@@ -820,6 +940,35 @@ useEffect(() => {
 
     setCurrentView(
       'ingredient-detail',
+    )
+  }
+
+
+  /* =======================================
+     OPEN PRODUCT
+  ======================================= */
+
+  function handleOpenProduct(
+    productId: string,
+  ) {
+    setNavigationOrigin(
+      null,
+    )
+
+    setSelectedRecipeId(
+      null,
+    )
+
+    setSelectedIngredientId(
+      null,
+    )
+
+    setSelectedProductId(
+      productId,
+    )
+
+    setCurrentView(
+      'product-detail',
     )
   }
 
@@ -1129,42 +1278,42 @@ useEffect(() => {
   ) {
     const today =
       getTodayDate()
-  
-  
+
+
     const variationDraft:
       GardenProduct = {
         ...sourceProduct,
-  
+
         id:
           createProductVariationId(
             sourceProduct,
           ),
-  
+
         name:
           `${sourceProduct.name} (Variation)`,
-  
+
         isFavourite:
           false,
-  
+
         rating:
           undefined,
-  
+
         isArchived:
           false,
-  
+
         archivedAt:
           undefined,
-  
+
         photoUrls: [],
-  
+
         createdAt:
           today,
-  
+
         updatedAt:
           undefined,
       }
-  
-  
+
+
     const mostRecentPurchase =
       purchases
         .filter(
@@ -1186,21 +1335,21 @@ useEffect(() => {
             ),
         )[0] ??
       null
-  
-  
+
+
     setVariationPurchaseTemplate(
       mostRecentPurchase,
     )
-  
-  
+
+
     setProductEditorMode(
       'variation',
     )
-  
+
     setEditorProduct(
       variationDraft,
     )
-  
+
     setIsProductEditorOpen(
       true,
     )
@@ -1542,9 +1691,7 @@ useEffect(() => {
       'ingredient-detail',
     )
   }
-
-
-  /* =======================================
+    /* =======================================
      DELETE RECIPE SAFETY
   ======================================= */
 
@@ -1927,14 +2074,16 @@ useEffect(() => {
       'ingredient-detail',
     )
   }
-    /* =======================================
+
+
+  /* =======================================
      PAGE CONTENT
   ======================================= */
 
   let pageContent
 
 
-    /* =======================================
+  /* =======================================
      INGREDIENT DETAIL
   ======================================= */
 
@@ -2133,17 +2282,9 @@ useEffect(() => {
           archivedIngredients.length
         }
 
-        onOpenIngredient={(
-          ingredientId,
-        ) => {
-          setNavigationOrigin(
-            null,
-          )
-
-          handleOpenIngredient(
-            ingredientId,
-          )
-        }}
+        onOpenIngredient={
+          handleOpenIngredient
+        }
 
         onAddIngredient={
           handleOpenCreateIngredient
@@ -2191,17 +2332,9 @@ useEffect(() => {
 
         showArchivedStatus
 
-        onOpenIngredient={(
-          ingredientId,
-        ) => {
-          setNavigationOrigin(
-            null,
-          )
-
-          handleOpenIngredient(
-            ingredientId,
-          )
-        }}
+        onOpenIngredient={
+          handleOpenIngredient
+        }
 
         onAddIngredient={
           handleOpenCreateIngredient
@@ -2421,6 +2554,10 @@ useEffect(() => {
             null,
           )
 
+          setSelectedProductId(
+            null,
+          )
+
           setSelectedIngredientId(
             ingredientId,
           )
@@ -2441,6 +2578,14 @@ useEffect(() => {
               selectedRecipe.name,
           })
 
+          setSelectedRecipeId(
+            null,
+          )
+
+          setSelectedIngredientId(
+            null,
+          )
+
           setSelectedProductId(
             productId,
           )
@@ -2453,6 +2598,18 @@ useEffect(() => {
         onOpenRecipe={(
           recipeId,
         ) => {
+          setNavigationOrigin(
+            null,
+          )
+
+          setSelectedIngredientId(
+            null,
+          )
+
+          setSelectedProductId(
+            null,
+          )
+
           setSelectedRecipeId(
             recipeId,
           )
@@ -2468,6 +2625,7 @@ useEffect(() => {
       />
     )
   }
+
 
   /* =======================================
      ARCHIVED RECIPE INDEX
@@ -2761,17 +2919,9 @@ useEffect(() => {
           products
         }
 
-        onOpenProduct={(
-          productId,
-        ) => {
-          setSelectedProductId(
-            productId,
-          )
-
-          setCurrentView(
-            'product-detail',
-          )
-        }}
+        onOpenProduct={
+          handleOpenProduct
+        }
 
         onAddProduct={() => {
           setProductEditorMode(
@@ -2802,23 +2952,71 @@ useEffect(() => {
   else {
     pageContent = (
       <Library
-        onOpenGrowingRecipes={() =>
+        onOpenGrowingRecipes={() => {
+          setNavigationOrigin(
+            null,
+          )
+
+          setSelectedRecipeId(
+            null,
+          )
+
+          setSelectedIngredientId(
+            null,
+          )
+
+          setSelectedProductId(
+            null,
+          )
+
           setCurrentView(
             'growing-recipes',
           )
-        }
+        }}
 
-        onOpenIngredients={() =>
+        onOpenIngredients={() => {
+          setNavigationOrigin(
+            null,
+          )
+
+          setSelectedRecipeId(
+            null,
+          )
+
+          setSelectedIngredientId(
+            null,
+          )
+
+          setSelectedProductId(
+            null,
+          )
+
           setCurrentView(
             'ingredients',
           )
-        }
+        }}
 
-        onOpenProducts={() =>
+        onOpenProducts={() => {
+          setNavigationOrigin(
+            null,
+          )
+
+          setSelectedRecipeId(
+            null,
+          )
+
+          setSelectedIngredientId(
+            null,
+          )
+
+          setSelectedProductId(
+            null,
+          )
+
           setCurrentView(
             'products',
           )
-        }
+        }}
 
         onNavigate={
           handleLibraryNavigate
@@ -2827,6 +3025,7 @@ useEffect(() => {
     )
   }
 
+
   /* =======================================
      SHARED EDITORS
   ======================================= */
@@ -2834,6 +3033,7 @@ useEffect(() => {
   return (
     <>
       {pageContent}
+
 
       {isRecipeEditorOpen && (
         <AddRecipeForm
@@ -2907,7 +3107,7 @@ useEffect(() => {
       )}
 
 
-            {isProductEditorOpen && (
+      {isProductEditorOpen && (
         <AddProductForm
           product={
             editorProduct

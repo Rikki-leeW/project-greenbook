@@ -1,0 +1,1461 @@
+/* ==========================================
+   SPRIG GLOBAL SEARCH
+========================================== */
+
+.sprig-global-search-page {
+    width:
+      min(
+        100%,
+        920px
+      );
+  
+    box-sizing:
+      border-box;
+  
+    margin:
+      0
+      auto;
+  
+    padding:
+      0
+      clamp(
+        0.75rem,
+        2.5vw,
+        1.25rem
+      )
+      8rem;
+  }
+  
+  
+  /* ==========================================
+     HEADER
+  ========================================== */
+  
+  .sprig-global-search-header {
+    margin-bottom:
+      1.1rem;
+  }
+  
+  
+  .sprig-global-search-header
+  h1 {
+    margin-bottom:
+      0.35rem;
+  }
+  
+  
+  .sprig-global-search-header
+  .journal-intro {
+    max-width:
+      42rem;
+  
+    margin-bottom:
+      0;
+  }
+  
+  
+  /* ==========================================
+     SEARCH BOX
+  ========================================== */
+  
+  .sprig-global-search-box {
+    position:
+      sticky;
+  
+    top:
+      0;
+  
+    z-index:
+      10;
+  
+    margin:
+      0
+      0
+      1rem;
+  
+    padding:
+      0.85rem;
+  
+    border:
+      1px solid
+      rgba(
+        76,
+        71,
+        53,
+        0.13
+      );
+  
+    border-radius:
+      20px;
+  
+    background:
+      rgba(
+        250,
+        247,
+        236,
+        0.96
+      );
+  
+    box-shadow:
+      0
+      9px
+      26px
+      rgba(
+        60,
+        52,
+        38,
+        0.07
+      );
+  
+    backdrop-filter:
+      blur(
+        8px
+      );
+  }
+  
+  
+  .sprig-global-search-input-row {
+    display:
+      grid;
+  
+    grid-template-columns:
+      auto
+      minmax(
+        0,
+        1fr
+      )
+      auto;
+  
+    align-items:
+      center;
+  
+    gap:
+      0.55rem;
+  
+    min-height:
+      3.15rem;
+  
+    padding:
+      0
+      0.78rem;
+  
+    border:
+      1px solid
+      rgba(
+        58,
+        78,
+        57,
+        0.2
+      );
+  
+    border-radius:
+      16px;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.74
+      );
+  }
+  
+  
+  .sprig-global-search-icon {
+    display:
+      grid;
+  
+    place-items:
+      center;
+  
+    width:
+      1.55rem;
+  
+    height:
+      1.55rem;
+  
+    font-size:
+      1rem;
+  
+    opacity:
+      0.62;
+  }
+  
+  
+  .sprig-global-search-input {
+    width:
+      100%;
+  
+    min-width:
+      0;
+  
+    padding:
+      0.72rem
+      0;
+  
+    border:
+      0;
+  
+    background:
+      transparent;
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    font-size:
+      1rem;
+  
+    outline:
+      none;
+  }
+  
+  
+  .sprig-global-search-input::placeholder {
+    opacity:
+      0.53;
+  }
+  
+  
+  .sprig-global-search-clear {
+    display:
+      inline-flex;
+  
+    align-items:
+      center;
+  
+    justify-content:
+      center;
+  
+    min-height:
+      2.2rem;
+  
+    padding:
+      0.35rem
+      0.65rem;
+  
+    border:
+      1px solid
+      rgba(
+        60,
+        78,
+        57,
+        0.13
+      );
+  
+    border-radius:
+      999px;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.48
+      );
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    font-size:
+      0.78rem;
+  
+    cursor:
+      pointer;
+  }
+  
+  
+  /* ==========================================
+     SEARCH STATUS
+  ========================================== */
+  
+  .sprig-global-search-status {
+    display:
+      flex;
+  
+    align-items:
+      center;
+  
+    justify-content:
+      space-between;
+  
+    gap:
+      0.75rem;
+  
+    margin-top:
+      0.58rem;
+  
+    font-size:
+      0.78rem;
+  
+    opacity:
+      0.62;
+  }
+  
+  
+  .sprig-global-search-status
+  p {
+    margin:
+      0;
+  }
+  
+  
+  /* ==========================================
+     FILTER PANEL
+  ========================================== */
+  
+  .sprig-global-search-filters {
+    margin-bottom:
+      1.15rem;
+  
+    padding:
+      0.88rem
+      0.92rem;
+  
+    border:
+      1px solid
+      rgba(
+        76,
+        71,
+        53,
+        0.11
+      );
+  
+    border-radius:
+      18px;
+  
+    background:
+      rgba(
+        255,
+        253,
+        246,
+        0.67
+      );
+  }
+  
+  
+  .sprig-global-search-filter-heading {
+    display:
+      flex;
+  
+    align-items:
+      flex-start;
+  
+    justify-content:
+      space-between;
+  
+    gap:
+      0.75rem;
+  }
+  
+  
+  .sprig-global-search-filter-heading
+  p {
+    margin:
+      0;
+  }
+  
+  
+  .sprig-global-search-filter-grid {
+    display:
+      flex;
+  
+    flex-wrap:
+      wrap;
+  
+    gap:
+      0.38rem;
+  
+    margin-top:
+      0.7rem;
+  }
+  
+  
+  .sprig-global-search-filter {
+    display:
+      inline-flex;
+  
+    align-items:
+      center;
+  
+    justify-content:
+      center;
+  
+    gap:
+      0.3rem;
+  
+    min-height:
+      2.25rem;
+  
+    padding:
+      0.42rem
+      0.7rem;
+  
+    border:
+      1px solid
+      rgba(
+        64,
+        81,
+        59,
+        0.16
+      );
+  
+    border-radius:
+      999px;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.44
+      );
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    font-size:
+      0.8rem;
+  
+    line-height:
+      1.1;
+  
+    cursor:
+      pointer;
+  }
+  
+  
+  .sprig-global-search-filter--selected {
+    border-color:
+      rgba(
+        55,
+        84,
+        57,
+        0.46
+      );
+  
+    background:
+      rgba(
+        133,
+        158,
+        113,
+        0.19
+      );
+  }
+  
+  
+  .sprig-global-search-filter-count {
+    opacity:
+      0.58;
+  }
+  
+  
+  /* ==========================================
+     WELCOME / EMPTY SEARCH
+  ========================================== */
+  
+  .sprig-global-search-start {
+    display:
+      grid;
+  
+    gap:
+      0.9rem;
+  }
+  
+  
+  .sprig-global-search-start-card {
+    padding:
+      1rem;
+  
+    border:
+      1px solid
+      rgba(
+        79,
+        71,
+        51,
+        0.11
+      );
+  
+    border-radius:
+      18px;
+  
+    background:
+      rgba(
+        255,
+        253,
+        246,
+        0.72
+      );
+  }
+  
+  
+  .sprig-global-search-start-card
+  h2,
+  .sprig-global-search-start-card
+  h3 {
+    margin:
+      0.15rem
+      0
+      0.35rem;
+  }
+  
+  
+  .sprig-global-search-start-card
+  p:last-child {
+    margin-bottom:
+      0;
+  }
+  
+  
+  /* ==========================================
+     GARDEN MAP COUNTS
+  ========================================== */
+  
+  .sprig-global-search-map {
+    display:
+      grid;
+  
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  
+    gap:
+      0.5rem;
+  
+    margin-top:
+      0.8rem;
+  }
+  
+  
+  .sprig-global-search-map-card {
+    min-width:
+      0;
+  
+    padding:
+      0.7rem;
+  
+    border:
+      1px solid
+      rgba(
+        69,
+        80,
+        59,
+        0.1
+      );
+  
+    border-radius:
+      14px;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.45
+      );
+  }
+  
+  
+  .sprig-global-search-map-card
+  strong {
+    display:
+      block;
+  
+    margin-top:
+      0.18rem;
+  
+    font-size:
+      1.1rem;
+  }
+  
+  
+  .sprig-global-search-map-card
+  span:last-child {
+    display:
+      block;
+  
+    margin-top:
+      0.12rem;
+  
+    overflow:
+      hidden;
+  
+    text-overflow:
+      ellipsis;
+  
+    font-size:
+      0.75rem;
+  
+    white-space:
+      nowrap;
+  
+    opacity:
+      0.68;
+  }
+  
+  
+  /* ==========================================
+     NO RESULTS
+  ========================================== */
+  
+  .sprig-global-search-empty {
+    padding:
+      1rem
+      1.05rem;
+  
+    border:
+      1px dashed
+      rgba(
+        79,
+        71,
+        51,
+        0.18
+      );
+  
+    border-radius:
+      18px;
+  
+    background:
+      rgba(
+        255,
+        253,
+        246,
+        0.54
+      );
+  }
+  
+  
+  .sprig-global-search-empty
+  h2 {
+    margin:
+      0.15rem
+      0
+      0.35rem;
+  }
+  
+  
+  /* ==========================================
+     RESULT GROUPS
+  ========================================== */
+  
+  .sprig-global-search-results {
+    display:
+      grid;
+  
+    gap:
+      1.3rem;
+  }
+  
+  
+  .sprig-global-search-group {
+    display:
+      grid;
+  
+    gap:
+      0.6rem;
+  }
+  
+  
+  .sprig-global-search-group-heading {
+    display:
+      flex;
+  
+    align-items:
+      center;
+  
+    justify-content:
+      space-between;
+  
+    gap:
+      0.7rem;
+  
+    padding:
+      0
+      0.12rem;
+  }
+  
+  
+  .sprig-global-search-group-title {
+    display:
+      flex;
+  
+    align-items:
+      center;
+  
+    gap:
+      0.45rem;
+  }
+  
+  
+  .sprig-global-search-group-title
+  h2 {
+    margin:
+      0;
+  
+    font-size:
+      1.05rem;
+  }
+  
+  
+  .sprig-global-search-group-count {
+    min-width:
+      1.8rem;
+  
+    padding:
+      0.2rem
+      0.45rem;
+  
+    border-radius:
+      999px;
+  
+    background:
+      rgba(
+        124,
+        146,
+        104,
+        0.13
+      );
+  
+    font-size:
+      0.72rem;
+  
+    text-align:
+      center;
+  }
+  
+  
+  /* ==========================================
+     RESULT CARD
+  ========================================== */
+  
+  .sprig-global-search-result {
+    display:
+      grid;
+  
+    grid-template-columns:
+      auto
+      minmax(
+        0,
+        1fr
+      )
+      auto;
+  
+    align-items:
+      flex-start;
+  
+    gap:
+      0.7rem;
+  
+    width:
+      100%;
+  
+    box-sizing:
+      border-box;
+  
+    padding:
+      0.82rem
+      0.88rem;
+  
+    border:
+      1px solid
+      rgba(
+        79,
+        71,
+        51,
+        0.11
+      );
+  
+    border-radius:
+      17px;
+  
+    background:
+      rgba(
+        255,
+        253,
+        246,
+        0.76
+      );
+  
+    box-shadow:
+      0
+      5px
+      15px
+      rgba(
+        66,
+        56,
+        39,
+        0.035
+      );
+  
+    color:
+      inherit;
+  
+    font:
+      inherit;
+  
+    text-align:
+      left;
+  
+    cursor:
+      pointer;
+  
+    transition:
+      transform
+      120ms
+      ease,
+      background
+      120ms
+      ease,
+      box-shadow
+      120ms
+      ease;
+  }
+  
+  
+  .sprig-global-search-result:hover {
+    transform:
+      translateY(
+        -1px
+      );
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.91
+      );
+  
+    box-shadow:
+      0
+      9px
+      22px
+      rgba(
+        66,
+        56,
+        39,
+        0.055
+      );
+  }
+  
+  
+  .sprig-global-search-result:focus-visible {
+    outline:
+      2px solid
+      rgba(
+        51,
+        81,
+        55,
+        0.62
+      );
+  
+    outline-offset:
+      2px;
+  }
+  
+  
+  .sprig-global-search-result-icon {
+    display:
+      grid;
+  
+    place-items:
+      center;
+  
+    width:
+      2.15rem;
+  
+    height:
+      2.15rem;
+  
+    flex:
+      0
+      0
+      auto;
+  
+    border:
+      1px solid
+      rgba(
+        65,
+        78,
+        57,
+        0.09
+      );
+  
+    border-radius:
+      50%;
+  
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.6
+      );
+  
+    font-size:
+      1rem;
+  }
+  
+  
+  .sprig-global-search-result-main {
+    min-width:
+      0;
+  }
+  
+  
+  .sprig-global-search-result-meta {
+    display:
+      flex;
+  
+    flex-wrap:
+      wrap;
+  
+    align-items:
+      center;
+  
+    gap:
+      0.25rem;
+  
+    margin-bottom:
+      0.16rem;
+  
+    font-size:
+      0.65rem;
+  
+    font-weight:
+      700;
+  
+    letter-spacing:
+      0.055em;
+  
+    text-transform:
+      uppercase;
+  
+    opacity:
+      0.55;
+  }
+  
+  
+  .sprig-global-search-result-title {
+    margin:
+      0;
+  
+    font-size:
+      1rem;
+  
+    line-height:
+      1.28;
+  }
+  
+  
+  .sprig-global-search-result-subtitle {
+    margin:
+      0.2rem
+      0
+      0;
+  
+    font-size:
+      0.84rem;
+  
+    line-height:
+      1.35;
+  
+    opacity:
+      0.73;
+  }
+  
+  
+  .sprig-global-search-result-description {
+    display:
+      -webkit-box;
+  
+    margin:
+      0.34rem
+      0
+      0;
+  
+    overflow:
+      hidden;
+  
+    font-size:
+      0.84rem;
+  
+    line-height:
+      1.42;
+  
+    opacity:
+      0.72;
+  
+      -webkit-box-orient:
+      vertical;
+  
+    -webkit-line-clamp:
+      2;
+  
+    line-clamp:
+      2;
+  }
+  
+  
+  .sprig-global-search-result-date {
+    display:
+      inline-flex;
+  
+    align-items:
+      center;
+  
+    gap:
+      0.25rem;
+  
+    margin-top:
+      0.38rem;
+  
+    font-size:
+      0.72rem;
+  
+    opacity:
+      0.58;
+  }
+  
+  
+  /* ==========================================
+     RELATIONSHIPS
+  ========================================== */
+  
+  .sprig-global-search-result-relationships {
+    display:
+      flex;
+  
+    flex-wrap:
+      wrap;
+  
+    gap:
+      0.28rem;
+  
+    margin-top:
+      0.45rem;
+  }
+  
+  
+  .sprig-global-search-result-chip {
+    max-width:
+      100%;
+  
+    padding:
+      0.27rem
+      0.48rem;
+  
+    overflow:
+      hidden;
+  
+    border:
+      1px solid
+      rgba(
+        62,
+        81,
+        58,
+        0.1
+      );
+  
+    border-radius:
+      999px;
+  
+    background:
+      rgba(
+        247,
+        249,
+        236,
+        0.7
+      );
+  
+    font-size:
+      0.69rem;
+  
+    text-overflow:
+      ellipsis;
+  
+    white-space:
+      nowrap;
+  }
+  
+  
+  /* ==========================================
+     RESULT ARROW
+  ========================================== */
+  
+  .sprig-global-search-result-open {
+    display:
+      grid;
+  
+    place-items:
+      center;
+  
+    min-width:
+      1.7rem;
+  
+    min-height:
+      2rem;
+  
+    font-size:
+      1rem;
+  
+    opacity:
+      0.47;
+  }
+  
+  
+  /* ==========================================
+     CALENDAR RESULT
+  ========================================== */
+  
+  .sprig-global-search-result--calendar {
+    border-style:
+      dashed;
+  
+    background:
+      rgba(
+        252,
+        251,
+        241,
+        0.69
+      );
+  }
+  
+  
+  /* ==========================================
+     PLAN RESULT
+  ========================================== */
+  
+  .sprig-global-search-result--plans {
+    border-left:
+      3px solid
+      rgba(
+        122,
+        144,
+        104,
+        0.29
+      );
+  }
+  
+  
+  /* ==========================================
+     RECORDED RESULT TYPES
+  ========================================== */
+  
+  .sprig-global-search-result--plants,
+  .sprig-global-search-result--journal,
+  .sprig-global-search-result--harvests {
+    border-left:
+      3px solid
+      rgba(
+        92,
+        120,
+        85,
+        0.31
+      );
+  }
+  
+  
+  /* ==========================================
+     PHONE
+  ========================================== */
+  
+  @media (
+    max-width:
+      640px
+  ) {
+  
+    .sprig-global-search-page {
+      padding-left:
+        0.62rem;
+  
+      padding-right:
+        0.62rem;
+    }
+  
+  
+    .sprig-global-search-header {
+      margin-bottom:
+        0.8rem;
+    }
+  
+  
+    .sprig-global-search-box {
+      margin-left:
+        -0.1rem;
+  
+      margin-right:
+        -0.1rem;
+  
+      margin-bottom:
+        0.75rem;
+  
+      padding:
+        0.58rem;
+  
+      border-radius:
+        16px;
+    }
+  
+  
+    .sprig-global-search-input-row {
+      grid-template-columns:
+        auto
+        minmax(
+          0,
+          1fr
+        )
+        auto;
+  
+      gap:
+        0.35rem;
+  
+      min-height:
+        2.8rem;
+  
+      padding:
+        0
+        0.58rem;
+  
+      border-radius:
+        13px;
+    }
+  
+  
+    .sprig-global-search-input {
+      padding:
+        0.58rem
+        0;
+  
+      font-size:
+        0.92rem;
+    }
+  
+  
+    .sprig-global-search-clear {
+      min-height:
+        2rem;
+  
+      padding:
+        0.3rem
+        0.5rem;
+  
+      font-size:
+        0.72rem;
+    }
+  
+  
+    .sprig-global-search-status {
+      margin-top:
+        0.45rem;
+  
+      font-size:
+        0.7rem;
+    }
+  
+  
+    .sprig-global-search-filters {
+      padding:
+        0.72rem;
+  
+      border-radius:
+        15px;
+    }
+  
+  
+    .sprig-global-search-filter-grid {
+      display:
+        grid;
+  
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(
+            0,
+            1fr
+          )
+        );
+  
+      gap:
+        0.32rem;
+    }
+  
+  
+    .sprig-global-search-filter {
+      width:
+        100%;
+  
+      min-width:
+        0;
+  
+      min-height:
+        2.3rem;
+  
+      padding:
+        0.4rem
+        0.38rem;
+  
+      font-size:
+        0.75rem;
+    }
+  
+  
+    .sprig-global-search-map {
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(
+            0,
+            1fr
+          )
+        );
+  
+      gap:
+        0.38rem;
+    }
+  
+  
+    .sprig-global-search-map-card {
+      padding:
+        0.58rem;
+  
+      border-radius:
+        12px;
+    }
+  
+  
+    .sprig-global-search-results {
+      gap:
+        1rem;
+    }
+  
+  
+    .sprig-global-search-group {
+      gap:
+        0.48rem;
+    }
+  
+  
+    .sprig-global-search-group-title
+    h2 {
+      font-size:
+        0.98rem;
+    }
+  
+  
+    .sprig-global-search-result {
+      grid-template-columns:
+        auto
+        minmax(
+          0,
+          1fr
+        );
+  
+      gap:
+        0.55rem;
+  
+      padding:
+        0.7rem
+        0.72rem;
+  
+      border-radius:
+        14px;
+    }
+  
+  
+    .sprig-global-search-result-icon {
+      width:
+        1.9rem;
+  
+      height:
+        1.9rem;
+  
+      font-size:
+        0.9rem;
+    }
+  
+  
+    .sprig-global-search-result-meta {
+      font-size:
+        0.59rem;
+  
+      letter-spacing:
+        0.04em;
+    }
+  
+  
+    .sprig-global-search-result-title {
+      font-size:
+        0.95rem;
+    }
+  
+  
+    .sprig-global-search-result-subtitle,
+    .sprig-global-search-result-description {
+      font-size:
+        0.8rem;
+    }
+  
+  
+    .sprig-global-search-result-open {
+      display:
+        none;
+    }
+  
+  
+    .sprig-global-search-result-relationships {
+      gap:
+        0.22rem;
+    }
+  
+  
+    .sprig-global-search-result-chip {
+      font-size:
+        0.65rem;
+    }
+  }
+  
+  
+  /* ==========================================
+     VERY SMALL PHONE
+  ========================================== */
+  
+  @media (
+    max-width:
+      390px
+  ) {
+  
+    .sprig-global-search-page {
+      padding-left:
+        0.5rem;
+  
+      padding-right:
+        0.5rem;
+    }
+  
+  
+    .sprig-global-search-filter {
+      font-size:
+        0.71rem;
+    }
+  
+  
+    .sprig-global-search-map {
+      grid-template-columns:
+        1fr
+        1fr;
+    }
+  }
