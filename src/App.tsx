@@ -26,6 +26,7 @@ import Calendar from './pages/Calendar'
 import GlobalSearch from './pages/GlobalSearch'
 import GardenKnowledge from './pages/GardenKnowledge'
 import GardenTrials from './pages/GardenTrials'
+import GardenGallery from './pages/GardenGallery'
 
 import type {
   GlobalSearchItem,
@@ -446,11 +447,14 @@ function App() {
       case 'saved-sources':
         return 'Saved Tips & Sources'
 
-      case 'garden-trials':
-        return 'Garden Trials'
-
-      case 'library':
-        return 'Garden Library'
+        case 'garden-trials':
+          return 'Garden Trials'
+  
+        case 'garden-gallery':
+          return 'Garden Gallery'
+  
+        case 'library':
+          return 'Garden Library'
 
       case 'backup':
         return 'Backup & Restore'
@@ -1467,6 +1471,20 @@ function App() {
 
 
   function handleGardenTrialDataChange(
+    updatedGardenData:
+      GardenData,
+  ) {
+    setGardenData(
+      updatedGardenData,
+    )
+
+    saveGardenData(
+      updatedGardenData,
+    )
+  }
+
+
+  function handleGardenGalleryDataChange(
     updatedGardenData:
       GardenData,
   ) {
@@ -4935,6 +4953,74 @@ function App() {
           handleOpenKnowledgeRelationship
         }
       />
+    )
+  }
+
+
+  if (
+    activePage ===
+    'garden-gallery'
+  ) {
+    return (
+      <>
+        <GardenGallery
+          gardenData={
+            gardenData
+          }
+
+          onGardenDataChange={
+            handleGardenGalleryDataChange
+          }
+
+          onNavigate={
+            handleNavigate
+          }
+
+          onOpenRelationship={
+            handleOpenKnowledgeRelationship
+          }
+        />
+
+
+        {
+          selectedPurchase && (
+            <PurchaseEditor
+              purchase={
+                selectedPurchase
+              }
+
+              mode="edit"
+
+              itemType={
+                selectedPurchase.itemType
+              }
+
+              itemName={
+                selectedPurchase.itemName
+              }
+
+              onSave={
+                purchase => {
+                  handleUpdatePurchase(
+                    purchase,
+                  )
+
+                  setSelectedPurchase(
+                    null,
+                  )
+                }
+              }
+
+              onClose={
+                () =>
+                  setSelectedPurchase(
+                    null,
+                  )
+              }
+            />
+          )
+        }
+      </>
     )
   }
 

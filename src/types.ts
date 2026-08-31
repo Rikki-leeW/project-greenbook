@@ -1104,6 +1104,42 @@ export interface GardenTrial {
     updatedAt?: string;
 }
 
+
+/* =======================================
+   GARDEN GALLERY
+======================================= */
+
+/*
+ * A GalleryPhoto is a photograph uploaded directly
+ * into the Garden Gallery.
+ *
+ * Photographs already owned by Plant Stories, Journal,
+ * Harvests and other Sprig records remain owned by those
+ * records and are only gathered visually by the Gallery.
+ */
+
+export interface GalleryPhoto {
+  id: string
+
+  photoUrl: string
+
+  photoDate?: string
+
+  title?: string
+
+  notes?: string
+
+  tags?: string[]
+
+  relationships?:
+    KnowledgeRelationship[]
+
+  createdAt: string
+
+  updatedAt?: string
+}
+
+
 /* =======================================
    COMPLETE SAVED GARDEN
 ======================================= */
@@ -1177,7 +1213,17 @@ export interface GardenData {
      * what the gardener learned from deliberately
      * testing it.
      */
-    gardenTrials?: GardenTrial[];
+    gardenTrials?: GardenTrial[]
 
-    savedComparisons: SavedComparison[];
+    /*
+     * Photographs uploaded directly into Garden Gallery.
+     *
+     * Photographs already owned by other Sprig records
+     * remain with those records and are gathered by the
+     * Gallery rather than duplicated here.
+     */
+  
+    galleryPhotos?: GalleryPhoto[]
+  
+    savedComparisons: SavedComparison[]
 }

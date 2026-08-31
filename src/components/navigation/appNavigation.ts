@@ -562,10 +562,13 @@ export const sprigNavigation:
             '📷',
 
           status:
-            'coming-later',
+            'live',
+
+          page:
+            'garden-gallery',
 
           note:
-            'One visual doorway into photographs already stored throughout Sprig',
+            'Browse photographs across Sprig, add Gallery photos, search by date and category, and compare two moments side by side',
         },
       ],
     },

@@ -13,5 +13,6 @@ export type AppPage =
   | 'plant-reference'
   | 'saved-sources'
   | 'garden-trials'
+  | 'garden-gallery'
   | 'library'
   | 'backup'
