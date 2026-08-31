@@ -1,0 +1,648 @@
+/* =======================================
+   SPRIG TODAY
+======================================= */
+
+.sprig-today-page {
+    min-height: 100%;
+    padding-bottom: 7rem;
+  }
+  
+  
+  /* =======================================
+     HEADER
+  ======================================= */
+  
+  .sprig-today-header {
+    align-items: flex-start;
+  }
+  
+  .sprig-today-avatar {
+    flex-shrink: 0;
+  }
+  
+  
+  /* =======================================
+     SHARED SECTION DETAILS
+  ======================================= */
+  
+  .sprig-today-kicker {
+    margin: 0 0 0.2rem;
+    color: #68745e;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+  
+  .sprig-today-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+  
+  .sprig-today-section-heading h2 {
+    margin: 0;
+    color: #30472f;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
+    line-height: 1.1;
+  }
+  
+  .sprig-today-text-button {
+    border: 0;
+    background: transparent;
+    color: #4d673f;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: rgba(77, 103, 63, 0.3);
+    text-underline-offset: 0.2rem;
+  }
+  
+  
+  /* =======================================
+     FIRST GARDEN
+  ======================================= */
+  
+  .sprig-first-garden {
+    margin-top: 1.25rem;
+    padding: clamp(1.1rem, 3vw, 1.7rem);
+    border: 1px solid rgba(99, 111, 79, 0.18);
+    border-radius: 1.15rem;
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 253, 244, 0.94),
+        rgba(248, 243, 224, 0.91)
+      );
+    box-shadow:
+      0 0.55rem 1.5rem rgba(73, 74, 50, 0.08);
+  }
+  
+  .sprig-first-garden-copy {
+    max-width: 48rem;
+  }
+  
+  .sprig-first-garden-copy h2 {
+    margin: 0;
+    color: #30472f;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+  
+  .sprig-first-garden-copy > p:last-child {
+    max-width: 42rem;
+    margin: 0.6rem 0 0;
+    color: #62614f;
+    line-height: 1.6;
+  }
+  
+  .sprig-first-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+  
+  .sprig-first-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.9rem;
+    border: 1px solid rgba(91, 107, 72, 0.18);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 250, 0.72);
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  
+  .sprig-first-step:hover {
+    background: rgba(255, 255, 250, 0.95);
+  }
+  
+  .sprig-first-step-number {
+    display: grid;
+    flex: 0 0 1.8rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    place-items: center;
+    border-radius: 999px;
+    background: #e5ecd9;
+    color: #405637;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+  
+  .sprig-first-step strong,
+  .sprig-first-step small {
+    display: block;
+  }
+  
+  .sprig-first-step strong {
+    color: #354d32;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1rem;
+  }
+  
+  .sprig-first-step small {
+    margin-top: 0.3rem;
+    color: #71705f;
+    font-size: 0.77rem;
+    line-height: 1.45;
+  }
+  
+  .sprig-first-garden-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(96, 103, 75, 0.14);
+  }
+  
+  .sprig-first-garden-note > span {
+    flex-shrink: 0;
+    font-size: 1.15rem;
+  }
+  
+  .sprig-first-garden-note p {
+    max-width: 50rem;
+    margin: 0;
+    color: #656653;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    line-height: 1.55;
+  }
+  
+  
+  /* =======================================
+     SPRIG NOTICES
+  ======================================= */
+  
+  .sprig-notices-section {
+    margin-top: 1.45rem;
+  }
+  
+  .sprig-notice-count {
+    flex-shrink: 0;
+    color: #7b7b68;
+    font-size: 0.75rem;
+  }
+  
+  .sprig-notice-list {
+    display: grid;
+    gap: 0.85rem;
+  }
+  
+  .sprig-notice-card {
+    position: relative;
+    overflow: hidden;
+    padding: 1rem 1.05rem;
+    border: 1px solid rgba(90, 105, 72, 0.17);
+    border-radius: 1rem;
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 253, 245, 0.95),
+        rgba(249, 245, 229, 0.93)
+      );
+    box-shadow:
+      0 0.45rem 1.2rem rgba(74, 75, 52, 0.07);
+  }
+  
+  .sprig-notice-card::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0.26rem;
+    background: rgba(91, 119, 77, 0.55);
+    content: '';
+  }
+  
+  .sprig-notice-worth-watching::before {
+    background: rgba(156, 122, 57, 0.57);
+  }
+  
+  .sprig-notice-milestone::before {
+    background: rgba(102, 132, 80, 0.6);
+  }
+  
+  .sprig-notice-comparison::before {
+    background: rgba(83, 111, 115, 0.52);
+  }
+  
+  .sprig-notice-photographs::before {
+    background: rgba(111, 90, 118, 0.5);
+  }
+  
+  .sprig-notice-trial::before {
+    background: rgba(113, 89, 62, 0.52);
+  }
+  
+  .sprig-notice-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  
+  .sprig-notice-eyebrow {
+    margin: 0;
+    color: #66765b;
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  
+  .sprig-strength-pill {
+    flex-shrink: 0;
+    padding: 0.28rem 0.52rem;
+    border-radius: 999px;
+    background: rgba(215, 227, 203, 0.76);
+    color: #496143;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+  
+  .sprig-notice-card h3 {
+    max-width: 50rem;
+    margin: 0.55rem 0 0;
+    color: #30462f;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+    line-height: 1.22;
+  }
+  
+  .sprig-notice-message {
+    max-width: 52rem;
+    margin: 0.48rem 0 0;
+    color: #626250;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  
+  
+  /* =======================================
+     WHY SPRIG NOTICED
+  ======================================= */
+  
+  .sprig-why {
+    margin-top: 0.7rem;
+    border-top: 1px solid rgba(90, 100, 72, 0.13);
+  }
+  
+  .sprig-why summary {
+    padding-top: 0.68rem;
+    color: #536a48;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  
+  .sprig-why-content {
+    padding: 0.7rem 0 0.1rem;
+    color: #666555;
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+  
+  .sprig-why-content > p {
+    margin: 0 0 0.7rem;
+  }
+  
+  .sprig-strength-explanation {
+    padding: 0.7rem 0.75rem;
+    border-radius: 0.65rem;
+    background: rgba(229, 235, 216, 0.58);
+  }
+  
+  .sprig-evidence-heading {
+    margin: 0 0 0.4rem;
+    color: #53644b;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  
+  .sprig-evidence-list {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0.75rem 0;
+  }
+  
+  .sprig-evidence-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid rgba(87, 102, 70, 0.12);
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 250, 0.55);
+    color: #4e5748;
+    text-align: left;
+  }
+  
+  .sprig-evidence-button {
+    cursor: pointer;
+  }
+  
+  .sprig-evidence-button:hover {
+    background: rgba(255, 255, 250, 0.9);
+  }
+  
+  .sprig-evidence-item strong,
+  .sprig-evidence-item small {
+    display: block;
+  }
+  
+  .sprig-evidence-item small {
+    margin-top: 0.1rem;
+    color: #777765;
+  }
+  
+  .sprig-caution-note {
+    color: #7c7968;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.76rem;
+    font-style: italic;
+  }
+  
+  
+  /* =======================================
+     NOTICE ACTIONS
+  ======================================= */
+  
+  .sprig-notice-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.75rem;
+  }
+  
+  .sprig-notice-actions button {
+    min-height: 2.15rem;
+    padding: 0.48rem 0.75rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  
+  .sprig-notice-primary-action {
+    border: 1px solid #58704e;
+    background: #58704e;
+    color: #fffdf4;
+  }
+  
+  .sprig-notice-secondary-action {
+    border: 1px solid rgba(78, 100, 69, 0.3);
+    background: rgba(255, 255, 250, 0.57);
+    color: #4f6547;
+  }
+  
+  
+  /* =======================================
+     NOTHING TO SAY
+  ======================================= */
+  
+  .sprig-learning-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px solid rgba(90, 105, 72, 0.15);
+    border-radius: 1rem;
+    background: rgba(255, 253, 244, 0.86);
+  }
+  
+  .sprig-learning-leaf {
+    font-size: 1.35rem;
+  }
+  
+  .sprig-learning-card h3 {
+    margin: 0;
+    color: #3c5239;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1rem;
+  }
+  
+  .sprig-learning-card p {
+    max-width: 48rem;
+    margin: 0.35rem 0 0;
+    color: #70705d;
+    font-size: 0.81rem;
+    line-height: 1.5;
+  }
+  
+  
+  /* =======================================
+     COMING UP
+  ======================================= */
+  
+  .sprig-coming-up-section {
+    margin-top: 1.6rem;
+  }
+  
+  .sprig-plan-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  
+  .sprig-plan-card {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+    padding: 0.78rem 0.82rem;
+    border: 1px solid rgba(93, 106, 76, 0.15);
+    border-radius: 0.85rem;
+    background: rgba(255, 253, 245, 0.84);
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  
+  .sprig-plan-card:hover {
+    background: rgba(255, 254, 248, 0.97);
+  }
+  
+  .sprig-plan-icon {
+    flex: 0 0 auto;
+    font-size: 1.15rem;
+  }
+  
+  .sprig-plan-copy {
+    min-width: 0;
+  }
+  
+  .sprig-plan-copy small,
+  .sprig-plan-copy strong {
+    display: block;
+  }
+  
+  .sprig-plan-copy small {
+    margin-bottom: 0.12rem;
+    color: #777761;
+    font-size: 0.68rem;
+  }
+  
+  .sprig-plan-copy strong {
+    overflow: hidden;
+    color: #3c5038;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.88rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .sprig-plan-arrow {
+    margin-left: auto;
+    color: #728069;
+    font-size: 1.15rem;
+  }
+  
+  
+  /* =======================================
+     DESTINATION SHORTCUTS
+  ======================================= */
+  
+  .sprig-garden-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid rgba(88, 102, 71, 0.15);
+  }
+  
+  .sprig-garden-shortcuts button {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    padding: 0.7rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: rgba(255, 253, 245, 0.55);
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  
+  .sprig-garden-shortcuts button > span:first-child {
+    font-size: 1rem;
+  }
+  
+  .sprig-garden-shortcuts strong,
+  .sprig-garden-shortcuts small {
+    display: block;
+  }
+  
+  .sprig-garden-shortcuts strong {
+    color: #42533d;
+    font-size: 0.78rem;
+  }
+  
+  .sprig-garden-shortcuts small {
+    margin-top: 0.08rem;
+    color: #7c7a68;
+    font-size: 0.66rem;
+  }
+  
+  
+  /* =======================================
+     TABLET / PHONE
+  ======================================= */
+  
+  @media (max-width: 760px) {
+    .sprig-first-steps {
+      grid-template-columns: 1fr;
+    }
+  
+    .sprig-plan-list {
+      grid-template-columns: 1fr;
+    }
+  
+    .sprig-today-section-heading {
+      align-items: flex-start;
+    }
+  
+    .sprig-notice-count {
+      margin-top: 0.15rem;
+    }
+  }
+  
+  
+  @media (max-width: 560px) {
+    .sprig-today-page {
+      padding-bottom: 6.5rem;
+    }
+  
+    .sprig-today-header .garden-title {
+      max-width: 13rem;
+    }
+  
+    .sprig-first-garden {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 0.9rem;
+    }
+  
+    .sprig-notices-section {
+      margin-top: 1.15rem;
+    }
+  
+    .sprig-today-section-heading {
+      margin-bottom: 0.65rem;
+    }
+  
+    .sprig-today-section-heading h2 {
+      font-size: 1.28rem;
+    }
+  
+    .sprig-notice-card {
+      padding: 0.88rem 0.9rem 0.9rem 1rem;
+      border-radius: 0.85rem;
+    }
+  
+    .sprig-notice-topline {
+      align-items: flex-start;
+    }
+  
+    .sprig-strength-pill {
+      max-width: 9rem;
+      text-align: center;
+    }
+  
+    .sprig-notice-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+  
+    .sprig-notice-actions button {
+      width: 100%;
+    }
+  
+    .sprig-garden-shortcuts {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+  
+    .sprig-garden-shortcuts button {
+      padding: 0.55rem 0.65rem;
+    }
+  }

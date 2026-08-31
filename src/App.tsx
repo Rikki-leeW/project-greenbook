@@ -1497,7 +1497,30 @@ function App() {
     )
   }
 
-
+  function handleOpenCalendarPlanRecord(
+    planId:
+      string,
+  
+    date:
+      string,
+  ) {
+    rememberCurrentJourneyState()
+  
+    prepareForRecordNavigation()
+  
+    setCalendarDateToOpen(
+      date,
+    )
+  
+    setCalendarPlanIdToOpen(
+      planId,
+    )
+  
+    setActivePage(
+      'calendar',
+    )
+  }
+  
   function handleOpenGardenTrialRecord(
     trialId:
       string,
@@ -5600,52 +5623,78 @@ function App() {
   return (
     <>
       <Gate
-        plants={
-          gardenData.plantStories
-        }
+  gardenData={
+    gardenData
+  }
 
-        onOpenPlant={
-          handleOpenPlantRecord
-        }
+  onOpenPlant={
+    handleOpenPlantRecord
+  }
 
-        onAddPlant={
-          () => {
-            setPlanToRecord(
-              null,
-            )
+  onOpenTrial={
+    handleOpenGardenTrialRecord
+  }
 
-            setIsAddPlantOpen(
-              true,
-            )
-          }
-        }
+  onComparePlants={
+    plantIds => {
+      rememberCurrentJourneyState()
 
-        onAddEntry={
-          () => {
-            setSelectedPlantId(
-              null,
-            )
+      setComparisonPlantIds(
+        plantIds,
+      )
 
-            setSelectedEventId(
-              null,
-            )
+      setActiveSavedComparisonId(
+        null,
+      )
 
-            setSelectedGrowingPlaceId(
-              null,
-            )
+      setActivePage(
+        'comparison',
+      )
+    }
+  }
 
-            clearLibraryRecordDestination()
+  onOpenPlan={
+    handleOpenCalendarPlanRecord
+  }
 
-            setIsAddEventOpen(
-              true,
-            )
-          }
-        }
+  onAddPlant={
+    () => {
+      setPlanToRecord(
+        null,
+      )
 
-        onNavigate={
-          handleNavigate
-        }
-      />
+      setIsAddPlantOpen(
+        true,
+      )
+    }
+  }
+
+  onAddEntry={
+    () => {
+      setSelectedPlantId(
+        null,
+      )
+
+      setSelectedEventId(
+        null,
+      )
+
+      setSelectedGrowingPlaceId(
+        null,
+      )
+
+      clearLibraryRecordDestination()
+
+      setIsAddEventOpen(
+        true,
+      )
+    }
+  }
+
+  onNavigate={
+    handleNavigate
+  }
+/>
 
 
       {
