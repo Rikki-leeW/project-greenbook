@@ -43,3 +43,8 @@ Relationships gather the story.
 The Plant Gallery doesn't own photographs. It reveals the Plant Story through photographs.
 
 Back remembers the journey. Home remembers where the record lives.
+
+The Trial owns the question.
+The real records own what happened.
+The relationships gather the evidence.
+The Almanac gathers what the garden has taught.

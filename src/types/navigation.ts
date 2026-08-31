@@ -12,5 +12,6 @@ export type AppPage =
   | 'garden-almanac'
   | 'plant-reference'
   | 'saved-sources'
+  | 'garden-trials'
   | 'library'
   | 'backup'

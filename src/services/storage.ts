@@ -7,7 +7,10 @@ import {
   sampleGardenData,
 } from '../data/sampleData'
 
-const STORAGE_KEY = 'sprig-garden-data'
+
+const STORAGE_KEY =
+  'sprig-garden-data'
+
 
 /* =======================================
    LEGACY SAVED COMPARISON
@@ -34,6 +37,7 @@ interface LegacySavedPlantComparison {
   updatedAt?: string
 }
 
+
 /* =======================================
    NORMALISE SAVED COMPARISONS
 ======================================= */
@@ -41,9 +45,14 @@ interface LegacySavedPlantComparison {
 function normalizeSavedComparisons(
   savedComparisons: unknown,
 ): SavedComparison[] {
-  if (!Array.isArray(savedComparisons)) {
+  if (
+    !Array.isArray(
+      savedComparisons,
+    )
+  ) {
     return []
   }
+
 
   return savedComparisons
     .map(
@@ -52,16 +61,19 @@ function normalizeSavedComparisons(
       ): SavedComparison | null => {
         if (
           !comparison ||
-          typeof comparison !== 'object'
+          typeof comparison !==
+            'object'
         ) {
           return null
         }
+
 
         const comparisonRecord =
           comparison as Record<
             string,
             unknown
           >
+
 
         /* =======================================
            CURRENT COMPARISON FORMAT
@@ -74,53 +86,65 @@ function normalizeSavedComparisons(
         ) {
           const items =
             comparisonRecord.items
-              .map((item) => {
-                if (
-                  !item ||
-                  typeof item !==
-                    'object'
-                ) {
-                  return null
-                }
+              .map(
+                (
+                  item,
+                ) => {
+                  if (
+                    !item ||
+                    typeof item !==
+                      'object'
+                  ) {
+                    return null
+                  }
 
-                const itemRecord =
-                  item as Record<
-                    string,
-                    unknown
-                  >
 
-                const recordType =
-                  itemRecord.recordType
+                  const itemRecord =
+                    item as Record<
+                      string,
+                      unknown
+                    >
 
-                const recordId =
-                  itemRecord.recordId
 
-                if (
-                  (
-                    recordType !==
-                      'plant-story' &&
-                    recordType !==
-                      'growing-place' &&
-                    recordType !==
-                      'growing-setup'
-                  ) ||
-                  typeof recordId !==
-                    'string'
-                ) {
-                  return null
-                }
+                  const recordType =
+                    itemRecord.recordType
 
-                return {
-                  recordType,
-                  recordId,
-                }
-              })
+
+                  const recordId =
+                    itemRecord.recordId
+
+
+                  if (
+                    (
+                      recordType !==
+                        'plant-story' &&
+                      recordType !==
+                        'growing-place' &&
+                      recordType !==
+                        'growing-setup'
+                    ) ||
+                    typeof recordId !==
+                      'string'
+                  ) {
+                    return null
+                  }
+
+
+                  return {
+                    recordType,
+                    recordId,
+                  }
+                },
+              )
               .filter(
                 (
                   item,
                 ): item is SavedComparison['items'][number] =>
-                  Boolean(item),
+                  Boolean(
+                    item,
+                  ),
               )
+
 
           if (
             typeof comparisonRecord.id !==
@@ -133,19 +157,27 @@ function normalizeSavedComparisons(
             return null
           }
 
+
           return {
-            id: comparisonRecord.id,
-            name: comparisonRecord.name,
+            id:
+              comparisonRecord.id,
+
+            name:
+              comparisonRecord.name,
+
             items,
+
             createdAt:
               comparisonRecord.createdAt,
+
             updatedAt:
               typeof comparisonRecord.updatedAt ===
-              'string'
+                'string'
                 ? comparisonRecord.updatedAt
                 : undefined,
           }
         }
+
 
         /* =======================================
            LEGACY PLANT COMPARISON FORMAT
@@ -153,11 +185,13 @@ function normalizeSavedComparisons(
 
         if (
           Array.isArray(
-            comparisonRecord.plantStoryIds,
+            comparisonRecord
+              .plantStoryIds,
           )
         ) {
           const legacyComparison =
             comparison as unknown as LegacySavedPlantComparison
+
 
           if (
             typeof legacyComparison.id !==
@@ -170,33 +204,45 @@ function normalizeSavedComparisons(
             return null
           }
 
+
           const plantStoryIds =
-            legacyComparison.plantStoryIds.filter(
-              (
-                plantStoryId,
-              ): plantStoryId is string =>
-                typeof plantStoryId ===
-                'string',
-            )
+            legacyComparison
+              .plantStoryIds
+              .filter(
+                (
+                  plantStoryId,
+                ): plantStoryId is string =>
+                  typeof plantStoryId ===
+                  'string',
+              )
+
 
           return {
-            id: legacyComparison.id,
-            name: legacyComparison.name,
+            id:
+              legacyComparison.id,
+
+            name:
+              legacyComparison.name,
+
             items:
               plantStoryIds.map(
-                (plantStoryId) => ({
+                plantStoryId => ({
                   recordType:
                     'plant-story',
+
                   recordId:
                     plantStoryId,
                 }),
               ),
+
             createdAt:
               legacyComparison.createdAt,
+
             updatedAt:
               legacyComparison.updatedAt,
           }
         }
+
 
         return null
       },
@@ -205,9 +251,12 @@ function normalizeSavedComparisons(
       (
         comparison,
       ): comparison is SavedComparison =>
-        Boolean(comparison),
+        Boolean(
+          comparison,
+        ),
     )
 }
+
 
 /* =======================================
    NORMALISE GARDEN DATA
@@ -232,28 +281,36 @@ export function normalizeGardenData(
   return {
     ...data,
 
+
     /**
      * Older gardens won't have these
      * collections yet.
      */
 
     growingPlaces:
-      data.growingPlaces ?? [],
+      data.growingPlaces ??
+      [],
 
     growingSetups:
-      data.growingSetups ?? [],
+      data.growingSetups ??
+      [],
 
     ingredients:
-      data.ingredients ?? [],
+      data.ingredients ??
+      [],
 
     products:
-      data.products ?? [],
+      data.products ??
+      [],
 
     purchases:
-      data.purchases ?? [],
+      data.purchases ??
+      [],
 
     costAllocations:
-      data.costAllocations ?? [],
+      data.costAllocations ??
+      [],
+
 
     /**
      * Garden Knowledge arrived later than the
@@ -263,13 +320,51 @@ export function normalizeGardenData(
      */
 
     gardenNotes:
-      data.gardenNotes ?? [],
+      data.gardenNotes ??
+      [],
 
     plantReferences:
-      data.plantReferences ?? [],
+      data.plantReferences ??
+      [],
 
     savedKnowledgeSources:
-      data.savedKnowledgeSources ?? [],
+      data.savedKnowledgeSources ??
+      [],
+
+
+    /**
+     * Garden Trials are additive deliberate
+     * questions.
+     *
+     * Older gardens simply begin with no Trials.
+     *
+     * Nothing is inferred from existing Plant
+     * Stories, Journal entries, Harvests or
+     * Comparisons.
+     */
+
+    gardenTrials:
+      (
+        data.gardenTrials ??
+        []
+      ).map(
+        trial => ({
+          ...trial,
+
+          status:
+            trial.status ??
+            'active',
+
+          observations:
+            trial.observations ??
+            [],
+
+          relationships:
+            trial.relationships ??
+            [],
+        }),
+      ),
+
 
     /**
      * Older saves may also be
@@ -277,7 +372,9 @@ export function normalizeGardenData(
      */
 
     harvests:
-      data.harvests ?? [],
+      data.harvests ??
+      [],
+
 
     /**
      * Garden Plans were introduced after the
@@ -289,57 +386,65 @@ export function normalizeGardenData(
      * Nothing is migrated, invented or removed.
      */
 
-    plans: (data.plans ?? []).map(
-      (plan) => ({
-        ...plan,
+    plans:
+      (
+        data.plans ??
+        []
+      ).map(
+        plan => ({
+          ...plan,
 
-        /*
-         * Plans created before the Plan lifecycle
-         * was introduced are still ordinary
-         * future intentions.
-         */
 
-        status:
-          plan.status ??
-          'planned',
+          /*
+           * Plans created before the Plan lifecycle
+           * was introduced are still ordinary
+           * future intentions.
+           */
 
-        /*
-         * Keep relationship collections tidy and
-         * predictable while remaining compatible
-         * with older saved gardens.
-         */
+          status:
+            plan.status ??
+            'planned',
 
-        plantStoryIds:
-          plan.plantStoryIds ??
-          [],
 
-        growingPlaceIds:
-          plan.growingPlaceIds ??
-          [],
+          /*
+           * Keep relationship collections tidy and
+           * predictable while remaining compatible
+           * with older saved gardens.
+           */
 
-        growingSetupIds:
-          plan.growingSetupIds ??
-          [],
+          plantStoryIds:
+            plan.plantStoryIds ??
+            [],
 
-        /*
-         * Plans saved before rescheduling history
-         * existed simply begin with no previous
-         * schedule changes.
-         *
-         * Nothing is invented from the current
-         * Plan date because Sprig cannot know
-         * whether that date was ever changed.
-         */
+          growingPlaceIds:
+            plan.growingPlaceIds ??
+            [],
 
-        scheduleHistory:
-          plan.scheduleHistory ??
-          [],
+          growingSetupIds:
+            plan.growingSetupIds ??
+            [],
 
-        results:
-          plan.results ??
-          [],
-      }),
-    ),
+
+          /*
+           * Plans saved before rescheduling history
+           * existed simply begin with no previous
+           * schedule changes.
+           *
+           * Nothing is invented from the current
+           * Plan date because Sprig cannot know
+           * whether that date was ever changed.
+           */
+
+          scheduleHistory:
+            plan.scheduleHistory ??
+            [],
+
+          results:
+            plan.results ??
+            [],
+        }),
+      ),
+
 
     /**
      * Saved Comparisons changed shape
@@ -356,36 +461,44 @@ export function normalizeGardenData(
         data.savedComparisons,
       ),
 
+
     /**
      * Ensure every journal entry has
      * the newer relationship collections.
      */
 
-    events: (
-      data.events ?? []
-    ).map((event) => ({
-      ...event,
+    events:
+      (
+        data.events ??
+        []
+      ).map(
+        event => ({
+          ...event,
 
-      plantStoryIds:
-        event.plantStoryIds ??
-        [],
+          plantStoryIds:
+            event.plantStoryIds ??
+            [],
 
-      growingPlaceIds:
-        event.growingPlaceIds ??
-        [],
-    })),
+          growingPlaceIds:
+            event.growingPlaceIds ??
+            [],
+        }),
+      ),
   }
 }
+
 
 /* =======================================
    LOAD GARDEN DATA
 ======================================= */
 
-export function loadGardenData(): GardenData {
+export function loadGardenData():
+  GardenData {
   const savedData =
     localStorage.getItem(
       STORAGE_KEY,
     )
+
 
   /**
    * A genuinely new installation has no
@@ -393,18 +506,23 @@ export function loadGardenData(): GardenData {
    * sample garden.
    */
 
-  if (!savedData) {
+  if (
+    !savedData
+  ) {
     const initialGarden =
       normalizeGardenData(
         sampleGardenData,
       )
 
+
     saveGardenData(
       initialGarden,
     )
 
+
     return initialGarden
   }
+
 
   try {
     const parsedData =
@@ -412,10 +530,12 @@ export function loadGardenData(): GardenData {
         savedData,
       ) as GardenData
 
+
     return normalizeGardenData(
       parsedData,
     )
-  } catch {
+  }
+  catch {
     /**
      * IMPORTANT:
      *
@@ -430,6 +550,7 @@ export function loadGardenData(): GardenData {
     console.error(
       'Sprig could not read saved garden data. The original saved data has been left untouched.',
     )
+
 
     /**
      * Allow Sprig to open with sample data
@@ -446,6 +567,7 @@ export function loadGardenData(): GardenData {
   }
 }
 
+
 /* =======================================
    SAVE GARDEN DATA
 ======================================= */
@@ -455,21 +577,29 @@ export function saveGardenData(
 ): void {
   localStorage.setItem(
     STORAGE_KEY,
-    JSON.stringify(data),
+    JSON.stringify(
+      data,
+    ),
   )
 }
+
 
 /* =======================================
    RESET GARDEN DATA
 ======================================= */
 
-export function resetGardenData(): GardenData {
+export function resetGardenData():
+  GardenData {
   const resetData =
     normalizeGardenData(
       sampleGardenData,
     )
 
-  saveGardenData(resetData)
+
+  saveGardenData(
+    resetData,
+  )
+
 
   return resetData
 }

@@ -1153,11 +1153,11 @@ But I don't want to write a line of it yet.
 First I want to inspect how Sprig currently persists its data, because Backup should wrap the existing persistence architecture rather than invent another one. From your screenshot I can see:
 
 
-Garden Trials
-Calendar & Planning
-Garden Notes / Almanac
-Plant Reference
-Saved Tips & Sources
+✅Garden Trials
+✅Calendar & Planning
+✅Garden Notes / Almanac
+✅Plant Reference
+✅Saved Tips & Sources
 Garden Gallery
 Purchases
 Supplies
@@ -1166,7 +1166,7 @@ Costs & Allocations
 
 ***************************************************************************************************************************************************
 
-Comparison:
+✅Comparison:
 The comparison engine itself is now doing the hard things: save, reopen, edit membership, rename, delete, PDF export, XLSX export with embedded photos. The next logical job is to make Comparisons.tsx feel like a proper destination rather than a utility list.
 
 I’d do these in this order:
@@ -1187,7 +1187,7 @@ My pick for the very next code task is updatedAt + better card metadata, because
 We can do that in a couple of tiny chunks.
  
 ***************************************************************
-28/08/26
+✅ 28/08/26
 🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿
 🌿 SPRIG ROADMAP: AFTER PLANT COMPARISON
 1. Visual Clickable Calendar & Planning
@@ -1209,7 +1209,7 @@ The goal is for the gardener to be able to look at the garden through time, move
 
 This returns to one of Sprig's original foundations:
 
-Journal. Notes. Dates.
+✅Journal. Notes. Dates.
 
 2–4. Sprig's Garden Knowledge
 
@@ -1233,7 +1233,7 @@ Sprig needs a home for this accumulated knowledge without turning it into one en
 
 The three areas below provide different ways into that knowledge.
 
-2. Garden Notes / Almanac
+✅2. Garden Notes / Almanac
 
 The gardener's own evolving notebook of garden knowledge.
 
@@ -1243,7 +1243,7 @@ It should feel closer to a well-used garden notebook than a formal reference dat
 
 Over time it can become a personal garden almanac built from the gardener's own climate, garden and experience.
 
-3. Plant Reference
+✅3. Plant Reference
 
 Knowledge that belongs specifically to a kind of plant rather than to one individual Plant Story.
 
@@ -1269,7 +1269,7 @@ What do I know about growing broccoli?
 
 The two should eventually connect without becoming the same record.
 
-4. Saved Tips & Sources
+✅4. Saved Tips & Sources
 
 A home for useful knowledge gathered from elsewhere.
 
@@ -1376,7 +1376,7 @@ Plant Comparison has considerably strengthened the Journal/history/evidence side
 
 The next phase returns deliberately to the other two foundations:
 
-Dates → Calendar & Planning
+✅ Dates → Calendar & Planning
 
 Notes → Garden Notes, Plant Reference and Saved Tips & Sources
 
@@ -1392,11 +1392,11 @@ I think that last distinction is particularly important for our future architect
 
 And yes, this corrected roadmap is now the one I'm carrying forward. 🌱
 
-📅 Global Visual Calendar & Planning
-🔎 Global Search & Searchability
-📖 Garden Notes / Almanac
-🌱 Plant Reference
-🔖 Saved Tips & Sources
+✅ 📅 Global Visual Calendar & Planning
+✅ 🔎 Global Search & Searchability
+✅ 📖 Garden Notes / Almanac
+✅ 🌱 Plant Reference
+✅ 🔖 Saved Tips & Sources
 🖼 Garden Gallery
 🧾 Purchases / Costs & Allocations
 🧺 Supplies / Suppliers
@@ -1404,7 +1404,7 @@ And yes, this corrected roadmap is now the one I'm carrying forward. 🌱
 
 --------------------------------------
 
-Photos roadmap side note from testing 29/08
+✅ Photos roadmap side note from testing 29/08
 
 Add Photo should remain the beautifully quick option:
 
@@ -1545,3 +1545,8 @@ And it fits our Calendar architecture too. Calendar doesn't own events, it revea
 The Plant Gallery doesn't own photographs. It reveals the Plant Story through photographs.
 
 So yes, absolutely put this on our architecture roadmap. And please stop feeling forced to create Journal entries just because you want a photograph to feel properly part of your plant. That's Sprig telling us its presentation layer hasn't caught up with its relationships yet, not the workflow we actually want.
+
+
+31/08/26
+✅ NOTES ALMANAC REFERENCE SAVED TIPS AND SOURCES
+✅ GARDEN TRIALS

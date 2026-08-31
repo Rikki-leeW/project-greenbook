@@ -1,0 +1,783 @@
+/* =======================================
+   GARDEN TRIALS
+======================================= */
+
+.sprig-trials-page {
+    display: grid;
+    align-content: start;
+    align-items: start;
+    grid-auto-rows: max-content;
+    gap: 1.25rem;
+    padding-bottom: 3rem;
+  }
+  
+  .sprig-trials-header {
+    display: block;
+    align-self: start;
+    min-height: 0;
+    height: auto;
+    margin-bottom: 0;
+  }
+  
+  .sprig-trials-header > div {
+    min-height: 0;
+  }
+  
+  .sprig-trial-paper {
+    border: 1px solid rgba(90, 78, 57, 0.16);
+    border-radius: 18px;
+    background: rgba(255, 252, 242, 0.94);
+    box-shadow: 0 8px 24px rgba(67, 58, 42, 0.07);
+    padding: 1.25rem;
+  }
+  
+  .sprig-trial-section-heading,
+  .sprig-trial-hero-heading,
+  .sprig-trial-observation-heading,
+  .sprig-trial-card-topline,
+  .sprig-trial-detail-toolbar,
+  .sprig-trial-inline-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  
+  .sprig-trial-section-heading {
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .sprig-trial-section-heading h2,
+  .sprig-trial-hero h2,
+  .sprig-trial-editor h2 {
+    margin: 0.15rem 0 0;
+  }
+  
+  .sprig-trial-muted {
+    margin: 0 0 1rem;
+    color: rgba(54, 63, 48, 0.74);
+    line-height: 1.55;
+  }
+  
+  .sprig-trial-journey-back,
+  .sprig-trial-text-button {
+    width: fit-content;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #3f5d43;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+  }
+  
+  .sprig-trial-text-button:hover,
+  .sprig-trial-journey-back:hover {
+    text-decoration: underline;
+  }
+  
+  .sprig-trial-text-button--danger {
+    color: #8a4039;
+  }
+  
+  .sprig-trial-detail-toolbar {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .sprig-trial-new-button,
+  .sprig-trial-primary-button,
+  .sprig-trial-secondary-button,
+  .sprig-trial-danger-button {
+    border-radius: 999px;
+    padding: 0.72rem 1rem;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  
+  .sprig-trial-new-button,
+  .sprig-trial-primary-button {
+    border: 1px solid #49654a;
+    background: #49654a;
+    color: #fffdf5;
+  }
+  
+  .sprig-trial-new-button {
+    width: fit-content;
+  }
+  
+  .sprig-trial-secondary-button {
+    border: 1px solid rgba(73, 101, 74, 0.34);
+    background: rgba(255, 253, 245, 0.76);
+    color: #3f5d43;
+  }
+  
+  .sprig-trial-danger-button {
+    border: 1px solid rgba(138, 64, 57, 0.3);
+    background: rgba(255, 250, 246, 0.76);
+    color: #8a4039;
+  }
+  
+  .sprig-trial-new-button:disabled,
+  .sprig-trial-primary-button:disabled,
+  .sprig-trial-secondary-button:disabled,
+  .sprig-trial-danger-button:disabled {
+    opacity: 0.46;
+    cursor: default;
+  }
+  
+  .sprig-trial-record-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.2rem;
+  }
+  
+  .sprig-trial-meta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.8rem;
+    margin-top: 0.55rem;
+    color: rgba(54, 63, 48, 0.76);
+  }
+  
+  .sprig-trial-status,
+  .sprig-trial-result-chip {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    border-radius: 999px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
+  
+  .sprig-trial-status--active {
+    background: rgba(118, 142, 90, 0.17);
+    color: #49623d;
+  }
+  
+  .sprig-trial-status--completed {
+    background: rgba(104, 123, 104, 0.15);
+    color: #415c4a;
+  }
+  
+  .sprig-trial-status--set-aside {
+    background: rgba(139, 116, 88, 0.14);
+    color: #6f5944;
+  }
+  
+  .sprig-trial-result-chip {
+    background: rgba(92, 90, 126, 0.1);
+    color: #56526f;
+  }
+  
+  .sprig-trial-timing-summary {
+    margin-top: 1.15rem;
+    border-top: 1px solid rgba(90, 78, 57, 0.12);
+    padding-top: 1rem;
+  }
+  
+  .sprig-trial-timing-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1.25rem;
+  }
+  
+  .sprig-trial-timing-facts p,
+  .sprig-trial-timing-reason {
+    margin: 0.3rem 0;
+  }
+  
+  .sprig-trial-timing-reason {
+    margin-top: 0.7rem;
+    line-height: 1.55;
+  }
+  
+  /* =======================================
+     SHELF
+  ======================================= */
+  
+  .sprig-trial-shelf-section {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .sprig-trial-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2rem;
+    min-height: 2rem;
+    border-radius: 999px;
+    background: rgba(73, 101, 74, 0.1);
+    color: #415c45;
+    font-weight: 800;
+  }
+  
+  .sprig-trial-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  .sprig-trial-card {
+    display: grid;
+    align-content: start;
+    gap: 0.7rem;
+    min-height: 180px;
+    border: 1px solid rgba(90, 78, 57, 0.16);
+    border-radius: 18px;
+    background: rgba(255, 252, 242, 0.94);
+    box-shadow: 0 8px 24px rgba(67, 58, 42, 0.06);
+    padding: 1rem;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .sprig-trial-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(67, 58, 42, 0.1);
+  }
+  
+  .sprig-trial-card > strong {
+    font-size: 1.08rem;
+  }
+  
+  .sprig-trial-card > p {
+    margin: 0;
+    color: rgba(54, 63, 48, 0.78);
+    line-height: 1.48;
+  }
+  
+  .sprig-trial-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.8rem;
+    margin-top: auto;
+    color: rgba(54, 63, 48, 0.65);
+    font-size: 0.83rem;
+  }
+  
+  .sprig-trial-empty {
+    border: 1px dashed rgba(73, 101, 74, 0.3);
+    border-radius: 16px;
+    padding: 1.1rem;
+    background: rgba(255, 253, 246, 0.6);
+  }
+  
+  .sprig-trial-empty p {
+    margin-bottom: 0;
+  }
+  
+  /* =======================================
+     EDITOR
+  ======================================= */
+  
+  .sprig-trial-editor {
+    display: grid;
+    gap: 1.1rem;
+  }
+  
+  .sprig-trial-editor-grid,
+  .sprig-trial-timing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  .sprig-trial-timing-grid {
+    grid-template-columns:
+      minmax(0, 0.75fr)
+      minmax(0, 0.8fr)
+      minmax(0, 1.25fr);
+  }
+  
+  .sprig-trial-field {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+  }
+  
+  .sprig-trial-field--wide {
+    grid-column: 1 / -1;
+  }
+  
+  .sprig-trial-field > span {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-weight: 800;
+    color: #3d4f3e;
+  }
+  
+  .sprig-trial-field small {
+    color: rgba(54, 63, 48, 0.58);
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+  
+  .sprig-trial-field input,
+  .sprig-trial-field select,
+  .sprig-trial-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(73, 101, 74, 0.25);
+    border-radius: 12px;
+    background: rgba(255, 255, 252, 0.9);
+    padding: 0.72rem 0.78rem;
+    color: inherit;
+    font: inherit;
+  }
+  
+  .sprig-trial-field textarea {
+    resize: vertical;
+    line-height: 1.5;
+  }
+  
+  .sprig-trial-editor-section {
+    border-top: 1px solid rgba(90, 78, 57, 0.12);
+    padding-top: 1.1rem;
+  }
+  
+  .sprig-trial-editor-section h3 {
+    margin: 0.2rem 0 0.45rem;
+  }
+  
+  .sprig-trial-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+  
+  /* =======================================
+     TRIAL STORY
+  ======================================= */
+  
+  .sprig-trial-story-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  .sprig-trial-story-card {
+    min-width: 0;
+  }
+  
+  .sprig-trial-story-section + .sprig-trial-story-section {
+    margin-top: 1.1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(90, 78, 57, 0.1);
+  }
+  
+  .sprig-trial-story-section h3 {
+    margin: 0 0 0.35rem;
+    font-size: 0.94rem;
+  }
+  
+  .sprig-trial-story-section p {
+    margin: 0;
+    line-height: 1.58;
+    white-space: pre-wrap;
+  }
+  
+  /* =======================================
+     PHOTOGRAPHS
+  ======================================= */
+  
+  .sprig-trial-photo-section {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .sprig-trial-saved-photo-editor {
+    display: grid;
+    gap: 0.8rem;
+  }
+  
+  .sprig-trial-photo-date-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.7rem;
+    color: rgba(54, 63, 48, 0.7);
+    font-size: 0.82rem;
+  }
+  
+  .sprig-trial-photo-date-list span {
+    border-radius: 999px;
+    background: rgba(73, 101, 74, 0.08);
+    padding: 0.28rem 0.55rem;
+  }
+  
+  .sprig-trial-evidence-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+  
+  .sprig-trial-evidence-photo {
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 145px auto;
+    border: 1px solid rgba(90, 78, 57, 0.15);
+    border-radius: 14px;
+    background: rgba(255, 253, 247, 0.9);
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .sprig-trial-evidence-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .sprig-trial-evidence-photo > span {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.65rem;
+  }
+  
+  .sprig-trial-evidence-photo small {
+    color: rgba(54, 63, 48, 0.64);
+  }
+  
+  /* =======================================
+     EVIDENCE LINKS
+  ======================================= */
+  
+  .sprig-trial-evidence-list {
+    display: grid;
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+  }
+  
+  .sprig-trial-evidence-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.45rem;
+    align-items: stretch;
+  }
+  
+  .sprig-trial-evidence-open {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid rgba(73, 101, 74, 0.16);
+    border-radius: 12px;
+    background: rgba(255, 253, 246, 0.7);
+    padding: 0.72rem 0.8rem;
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .sprig-trial-icon-button {
+    display: grid;
+    place-items: center;
+    min-width: 2.7rem;
+    border: 1px solid rgba(138, 64, 57, 0.18);
+    border-radius: 12px;
+    background: rgba(255, 250, 246, 0.72);
+    color: #8a4039;
+    font: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .sprig-trial-linker {
+    display: grid;
+    gap: 0.8rem;
+    border-top: 1px solid rgba(90, 78, 57, 0.1);
+    padding-top: 1rem;
+  }
+  
+  .sprig-trial-search-count {
+    margin: -0.25rem 0 0;
+    color: rgba(54, 63, 48, 0.7);
+    font-size: 0.85rem;
+  }
+  
+  /* =======================================
+     OBSERVATIONS
+  ======================================= */
+  
+  .sprig-trial-observation-list {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .sprig-trial-observation {
+    display: grid;
+    gap: 0.85rem;
+    border: 1px solid rgba(90, 78, 57, 0.13);
+    border-radius: 15px;
+    background: rgba(255, 253, 247, 0.68);
+    padding: 1rem;
+  }
+  
+  .sprig-trial-observation-heading {
+    align-items: flex-start;
+  }
+  
+  .sprig-trial-observation time {
+    font-weight: 800;
+    color: #536b52;
+  }
+  
+  .sprig-trial-observation > p {
+    margin: 0;
+    line-height: 1.58;
+    white-space: pre-wrap;
+  }
+  
+  .sprig-trial-observation-edit,
+  .sprig-trial-observation-composer {
+    display: grid;
+    gap: 0.85rem;
+  }
+  
+  .sprig-trial-observation-composer {
+    border-top: 1px solid rgba(90, 78, 57, 0.12);
+    padding-top: 1rem;
+  }
+  
+  /* =======================================
+     PRINT REPORT
+  ======================================= */
+  
+  .sprig-trial-print-report {
+    display: none;
+  }
+  
+  @media print {
+    @page {
+      size: auto;
+      margin: 15mm;
+    }
+  
+    body * {
+      visibility: hidden !important;
+    }
+  
+    .sprig-trial-print-report,
+    .sprig-trial-print-report * {
+      visibility: visible !important;
+    }
+  
+    .sprig-trial-print-report {
+      display: block !important;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      box-sizing: border-box;
+      background: #fff;
+      color: #1d241e;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 10.5pt;
+      line-height: 1.45;
+    }
+  
+    .sprig-trial-print-header {
+      border-bottom: 1px solid #c9cdc7;
+      padding-bottom: 12pt;
+      margin-bottom: 14pt;
+    }
+  
+    .sprig-trial-print-eyebrow {
+      margin: 0 0 4pt;
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+  
+    .sprig-trial-print-header h1 {
+      margin: 0 0 8pt;
+      font-size: 22pt;
+      line-height: 1.15;
+      font-weight: 700;
+    }
+  
+    .sprig-trial-print-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3pt 12pt;
+    }
+  
+    .sprig-trial-print-meta p {
+      margin: 0;
+    }
+  
+    .sprig-trial-print-meta strong {
+      font-weight: 700;
+    }
+  
+    .sprig-trial-print-section {
+      break-inside: avoid;
+      margin: 0 0 13pt;
+    }
+  
+    .sprig-trial-print-section h2 {
+      margin: 0 0 4pt;
+      font-size: 11.5pt;
+      font-weight: 700;
+    }
+  
+    .sprig-trial-print-section h3 {
+      margin: 0 0 3pt;
+      font-size: 10.5pt;
+      font-weight: 700;
+    }
+  
+    .sprig-trial-print-section p {
+      margin: 0 0 4pt;
+    }
+  
+    .sprig-trial-print-section ul {
+      margin: 3pt 0 0 18pt;
+      padding: 0;
+    }
+  
+    .sprig-trial-print-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9pt;
+    }
+  
+    .sprig-trial-print-photo-grid figure {
+      break-inside: avoid;
+      margin: 0;
+    }
+  
+    .sprig-trial-print-photo-grid img {
+      display: block;
+      width: 100%;
+      max-height: 78mm;
+      object-fit: contain;
+      border: 1px solid #d8d8d2;
+    }
+  
+    .sprig-trial-print-photo-grid figcaption {
+      margin-top: 3pt;
+      font-size: 8.5pt;
+    }
+  
+    .sprig-trial-print-photo-grid figcaption strong {
+      font-weight: 700;
+    }
+  
+    .sprig-trial-print-photo-grid--observation img {
+      max-height: 58mm;
+    }
+  
+    .sprig-trial-print-observations {
+      display: grid;
+      gap: 10pt;
+    }
+  
+    .sprig-trial-print-observations > article {
+      break-inside: avoid;
+      border-top: 1px solid #deded8;
+      padding-top: 7pt;
+    }
+  
+    .sprig-trial-print-footer {
+      border-top: 1px solid #c9cdc7;
+      margin-top: 16pt;
+      padding-top: 7pt;
+      font-size: 8.5pt;
+      color: #596159;
+    }
+  }
+  
+  /* =======================================
+     MOBILE
+  ======================================= */
+  
+  @media (max-width: 760px) {
+    .sprig-trials-page {
+      gap: 1rem;
+    }
+  
+    .sprig-trials-header {
+      margin-bottom: 0;
+      padding-bottom: 0.25rem;
+    }
+  
+    .sprig-trial-paper {
+      border-radius: 15px;
+      padding: 1rem;
+    }
+  
+    .sprig-trial-card-grid,
+    .sprig-trial-story-grid,
+    .sprig-trial-editor-grid,
+    .sprig-trial-timing-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .sprig-trial-field--wide {
+      grid-column: auto;
+    }
+  
+    .sprig-trial-record-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  
+    .sprig-trial-record-actions > button {
+      width: 100%;
+    }
+  
+    .sprig-trial-evidence-photo-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  
+    .sprig-trial-evidence-photo {
+      grid-template-rows: 120px auto;
+    }
+  
+    .sprig-trial-section-heading,
+    .sprig-trial-observation-heading {
+      align-items: flex-start;
+    }
+  
+    .sprig-trial-editor-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (max-width: 430px) {
+    .sprig-trial-record-actions,
+    .sprig-trial-editor-actions,
+    .sprig-trial-evidence-photo-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .sprig-trial-inline-actions {
+      flex-wrap: wrap;
+    }
+  
+    .sprig-trial-meta-row,
+    .sprig-trial-timing-facts {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
