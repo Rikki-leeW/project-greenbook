@@ -41,3 +41,5 @@ Records own the photographs.
 Relationships gather the story.
 
 The Plant Gallery doesn't own photographs. It reveals the Plant Story through photographs.
+
+Back remembers the journey. Home remembers where the record lives.

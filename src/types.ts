@@ -240,6 +240,7 @@ export interface GrowingSetup {
   /*
    * Legacy ingredient links.
    */
+
   ingredientIds?: string[]
 
   recipeComponents?: Array<{
@@ -576,6 +577,15 @@ export interface GardenEvent {
   notes?: string
   productUsed?: string
   photoUrls?: string[]
+
+  /*
+   * Optional provenance when a real Journal
+   * record was deliberately created from a
+   * Garden Note through Import & Place.
+   */
+
+  originatingKnowledgeNoteId?: string
+
   growingPlaceScope?: GrowingPlaceScope
   growingPlaceIds?: string[]
   plantScope?: PlantScope
@@ -705,14 +715,6 @@ export type GardenPlanStatus =
    FUTURE PLANT DETAILS
 ======================================= */
 
-/*
- * This describes something that MAY become
- * a Plant Story later.
- *
- * It is deliberately not a miniature
- * PlantStory record.
- */
-
 export interface PlannedPlantDetails {
   plantName?: string
   variety?: string
@@ -725,36 +727,6 @@ export interface PlannedPlantDetails {
 /* =======================================
    PLAN TIMING
 ======================================= */
-
-/*
- * A Garden Plan may contain a timing
- * assumption.
- *
- * This is NOT a saved predicted harvest date.
- *
- * It records only the knowledge Sprig needs
- * to calculate a possibility from the Plan.
- *
- * Example:
- *
- * "I am planning to sow Royal Blue potatoes
- *  on 5 September."
- *
- * "I currently expect them to take
- *  90 to 110 days from planting."
- *
- * Sprig can derive the possible harvest
- * window whenever the Plan is viewed.
- *
- * If the intended date changes, the
- * projection changes automatically.
- *
- * This structure belongs to the PLAN rather
- * than PlannedPlantDetails because a
- * Plant-out Plan can refer to an existing
- * Plant Story and still need a future timing
- * calculation.
- */
 
 export type GardenPlanTimingReference =
   | 'sown'
@@ -770,38 +742,15 @@ export type GardenPlanTimingKnowledgeSource =
 
 
 export interface GardenPlanTimingAssumption {
-  /*
-   * Which intended milestone starts the
-   * timing clock?
-   */
   referenceType:
     GardenPlanTimingReference
 
-  /*
-   * The expected number of days after that
-   * milestone.
-   *
-   * Either edge may be omitted.
-   */
   daysMin?: number
   daysMax?: number
 
-  /*
-   * Where Sprig got these numbers.
-   *
-   * Right now Calendar-created assumptions
-   * are gardener supplied.
-   *
-   * Later the same structure can hold timing
-   * derived from the gardener's own history.
-   */
   knowledgeSource?:
     GardenPlanTimingKnowledgeSource
 
-  /*
-   * Used later when Sprig derives timing from
-   * historical Plant Stories.
-   */
   evidenceCount?: number
 }
 
@@ -809,32 +758,6 @@ export interface GardenPlanTimingAssumption {
 /* =======================================
    PLAN SCHEDULE HISTORY
 ======================================= */
-
-/*
- * A Garden Plan records intention, and an
- * intention can move before anything actually
- * happens in the garden.
- *
- * This history remembers those changes without
- * pretending they were garden events.
- *
- * The Plan's current `date` / `endDate` remain
- * the active intended schedule.
- *
- * Example:
- *
- * Originally planned:
- * 29 August
- *
- * Rescheduled:
- * 29 August → 2 September
- *
- * Rescheduled again:
- * 2 September → 5 September
- *
- * Nothing here is Recorded garden history.
- * It is simply the history of the intention.
- */
 
 export interface GardenPlanScheduleChange {
   fromDate: string
@@ -877,10 +800,6 @@ export interface GardenPlanResult {
 export interface GardenPlan {
   id: string
 
-  /* =======================================
-     WHAT IS INTENDED
-  ======================================= */
-
   title: string
 
   kind:
@@ -890,66 +809,34 @@ export interface GardenPlan {
 
   notes?: string
 
-  /* =======================================
-     WHEN IT IS INTENDED
-  ======================================= */
-
   date: string
 
   endDate?: string
-
-  /* =======================================
-     EXISTING SPRIG RECORDS
-  ======================================= */
 
   plantStoryIds?: string[]
   growingPlaceIds?: string[]
   growingSetupIds?: string[]
 
-  /* =======================================
-     SOMETHING THAT MAY EXIST LATER
-  ======================================= */
-
   plannedPlant?: PlannedPlantDetails
 
-  /* =======================================
-     WHAT MAY FOLLOW
-  ======================================= */
-
-  /*
-   * Optional assumptions used to derive
-   * future timing from this Plan.
-   *
-   * We deliberately save the assumptions,
-   * not the calculated dates.
-   */
   timingAssumption?:
     GardenPlanTimingAssumption
 
-  /* =======================================
-     PLAN LIFE
-  ======================================= */
-
   status:
-  GardenPlanStatus
+    GardenPlanStatus
 
-/*
- * Earlier intended schedules for this
- * same Plan.
- *
- * This is Plan history, not garden history.
- *
- * `date` and `endDate` above always describe
- * the Plan's current intended schedule.
- */
-scheduleHistory?:
-  GardenPlanScheduleChange[]
+  scheduleHistory?:
+    GardenPlanScheduleChange[]
 
-results?: GardenPlanResult[]
+  results?:
+    GardenPlanResult[]
 
-/* =======================================
-   RECORD MANAGEMENT
-======================================= */
+  /*
+   * Optional provenance when this intention was
+   * deliberately created from a Garden Note.
+   */
+
+  originatingKnowledgeNoteId?: string
 
   createdAt: string
 
@@ -986,6 +873,231 @@ export interface SavedComparison {
 
 
 /* =======================================
+   GARDEN KNOWLEDGE
+======================================= */
+
+/*
+ * Garden Knowledge is intentionally separate
+ * from garden reality.
+ *
+ * A note may describe something that happened,
+ * a source may contain advice, and a reference
+ * may describe a plant.
+ *
+ * None of those records silently become:
+ *
+ * Plant Stories
+ * Journal Events
+ * Harvests
+ * Purchases
+ * Plans
+ */
+
+
+/* =======================================
+   KNOWLEDGE RELATIONSHIPS
+======================================= */
+
+export type KnowledgeRelationshipTargetType =
+  | 'plant-story'
+  | 'garden-event'
+  | 'harvest'
+  | 'plan'
+  | 'growing-place'
+  | 'growing-setup'
+  | 'ingredient'
+  | 'product'
+  | 'purchase'
+  | 'garden-note'
+  | 'plant-reference'
+  | 'saved-source'
+
+
+export interface KnowledgeRelationship {
+  targetType:
+    KnowledgeRelationshipTargetType
+
+  targetId:
+    string
+
+  label?: string
+
+  createdAt?: string
+}
+
+
+/* =======================================
+   GARDEN NOTE ORIGIN
+======================================= */
+
+export type GardenNoteOrigin =
+  | 'sprig-note'
+  | 'imported-text'
+
+
+/* =======================================
+   KNOWLEDGE PLACEMENT
+======================================= */
+
+export type KnowledgePlacementDestinationType =
+  | 'garden-note'
+  | 'plant-reference'
+  | 'saved-source'
+  | 'garden-event'
+  | 'plan'
+  | 'existing-record'
+
+
+export interface KnowledgePlacement {
+  id: string
+
+  /*
+   * Stable copy of the words that were placed.
+   *
+   * We do not depend on character offsets
+   * because editable notes may change later.
+   */
+
+  excerpt: string
+
+  destinationType:
+    KnowledgePlacementDestinationType
+
+  destinationId?: string
+
+  destinationLabel?: string
+
+  placedAt: string
+}
+
+
+/* =======================================
+   GARDEN NOTES
+======================================= */
+
+export interface GardenNote {
+  id: string
+
+  title?: string
+
+  body: string
+
+  noteDate?: string
+
+  origin:
+    GardenNoteOrigin
+
+  /*
+   * Imported material keeps one immutable
+   * snapshot.
+   *
+   * The editable note body can evolve later
+   * without destroying what the gardener
+   * originally imported.
+   */
+
+  originalBody?: string
+
+  sourceLabel?: string
+
+  sourceUrl?: string
+
+  relationships?:
+    KnowledgeRelationship[]
+
+  placements?:
+    KnowledgePlacement[]
+
+  photoUrls?: string[]
+
+  createdAt: string
+
+  updatedAt?: string
+}
+
+
+/* =======================================
+   SAVED TIPS & SOURCES
+======================================= */
+
+export type SavedKnowledgeSourceKind =
+  | 'website'
+  | 'facebook'
+  | 'chatgpt'
+  | 'person'
+  | 'nursery'
+  | 'book'
+  | 'video'
+  | 'screenshot'
+  | 'other'
+
+
+export interface SavedKnowledgeSource {
+  id: string
+
+  title: string
+
+  kind:
+    SavedKnowledgeSourceKind
+
+  customKindLabel?: string
+
+  sourceName?: string
+
+  url?: string
+
+  /*
+   * The words supplied by the source.
+   */
+
+  excerpt?: string
+
+  /*
+   * The gardener's own commentary about
+   * the source.
+   */
+
+  notes?: string
+
+  savedDate?: string
+
+  relationships?:
+    KnowledgeRelationship[]
+
+  photoUrls?: string[]
+
+  createdAt: string
+
+  updatedAt?: string
+}
+
+
+/* =======================================
+   PLANT REFERENCE
+======================================= */
+
+export interface PlantReference {
+  id: string
+  plantName: string
+  variety?: string
+  aliases?: string[]
+  notes?: string
+  referenceDate?: string
+  photoUrls?: string[]
+  sourceIds?: string[]
+  relationships?: KnowledgeRelationship[]
+  createdAt: string
+  updatedAt?: string
+}
+
+  /*
+   * Source links point to Saved Tips &
+   * Sources rather than copying outside
+   * advice into reference truth.
+   */
+
+
+/* =======================================
    COMPLETE SAVED GARDEN
 ======================================= */
 
@@ -995,31 +1107,37 @@ export interface GardenData {
   /*
    * Legacy collection.
    */
+
   growingSpaces: GrowingSpace[]
 
   /*
    * Current location system.
    */
+
   growingPlaces: GrowingPlace[]
 
   /*
    * Reusable Growing Setup library.
    */
+
   growingSetups: GrowingSetup[]
 
   /*
    * Reusable Ingredient library.
    */
+
   ingredients: Ingredient[]
 
   /*
    * Reusable Product library.
    */
+
   products: GardenProduct[]
 
   /*
    * Purchase history.
    */
+
   purchases: PurchaseRecord[]
 
   /*
@@ -1027,6 +1145,7 @@ export interface GardenData {
    * places, plants and setups that consumed
    * them.
    */
+
   costAllocations: CostAllocation[]
 
   events: GardenEvent[]
@@ -1037,7 +1156,23 @@ export interface GardenData {
    * Future intentions belonging to the
    * Calendar and planning system.
    */
+
   plans: GardenPlan[]
+
+  /*
+   * Knowledge capture and reusable knowledge.
+   *
+   * The Almanac itself remains derived rather
+   * than becoming a duplicate persisted truth
+   * store.
+   */
+
+  gardenNotes?: GardenNote[]
+
+  plantReferences?: PlantReference[]
+
+  savedKnowledgeSources?:
+    SavedKnowledgeSource[]
 
   savedComparisons: SavedComparison[]
 }

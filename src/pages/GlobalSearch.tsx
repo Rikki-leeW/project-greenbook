@@ -29,10 +29,50 @@ import {
   import type {
     GlobalSearchCategory,
     GlobalSearchItem,
+    GlobalSearchSourceType,
   } from '../utils/globalSearchUtils'
   
   import '../css/global-search.css'
   
+  
+  /* =======================================
+     SEARCH SESSION MEMORY
+  ======================================= */
+  
+  /*
+   * Search is temporary navigation context.
+   *
+   * It is not garden data and is deliberately
+   * not stored in localStorage.
+   *
+   * These values live only for the current
+   * application session so this journey works:
+   *
+   * Search "Sebago"
+   *      ↓
+   * open a Plant Story
+   *      ↓
+   * Back to Search Sprig
+   *      ↓
+   * "Sebago" is still waiting
+   *
+   * A deliberate navigation away from Search
+   * clears this memory so a later fresh visit
+   * begins with a clean Search page.
+   */
+  
+  let rememberedSearchQuery =
+    ''
+  
+  let rememberedSearchCategories:
+    GlobalSearchCategory[] = [
+      ...ALL_GLOBAL_SEARCH_CATEGORIES,
+    ]
+  
+  
+  /* =======================================
+     PROPS
+  ======================================= */
   
   interface GlobalSearchProps {
     gardenData: GardenData
@@ -51,6 +91,10 @@ import {
     ) => void
   }
   
+  
+  /* =======================================
+     UNIQUE RELATIONSHIP LABELS
+  ======================================= */
   
   function uniqueLabels(
     labels:
@@ -72,6 +116,235 @@ import {
   }
   
   
+  /* =======================================
+     CALENDAR SOURCE → SEARCH SOURCE
+  ======================================= */
+  
+  /*
+   * Calendar is a view over the garden.
+   *
+   * Some Calendar results therefore point back
+   * to a real record that Search has already
+   * found independently.
+   *
+   * This helper translates the Calendar source
+   * language into Global Search source language
+   * so we can recognise those echoes.
+   */
+  
+  function getDirectSearchSourceTypeForCalendarItem(
+    item: GlobalSearchItem,
+  ):
+    | GlobalSearchSourceType
+    | undefined {
+  
+    switch (
+      item.calendarSourceType
+    ) {
+      case 'plant-story':
+        return 'plant-story'
+  
+      case 'journal':
+        return 'garden-event'
+  
+      case 'harvest':
+        return 'harvest'
+  
+      case 'purchase':
+        return 'purchase'
+  
+      case 'plan':
+        return 'plan'
+  
+      default:
+        return undefined
+    }
+  }
+  
+  
+  /* =======================================
+     CALENDAR ECHO KEY
+  ======================================= */
+  
+  function getDirectResultKey(
+    sourceType:
+      GlobalSearchSourceType,
+    sourceId: string,
+  ): string {
+    return `${sourceType}:${sourceId}`
+  }
+  
+  
+  /* =======================================
+     CALENDAR RESULT INTELLIGENCE
+  ======================================= */
+  
+  /*
+   * Search should not become an echo chamber.
+   *
+   * If a real source record already appears in
+   * the current results, a Calendar card that is
+   * merely the recorded manifestation of that
+   * same record adds little.
+   *
+   * We suppress only those redundant echoes.
+   *
+   * We KEEP:
+   *
+   * - Expected Calendar moments
+   * - Growing Journey moments
+   * - Plant photo moments
+   * - Calendar-only calculated moments
+   * - anything without a direct source result
+   *
+   * Plans are also suppressed as Calendar echoes
+   * when their actual Garden Plan result already
+   * appears.
+   *
+   * This means Calendar remains searchable and
+   * useful without repeating the same garden fact
+   * in several costumes.
+   */
+  
+  function removeRedundantCalendarEchoes(
+    results: GlobalSearchItem[],
+  ): GlobalSearchItem[] {
+    const directResultKeys =
+      new Set(
+        results
+          .filter(
+            item =>
+              item.sourceType !==
+              'calendar',
+          )
+          .map(
+            item =>
+              getDirectResultKey(
+                item.sourceType,
+                item.sourceId,
+              ),
+          ),
+      )
+  
+  
+    return results.filter(
+      item => {
+        if (
+          item.sourceType !==
+          'calendar'
+        ) {
+          return true
+        }
+  
+  
+        if (
+          !item.calendarSourceId
+        ) {
+          return true
+        }
+  
+  
+        const directSourceType =
+          getDirectSearchSourceTypeForCalendarItem(
+            item,
+          )
+  
+  
+        if (
+          !directSourceType
+        ) {
+          return true
+        }
+  
+  
+        const directResultExists =
+          directResultKeys.has(
+            getDirectResultKey(
+              directSourceType,
+              item.calendarSourceId,
+            ),
+          )
+  
+  
+        if (
+          !directResultExists
+        ) {
+          return true
+        }
+  
+  
+        /*
+         * A Plan already has its own first-class
+         * Search result.
+         *
+         * The Calendar manifestation is therefore
+         * redundant when that Plan result is also
+         * in this query.
+         */
+        if (
+          item.calendarSourceType ===
+          'plan'
+        ) {
+          return false
+        }
+  
+  
+        /*
+         * Expected moments are valuable Calendar
+         * intelligence rather than copies of the
+         * source record.
+         *
+         * Keep them even when their Plant Story
+         * also matches the query.
+         */
+        const isExpectedMoment =
+          item.subtitle
+            ?.trim()
+            .toLowerCase()
+            .startsWith(
+              'expected',
+            ) ??
+          false
+  
+  
+        if (
+          isExpectedMoment
+        ) {
+          return true
+        }
+  
+  
+        /*
+         * For ordinary source-backed Calendar
+         * items, suppress only recorded echoes.
+         */
+        const isRecordedMoment =
+          item.subtitle
+            ?.trim()
+            .toLowerCase()
+            .startsWith(
+              'recorded',
+            ) ??
+          false
+  
+  
+        if (
+          isRecordedMoment
+        ) {
+          return false
+        }
+  
+  
+        return true
+      },
+    )
+  }
+  
+  
+  /* =======================================
+     GLOBAL SEARCH
+  ======================================= */
+  
   export default function GlobalSearch({
     gardenData,
     onOpenResult,
@@ -81,7 +354,9 @@ import {
       query,
       setQuery,
     ] =
-      useState('')
+      useState(
+        rememberedSearchQuery,
+      )
   
   
     const [
@@ -89,9 +364,15 @@ import {
       setSelectedCategories,
     ] =
       useState<GlobalSearchCategory[]>(
-        ALL_GLOBAL_SEARCH_CATEGORIES,
+        () => [
+          ...rememberedSearchCategories,
+        ],
       )
   
+  
+    /* =======================================
+       SEARCH INDEX
+    ======================================= */
   
     const searchIndex =
       useMemo(
@@ -105,6 +386,10 @@ import {
       )
   
   
+    /* =======================================
+       CATEGORY COUNTS
+    ======================================= */
+  
     const categoryCounts =
       useMemo(
         () =>
@@ -117,7 +402,11 @@ import {
       )
   
   
-    const results =
+    /* =======================================
+       RAW SEARCH RESULTS
+    ======================================= */
+  
+    const rawResults =
       useMemo(
         () =>
           searchGlobalSearchIndex(
@@ -133,6 +422,26 @@ import {
       )
   
   
+    /* =======================================
+       REFINED SEARCH RESULTS
+    ======================================= */
+  
+    const results =
+      useMemo(
+        () =>
+          removeRedundantCalendarEchoes(
+            rawResults,
+          ),
+        [
+          rawResults,
+        ],
+      )
+  
+  
+    /* =======================================
+       RESULT GROUPS
+    ======================================= */
+  
     const resultGroups =
       useMemo(
         () =>
@@ -145,6 +454,10 @@ import {
       )
   
   
+    /* =======================================
+       SEARCH STATE
+    ======================================= */
+  
     const hasQuery =
       query.trim().length >
       0
@@ -155,56 +468,160 @@ import {
       ALL_GLOBAL_SEARCH_CATEGORIES.length
   
   
-    function selectAllCategories() {
-      setSelectedCategories(
-        ALL_GLOBAL_SEARCH_CATEGORIES,
+    /* =======================================
+       REMEMBER QUERY
+    ======================================= */
+  
+    function updateQuery(
+      nextQuery: string,
+    ) {
+      rememberedSearchQuery =
+        nextQuery
+  
+  
+      setQuery(
+        nextQuery,
       )
     }
   
+  
+    /* =======================================
+       REMEMBER CATEGORIES
+    ======================================= */
+  
+    function updateSelectedCategories(
+      nextCategories:
+        GlobalSearchCategory[],
+    ) {
+      rememberedSearchCategories = [
+        ...nextCategories,
+      ]
+  
+  
+      setSelectedCategories(
+        nextCategories,
+      )
+    }
+  
+  
+    /* =======================================
+       SELECT ALL CATEGORIES
+    ======================================= */
+  
+    function selectAllCategories() {
+      updateSelectedCategories(
+        [
+          ...ALL_GLOBAL_SEARCH_CATEGORIES,
+        ],
+      )
+    }
+  
+  
+    /* =======================================
+       TOGGLE CATEGORY
+    ======================================= */
   
     function toggleCategory(
       category:
         GlobalSearchCategory,
     ) {
-      setSelectedCategories(
-        current => {
-          const isSelected =
-            current.includes(
+      const isSelected =
+        selectedCategories.includes(
+          category,
+        )
+  
+  
+      if (
+        isSelected
+      ) {
+        const next =
+          selectedCategories.filter(
+            item =>
+              item !==
               category,
-            )
+          )
   
   
-          if (
-            isSelected
-          ) {
-            const next =
-              current.filter(
-                item =>
-                  item !==
-                  category,
-              )
+        /*
+         * Search should never be left with
+         * nowhere to look.
+         *
+         * Keep the final remaining category
+         * selected.
+         */
+        if (
+          next.length ===
+          0
+        ) {
+          return
+        }
   
   
-            return next.length >
-              0
-              ? next
-              : current
-          }
+        updateSelectedCategories(
+          next,
+        )
   
   
-          return [
-            ...current,
-            category,
-          ]
-        },
+        return
+      }
+  
+  
+      updateSelectedCategories(
+        [
+          ...selectedCategories,
+          category,
+        ],
       )
     }
   
   
+    /* =======================================
+       CLEAR SEARCH
+    ======================================= */
+  
     function clearSearch() {
-      setQuery('')
+      updateQuery(
+        '',
+      )
+  
   
       selectAllCategories()
+    }
+  
+  
+    /* =======================================
+       DELIBERATE NAVIGATION AWAY
+    ======================================= */
+  
+    function handleNavigateAway(
+      page: AppPage,
+      libraryView?:
+        | 'library'
+        | 'growing-recipes'
+        | 'ingredients'
+        | 'products',
+    ) {
+      /*
+       * This is a deliberate destination jump,
+       * not the gardener opening a Search result.
+       *
+       * Clear the temporary Search session so
+       * the next fresh visit starts clean.
+       */
+  
+      rememberedSearchQuery =
+        ''
+  
+  
+      rememberedSearchCategories = [
+        ...ALL_GLOBAL_SEARCH_CATEGORIES,
+      ]
+  
+  
+      onNavigate(
+        page,
+        libraryView,
+      )
     }
   
   
@@ -212,7 +629,7 @@ import {
       <GardenLayout
         activePage="search"
         onNavigate={
-          onNavigate
+          handleNavigateAway
         }
       >
         <main className="sprig-global-search-page">
@@ -261,7 +678,7 @@ import {
                 }
                 onChange={
                   event =>
-                    setQuery(
+                    updateQuery(
                       event.target.value,
                     )
                 }

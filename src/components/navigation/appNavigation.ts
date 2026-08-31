@@ -1,12 +1,8 @@
-import type {
-  AppPage,
-} from '../../types/navigation'
-
+import type { AppPage } from '../../types/navigation'
 
 export type SprigPageStatus =
   | 'live'
   | 'coming-later'
-
 
 export type SprigLibraryView =
   | 'home'
@@ -14,20 +10,14 @@ export type SprigLibraryView =
   | 'ingredients'
   | 'products'
 
-
 export type SprigCalendarView =
   | 'calculator'
 
-
 export interface SprigNavigationItem {
   id: string
-
   label: string
-
   icon: string
-
   status: SprigPageStatus
-
   page?: AppPage
 
   /**
@@ -39,6 +29,7 @@ export interface SprigNavigationItem {
    * shelf directly rather than always landing
    * on the Library overview.
    */
+
   libraryView?: SprigLibraryView
 
   /**
@@ -48,20 +39,17 @@ export interface SprigNavigationItem {
    * Calendar remains the real destination.
    * This does not create another AppPage.
    */
+
   calendarView?: SprigCalendarView
 
   note?: string
 }
 
-
 export interface SprigNavigationSection {
   id: string
-
   title: string
-
   items: SprigNavigationItem[]
 }
-
 
 /**
  * ========================================
@@ -88,10 +76,8 @@ export interface SprigNavigationSection {
  * from this same map.
  */
 
-
 export const sprigNavigation:
   SprigNavigationSection[] = [
-
     /**
      * ========================================
      * TODAY
@@ -99,55 +85,33 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'today',
-
-      title:
-        'Today',
+      id: 'today',
+      title: 'Today',
 
       items: [
         {
-          id:
-            'today-in-the-garden',
-
-          label:
-            'Today in the Garden',
-
-          icon:
-            '🌿',
-
-          status:
-            'live',
-
-          page:
-            'gate',
+          id: 'today-in-the-garden',
+          label: 'Today in the Garden',
+          icon: '🌿',
+          status: 'live',
+          page: 'gate',
 
           note:
             'Home, garden overview and future reminders',
         },
 
         {
-          id:
-            'search-sprig',
-
-          label:
-            'Search Sprig',
-
-          icon:
-            '🔎',
-
-          status:
-            'live',
-
-          page:
-            'search',
+          id: 'search-sprig',
+          label: 'Search Sprig',
+          icon: '🔎',
+          status: 'live',
+          page: 'search',
 
           note:
             'Find anything Sprig remembers across your garden stories, records and plans',
         },
       ],
     },
-
 
     /**
      * ========================================
@@ -156,85 +120,46 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'my-garden',
-
-      title:
-        'My Garden',
+      id: 'my-garden',
+      title: 'My Garden',
 
       items: [
         {
-          id:
-            'plants',
-
-          label:
-            'Plants',
-
-          icon:
-            '🌱',
-
-          status:
-            'live',
-
-          page:
-            'plants',
+          id: 'plants',
+          label: 'Plants',
+          icon: '🌱',
+          status: 'live',
+          page: 'plants',
         },
 
         {
-          id:
-            'comparisons',
-
-          label:
-            'Comparisons',
-
-          icon:
-            '📊',
-
-          status:
-            'live',
-
-          page:
-            'comparisons',
+          id: 'comparisons',
+          label: 'Comparisons',
+          icon: '📊',
+          status: 'live',
+          page: 'comparisons',
 
           note:
             'Saved side-by-side views of your garden stories',
         },
 
         {
-          id:
-            'growing-places',
-
-          label:
-            'Growing Places',
-
-          icon:
-            '🪴',
-
-          status:
-            'live',
-
-          page:
-            'growing-places',
+          id: 'growing-places',
+          label: 'Growing Places',
+          icon: '🪴',
+          status: 'live',
+          page: 'growing-places',
 
           note:
             'Beds, pots, bags and all the places your garden grows',
         },
 
         {
-          id:
-            'growing-recipes',
-
-          label:
-            'Growing Recipes',
-
-          icon:
-            '🧺',
-
-          status:
-            'live',
-
-          page:
-            'library',
+          id: 'growing-recipes',
+          label: 'Growing Recipes',
+          icon: '🧺',
+          status: 'live',
+          page: 'library',
 
           libraryView:
             'growing-recipes',
@@ -244,20 +169,11 @@ export const sprigNavigation:
         },
 
         {
-          id:
-            'ingredients',
-
-          label:
-            'Ingredients',
-
-          icon:
-            '🌾',
-
-          status:
-            'live',
-
-          page:
-            'library',
+          id: 'ingredients',
+          label: 'Ingredients',
+          icon: '🌾',
+          status: 'live',
+          page: 'library',
 
           libraryView:
             'ingredients',
@@ -267,20 +183,11 @@ export const sprigNavigation:
         },
 
         {
-          id:
-            'products',
-
-          label:
-            'Products',
-
-          icon:
-            '🧴',
-
-          status:
-            'live',
-
-          page:
-            'library',
+          id: 'products',
+          label: 'Products',
+          icon: '🧴',
+          status: 'live',
+          page: 'library',
 
           libraryView:
             'products',
@@ -290,20 +197,11 @@ export const sprigNavigation:
         },
 
         {
-          id:
-            'garden-library',
-
-          label:
-            'Garden Library',
-
-          icon:
-            '📚',
-
-          status:
-            'live',
-
-          page:
-            'library',
+          id: 'garden-library',
+          label: 'Garden Library',
+          icon: '📚',
+          status: 'live',
+          page: 'library',
 
           libraryView:
             'home',
@@ -314,7 +212,6 @@ export const sprigNavigation:
       ],
     },
 
-
     /**
      * ========================================
      * CHRONICLE
@@ -322,76 +219,40 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'chronicle',
-
-      title:
-        'Chronicle',
+      id: 'chronicle',
+      title: 'Chronicle',
 
       items: [
         {
-          id:
-            'garden-journal',
-
-          label:
-            'Garden Journal',
-
-          icon:
-            '📖',
-
-          status:
-            'live',
-
-          page:
-            'journal',
+          id: 'garden-journal',
+          label: 'Garden Journal',
+          icon: '📖',
+          status: 'live',
+          page: 'journal',
         },
 
         {
-          id:
-            'harvests',
-
-          label:
-            'Harvests',
-
-          icon:
-            '🧺',
-
-          status:
-            'live',
-
-          page:
-            'harvest',
+          id: 'harvests',
+          label: 'Harvests',
+          icon: '🧺',
+          status: 'live',
+          page: 'harvest',
         },
 
         {
-          id:
-            'garden-trials',
-
-          label:
-            'Garden Trials',
-
-          icon:
-            '🧪',
-
-          status:
-            'coming-later',
+          id: 'garden-trials',
+          label: 'Garden Trials',
+          icon: '🧪',
+          status: 'coming-later',
         },
 
         {
-          id:
-            'calendar-planning',
-
+          id: 'calendar-planning',
           label:
             'Calendar & Planning',
-
-          icon:
-            '📅',
-
-          status:
-            'live',
-
-          page:
-            'calendar',
+          icon: '📅',
+          status: 'live',
+          page: 'calendar',
 
           note:
             'Your garden through time: what happened, what is expected and what you are planning',
@@ -404,14 +265,9 @@ export const sprigNavigation:
           label:
             'Sowing & Harvest Calculator',
 
-          icon:
-            '🧮',
-
-          status:
-            'live',
-
-          page:
-            'calendar',
+          icon: '🧮',
+          status: 'live',
+          page: 'calendar',
 
           calendarView:
             'calculator',
@@ -422,7 +278,6 @@ export const sprigNavigation:
       ],
     },
 
-
     /**
      * ========================================
      * GARDEN KNOWLEDGE
@@ -430,66 +285,56 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'garden-knowledge',
-
-      title:
-        'Garden Knowledge',
+      id: 'garden-knowledge',
+      title: 'Garden Knowledge',
 
       items: [
         {
-          id:
-            'garden-notes',
-
-          label:
-            'Garden Notes / Almanac',
-
-          icon:
-            '📚',
-
-          status:
-            'coming-later',
+          id: 'garden-notes',
+          label: 'Garden Notes',
+          icon: '📝',
+          status: 'live',
+          page: 'garden-notes',
 
           note:
-            'Your growing knowledge, saved conversations and collected notes',
+            'Capture thoughts, questions, observations and old notes without forcing them into garden history',
         },
 
         {
-          id:
-            'plant-reference',
-
-          label:
-            'Plant Reference',
-
-          icon:
-            '🌿',
-
-          status:
-            'coming-later',
+          id: 'garden-almanac',
+          label: 'Garden Almanac',
+          icon: '📖',
+          status: 'live',
+          page: 'garden-almanac',
 
           note:
-            'Reusable knowledge about crops and varieties',
+            'What your own garden is beginning to teach you, gathered from real records and saved knowledge',
         },
 
         {
-          id:
-            'saved-tips',
+          id: 'plant-reference',
+          label: 'Plant Reference',
+          icon: '🌿',
+          status: 'live',
+          page: 'plant-reference',
 
+          note:
+            'Reusable knowledge about crops and varieties, kept separate from individual Plant Stories',
+        },
+
+        {
+          id: 'saved-tips',
           label:
             'Saved Tips & Sources',
-
-          icon:
-            '🔖',
-
-          status:
-            'coming-later',
+          icon: '🔖',
+          status: 'live',
+          page: 'saved-sources',
 
           note:
-            'Facebook tips, links, articles and other useful finds',
+            'Advice, links, screenshots and useful finds with their provenance kept attached',
         },
       ],
     },
-
 
     /**
      * ========================================
@@ -498,32 +343,21 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'photographs',
-
-      title:
-        'Photographs',
+      id: 'photographs',
+      title: 'Photographs',
 
       items: [
         {
-          id:
-            'garden-gallery',
-
-          label:
-            'Garden Gallery',
-
-          icon:
-            '📷',
-
-          status:
-            'coming-later',
+          id: 'garden-gallery',
+          label: 'Garden Gallery',
+          icon: '📷',
+          status: 'coming-later',
 
           note:
             'One visual doorway into photographs already stored throughout Sprig',
         },
       ],
     },
-
 
     /**
      * ========================================
@@ -532,74 +366,43 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'garden-stores',
-
-      title:
-        'Garden Stores',
+      id: 'garden-stores',
+      title: 'Garden Stores',
 
       items: [
         {
-          id:
-            'purchases',
-
-          label:
-            'Purchases',
-
-          icon:
-            '🛒',
-
-          status:
-            'coming-later',
+          id: 'purchases',
+          label: 'Purchases',
+          icon: '🛒',
+          status: 'coming-later',
 
           note:
             'Purchase records and history',
         },
 
         {
-          id:
-            'supplies',
-
-          label:
-            'Supplies',
-
-          icon:
-            '📦',
-
-          status:
-            'coming-later',
+          id: 'supplies',
+          label: 'Supplies',
+          icon: '📦',
+          status: 'coming-later',
         },
 
         {
-          id:
-            'suppliers',
-
-          label:
-            'Suppliers',
-
-          icon:
-            '🏡',
-
-          status:
-            'coming-later',
+          id: 'suppliers',
+          label: 'Suppliers',
+          icon: '🏡',
+          status: 'coming-later',
         },
 
         {
-          id:
-            'costs-allocations',
-
+          id: 'costs-allocations',
           label:
             'Costs & Allocations',
-
-          icon:
-            '💰',
-
-          status:
-            'coming-later',
+          icon: '💰',
+          status: 'coming-later',
         },
       ],
     },
-
 
     /**
      * ========================================
@@ -608,11 +411,8 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'history',
-
-      title:
-        'History',
+      id: 'history',
+      title: 'History',
 
       items: [
         {
@@ -622,32 +422,21 @@ export const sprigNavigation:
           label:
             'Completed Plant Stories',
 
-          icon:
-            '🍂',
-
-          status:
-            'coming-later',
+          icon: '🍂',
+          status: 'coming-later',
         },
 
         {
-          id:
-            'archives',
-
-          label:
-            'Archives',
-
-          icon:
-            '🗄️',
-
-          status:
-            'coming-later',
+          id: 'archives',
+          label: 'Archives',
+          icon: '🗄️',
+          status: 'coming-later',
 
           note:
             'Archived recipes, ingredients, products and future records',
         },
       ],
     },
-
 
     /**
      * ========================================
@@ -656,59 +445,33 @@ export const sprigNavigation:
      */
 
     {
-      id:
-        'sprig',
-
-      title:
-        'Sprig',
+      id: 'sprig',
+      title: 'Sprig',
 
       items: [
         {
-          id:
-            'settings',
-
-          label:
-            'Settings',
-
-          icon:
-            '⚙️',
-
-          status:
-            'coming-later',
+          id: 'settings',
+          label: 'Settings',
+          icon: '⚙️',
+          status: 'coming-later',
         },
 
         {
-          id:
-            'backup-restore',
-
-          label:
-            'Backup & Restore',
-
-          icon:
-            '💾',
-
-          status:
-            'live',
-
-          page:
-            'backup',
+          id: 'backup-restore',
+          label: 'Backup & Restore',
+          icon: '💾',
+          status: 'live',
+          page: 'backup',
 
           note:
             'Keep a safe portable copy of your whole Sprig garden',
         },
 
         {
-          id:
-            'help',
-
-          label:
-            'Help',
-
-          icon:
-            '❔',
-
-          status:
-            'coming-later',
+          id: 'help',
+          label: 'Help',
+          icon: '❔',
+          status: 'coming-later',
         },
       ],
     },
