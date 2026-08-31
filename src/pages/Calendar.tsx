@@ -973,7 +973,86 @@ import {
         todayDate,
       )
   
-  
+      /* =======================================
+       STANDALONE GARDEN CALCULATOR
+    ======================================= */
+
+    const [
+      calculatorDirection,
+      setCalculatorDirection,
+    ] =
+      useState<
+        'forward' |
+        'reverse'
+      >(
+        'forward',
+      )
+
+
+    const [
+      calculatorReferenceDate,
+      setCalculatorReferenceDate,
+    ] =
+      useState(
+        todayDate,
+      )
+
+
+    const [
+      calculatorTargetDate,
+      setCalculatorTargetDate,
+    ] =
+      useState(
+        todayDate,
+      )
+
+
+    const [
+      calculatorDaysMin,
+      setCalculatorDaysMin,
+    ] =
+      useState<
+        number | undefined
+      >(
+        undefined,
+      )
+
+
+    const [
+      calculatorDaysMax,
+      setCalculatorDaysMax,
+    ] =
+      useState<
+        number | undefined
+      >(
+        undefined,
+      )
+
+
+    /*
+     * Choosing another day in Calendar gives
+     * the standalone calculator a useful new
+     * starting point.
+     *
+     * Once inside the calculator, its date can
+     * then be changed independently.
+     */
+    useEffect(
+      () => {
+        setCalculatorReferenceDate(
+          selectedDate,
+        )
+
+        setCalculatorTargetDate(
+          selectedDate,
+        )
+      },
+      [
+        selectedDate,
+      ],
+    )
+
+
     /* =======================================
        PLAN COMPOSER
     ======================================= */
@@ -4440,18 +4519,57 @@ import {
           </div>
 
 
-          <GardenTimingCalculator
+                    <GardenTimingCalculator
             referenceType="sown"
 
             referenceDate={
-              selectedDate
+              calculatorReferenceDate
             }
+
+            onReferenceDateChange={
+              setCalculatorReferenceDate
+            }
+
+            targetDate={
+              calculatorTargetDate
+            }
+
+            onTargetDateChange={
+              setCalculatorTargetDate
+            }
+
+            daysMin={
+              calculatorDaysMin
+            }
+
+            daysMax={
+              calculatorDaysMax
+            }
+
+            onTimingChange={(
+              daysMin,
+              daysMax,
+            ) => {
+              setCalculatorDaysMin(
+                daysMin,
+              )
+
+              setCalculatorDaysMax(
+                daysMax,
+              )
+            }}
 
             allowDirectionSwitch={
               true
             }
 
-            direction="forward"
+            direction={
+              calculatorDirection
+            }
+
+            onDirectionChange={
+              setCalculatorDirection
+            }
 
             showDateInputs={
               true

@@ -32,44 +32,18 @@ interface AddPlantFormProps {
   Ingredients: Ingredient[]
   Products: GardenProduct[]
 
-  /**
-   * Normal create mode.
-   */
   onAddPlant: (
     plant: PlantStory,
   ) => void
 
-  /**
-   * Edit mode.
-   */
   onUpdatePlant?: (
     plant: PlantStory,
   ) => void
 
-  /**
-   * Supplying this turns the form into
-   * Edit Plant Story.
-   */
   plantToEdit?: PlantStory
 
-  /**
-   * Supplying this creates a brand-new
-   * Plant Story prefilled from another.
-   */
   variationFrom?: PlantStory
 
-  /**
-   * Supplying this begins a brand-new
-   * Plant Story from a Garden Plan.
-   *
-   * The Plan remains an intention.
-   * This form merely carries useful
-   * particulars forward so the gardener
-   * does not have to type them again.
-   *
-   * The Plant Story created here owns
-   * what actually happened.
-   */
   planToRecord?: GardenPlan
 
   onAddGrowingPlace: (
@@ -140,7 +114,9 @@ function addUniqueRelationshipId(
   ids: string[],
   id?: string,
 ): string[] {
-  if (!id) {
+  if (
+    !id
+  ) {
     return ids
   }
 
@@ -281,6 +257,131 @@ function getPlanHarvestTimingReference(
 
 
 /* =======================================
+   HARVEST TIMING UNITS
+======================================= */
+
+type HarvestTimingUnit =
+  | 'days'
+  | 'weeks'
+  | 'months'
+
+
+function parseHarvestTimingValue(
+  value: string,
+): number | undefined {
+  if (
+    !value.trim()
+  ) {
+    return undefined
+  }
+
+  const parsed =
+    Number(
+      value,
+    )
+
+  if (
+    !Number.isFinite(
+      parsed,
+    ) ||
+    parsed <=
+      0
+  ) {
+    return undefined
+  }
+
+  return parsed
+}
+
+
+function harvestTimingValueToDays(
+  value: string,
+  unit: HarvestTimingUnit,
+): number | undefined {
+  const parsed =
+    parseHarvestTimingValue(
+      value,
+    )
+
+  if (
+    parsed ===
+    undefined
+  ) {
+    return undefined
+  }
+
+  if (
+    unit ===
+    'weeks'
+  ) {
+    return Math.round(
+      parsed *
+      7,
+    )
+  }
+
+  if (
+    unit ===
+    'months'
+  ) {
+    return Math.round(
+      parsed *
+      30.4375,
+    )
+  }
+
+  return Math.round(
+    parsed,
+  )
+}
+
+
+function harvestTimingDaysToValue(
+  days: number | undefined,
+  unit: HarvestTimingUnit,
+): string {
+  if (
+    days ===
+    undefined
+  ) {
+    return ''
+  }
+
+  let value =
+    days
+
+  if (
+    unit ===
+    'weeks'
+  ) {
+    value =
+      days /
+      7
+  }
+
+  if (
+    unit ===
+    'months'
+  ) {
+    value =
+      days /
+      30.4375
+  }
+
+  const rounded =
+    Math.round(
+      value *
+      10,
+    ) /
+    10
+
+  return String(
+    rounded,
+  )
+}
+
+
+/* =======================================
    ADD / EDIT PLANT
 ======================================= */
 
@@ -318,17 +419,6 @@ export default function AddPlantForm({
       ? planToRecord
       : undefined
 
-  /*
-   * A Plant-out Plan can refer either to a
-   * Plant Story Sprig already knows, or to a
-   * physical plant that has not entered Sprig
-   * yet.
-   *
-   * In the second case this form creates the
-   * Plant Story at the moment reality catches
-   * up with the Plan. We do not invent an
-   * earlier sowing or planting history.
-   */
   const isNewPlantOutFromPlan =
     recordingPlan?.kind ===
       'plant-out' &&
@@ -336,7 +426,8 @@ export default function AddPlantForm({
       recordingPlan
         .plantStoryIds ??
       []
-    ).length === 0
+    ).length ===
+      0
 
   const isEditing =
     Boolean(
@@ -564,53 +655,91 @@ export default function AddPlantForm({
      HARVEST EXPECTATION
   ======================================= */
 
+  const initialHarvestDaysMin =
+    sourcePlant
+      ?.expectedHarvestDaysMin ??
+    recordingPlan
+      ?.timingAssumption
+      ?.daysMin
+
+  const initialHarvestDaysMax =
+    sourcePlant
+      ?.expectedHarvestDaysMax ??
+    recordingPlan
+      ?.timingAssumption
+      ?.daysMax
+
   const [
-    expectedHarvestDaysMin,
-    setExpectedHarvestDaysMin,
+    harvestTimingUnit,
+    setHarvestTimingUnit,
   ] =
-    useState(
-      sourcePlant
-        ?.expectedHarvestDaysMin !==
-      undefined
-        ? String(
-            sourcePlant
-              .expectedHarvestDaysMin,
-          )
-        : recordingPlan
-            ?.timingAssumption
-            ?.daysMin !==
-          undefined
-          ? String(
-              recordingPlan
-                .timingAssumption
-                .daysMin,
-            )
-          : '',
+    useState<HarvestTimingUnit>(
+      'days',
     )
 
   const [
-    expectedHarvestDaysMax,
-    setExpectedHarvestDaysMax,
+    expectedHarvestMinValue,
+    setExpectedHarvestMinValue,
   ] =
     useState(
-      sourcePlant
-        ?.expectedHarvestDaysMax !==
-      undefined
-        ? String(
-            sourcePlant
-              .expectedHarvestDaysMax,
-          )
-        : recordingPlan
-            ?.timingAssumption
-            ?.daysMax !==
-          undefined
-          ? String(
-              recordingPlan
-                .timingAssumption
-                .daysMax,
-            )
-          : '',
+      harvestTimingDaysToValue(
+        initialHarvestDaysMin,
+        'days',
+      ),
     )
+
+  const [
+    expectedHarvestMaxValue,
+    setExpectedHarvestMaxValue,
+  ] =
+    useState(
+      harvestTimingDaysToValue(
+        initialHarvestDaysMax,
+        'days',
+      ),
+    )
+
+
+  function changeHarvestTimingUnit(
+    nextUnit: HarvestTimingUnit,
+  ) {
+    if (
+      nextUnit ===
+      harvestTimingUnit
+    ) {
+      return
+    }
+
+    const currentMinDays =
+      harvestTimingValueToDays(
+        expectedHarvestMinValue,
+        harvestTimingUnit,
+      )
+
+    const currentMaxDays =
+      harvestTimingValueToDays(
+        expectedHarvestMaxValue,
+        harvestTimingUnit,
+      )
+
+    setExpectedHarvestMinValue(
+      harvestTimingDaysToValue(
+        currentMinDays,
+        nextUnit,
+      ),
+    )
+
+    setExpectedHarvestMaxValue(
+      harvestTimingDaysToValue(
+        currentMaxDays,
+        nextUnit,
+      ),
+    )
+
+    setHarvestTimingUnit(
+      nextUnit,
+    )
+  }
 
 
   /* =======================================
@@ -695,88 +824,92 @@ export default function AddPlantForm({
      NOTEBOOK LOCK
   ======================================= */
 
-  useEffect(() => {
-    const scrollY =
-      window.scrollY
+  useEffect(
+    () => {
+      const scrollY =
+        window.scrollY
 
-    requestAnimationFrame(
-      () => {
-        if (
-          formRef.current
-        ) {
-          formRef.current
-            .scrollTop = 0
-        }
-      },
-    )
+      requestAnimationFrame(
+        () => {
+          if (
+            formRef.current
+          ) {
+            formRef.current
+              .scrollTop =
+              0
+          }
+        },
+      )
 
-    const previousOverflow =
-      document.body
-        .style
-        .overflow
+      const previousOverflow =
+        document.body
+          .style
+          .overflow
 
-    const previousPosition =
-      document.body
-        .style
-        .position
+      const previousPosition =
+        document.body
+          .style
+          .position
 
-    const previousTop =
-      document.body
-        .style
-        .top
+      const previousTop =
+        document.body
+          .style
+          .top
 
-    const previousWidth =
-      document.body
-        .style
-        .width
+      const previousWidth =
+        document.body
+          .style
+          .width
 
-    document.body
-      .style
-      .overflow =
-        'hidden'
-
-    document.body
-      .style
-      .position =
-        'fixed'
-
-    document.body
-      .style
-      .top =
-        `-${scrollY}px`
-
-    document.body
-      .style
-      .width =
-        '100%'
-
-    return () => {
       document.body
         .style
         .overflow =
-          previousOverflow
+          'hidden'
 
       document.body
         .style
         .position =
-          previousPosition
+          'fixed'
 
       document.body
         .style
         .top =
-          previousTop
+          `-${scrollY}px`
 
       document.body
         .style
         .width =
-          previousWidth
+          '100%'
 
-      window.scrollTo(
-        0,
-        scrollY,
-      )
-    }
-  }, [])
+      return () => {
+        document.body
+          .style
+          .overflow =
+            previousOverflow
+
+        document.body
+          .style
+          .position =
+            previousPosition
+
+        document.body
+          .style
+          .top =
+            previousTop
+
+        document.body
+          .style
+          .width =
+            previousWidth
+
+        window.scrollTo(
+          0,
+          scrollY,
+        )
+      }
+    },
+    [],
+  )
 
 
   /* =======================================
@@ -815,18 +948,16 @@ export default function AddPlantForm({
       trimmedPlantName
 
     const minimumHarvestDays =
-      expectedHarvestDaysMin
-        ? Number(
-            expectedHarvestDaysMin,
-          )
-        : undefined
+      harvestTimingValueToDays(
+        expectedHarvestMinValue,
+        harvestTimingUnit,
+      )
 
     const maximumHarvestDays =
-      expectedHarvestDaysMax
-        ? Number(
-            expectedHarvestDaysMax,
-          )
-        : undefined
+      harvestTimingValueToDays(
+        expectedHarvestMaxValue,
+        harvestTimingUnit,
+      )
 
 
     /* =======================================
@@ -841,15 +972,6 @@ export default function AddPlantForm({
       currentGrowingSetupId ||
       undefined
 
-    /*
-     * For a newly introduced Plant-out
-     * story, the first real arrangement
-     * begins when the plant was actually
-     * planted out.
-     *
-     * Seed-grown stories that already have
-     * a Plant-out date follow the same rule.
-     */
     const initialGrowingArrangementDate =
       (
         isNewPlantOutFromPlan ||
@@ -1006,7 +1128,8 @@ export default function AddPlantForm({
             notes:
               'Earlier growing arrangement carried forward from this existing Plant Story. Its exact starting date was not separately recorded.',
           })
-        } else {
+        }
+        else {
           let openEntryIndex =
             -1
 
@@ -1069,7 +1192,8 @@ export default function AddPlantForm({
               selectedGrowingSetupId,
           })
         }
-      } else if (
+      }
+      else if (
         nextGrowingHistory.length ===
           0 &&
         (
@@ -1100,7 +1224,8 @@ export default function AddPlantForm({
             'Growing-history starting point carried forward from this existing Plant Story. Its exact arrangement date was not separately recorded.',
         })
       }
-    } else if (
+    }
+    else if (
       selectedGrowingPlaceId ||
       selectedGrowingSetupId
     ) {
@@ -1160,7 +1285,8 @@ export default function AddPlantForm({
             1,
             Number(
               quantity,
-            ) || 1,
+            ) ||
+            1,
           ),
 
         startMethod,
@@ -1172,32 +1298,15 @@ export default function AddPlantForm({
               undefined
             : undefined,
 
-        /*
-         * For a plant Sprig first meets at
-         * Plant-out, plantedDate means the
-         * beginning of Sprig's known Plant
-         * Story. It does not claim the plant
-         * biologically began on this day.
-         */
         plantedDate:
           startedDate,
 
-        /*
-         * Never manufacture a sowing date for
-         * an already-existing plant entering
-         * Sprig through Plant-out.
-         */
         sownDate:
           beganFromSeed &&
           !isNewPlantOutFromPlan
             ? startedDate
             : undefined,
 
-        /*
-         * A new Plant-out Plant Story owns a
-         * real plantedOutDate even though it
-         * was not previously in Sprig.
-         */
         plantedOutDate:
           (
             isNewPlantOutFromPlan ||
@@ -1713,54 +1822,54 @@ export default function AddPlantForm({
 
 
             {/* =======================================
-    BEGINNING DATE
-======================================= */}
+                BEGINNING DATE
+            ======================================= */}
 
-{!isNewPlantOutFromPlan && (
-  <section className="sprig-form-section growing-setup-details">
-    <label>
-      When did this story begin?
+            {!isNewPlantOutFromPlan && (
+              <section className="sprig-form-section growing-setup-details">
+                <label>
+                  When did this story begin?
 
-      <input
-        type="date"
-        value={
-          startedDate
-        }
-        onChange={(
-          event,
-        ) =>
-          setStartedDate(
-            event.target.value,
-          )
-        }
-        required
-      />
-    </label>
+                  <input
+                    type="date"
+                    value={
+                      startedDate
+                    }
+                    onChange={(
+                      event,
+                    ) =>
+                      setStartedDate(
+                        event.target.value,
+                      )
+                    }
+                    required
+                  />
+                </label>
 
 
-    {isRecordingPlan ? (
-      <p className="form-whisper">
-        Sprig began with the date from your
-        Plan. Change it to the date you
-        actually did it. This actual date
-        will drive the Plant Story&apos;s
-        Expected timing.
-      </p>
-    ) : beganFromSeed ? (
-      <p className="form-whisper">
-        For a seed-grown plant,
-        this is the date the seed
-        was first sown.
-      </p>
-    ) : (
-      <p className="form-whisper">
-        Use the first date you
-        consider this growing
-        story to have begun.
-      </p>
-    )}
-  </section>
-)}
+                {isRecordingPlan ? (
+                  <p className="form-whisper">
+                    Sprig began with the date from your
+                    Plan. Change it to the date you
+                    actually did it. This actual date
+                    will drive the Plant Story&apos;s
+                    Expected timing.
+                  </p>
+                ) : beganFromSeed ? (
+                  <p className="form-whisper">
+                    For a seed-grown plant,
+                    this is the date the seed
+                    was first sown.
+                  </p>
+                ) : (
+                  <p className="form-whisper">
+                    Use the first date you
+                    consider this growing
+                    story to have begun.
+                  </p>
+                )}
+              </section>
+            )}
 
 
             {/* =======================================
@@ -1805,7 +1914,7 @@ export default function AddPlantForm({
 
                 <p className="form-whisper">
                   This is the real Plant-out date. It
-                  will become this Plant Story's
+                  will become this Plant Story&apos;s
                   planted-out date and the beginning of
                   its first Growing Journey arrangement.
                 </p>
@@ -1975,7 +2084,7 @@ export default function AddPlantForm({
                     }
                     placeholder={
                       originType ===
-                      'bought'
+                        'bought'
                         ? 'Bunnings, nursery, seed company...'
                         : 'Friend, previous crop, garden bed...'
                     }
@@ -1988,16 +2097,19 @@ export default function AddPlantForm({
                 {getPlantOriginLabel(
                   originType,
                 )}
+
                 {source.trim()
                   ? ` · ${source.trim()}`
                   : ''}
               </p>
             </section>
-                        {/* =======================================
+
+
+            {/* =======================================
                 GROWING PLACE
             ======================================= */}
 
-<section className="sprig-form-section">
+            <section className="sprig-form-section">
               <SprigPicker
                 title="Where is it growing?"
                 variant="label"
@@ -2036,7 +2148,6 @@ export default function AddPlantForm({
                     id,
                   )
 
-
                   const selectedPlace =
                     GrowingPlaces.find(
                       place =>
@@ -2044,13 +2155,11 @@ export default function AddPlantForm({
                         id,
                     )
 
-
                   setCurrentGrowingSetupId(
                     selectedPlace
                       ?.growingSetupId ||
                     '',
                   )
-
 
                   setIsGrowingPlacePickerOpen(
                     false,
@@ -2206,6 +2315,7 @@ export default function AddPlantForm({
                 When might this story begin giving back?
               </h3>
 
+
               {isRecordingPlan &&
               recordingPlan
                 ?.timingAssumption ? (
@@ -2214,61 +2324,153 @@ export default function AddPlantForm({
                   from the Plan. You can keep it or
                   change it here. Once this Plant
                   Story is saved, the appropriate
-                  actual date in this Plant Story becomes
-                  the reference for the Expected harvest
-                  window.
+                  actual date in this Plant Story
+                  becomes the reference for the
+                  expected harvest window.
                 </p>
               ) : (
                 <p className="form-whisper">
-                  Optional. Leave this blank
-                  when harvest timing does not
-                  apply or you do not know yet.
+                  Optional. Use days, weeks or months,
+                  whichever makes the most sense for
+                  this crop.
                 </p>
               )}
 
 
+              <label>
+                Enter the timing in
+
+                <select
+                  value={
+                    harvestTimingUnit
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    changeHarvestTimingUnit(
+                      event.target
+                        .value as HarvestTimingUnit,
+                    )
+                  }
+                >
+                  <option value="days">
+                    Days
+                  </option>
+
+                  <option value="weeks">
+                    Weeks
+                  </option>
+
+                  <option value="months">
+                    Months
+                  </option>
+                </select>
+              </label>
+
+
               <div className="form-row">
                 <label>
-                  Earliest days
+                  Earliest{' '}
+                  {harvestTimingUnit}
 
                   <input
                     type="number"
-                    min="1"
+                    min="0.1"
+                    step={
+                      harvestTimingUnit ===
+                      'days'
+                        ? '1'
+                        : '0.1'
+                    }
+                    inputMode="decimal"
                     value={
-                      expectedHarvestDaysMin
+                      expectedHarvestMinValue
                     }
                     onChange={(
                       event,
                     ) =>
-                      setExpectedHarvestDaysMin(
+                      setExpectedHarvestMinValue(
                         event.target.value,
                       )
                     }
-                    placeholder="90"
+                    placeholder={
+                      harvestTimingUnit ===
+                      'days'
+                        ? '90'
+                        : harvestTimingUnit ===
+                            'weeks'
+                          ? '13'
+                          : '3'
+                    }
                   />
                 </label>
 
 
                 <label>
-                  Latest days
+                  Latest{' '}
+                  {harvestTimingUnit}
 
                   <input
                     type="number"
-                    min="1"
+                    min="0.1"
+                    step={
+                      harvestTimingUnit ===
+                      'days'
+                        ? '1'
+                        : '0.1'
+                    }
+                    inputMode="decimal"
                     value={
-                      expectedHarvestDaysMax
+                      expectedHarvestMaxValue
                     }
                     onChange={(
                       event,
                     ) =>
-                      setExpectedHarvestDaysMax(
+                      setExpectedHarvestMaxValue(
                         event.target.value,
                       )
                     }
-                    placeholder="120"
+                    placeholder={
+                      harvestTimingUnit ===
+                        'days'
+                        ? '120'
+                        : harvestTimingUnit ===
+                            'weeks'
+                          ? '17'
+                          : '4'
+                    }
                   />
                 </label>
               </div>
+
+
+              {(
+                expectedHarvestMinValue ||
+                expectedHarvestMaxValue
+              ) && (
+                <p className="form-whisper">
+                  Sprig will remember this as{' '}
+                  {
+                    harvestTimingValueToDays(
+                      expectedHarvestMinValue,
+                      harvestTimingUnit,
+                    ) ??
+                    '…'
+                  }
+                  {' – '}
+                  {
+                    harvestTimingValueToDays(
+                      expectedHarvestMaxValue,
+                      harvestTimingUnit,
+                    ) ??
+                    '…'
+                  }
+                  {' '}
+                  days internally so Calendar,
+                  comparisons and Sprig Intelligence
+                  can all work from the same timing.
+                </p>
+              )}
             </section>
 
 

@@ -2892,13 +2892,117 @@ function App() {
     newEvent:
       GardenEvent,
   ) {
+    /*
+     * AddEventForm already blocks a rapid
+     * second tap, but this gives us another
+     * safety net at the data layer.
+     *
+     * The same Journal record ID can never
+     * be added twice here.
+     */
     const updatedGardenData = {
       ...gardenData,
 
-      events: [
-        ...gardenData.events,
-        newEvent,
-      ],
+      events:
+        gardenData.events.some(
+          event =>
+            event.id ===
+            newEvent.id,
+        )
+          ? gardenData.events
+          : [
+              ...gardenData.events,
+              newEvent,
+            ],
+    }
+
+
+    setGardenData(
+      updatedGardenData,
+    )
+
+    saveGardenData(
+      updatedGardenData,
+    )
+
+    setIsAddEventOpen(
+      false,
+    )
+
+
+    /*
+     * Open the Journal page that was just
+     * created.
+     *
+     * This gives the gardener immediate,
+     * unmistakable confirmation that the
+     * save worked.
+     *
+     * Journey history still remembers where
+     * the gardener came from.
+     */
+    handleOpenJournalRecord(
+      newEvent.id,
+    )
+  }
+
+
+  function handleUpdateEvent(
+    updatedEvent:
+      GardenEvent,
+  ) {
+    const updatedGardenData = {
+      ...gardenData,
+
+      events:
+        gardenData.events.map(
+          event =>
+            event.id ===
+            updatedEvent.id
+              ? updatedEvent
+              : event,
+        ),
+
+      /*
+       * A Journal event can also be the source
+       * of a dated Growing Journey step.
+       *
+       * If the gardener corrects the Journal
+       * date later, keep that linked journey
+       * step in agreement with its source.
+       */
+      plantStories:
+        gardenData
+          .plantStories
+          .map(
+            plant => {
+              const growingHistory =
+                plant
+                  .growingHistory
+                  ?.map(
+                    historyEntry =>
+                      historyEntry
+                        .gardenEventId ===
+                        updatedEvent.id
+                        ? {
+                            ...historyEntry,
+
+                            startedDate:
+                              updatedEvent.date,
+                          }
+                        : historyEntry,
+                  )
+
+
+              return {
+                ...plant,
+
+                growingHistory:
+                  growingHistory ??
+                  plant.growingHistory,
+              }
+            },
+          ),
     }
 
 
@@ -3981,59 +4085,112 @@ function App() {
       </>
     )
   }
-
-
   if (
     selectedEvent
   ) {
     return (
-      <JournalEntryDetail
-        event={
-          selectedEvent
-        }
+      <>
+        <JournalEntryDetail
+          event={
+            selectedEvent
+          }
 
-        plants={
-          gardenData.plantStories
-        }
+          plants={
+            gardenData.plantStories
+          }
 
-        growingPlaces={
-          gardenData.growingPlaces
-        }
+          growingPlaces={
+            gardenData.growingPlaces
+          }
 
-        journeyBackLabel={
-          journeyBackLabel
-        }
+          journeyBackLabel={
+            journeyBackLabel
+          }
 
-        onBack={
-          () =>
-            handleJourneyBack(
-              'journal',
-            )
-        }
+          onBack={
+            () =>
+              handleJourneyBack(
+                'journal',
+              )
+          }
 
-        onOpenJournal={
-          () =>
-            handleNavigate(
-              'journal',
-            )
-        }
+          onOpenJournal={
+            () =>
+              handleNavigate(
+                'journal',
+              )
+          }
 
-        onOpenPlant={
-          handleOpenPlantRecord
-        }
+          onEdit={
+            () =>
+              setIsAddEventOpen(
+                true,
+              )
+          }
 
-        onOpenGrowingPlace={
-          handleOpenGrowingPlaceRecord
-        }
+          onDelete={
+            eventId => {
+              handleDeleteEvent(
+                eventId,
+              )
 
-        onNavigate={
-          handleNavigate
+              handleJourneyBack(
+                'journal',
+              )
+            }
+          }
+
+          onOpenPlant={
+            handleOpenPlantRecord
+          }
+
+          onOpenGrowingPlace={
+            handleOpenGrowingPlaceRecord
+          }
+
+          onNavigate={
+            handleNavigate
+          }
+        />
+
+
+        {
+          isAddEventOpen && (
+            <AddEventForm
+              plantId=""
+
+              plants={
+                gardenData.plantStories
+              }
+
+              growingPlaces={
+                gardenData.growingPlaces
+              }
+
+              eventToEdit={
+                selectedEvent
+              }
+
+              onAddEvent={
+                handleAddEvent
+              }
+
+              onUpdateEvent={
+                handleUpdateEvent
+              }
+
+              onClose={
+                () =>
+                  setIsAddEventOpen(
+                    false,
+                  )
+              }
+            />
+          )
         }
-      />
+      </>
     )
   }
-
-
   if (
     selectedGrowingPlace
   ) {

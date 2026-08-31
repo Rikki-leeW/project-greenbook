@@ -26,6 +26,12 @@ interface JournalEntryDetailProps {
 
   onOpenJournal: () => void
 
+  onEdit: () => void
+
+  onDelete: (
+    eventId: string,
+  ) => void
+
   onOpenPlant: (
     plantId: string,
   ) => void
@@ -181,45 +187,31 @@ export default function JournalEntryDetail({
   journeyBackLabel,
   onBack,
   onOpenJournal,
+  onEdit,
+  onDelete,
   onOpenPlant,
   onOpenGrowingPlace,
   onNavigate,
 }: JournalEntryDetailProps) {
 
-  /* =======================================
-     LINKED PLANTS
-  ======================================= */
-
   const linkedPlants =
     plants.filter(
-      (
-        plant,
-      ) =>
+      plant =>
         event.plantStoryIds.includes(
           plant.id,
         ),
     )
 
 
-  /* =======================================
-     LINKED GROWING PLACES
-  ======================================= */
-
   const linkedGrowingPlaces =
     growingPlaces.filter(
-      (
-        place,
-      ) =>
+      place =>
         event.growingPlaceIds
           ?.includes(
             place.id,
           ),
     )
 
-
-  /* =======================================
-     ACTIVITY TYPES
-  ======================================= */
 
   const activityTypes =
     event.activityTypes &&
@@ -231,10 +223,6 @@ export default function JournalEntryDetail({
         ]
 
 
-  /* =======================================
-     NAVIGATION
-  ======================================= */
-
   const hasJourneyBack =
     Boolean(
       journeyBackLabel,
@@ -244,6 +232,26 @@ export default function JournalEntryDetail({
   const journeyAlreadyReturnsToJournal =
     journeyBackLabel ===
     'Journal'
+
+
+  function deleteJournalEntry() {
+    const confirmed =
+      window.confirm(
+        `Delete "${event.title}" from the Garden Journal?\n\nThis removes this Journal page. It does not delete the Plant Stories or Growing Places mentioned by it.\n\nThis cannot be undone.`,
+      )
+
+
+    if (
+      !confirmed
+    ) {
+      return
+    }
+
+
+    onDelete(
+      event.id,
+    )
+  }
 
 
   return (
@@ -300,7 +308,7 @@ export default function JournalEntryDetail({
                 onOpenJournal
               }
             >
-              ← Journal
+              📖 Journal
             </button>
           )}
 
@@ -334,14 +342,45 @@ export default function JournalEntryDetail({
 
 
         {/* =======================================
+            RECORD ACTIONS
+        ======================================= */}
+
+        <section
+          className="plant-record-actions"
+          aria-label="Journal Entry actions"
+          style={{
+            marginBottom:
+              '24px',
+          }}
+        >
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={
+              onEdit
+            }
+          >
+            ✏ Edit Journal Entry
+          </button>
+
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={
+              deleteJournalEntry
+            }
+          >
+            🗑 Delete Journal Entry
+          </button>
+        </section>
+
+
+        {/* =======================================
             ENTRY DETAILS
         ======================================= */}
 
         <section className="library-grid">
-
-          {/* =======================================
-              WHAT HAPPENED
-          ======================================= */}
 
           <article className="library-book">
             <p className="section-label">
@@ -354,9 +393,7 @@ export default function JournalEntryDetail({
 
             <div className="sprig-ingredient-list">
               {activityTypes.map(
-                (
-                  activity,
-                ) => (
+                activity => (
                   <span
                     key={
                       activity
@@ -376,10 +413,6 @@ export default function JournalEntryDetail({
           </article>
 
 
-          {/* =======================================
-              PLANTS
-          ======================================= */}
-
           <article className="library-book">
             <p className="section-label">
               Plant Stories
@@ -398,9 +431,7 @@ export default function JournalEntryDetail({
               0 ? (
               <ul>
                 {linkedPlants.map(
-                  (
-                    plant,
-                  ) => (
+                  plant => (
                     <li
                       key={
                         plant.id
@@ -446,10 +477,6 @@ export default function JournalEntryDetail({
           </article>
 
 
-          {/* =======================================
-              GROWING PLACES
-          ======================================= */}
-
           <article className="library-book">
             <p className="section-label">
               Growing Places
@@ -468,9 +495,7 @@ export default function JournalEntryDetail({
               0 ? (
               <ul>
                 {linkedGrowingPlaces.map(
-                  (
-                    place,
-                  ) => (
+                  place => (
                     <li
                       key={
                         place.id
@@ -504,10 +529,6 @@ export default function JournalEntryDetail({
           </article>
 
 
-          {/* =======================================
-              PRODUCT USED
-          ======================================= */}
-
           {event.productUsed && (
             <article className="library-book">
               <p className="section-label">
@@ -526,10 +547,6 @@ export default function JournalEntryDetail({
             </article>
           )}
 
-
-          {/* =======================================
-              NOTES
-          ======================================= */}
 
           <article className="library-book">
             <p className="section-label">
@@ -554,10 +571,6 @@ export default function JournalEntryDetail({
             )}
           </article>
 
-
-          {/* =======================================
-              PHOTOGRAPHS
-          ======================================= */}
 
           <article className="library-book">
             <p className="section-label">

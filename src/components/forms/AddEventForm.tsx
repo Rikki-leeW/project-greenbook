@@ -30,6 +30,16 @@ interface AddEventFormProps {
   growingPlaces: GrowingPlace[]
 
   /*
+   * Optional existing Journal record.
+   *
+   * Supplying this changes the form from
+   * Add Journal Entry to Edit Journal Entry.
+   *
+   * The same GardenEvent ID is preserved.
+   */
+  eventToEdit?: GardenEvent
+
+  /*
    * Optional Garden Plan source.
    *
    * The Plan is not changed by this form.
@@ -39,6 +49,10 @@ interface AddEventFormProps {
   planToRecord?: GardenPlan
 
   onAddEvent: (
+    event: GardenEvent,
+  ) => void
+
+  onUpdateEvent?: (
     event: GardenEvent,
   ) => void
 
@@ -184,6 +198,88 @@ function getPlanPlaceScope(
 
 
 /* =======================================
+   EXISTING EVENT → PLANT SCOPE
+======================================= */
+
+function getEventPlantScope(
+  event?: GardenEvent,
+): PlantScope {
+  if (
+    event?.plantScope
+  ) {
+    return event.plantScope
+  }
+
+
+  const count =
+    event
+      ?.plantStoryIds
+      ?.length ??
+    0
+
+
+  if (
+    count ===
+    1
+  ) {
+    return 'single'
+  }
+
+
+  if (
+    count >
+    1
+  ) {
+    return 'multiple'
+  }
+
+
+  return 'none'
+}
+
+
+/* =======================================
+   EXISTING EVENT → PLACE SCOPE
+======================================= */
+
+function getEventPlaceScope(
+  event?: GardenEvent,
+): GrowingPlaceScope {
+  if (
+    event?.growingPlaceScope
+  ) {
+    return event.growingPlaceScope
+  }
+
+
+  const count =
+    event
+      ?.growingPlaceIds
+      ?.length ??
+    0
+
+
+  if (
+    count ===
+    1
+  ) {
+    return 'single'
+  }
+
+
+  if (
+    count >
+    1
+  ) {
+    return 'multiple'
+  }
+
+
+  return 'none'
+}
+
+
+/* =======================================
    SPRIG JOURNAL FORM
 ======================================= */
 
@@ -191,18 +287,27 @@ export default function AddEventForm({
   plantId,
   plants,
   growingPlaces,
+  eventToEdit,
   planToRecord,
   onAddEvent,
+  onUpdateEvent,
   onClose,
 }: AddEventFormProps) {
   const today =
     getTodayDate()
 
 
+  const isEditing =
+    Boolean(
+      eventToEdit,
+    )
+
+
   const isRecordingPlan =
     Boolean(
       planToRecord,
-    )
+    ) &&
+    !isEditing
 
 
   /*
@@ -231,6 +336,7 @@ export default function AddEventForm({
   ======================================= */
 
   const startingPlant =
+    !isEditing &&
     plantId
       ? plants.find(
           plant =>
@@ -264,6 +370,23 @@ export default function AddEventForm({
     )
 
 
+  const eventActivityTypes =
+    eventToEdit
+      ? (
+          eventToEdit
+            .activityTypes
+            ?.length
+            ? [
+                ...eventToEdit
+                  .activityTypes,
+              ]
+            : [
+                eventToEdit.type,
+              ]
+        )
+      : undefined
+
+
   /* =======================================
      ACTIVITY
   ======================================= */
@@ -273,11 +396,14 @@ export default function AddEventForm({
     setActivityTypes,
   ] =
     useState<EventType[]>(
-      plannedActivity
-        ? [
-            plannedActivity,
-          ]
-        : [],
+      eventActivityTypes ??
+      (
+        plannedActivity
+          ? [
+              plannedActivity,
+            ]
+          : []
+      ),
     )
 
 
@@ -319,8 +445,9 @@ export default function AddEventForm({
     setDate,
   ] =
     useState(
+      eventToEdit?.date ??
       planToRecord?.date ??
-        today,
+      today,
     )
 
 
@@ -329,8 +456,9 @@ export default function AddEventForm({
     setTitle,
   ] =
     useState(
+      eventToEdit?.title ??
       planToRecord?.title ??
-        '',
+      '',
     )
 
 
@@ -338,7 +466,10 @@ export default function AddEventForm({
     productUsed,
     setProductUsed,
   ] =
-    useState('')
+    useState(
+      eventToEdit?.productUsed ??
+      '',
+    )
 
 
   const [
@@ -346,8 +477,9 @@ export default function AddEventForm({
     setNotes,
   ] =
     useState(
+      eventToEdit?.notes ??
       planToRecord?.notes ??
-        '',
+      '',
     )
 
 
@@ -360,7 +492,13 @@ export default function AddEventForm({
     setPhotoUrls,
   ] =
     useState<string[]>(
-      [],
+      [
+        ...(
+          eventToEdit
+            ?.photoUrls ??
+          []
+        ),
+      ],
     )
 
 
@@ -373,13 +511,17 @@ export default function AddEventForm({
     setGrowingPlaceScope,
   ] =
     useState<GrowingPlaceScope>(
-      isRecordingPlan
-        ? getPlanPlaceScope(
-            planToRecord,
+      eventToEdit
+        ? getEventPlaceScope(
+            eventToEdit,
           )
-        : startingGrowingPlaceId
-          ? 'single'
-          : 'none',
+        : isRecordingPlan
+          ? getPlanPlaceScope(
+              planToRecord,
+            )
+          : startingGrowingPlaceId
+            ? 'single'
+            : 'none',
     )
 
 
@@ -388,15 +530,23 @@ export default function AddEventForm({
     setGrowingPlaceIds,
   ] =
     useState<string[]>(
-      isRecordingPlan
+      eventToEdit
         ? [
-            ...planPlaceIds,
+            ...(
+              eventToEdit
+                .growingPlaceIds ??
+              []
+            ),
           ]
-        : startingGrowingPlaceId
+        : isRecordingPlan
           ? [
-              startingGrowingPlaceId,
+              ...planPlaceIds,
             ]
-          : [],
+          : startingGrowingPlaceId
+            ? [
+                startingGrowingPlaceId,
+              ]
+            : [],
     )
 
 
@@ -409,13 +559,17 @@ export default function AddEventForm({
     setPlantScope,
   ] =
     useState<PlantScope>(
-      isRecordingPlan
-        ? getPlanPlantScope(
-            planToRecord,
+      eventToEdit
+        ? getEventPlantScope(
+            eventToEdit,
           )
-        : startingPlant
-          ? 'single'
-          : 'none',
+        : isRecordingPlan
+          ? getPlanPlantScope(
+              planToRecord,
+            )
+          : startingPlant
+            ? 'single'
+            : 'none',
     )
 
 
@@ -424,24 +578,133 @@ export default function AddEventForm({
     setPlantStoryIds,
   ] =
     useState<string[]>(
-      isRecordingPlan
+      eventToEdit
         ? [
-            ...planPlantIds,
+            ...(
+              eventToEdit
+                .plantStoryIds ??
+              []
+            ),
           ]
-        : startingPlant
+        : isRecordingPlan
           ? [
-              startingPlant.id,
+              ...planPlantIds,
             ]
-          : [],
+          : startingPlant
+            ? [
+                startingPlant.id,
+              ]
+            : [],
     )
 
 
   /* =======================================
-     PLAN → REALITY RESET
+     SOURCE RECORD RESET
   ======================================= */
 
   useEffect(
     () => {
+      if (
+        eventToEdit
+      ) {
+        setActivityTypes(
+          eventToEdit
+            .activityTypes
+            ?.length
+            ? [
+                ...eventToEdit
+                  .activityTypes,
+              ]
+            : [
+                eventToEdit.type,
+              ],
+        )
+
+        setDate(
+          eventToEdit.date,
+        )
+
+        setTitle(
+          eventToEdit.title ??
+          '',
+        )
+
+        setProductUsed(
+          eventToEdit
+            .productUsed ??
+          '',
+        )
+
+        setNotes(
+          eventToEdit.notes ??
+          '',
+        )
+
+        setGrowingPlaceScope(
+          getEventPlaceScope(
+            eventToEdit,
+          ),
+        )
+
+        setGrowingPlaceIds(
+          [
+            ...(
+              eventToEdit
+                .growingPlaceIds ??
+              []
+            ),
+          ],
+        )
+
+        setPlantScope(
+          getEventPlantScope(
+            eventToEdit,
+          ),
+        )
+
+        setPlantStoryIds(
+          [
+            ...(
+              eventToEdit
+                .plantStoryIds ??
+              []
+            ),
+          ],
+        )
+
+        setPhotoUrls(
+          [
+            ...(
+              eventToEdit
+                .photoUrls ??
+              []
+            ),
+          ],
+        )
+
+        setIsActivityPickerOpen(
+          false,
+        )
+
+        setIsGrowingPlacePickerOpen(
+          false,
+        )
+
+        setIsPlantPickerOpen(
+          false,
+        )
+
+        isSubmittingRef.current =
+          false
+
+        setIsSubmitting(
+          false,
+        )
+
+        return
+      }
+
+
       if (
         !planToRecord
       ) {
@@ -455,31 +718,18 @@ export default function AddEventForm({
         )
 
 
-      /*
-       * A Plan may be opened after this form
-       * component has already existed.
-       *
-       * useState initial values only run when
-       * the component first mounts, so Sprig
-       * deliberately refreshes the form when
-       * the source Plan itself changes.
-       *
-       * This is what ensures the intended
-       * Plan date becomes the starting actual
-       * date rather than today's date.
-       */
       setDate(
         planToRecord.date,
       )
 
       setTitle(
         planToRecord.title ??
-          '',
+        '',
       )
 
       setNotes(
         planToRecord.notes ??
-          '',
+        '',
       )
 
       setProductUsed(
@@ -550,6 +800,7 @@ export default function AddEventForm({
       )
     },
     [
+      eventToEdit?.id,
       planToRecord?.id,
     ],
   )
@@ -616,22 +867,22 @@ export default function AddEventForm({
   ======================================= */
 
   const availablePlants =
-  growingPlaceScope ===
-    'entire-garden' ||
-  growingPlaceIds.length ===
-    0
-    ? plants
-    : plants.filter(
-        plant =>
-          growingPlaceIds.some(
-            placeId =>
-              placeId ===
-              plant.currentGrowingPlaceId,
-          ) ||
-          plantStoryIds.includes(
-            plant.id,
-          ),
-      )
+    growingPlaceScope ===
+      'entire-garden' ||
+    growingPlaceIds.length ===
+      0
+      ? plants
+      : plants.filter(
+          plant =>
+            growingPlaceIds.some(
+              placeId =>
+                placeId ===
+                plant.currentGrowingPlaceId,
+            ) ||
+            plantStoryIds.includes(
+              plant.id,
+            ),
+        )
 
 
   const sortedAvailablePlants = [
@@ -827,20 +1078,12 @@ export default function AddEventForm({
   ======================================= */
 
   function handleSubmit(
-    event:
+    formEvent:
       FormEvent<HTMLFormElement>,
   ) {
-    event.preventDefault()
+    formEvent.preventDefault()
 
 
-    /*
-     * First tap owns this submission.
-     *
-     * This check happens synchronously, before
-     * React has time to render the disabled
-     * button, so rapid mobile taps cannot
-     * create duplicate Journal records.
-     */
     if (
       isSubmittingRef.current
     ) {
@@ -878,9 +1121,15 @@ export default function AddEventForm({
         )
 
 
-    const newEvent:
+    const savedEvent:
       GardenEvent = {
+        ...(
+          eventToEdit ??
+          {}
+        ),
+
         id:
+          eventToEdit?.id ??
           crypto.randomUUID(),
 
         type:
@@ -892,7 +1141,8 @@ export default function AddEventForm({
 
         title:
           title.trim() ||
-          generatedTitle,
+          generatedTitle ||
+          'Garden moment',
 
         productUsed:
           productUsed
@@ -906,29 +1156,58 @@ export default function AddEventForm({
 
         growingPlaceScope,
 
-        growingPlaceIds,
+        growingPlaceIds: [
+          ...growingPlaceIds,
+        ],
 
-        photoUrls,
+        photoUrls: [
+          ...photoUrls,
+        ],
 
         plantScope,
 
-        plantStoryIds,
+        plantStoryIds: [
+          ...plantStoryIds,
+        ],
       }
 
 
     try {
-      onAddEvent(
-        newEvent,
-      )
-    } catch (
+      if (
+        isEditing
+      ) {
+        if (
+          !onUpdateEvent
+        ) {
+          throw new Error(
+            'Edit Journal Entry requires onUpdateEvent.',
+          )
+        }
+
+
+        onUpdateEvent(
+          savedEvent,
+        )
+      }
+      else {
+        onAddEvent(
+          savedEvent,
+        )
+      }
+
+
+      /*
+       * Do not rely only on the parent save
+       * handler to dismiss the form.
+       *
+       * Successful Journal save means this
+       * page is finished.
+       */
+      onClose()
+    }
+    catch (
       error
     ) {
-      /*
-       * If the parent save genuinely throws,
-       * allow another attempt rather than
-       * trapping the gardener in a disabled
-       * form.
-       */
       isSubmittingRef.current =
         false
 
@@ -968,9 +1247,11 @@ export default function AddEventForm({
             id="add-event-title"
             className="notebook-page-title"
           >
-            {isRecordingPlan
-              ? 'Record what happened'
-              : 'Journal Entry'}
+            {isEditing
+              ? 'Edit Journal Entry'
+              : isRecordingPlan
+                ? 'Record what happened'
+                : 'Journal Entry'}
           </h2>
 
 
@@ -983,19 +1264,23 @@ export default function AddEventForm({
             disabled={
               isSubmitting
             }
-            aria-label="Close Journal entry"
+            aria-label={
+              isEditing
+                ? 'Close Journal editor'
+                : 'Close Journal entry'
+            }
           >
             ×
           </button>
 
 
           <form
-          id="sprig-journal-entry-form"
-          className="add-plant-form journal-entry-form"
-          onSubmit={
-            handleSubmit
-          }
-        >
+            id="sprig-journal-entry-form"
+            className="add-plant-form journal-entry-form"
+            onSubmit={
+              handleSubmit
+            }
+          >
 
             {isRecordingPlan &&
               planToRecord && (
@@ -1021,6 +1306,15 @@ export default function AddEventForm({
                   page records what actually happened.
                 </p>
               </section>
+            )}
+
+
+            {isEditing && (
+              <p className="form-whisper">
+                ✏ Change anything that needs correcting.
+                Sprig will update this same Journal page,
+                not create another one.
+              </p>
             )}
 
 
@@ -1489,7 +1783,7 @@ export default function AddEventForm({
             )}
 
 
-<div className="chronicle-page-actions">
+            <div className="chronicle-page-actions">
               <button
                 type="button"
                 className="secondary-button"
@@ -1510,12 +1804,19 @@ export default function AddEventForm({
                 disabled={
                   isSubmitting
                 }
+                aria-disabled={
+                  isSubmitting
+                }
               >
                 {isSubmitting
-                  ? 'Adding this page…'
-                  : isRecordingPlan
-                    ? 'Record this moment'
-                    : 'Add this page'}
+                  ? isEditing
+                    ? 'Saving changes…'
+                    : 'Adding this page…'
+                  : isEditing
+                    ? 'Save changes'
+                    : isRecordingPlan
+                      ? 'Record this moment'
+                      : 'Add this page'}
               </button>
             </div>
 
