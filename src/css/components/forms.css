@@ -1382,3 +1382,52 @@ button:disabled {
       12px;
   }
 }
+/* =======================================
+   GLOBAL SPRIG SAVE GUARD
+
+   Sprig's database service adds
+   .sprig-is-saving synchronously whenever
+   GardenData is being written.
+
+   Main save controls and quick-add save
+   controls therefore cannot receive a
+   second tap while that write is underway.
+
+   This is deliberately global so nested
+   Ingredient, Product and Recipe controls
+   receive the same protection as the
+   large Plant / Journal / Harvest forms.
+======================================= */
+
+.sprig-is-saving .enter-button,
+.sprig-is-saving .sprig-picker-custom-save {
+  pointer-events:
+    none;
+
+  opacity:
+    0.62;
+
+  cursor:
+    wait;
+}
+
+
+/*
+ * Some editors use ordinary submit buttons
+ * without Sprig's main enter-button class.
+ *
+ * Catch those too.
+ */
+
+.sprig-is-saving
+form
+button[type="submit"] {
+  pointer-events:
+    none;
+
+  opacity:
+    0.62;
+
+  cursor:
+    wait;
+}

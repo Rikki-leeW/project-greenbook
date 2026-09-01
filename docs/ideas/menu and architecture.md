@@ -232,3 +232,21 @@ That is much cleaner on mobile too. No third “Return to the garden” button h
 
 
 
+
+PWA / browser
+Sprig data service
+        ↓
+Dexie
+        ↓
+IndexedDB
+
+and later:
+
+Native Capacitor app
+Sprig data service
+        ↓
+SQLite adapter/repository
+        ↓
+native SQLite
+
+

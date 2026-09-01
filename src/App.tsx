@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import {
+  useEffect,
+  useState,
+} from 'react'
 import './css/App.css'
 
 import AppLibrary from './components/app/AppLibrary'
@@ -37,6 +40,7 @@ import type {
 } from './types/navigation'
 
 import {
+  initializeGardenData,
   loadGardenData,
   saveGardenData,
 } from './services/storage'
@@ -146,6 +150,105 @@ function App() {
     useState(
       loadGardenData,
     )
+
+      /* =======================================
+     DATABASE STARTUP
+  ======================================= */
+
+  const [
+    isGardenDatabaseReady,
+    setIsGardenDatabaseReady,
+  ] =
+    useState(
+      false,
+    )
+
+
+  const [
+    gardenDatabaseError,
+    setGardenDatabaseError,
+  ] =
+    useState<
+      string | null
+    >(
+      null,
+    )
+
+
+  useEffect(
+    () => {
+      let isCancelled =
+        false
+
+
+      async function startSprigGarden() {
+        try {
+          const loadedGarden =
+            await initializeGardenData()
+
+
+          if (
+            isCancelled
+          ) {
+            return
+          }
+
+
+          setGardenData(
+            loadedGarden,
+          )
+
+          setGardenDatabaseError(
+            null,
+          )
+
+          setIsGardenDatabaseReady(
+            true,
+          )
+
+        } catch (
+          error
+        ) {
+          console.error(
+            'Sprig database startup failed:',
+            error,
+          )
+
+
+          if (
+            isCancelled
+          ) {
+            return
+          }
+
+
+          const message =
+            error instanceof Error
+              ? error.message
+              : 'Sprig could not safely open the garden database.'
+
+
+          setGardenDatabaseError(
+            message,
+          )
+
+          setIsGardenDatabaseReady(
+            true,
+          )
+        }
+      }
+
+
+      void startSprigGarden()
+
+
+      return () => {
+        isCancelled =
+          true
+      }
+    },
+    [],
+  )
 
 
   const [
@@ -3947,7 +4050,71 @@ function App() {
           selectedGrowingPlaceId,
       )
 
+  /* =======================================
+     WAIT FOR GARDEN DATABASE
+  ======================================= */
 
+  if (
+    !isGardenDatabaseReady
+  ) {
+    return (
+      <main className="page-shell">
+        <section className="content-card">
+          <p className="eyebrow">
+            SPRIG
+          </p>
+
+          <h1>
+            Opening your garden…
+          </h1>
+
+          <p>
+            Sprig is checking its local
+            garden database.
+          </p>
+        </section>
+      </main>
+    )
+  }
+
+
+  /* =======================================
+     DATABASE STARTUP FAILURE
+  ======================================= */
+
+  if (
+    gardenDatabaseError
+  ) {
+    return (
+      <main className="page-shell">
+        <section className="content-card">
+          <p className="eyebrow">
+            GARDEN STORAGE
+          </p>
+
+          <h1>
+            Your garden has not been changed
+          </h1>
+
+          <p>
+            Sprig could not safely open its
+            garden database.
+          </p>
+
+          <p>
+            {gardenDatabaseError}
+          </p>
+
+          <p>
+            Your previous local garden has
+            not been deleted or replaced.
+          </p>
+        </section>
+      </main>
+    )
+  }
+
+  
   if (
     !hasEnteredGarden
   ) {
