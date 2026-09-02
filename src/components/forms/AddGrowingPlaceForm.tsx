@@ -6,244 +6,43 @@ import {
 } from 'react'
 
 import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
-import RecipeComponentsSection from './RecipeComponentsSection'
-import SprigPicker from '../sprig/SprigPicker'
-import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 
 import type {
-  GardenProduct,
-  GrowingGroundMethod,
-  GrowingGroundType,
+  GardenAspect,
   GrowingPlace,
   GrowingPlaceKind,
-  GrowingSetup,
-  GrowingSetupCategory,
-  Ingredient,
+  ShelterLevel,
+  SunlightLevel,
 } from '../../types'
-
-import OwnMixSection from './OwnMixSection'
-import BoughtMixSection from './BoughtMixSection'
-import GroundTypeSection from './GroundTypeSection'
-import GrowingSystemSection from './GrowingSystemSection'
 
 
 interface AddGrowingPlaceFormProps {
-  ingredients: Ingredient[]
-  growingSetups: GrowingSetup[]
-  products: GardenProduct[]
+  placeToEdit?: GrowingPlace
 
   onAddPlace: (
     place: GrowingPlace,
-    setup?: GrowingSetup,
   ) => void
 
-  onAddIngredient: (
-    ingredient: Ingredient,
-  ) => void
-
-  onAddProduct: (
-    product: GardenProduct,
+  onUpdatePlace?: (
+    place: GrowingPlace,
   ) => void
 
   onClose: () => void
 }
 
 
-interface CustomPickerOption {
-  value: string
+interface SelectOption<T extends string> {
+  value: T
   label: string
 }
 
 
-const CUSTOM_PLACE_TYPES_KEY =
-  'sprig-custom-growing-place-types'
-
-const CUSTOM_GROUND_TYPES_KEY =
-  'sprig-custom-ground-types'
-
-const CUSTOM_GROWING_SYSTEMS_KEY =
-  'sprig-custom-growing-systems'
-
-
-/* =======================================
-   GROWING PLACE ID
-======================================= */
-
-function createGrowingPlaceId(
-  name: string,
-): string {
-  const safeName =
-    name
-      .trim()
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        '-',
-      )
-      .replace(
-        /^-|-$/g,
-        '',
-      )
-
-  return `${
-    safeName ||
-    'garden-place'
-  }-${Date.now()}`
-}
-
-
-/* =======================================
-   GROWING SETUP ID
-======================================= */
-
-function createGrowingSetupId(
-  name: string,
-  category: GrowingSetupCategory,
-): string {
-  const safeName =
-    name
-      .trim()
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        '-',
-      )
-      .replace(
-        /^-|-$/g,
-        '',
-      )
-
-  return `${category}-${
-    safeName ||
-    'growing-setup'
-  }-${Date.now()}`
-}
-
-
-/* =======================================
-   CUSTOM OPTION ID
-======================================= */
-
-function createCustomOptionValue(
-  group: string,
-  label: string,
-): string {
-  const safeLabel =
-    label
-      .trim()
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        '-',
-      )
-      .replace(
-        /^-|-$/g,
-        '',
-      )
-
-  return `custom:${group}:${
-    safeLabel ||
-    Date.now()
-  }`
-}
-
-
-/* =======================================
-   CUSTOM OPTION STORAGE
-======================================= */
-
-function loadCustomOptions(
-  storageKey: string,
-): CustomPickerOption[] {
-  if (
-    typeof window ===
-    'undefined'
-  ) {
-    return []
-  }
-
-  try {
-    const raw =
-      window.localStorage.getItem(
-        storageKey,
-      )
-
-    if (!raw) {
-      return []
-    }
-
-    const parsed: unknown =
-      JSON.parse(
-        raw,
-      )
-
-    if (
-      !Array.isArray(
-        parsed,
-      )
-    ) {
-      return []
-    }
-
-    return parsed.filter(
-      (
-        item,
-      ): item is CustomPickerOption => {
-        if (
-          typeof item !==
-            'object' ||
-          item === null
-        ) {
-          return false
-        }
-
-        const candidate =
-          item as Partial<CustomPickerOption>
-
-        return (
-          typeof candidate.value ===
-            'string' &&
-          typeof candidate.label ===
-            'string' &&
-          candidate.label
-            .trim()
-            .length >
-            0
-        )
-      },
-    )
-  } catch {
-    return []
-  }
-}
-
-
-function saveCustomOptions(
-  storageKey: string,
-  options: CustomPickerOption[],
-) {
-  if (
-    typeof window ===
-    'undefined'
-  ) {
-    return
-  }
-
-  window.localStorage.setItem(
-    storageKey,
-    JSON.stringify(
-      options,
-    ),
-  )
-}
-
-
-/* =======================================
-   GROWING PLACE OPTIONS
-======================================= */
-
-const growingPlaceTypeOptions:
-  CustomPickerOption[] = [
+const PLACE_KIND_OPTIONS:
+  SelectOption<GrowingPlaceKind>[] = [
+    {
+      value: 'garden-area',
+      label: 'Garden Area',
+    },
     {
       value: 'garden-bed',
       label: 'Garden Bed',
@@ -293,16 +92,16 @@ const growingPlaceTypeOptions:
       label: 'Courtyard',
     },
     {
+      value: 'grass-area',
+      label: 'Grass Area',
+    },
+    {
       value: 'retaining-wall',
       label: 'Retaining Wall',
     },
     {
       value: 'rock-wall',
       label: 'Rock Wall',
-    },
-    {
-      value: 'grass-area',
-      label: 'Grass Area',
     },
     {
       value: 'orchard',
@@ -313,72 +112,127 @@ const growingPlaceTypeOptions:
       label: 'Food Forest',
     },
     {
+      value: 'herb-garden',
+      label: 'Herb Garden',
+    },
+    {
+      value: 'flower-garden',
+      label: 'Flower Garden',
+    },
+    {
+      value: 'vine',
+      label: 'Vine Area',
+    },
+    {
+      value: 'compost-area',
+      label: 'Compost Area',
+    },
+    {
+      value: 'nursery-area',
+      label: 'Nursery Area',
+    },
+    {
       value: 'indoor',
-      label: 'Indoor Room',
+      label: 'Indoor',
     },
     {
       value: 'windowsill',
       label: 'Windowsill',
     },
+    {
+      value: 'other',
+      label: 'Something Else',
+    },
   ]
 
 
-/* =======================================
-   GROWING SETUP OPTIONS
-======================================= */
+const ASPECT_OPTIONS:
+  SelectOption<GardenAspect>[] = [
+    {
+      value: 'north',
+      label: 'North',
+    },
+    {
+      value: 'north-east',
+      label: 'North-East',
+    },
+    {
+      value: 'east',
+      label: 'East',
+    },
+    {
+      value: 'south-east',
+      label: 'South-East',
+    },
+    {
+      value: 'south',
+      label: 'South',
+    },
+    {
+      value: 'south-west',
+      label: 'South-West',
+    },
+    {
+      value: 'west',
+      label: 'West',
+    },
+    {
+      value: 'north-west',
+      label: 'North-West',
+    },
+  ]
 
-const growingSetupCategoryOptions: {
-  value: GrowingSetupCategory
-  label: string
-}[] = [
-  {
-    value: 'own-mix',
-    label: 'My Own Mix',
-  },
-  {
-    value: 'bought-mix',
-    label: 'I bought a mix',
-  },
-  {
-    value: 'ground-type',
-    label: 'Straight into the ground',
-  },
-  {
-    value: 'growing-system',
-    label: "It's a growing system",
-  },
-]
+
+const SUNLIGHT_OPTIONS:
+  SelectOption<SunlightLevel>[] = [
+    {
+      value: 'full-sun',
+      label: 'Full Sun',
+    },
+    {
+      value: 'mostly-sun',
+      label: 'Mostly Sun',
+    },
+    {
+      value: 'part-sun',
+      label: 'Part Sun',
+    },
+    {
+      value: 'dappled-light',
+      label: 'Dappled Light',
+    },
+    {
+      value: 'mostly-shade',
+      label: 'Mostly Shade',
+    },
+    {
+      value: 'deep-shade',
+      label: 'Deep Shade',
+    },
+  ]
 
 
-const groundTypeOptions:
-  CustomPickerOption[] = [
+const SHELTER_OPTIONS:
+  SelectOption<ShelterLevel>[] = [
     {
-      value: 'native-soil',
-      label: 'Native Soil',
+      value: 'very-exposed',
+      label: 'Very Exposed',
     },
     {
-      value: 'native-clay',
-      label: 'Native Clay',
+      value: 'some-shelter',
+      label: 'Some Shelter',
     },
     {
-      value: 'loam',
-      label: 'Loam',
+      value: 'well-sheltered',
+      label: 'Well Sheltered',
     },
     {
-      value: 'sandy-soil',
-      label: 'Sandy Soil',
+      value: 'fully-protected',
+      label: 'Fully Protected',
     },
     {
-      value: 'rocky-soil',
-      label: 'Rocky Soil',
-    },
-    {
-      value: 'peat-soil',
-      label: 'Peat Soil',
-    },
-    {
-      value: 'imported-topsoil',
-      label: 'Imported Topsoil',
+      value: 'changes-with-season',
+      label: 'Changes With Season',
     },
     {
       value: 'not-sure',
@@ -387,524 +241,36 @@ const groundTypeOptions:
   ]
 
 
-const growingSystemOptions:
-  CustomPickerOption[] = [
-    {
-      value: 'no-dig',
-      label: 'No-Dig',
-    },
-    {
-      value: 'layered-bed',
-      label: 'Layered Bed',
-    },
-    {
-      value: 'hugelkultur',
-      label: 'Hügelkultur',
-    },
-    {
-      value: 'filled-raised-bed',
-      label: 'Filled Raised Bed',
-    },
-    {
-      value: 'wicking-bed',
-      label: 'Wicking Bed',
-    },
-    {
-      value: 'hydroponic',
-      label: 'Hydroponics',
-    },
-    {
-      value: 'aquaponic',
-      label: 'Aquaponics',
-    },
-    {
-      value: 'kratky',
-      label: 'Kratky',
-    },
-    {
-      value: 'nft',
-      label: 'NFT',
-    },
-    {
-      value: 'deep-water-culture',
-      label: 'Deep Water Culture',
-    },
-    {
-      value: 'ebb-and-flow',
-      label: 'Ebb & Flow',
-    },
-    {
-      value: 'aeroponic',
-      label: 'Aeroponics',
-    },
-  ]
-
-
-/* =======================================
-   CATEGORY LABEL
-======================================= */
-
-function getGrowingSetupCategoryLabel(
-  category: GrowingSetupCategory,
+function createGrowingPlaceId(
+  name: string,
 ): string {
-  switch (
-    category
-  ) {
-    case 'own-mix':
-      return 'My Own Mix'
-
-    case 'bought-mix':
-      return 'Bought Mix'
-
-    case 'ground-type':
-      return 'Ground'
-
-    case 'growing-system':
-      return 'Growing System'
-
-    default:
-      return 'Growing Recipe'
-  }
-}
-
-
-/* =======================================
-   ADD GROWING PLACE
-======================================= */
-
-export default function AddGrowingPlaceForm({
-  ingredients,
-  growingSetups,
-  products,
-  onAddPlace,
-  onAddIngredient,
-  onAddProduct,
-  onClose,
-}: AddGrowingPlaceFormProps) {
-  const now =
-    new Date().toISOString()
-
-  const today =
-    now.slice(
-      0,
-      10,
-    )
-
-
-  /* =======================================
-     SAVED CUSTOM PICKER OPTIONS
-  ======================================= */
-
-  const [
-    customPlaceTypeOptions,
-    setCustomPlaceTypeOptions,
-  ] =
-    useState<CustomPickerOption[]>(
-      () =>
-        loadCustomOptions(
-          CUSTOM_PLACE_TYPES_KEY,
-        ),
-    )
-
-
-  const [
-    customGroundTypeOptions,
-    setCustomGroundTypeOptions,
-  ] =
-    useState<CustomPickerOption[]>(
-      () =>
-        loadCustomOptions(
-          CUSTOM_GROUND_TYPES_KEY,
-        ),
-    )
-
-
-  const [
-    customGrowingSystemOptions,
-    setCustomGrowingSystemOptions,
-  ] =
-    useState<CustomPickerOption[]>(
-      () =>
-        loadCustomOptions(
-          CUSTOM_GROWING_SYSTEMS_KEY,
-        ),
-    )
-
-
-  const allGrowingPlaceTypeOptions = [
-    ...growingPlaceTypeOptions,
-    ...customPlaceTypeOptions,
-  ]
-
-
-  const allGroundTypeOptions = [
-    ...groundTypeOptions,
-    ...customGroundTypeOptions,
-  ]
-
-
-  const allGrowingSystemOptions = [
-    ...growingSystemOptions,
-    ...customGrowingSystemOptions,
-  ]
-
-
-  /* =======================================
-     GROWING PLACE
-  ======================================= */
-
-  const [
-    name,
-    setName,
-  ] =
-    useState('')
-
-
-  const [
-    kind,
-    setKind,
-  ] =
-    useState<string>(
-      'garden-bed',
-    )
-
-
-  const [
-    isKindPickerOpen,
-    setIsKindPickerOpen,
-  ] =
-    useState(false)
-
-
-  /* =======================================
-     GROWING PLACE PHOTOGRAPHS
-  ======================================= */
-
-  const [
-    placePhotoUrls,
-    setPlacePhotoUrls,
-  ] =
-    useState<string[]>(
-      [],
-    )
-
-
-  /* =======================================
-     GROWING SETUP CATEGORY
-  ======================================= */
-
-  const [
-    growingSetupCategory,
-    setGrowingSetupCategory,
-  ] =
-    useState<
-      GrowingSetupCategory | null
-    >(
-      null,
-    )
-
-
-  /* =======================================
-     EXISTING GROWING SETUP
-  ======================================= */
-
-  const [
-    selectedExistingSetupId,
-    setSelectedExistingSetupId,
-  ] =
-    useState('')
-
-
-  const [
-    isExistingSetupPickerOpen,
-    setIsExistingSetupPickerOpen,
-  ] =
-    useState(false)
-
-
-  const [
-    isCreatingNewSetup,
-    setIsCreatingNewSetup,
-  ] =
-    useState(false)
-
-
-  const existingSetupsForCategory =
-    growingSetupCategory
-      ? growingSetups
-          .filter(
-            (
-              setup,
-            ) =>
-              setup.category ===
-                growingSetupCategory &&
-              !setup.isArchived,
-          )
-          .sort(
-            (
-              first,
-              second,
-            ) =>
-              first.name.localeCompare(
-                second.name,
-              ),
-          )
-      : []
-
-
-  const shouldShowNewSetupBuilder =
-    Boolean(
-      growingSetupCategory,
-    ) &&
-    (
-      isCreatingNewSetup ||
-      existingSetupsForCategory.length ===
-        0
-    )
-
-
-  /* =======================================
-     GROWING SETUP PHOTOGRAPHS
-  ======================================= */
-
-  const [
-    setupPhotoUrls,
-    setSetupPhotoUrls,
-  ] =
-    useState<string[]>(
-      [],
-    )
-/* =======================================
-   MY OWN MIX
-======================================= */
-
-const [
-  ownMixName,
-  setOwnMixName,
-] =
-  useState('')
-
-const [
-  ownMixCreatedDate,
-  setOwnMixCreatedDate,
-] =
-  useState(
-    today,
-  )
-
-const [
-  ownMixNotes,
-  setOwnMixNotes,
-] =
-  useState('')
-
-const [
-  selectedIngredientIds,
-  setSelectedIngredientIds,
-] =
-  useState<string[]>(
-    [],
-  )
-
-const [
-  recipeComponents,
-  setRecipeComponents,
-] =
-  useState<
-    GrowingSetup['recipeComponents']
-  >(
-    [],
-  )
-
-  /* =======================================
-     INGREDIENT CREATION
-  ======================================= */
-
-  function createIngredientId(
-    ingredientName: string,
-  ): string {
-    const safeName =
-      ingredientName
-        .trim()
-        .toLowerCase()
-        .replace(
-          /[^a-z0-9]+/g,
-          '-',
-        )
-        .replace(
-          /^-|-$/g,
-          '',
-        )
-
-    return `ingredient-${
-      safeName ||
-      'ingredient'
-    }-${Date.now()}`
-  }
-
-
-  function createIngredient(
-    ingredientName: string,
-  ): string | undefined {
-    const trimmedName =
-      ingredientName.trim()
-
-    if (!trimmedName) {
-      return undefined
-    }
-
-
-    const existingIngredient =
-      ingredients.find(
-        (ingredient) =>
-          ingredient.name
-            .trim()
-            .toLowerCase() ===
-          trimmedName
-            .toLowerCase(),
+  const safeName =
+    name
+      .trim()
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]+/g,
+        '-',
+      )
+      .replace(
+        /^-|-$/g,
+        '',
       )
 
 
-    if (
-      existingIngredient
-    ) {
-      return existingIngredient.id
-    }
+  return `${
+    safeName ||
+    'growing-place'
+  }-${Date.now()}`
+}
 
 
-    const newIngredient:
-      Ingredient = {
-        id:
-          createIngredientId(
-            trimmedName,
-          ),
-
-        name:
-          trimmedName,
-
-        photoUrls: [],
-
-        createdAt:
-          new Date()
-            .toISOString(),
-      }
-
-
-    onAddIngredient(
-      newIngredient,
-    )
-
-
-    return newIngredient.id
-  }
-
-
-  /* =======================================
-     BOUGHT MIX
-  ======================================= */
-
-  const [
-    boughtMixBrand,
-    setBoughtMixBrand,
-  ] =
-    useState('')
-
-
-  const [
-    boughtMixProductName,
-    setBoughtMixProductName,
-  ] =
-    useState('')
-
-
-  const [
-    boughtMixAddedDate,
-    setBoughtMixAddedDate,
-  ] =
-    useState(
-      today,
-    )
-
-
-  const [
-    boughtMixNotes,
-    setBoughtMixNotes,
-  ] =
-    useState('')
-
-
-  /* =======================================
-     STRAIGHT INTO THE GROUND
-  ======================================= */
-
-  const [
-    groundType,
-    setGroundType,
-  ] =
-    useState<string | null>(
-      null,
-    )
-
-
-  const [
-    groundTypeAddedDate,
-    setGroundTypeAddedDate,
-  ] =
-    useState(
-      today,
-    )
-
-
-  const [
-    groundTypeNotes,
-    setGroundTypeNotes,
-  ] =
-    useState('')
-
-
-  /* =======================================
-     GROWING SYSTEM
-  ======================================= */
-
-  const [
-    growingSystemType,
-    setGrowingSystemType,
-  ] =
-    useState<string | null>(
-      null,
-    )
-
-
-  const [
-    growingSystemAddedDate,
-    setGrowingSystemAddedDate,
-  ] =
-    useState(
-      today,
-    )
-
-
-  const [
-    growingSystemNotes,
-    setGrowingSystemNotes,
-  ] =
-    useState('')
-
-
-  /* =======================================
-     GROWING PLACE NOTES
-  ======================================= */
-
-  const [
-    notes,
-    setNotes,
-  ] =
-    useState('')
-
-
-  /* =======================================
-     FORM REF
-  ======================================= */
+export default function AddGrowingPlaceForm({
+  placeToEdit,
+  onAddPlace,
+  onUpdatePlace,
+  onClose,
+}: AddGrowingPlaceFormProps) {
 
   const formRef =
     useRef<HTMLFormElement>(
@@ -912,283 +278,159 @@ const [
     )
 
 
-  /* =======================================
-     CUSTOM PLACE TYPE
-  ======================================= */
-
-  function createCustomPlaceType(
-    label: string,
-  ): string {
-    const trimmedLabel =
-      label.trim()
+  const isEditing =
+    Boolean(
+      placeToEdit,
+    )
 
 
-    const existing =
-      allGrowingPlaceTypeOptions.find(
-        (option) =>
-          option.label
-            .toLowerCase() ===
-          trimmedLabel
-            .toLowerCase(),
+  const [
+    name,
+    setName,
+  ] =
+    useState(
+      placeToEdit?.name ??
+      '',
+    )
+
+
+  const [
+    kind,
+    setKind,
+  ] =
+    useState<GrowingPlaceKind>(
+      placeToEdit?.kind ??
+      'garden-area',
+    )
+
+
+  const [
+    customKindLabel,
+    setCustomKindLabel,
+  ] =
+    useState(
+      placeToEdit
+        ?.customKindLabel ??
+      '',
+    )
+
+
+  const [
+    aspect,
+    setAspect,
+  ] =
+    useState<
+      GardenAspect |
+      ''
+    >(
+      placeToEdit?.aspect ??
+      '',
+    )
+
+
+  const [
+    sunlight,
+    setSunlight,
+  ] =
+    useState<
+      SunlightLevel |
+      ''
+    >(
+      placeToEdit?.sunlight ??
+      '',
+    )
+
+
+  const [
+    shelter,
+    setShelter,
+  ] =
+    useState<
+      ShelterLevel |
+      ''
+    >(
+      placeToEdit?.shelter ??
+      '',
+    )
+
+
+  const [
+    notes,
+    setNotes,
+  ] =
+    useState(
+      placeToEdit?.notes ??
+      '',
+    )
+
+
+  useEffect(
+    () => {
+      const scrollY =
+        window.scrollY
+
+
+      requestAnimationFrame(
+        () => {
+          if (
+            formRef.current
+          ) {
+            formRef.current.scrollTop =
+              0
+          }
+        },
       )
 
 
-    if (existing) {
-      return existing.value
-    }
+      const previousOverflow =
+        document.body.style.overflow
+
+      const previousPosition =
+        document.body.style.position
+
+      const previousTop =
+        document.body.style.top
+
+      const previousWidth =
+        document.body.style.width
 
 
-    const newOption = {
-      value:
-        createCustomOptionValue(
-          'place-type',
-          trimmedLabel,
-        ),
-
-      label:
-        trimmedLabel,
-    }
-
-
-    const updated = [
-      ...customPlaceTypeOptions,
-      newOption,
-    ]
-
-
-    setCustomPlaceTypeOptions(
-      updated,
-    )
-
-
-    saveCustomOptions(
-      CUSTOM_PLACE_TYPES_KEY,
-      updated,
-    )
-
-
-    return newOption.value
-  }
-
-
-  /* =======================================
-     CUSTOM GROUND TYPE
-  ======================================= */
-
-  function createCustomGroundType(
-    label: string,
-  ): string {
-    const trimmedLabel =
-      label.trim()
-
-
-    const existing =
-      allGroundTypeOptions.find(
-        (option) =>
-          option.label
-            .toLowerCase() ===
-          trimmedLabel
-            .toLowerCase(),
-      )
-
-
-    if (existing) {
-      return existing.value
-    }
-
-
-    const newOption = {
-      value:
-        createCustomOptionValue(
-          'ground-type',
-          trimmedLabel,
-        ),
-
-      label:
-        trimmedLabel,
-    }
-
-
-    const updated = [
-      ...customGroundTypeOptions,
-      newOption,
-    ]
-
-
-    setCustomGroundTypeOptions(
-      updated,
-    )
-
-
-    saveCustomOptions(
-      CUSTOM_GROUND_TYPES_KEY,
-      updated,
-    )
-
-
-    return newOption.value
-  }
-
-
-  /* =======================================
-     CUSTOM GROWING SYSTEM
-  ======================================= */
-
-  function createCustomGrowingSystem(
-    label: string,
-  ): string {
-    const trimmedLabel =
-      label.trim()
-
-
-    const existing =
-      allGrowingSystemOptions.find(
-        (option) =>
-          option.label
-            .toLowerCase() ===
-          trimmedLabel
-            .toLowerCase(),
-      )
-
-
-    if (existing) {
-      return existing.value
-    }
-
-
-    const newOption = {
-      value:
-        createCustomOptionValue(
-          'growing-system',
-          trimmedLabel,
-        ),
-
-      label:
-        trimmedLabel,
-    }
-
-
-    const updated = [
-      ...customGrowingSystemOptions,
-      newOption,
-    ]
-
-
-    setCustomGrowingSystemOptions(
-      updated,
-    )
-
-
-    saveCustomOptions(
-      CUSTOM_GROWING_SYSTEMS_KEY,
-      updated,
-    )
-
-
-    return newOption.value
-  }
-
-
-  void createCustomGroundType
-  void createCustomGrowingSystem
-
-
-  /* =======================================
-     FORM SCROLL / BODY LOCK
-  ======================================= */
-
-  useEffect(() => {
-    const scrollY =
-      window.scrollY
-
-
-    requestAnimationFrame(
-      () => {
-        if (
-          formRef.current
-        ) {
-          formRef.current
-            .scrollTop = 0
-        }
-      },
-    )
-
-
-    const previousOverflow =
-      document.body
-        .style
-        .overflow
-
-    const previousPosition =
-      document.body
-        .style
-        .position
-
-    const previousTop =
-      document.body
-        .style
-        .top
-
-    const previousWidth =
-      document.body
-        .style
-        .width
-
-
-    document.body
-      .style
-      .overflow =
+      document.body.style.overflow =
         'hidden'
 
-    document.body
-      .style
-      .position =
+      document.body.style.position =
         'fixed'
 
-    document.body
-      .style
-      .top =
+      document.body.style.top =
         `-${scrollY}px`
 
-    document.body
-      .style
-      .width =
+      document.body.style.width =
         '100%'
 
 
-    return () => {
-      document.body
-        .style
-        .overflow =
+      return () => {
+        document.body.style.overflow =
           previousOverflow
 
-      document.body
-        .style
-        .position =
+        document.body.style.position =
           previousPosition
 
-      document.body
-        .style
-        .top =
+        document.body.style.top =
           previousTop
 
-      document.body
-        .style
-        .width =
+        document.body.style.width =
           previousWidth
 
 
-      window.scrollTo(
-        0,
-        scrollY,
-      )
-    }
-  }, [])
+        window.scrollTo(
+          0,
+          scrollY,
+        )
+      }
+    },
+    [],
+  )
 
-
-  /* =======================================
-     SAVE
-  ======================================= */
 
   function handleSubmit(
     event:
@@ -1201,322 +443,67 @@ const [
       name.trim()
 
 
-    if (!trimmedName) {
-      return
-    }
-
-
-    let newSetup:
-      | GrowingSetup
-      | undefined
-
-
-    let growingSetupId:
-      | string
-      | undefined
-
-
-    /* =======================================
-       EXISTING GROWING SETUP
-    ======================================= */
-
     if (
-      selectedExistingSetupId &&
-      !isCreatingNewSetup
-    ) {
-      growingSetupId =
-        selectedExistingSetupId
-    }
-
-
-    /* =======================================
-       NEW GROWING SETUP
-    ======================================= */
-
-    const needsNewSetup =
-      Boolean(
-        growingSetupCategory,
-      ) &&
-      (
-        isCreatingNewSetup ||
-        existingSetupsForCategory.length ===
-          0
-      )
-
-
-    if (
-      growingSetupCategory &&
-      !growingSetupId &&
-      !needsNewSetup
+      !trimmedName
     ) {
       return
     }
 
 
-    /* ---------- MY OWN MIX ---------- */
+    const now =
+      new Date()
+        .toISOString()
+
 
     if (
-      growingSetupCategory ===
-        'own-mix' &&
-      needsNewSetup
+      placeToEdit
     ) {
-      const trimmedMixName =
-        ownMixName.trim()
+      const updatedPlace:
+        GrowingPlace = {
+          ...placeToEdit,
 
+          name:
+            trimmedName,
 
-      if (!trimmedMixName) {
-        return
-      }
-
-
-      newSetup = {
-        id:
-          createGrowingSetupId(
-            trimmedMixName,
-            'own-mix',
-          ),
-
-        name:
-          trimmedMixName,
-
-        category:
-          'own-mix',
-
-        ingredientIds:
-          selectedIngredientIds,
-
-        notes:
-          ownMixNotes
-            .trim() ||
-          undefined,
-
-        photoUrls:
-          setupPhotoUrls,
-
-        createdAt:
-          ownMixCreatedDate,
-      }
-
-
-      growingSetupId =
-        newSetup.id
-    }
-
-
-    /* ---------- BOUGHT MIX ---------- */
-
-    if (
-      growingSetupCategory ===
-        'bought-mix' &&
-      needsNewSetup
-    ) {
-      const trimmedBrand =
-        boughtMixBrand.trim()
-
-      const trimmedProductName =
-        boughtMixProductName.trim()
-
-
-      if (
-        !trimmedBrand ||
-        !trimmedProductName
-      ) {
-        return
-      }
-
-
-      const setupName =
-        `${trimmedBrand} ${trimmedProductName}`
-
-
-      newSetup = {
-        id:
-          createGrowingSetupId(
-            setupName,
-            'bought-mix',
-          ),
-
-        name:
-          setupName,
-
-        category:
-          'bought-mix',
-
-        brand:
-          trimmedBrand,
-
-        productName:
-          trimmedProductName,
-
-        notes:
-          boughtMixNotes
-            .trim() ||
-          undefined,
-
-        photoUrls:
-          setupPhotoUrls,
-
-        createdAt:
-          boughtMixAddedDate,
-      }
-
-
-      growingSetupId =
-        newSetup.id
-    }
-
-
-    /* ---------- GROUND TYPE ---------- */
-
-    if (
-      growingSetupCategory ===
-        'ground-type' &&
-      needsNewSetup
-    ) {
-      if (!groundType) {
-        return
-      }
-
-
-      const groundOption =
-        allGroundTypeOptions.find(
-          (option) =>
-            option.value ===
-            groundType,
-        )
-
-
-      const groundLabel =
-        groundOption?.label ??
-        'Growing Ground'
-
-
-      const isCustomGround =
-        groundType.startsWith(
-          'custom:',
-        )
-
-
-      newSetup = {
-        id:
-          createGrowingSetupId(
-            groundLabel,
-            'ground-type',
-          ),
-
-        name:
-          groundLabel,
-
-        category:
-          'ground-type',
-
-        groundType:
-          isCustomGround
-            ? 'something-else'
-            : groundType as GrowingGroundType,
-
-        notes:
-          groundTypeNotes
-            .trim() ||
-          undefined,
-
-        photoUrls:
-          setupPhotoUrls,
-
-        createdAt:
-          groundTypeAddedDate,
-      }
-
-
-      growingSetupId =
-        newSetup.id
-    }
-
-
-    /* ---------- GROWING SYSTEM ---------- */
-
-    if (
-      growingSetupCategory ===
-        'growing-system' &&
-      needsNewSetup
-    ) {
-      if (
-        !growingSystemType
-      ) {
-        return
-      }
-
-
-      const systemOption =
-        allGrowingSystemOptions.find(
-          (option) =>
-            option.value ===
-            growingSystemType,
-        )
-
-
-      const systemLabel =
-        systemOption?.label ??
-        'Growing System'
-
-
-      const isCustomSystem =
-        growingSystemType
-          .startsWith(
-            'custom:',
-          )
-
-
-      newSetup = {
-        id:
-          createGrowingSetupId(
-            systemLabel,
-            'growing-system',
-          ),
-
-        name:
-          systemLabel,
-
-        category:
-          'growing-system',
-
-        growingSystemType:
-          isCustomSystem
-            ? 'something-else'
-            : growingSystemType as GrowingGroundMethod,
-
-        notes:
-          growingSystemNotes
-            .trim() ||
-          undefined,
-
-        photoUrls:
-          setupPhotoUrls,
-
-        createdAt:
-          growingSystemAddedDate,
-      }
-
-
-      growingSetupId =
-        newSetup.id
-    }
-
-
-    /* ---------- GROWING PLACE ---------- */
-
-    const selectedKindOption =
-      allGrowingPlaceTypeOptions.find(
-        (option) =>
-          option.value ===
           kind,
-      )
+
+          customKindLabel:
+            kind ===
+              'other'
+              ? (
+                  customKindLabel
+                    .trim() ||
+                  undefined
+                )
+              : undefined,
+
+          aspect:
+            aspect ||
+            undefined,
+
+          sunlight:
+            sunlight ||
+            undefined,
+
+          shelter:
+            shelter ||
+            undefined,
+
+          notes:
+            notes.trim() ||
+            undefined,
+
+          updatedAt:
+            now,
+        }
 
 
-    const isCustomKind =
-      kind.startsWith(
-        'custom:',
+      onUpdatePlace?.(
+        updatedPlace,
       )
+
+      return
+    }
 
 
     const newPlace:
@@ -1529,26 +516,33 @@ const [
         name:
           trimmedName,
 
-        kind:
-          isCustomKind
-            ? 'other'
-            : kind as GrowingPlaceKind,
+        kind,
 
         customKindLabel:
-          isCustomKind
-            ? selectedKindOption
-                ?.label
+          kind ===
+            'other'
+            ? (
+                customKindLabel
+                  .trim() ||
+                undefined
+              )
             : undefined,
 
-        growingSetupId,
-
-        notes:
-          notes
-            .trim() ||
+        aspect:
+          aspect ||
           undefined,
 
-        photoUrls:
-          placePhotoUrls,
+        sunlight:
+          sunlight ||
+          undefined,
+
+        shelter:
+          shelter ||
+          undefined,
+
+        notes:
+          notes.trim() ||
+          undefined,
 
         createdAt:
           now,
@@ -1557,7 +551,6 @@ const [
 
     onAddPlace(
       newPlace,
-      newSetup,
     )
   }
 
@@ -1571,7 +564,7 @@ const [
         className="add-plant-panel chronicle-panel"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="add-garden-place-title"
+        aria-labelledby="add-growing-place-title"
       >
         <img
           className="chronicle-page-image"
@@ -1582,24 +575,38 @@ const [
           aria-hidden="true"
         />
 
+
         <div className="chronicle-content">
 
-          {/* =======================================
-              HEADING
-          ======================================= */}
+          <div className="form-heading-row">
+            <div>
+              <p className="section-label">
+                Growing · Where
+              </p>
 
-          <div className="form-heading">
-            <h2 id="add-garden-place-title">
-              Name a growing place
-            </h2>
+              <h2 id="add-growing-place-title">
+                {
+                  isEditing
+                    ? 'Edit Growing Place'
+                    : 'Add a Growing Place'
+                }
+              </h2>
+
+              <p className="form-whisper">
+                A Growing Place remembers
+                where something physically
+                grows.
+              </p>
+            </div>
+
 
             <button
               type="button"
-              className="close-button"
+              className="form-close-button"
               onClick={
                 onClose
               }
-              aria-label="Close garden place page"
+              aria-label="Close"
             >
               ×
             </button>
@@ -1615,15 +622,6 @@ const [
               handleSubmit
             }
           >
-            <p className="form-whisper">
-              🌱 Sprig remembers the
-              corners where stories begin.
-            </p>
-
-
-            {/* =======================================
-                GROWING PLACE NAME
-            ======================================= */}
 
             <label>
               What do you call this place?
@@ -1633,535 +631,219 @@ const [
                 value={
                   name
                 }
-                onChange={(
-                  event,
-                ) =>
-                  setName(
-                    event.target.value,
-                  )
+                onChange={
+                  event =>
+                    setName(
+                      event.target.value,
+                    )
                 }
-                placeholder="Top deck, potato corner..."
+                placeholder="Top Garden, west wall, greenhouse..."
                 required
               />
             </label>
 
 
-            {/* =======================================
-                GROWING PLACE TYPE
-            ======================================= */}
+            <label>
+              What kind of place is it?
 
-            <SprigPicker
-              title="What kind of place is it?"
-              variant="label"
-              emptySummary="Choose a place"
-              options={
-                allGrowingPlaceTypeOptions
-              }
-              selectedValues={[
-                kind,
-              ]}
-              isOpen={
-                isKindPickerOpen
-              }
-              onToggleOpen={() =>
-                setIsKindPickerOpen(
-                  !isKindPickerOpen,
-                )
-              }
-              onToggleValue={(
-                value,
-              ) => {
-                setKind(
-                  value,
-                )
-
-                setIsKindPickerOpen(
-                  false,
-                )
-              }}
-              allowCustomOption
-              customOptionLabel="Create a new place type..."
-              customInputLabel="What would you like to call this kind of place?"
-              customInputPlaceholder="Laundry Basket, Vertical Tower..."
-              onCreateCustomOption={
-                createCustomPlaceType
-              }
-            />
-
-
-            {/* =======================================
-                GROWING PLACE PHOTOGRAPHS
-            ======================================= */}
-
-            <section className="sprig-form-section">
-              <p className="section-label">
-                Growing Place
-              </p>
-
-              <SprigPhotoPicker
-                photoUrls={
-                  placePhotoUrls
+              <select
+                value={
+                  kind
                 }
                 onChange={
-                  setPlacePhotoUrls
+                  event =>
+                    setKind(
+                      event.target.value as GrowingPlaceKind,
+                    )
                 }
-                title="Photographs of this place"
-                helperText="Tuck photographs of this Growing Place into its page so Sprig can remember how the space itself looks and changes."
-                addButtonText="Add place photographs"
-                photoAltPrefix="Growing Place photograph"
-              />
-            </section>
-
-
-            {/* =======================================
-                GROWING SETUP CATEGORY
-            ======================================= */}
-
-            <section className="sprig-form-section">
-              <SprigPicker
-                title="What are you growing in?"
-                variant="label"
-                showTrigger={
-                  false
-                }
-                options={
-                  growingSetupCategoryOptions
-                }
-                selectedValues={
-                  growingSetupCategory
-                    ? [
-                        growingSetupCategory,
-                      ]
-                    : []
-                }
-                isOpen={
-                  true
-                }
-                onToggleOpen={() => {}}
-                onToggleValue={(
-                  value,
-                ) => {
-                  setGrowingSetupCategory(
-                    value as GrowingSetupCategory,
-                  )
-
-                  setSelectedExistingSetupId(
-                    '',
-                  )
-
-                  setIsExistingSetupPickerOpen(
-                    false,
-                  )
-
-                  setIsCreatingNewSetup(
-                    false,
-                  )
-
-                  setSetupPhotoUrls(
-                    [],
-                  )
-                }}
-              />
-            </section>
-
-
-            {/* =======================================
-                EXISTING GROWING RECIPES
-            ======================================= */}
-
-            {growingSetupCategory &&
-              existingSetupsForCategory.length >
-                0 &&
-              !isCreatingNewSetup && (
-              <section className="sprig-form-section">
-                <p className="section-label">
-                  Existing Growing Recipes
-                </p>
-
-                <SprigPicker
-                  title={`Which ${getGrowingSetupCategoryLabel(
-                    growingSetupCategory,
-                  )} is this place using?`}
-                  variant="label-tall"
-                  emptySummary="Choose an existing Growing Recipe"
-                  options={
-                    existingSetupsForCategory.map(
-                      (
-                        setup,
-                      ) => ({
-                        value:
-                          setup.id,
-
-                        label:
-                          setup.name,
-
-                        subtitle:
-                          getGrowingSetupCategoryLabel(
-                            setup.category,
-                          ),
-
-                        meta:
-                          setup.createdAt
-                            ? `Added ${new Date(
-                                `${setup.createdAt.slice(
-                                  0,
-                                  10,
-                                )}T00:00:00`,
-                              ).toLocaleDateString(
-                                'en-AU',
-                                {
-                                  day:
-                                    'numeric',
-
-                                  month:
-                                    'short',
-
-                                  year:
-                                    'numeric',
-                                },
-                              )}`
-                            : undefined,
-                      }),
-                    )
-                  }
-                  selectedValues={
-                    selectedExistingSetupId
-                      ? [
-                          selectedExistingSetupId,
-                        ]
-                      : []
-                  }
-                  isOpen={
-                    isExistingSetupPickerOpen
-                  }
-                  onToggleOpen={() =>
-                    setIsExistingSetupPickerOpen(
-                      (
-                        current,
-                      ) =>
-                        !current,
-                    )
-                  }
-                  onToggleValue={(
-                    id,
-                  ) => {
-                    setSelectedExistingSetupId(
-                      id,
-                    )
-
-                    setIsExistingSetupPickerOpen(
-                      false,
-                    )
-                  }}
-                />
-
-
-                <button
-                  type="button"
-                  className="garden-place-link"
-                  onClick={() => {
-                    setSelectedExistingSetupId(
-                      '',
-                    )
-
-                    setIsExistingSetupPickerOpen(
-                      false,
-                    )
-
-                    setIsCreatingNewSetup(
-                      true,
-                    )
-                  }}
-                >
-                  + Create a new Growing Recipe
-                </button>
-              </section>
-            )}
-
-
-            {/* =======================================
-                NEW RECIPE NOTICE
-            ======================================= */}
-
-            {growingSetupCategory &&
-              shouldShowNewSetupBuilder && (
-              <section className="sprig-form-section">
-                <p className="section-label">
-                  New Growing Recipe
-                </p>
-
-                <p className="form-whisper">
-                  {existingSetupsForCategory.length >
-                  0
-                    ? 'Sprig will create a new Growing Recipe and connect it to this place.'
-                    : `You do not have a saved ${getGrowingSetupCategoryLabel(
-                        growingSetupCategory,
-                      )} yet, so you can create one here.`}
-                </p>
-
-
-                {existingSetupsForCategory.length >
-                  0 && (
-                  <button
-                    type="button"
-                    className="garden-place-link"
-                    onClick={() => {
-                      setIsCreatingNewSetup(
-                        false,
-                      )
-                    }}
-                  >
-                    ← Choose an existing Growing Recipe
-                  </button>
+              >
+                {PLACE_KIND_OPTIONS.map(
+                  option => (
+                    <option
+                      key={
+                        option.value
+                      }
+                      value={
+                        option.value
+                      }
+                    >
+                      {option.label}
+                    </option>
+                  ),
                 )}
-              </section>
-            )}
+              </select>
+            </label>
 
 
-                                    {/* =======================================
-                MY OWN MIX
-            ======================================= */}
+            {kind ===
+              'other' && (
+              <label>
+                What do you call this kind of place?
 
-            {growingSetupCategory ===
-              'own-mix' &&
-              shouldShowNewSetupBuilder && (
-              <OwnMixSection
-                ownMixName={
-                  ownMixName
-                }
-                setOwnMixName={
-                  setOwnMixName
-                }
-
-                ownMixCreatedDate={
-                  ownMixCreatedDate
-                }
-                setOwnMixCreatedDate={
-                  setOwnMixCreatedDate
-                }
-
-                ownMixNotes={
-                  ownMixNotes
-                }
-                setOwnMixNotes={
-                  setOwnMixNotes
-                }
-              />
-            )}
-
-            {/* =======================================
-                BOUGHT MIX
-            ======================================= */}
-
-            {growingSetupCategory ===
-              'bought-mix' &&
-              shouldShowNewSetupBuilder && (
-              <BoughtMixSection
-                boughtMixBrand={
-                  boughtMixBrand
-                }
-                setBoughtMixBrand={
-                  setBoughtMixBrand
-                }
-
-                boughtMixProductName={
-                  boughtMixProductName
-                }
-                setBoughtMixProductName={
-                  setBoughtMixProductName
-                }
-
-                boughtMixAddedDate={
-                  boughtMixAddedDate
-                }
-                setBoughtMixAddedDate={
-                  setBoughtMixAddedDate
-                }
-
-                boughtMixNotes={
-                  boughtMixNotes
-                }
-                setBoughtMixNotes={
-                  setBoughtMixNotes
-                }
-              />
-            )}
-
-
-            {/* =======================================
-                STRAIGHT INTO THE GROUND
-            ======================================= */}
-
-            {growingSetupCategory ===
-              'ground-type' &&
-              shouldShowNewSetupBuilder && (
-              <GroundTypeSection
-                groundType={
-                  groundType
-                }
-                setGroundType={
-                  setGroundType
-                }
-
-                groundTypeOptions={
-                  allGroundTypeOptions
-                }
-
-                groundTypeAddedDate={
-                  groundTypeAddedDate
-                }
-                setGroundTypeAddedDate={
-                  setGroundTypeAddedDate
-                }
-
-                groundTypeNotes={
-                  groundTypeNotes
-                }
-                setGroundTypeNotes={
-                  setGroundTypeNotes
-                }
-              />
-            )}
-
-
-            {/* =======================================
-                GROWING SYSTEM
-            ======================================= */}
-
-            {growingSetupCategory ===
-              'growing-system' &&
-              shouldShowNewSetupBuilder && (
-              <GrowingSystemSection
-                growingSystemType={
-                  growingSystemType
-                }
-                setGrowingSystemType={
-                  setGrowingSystemType
-                }
-
-                growingSystemOptions={
-                  allGrowingSystemOptions
-                }
-
-                growingSystemAddedDate={
-                  growingSystemAddedDate
-                }
-                setGrowingSystemAddedDate={
-                  setGrowingSystemAddedDate
-                }
-
-                growingSystemNotes={
-                  growingSystemNotes
-                }
-                setGrowingSystemNotes={
-                  setGrowingSystemNotes
-                }
-              />
-            )}
-
-
-{/* =======================================
-    WHAT'S PART OF THIS GROWING RECIPE
-======================================= */}
-
-{growingSetupCategory &&
-  shouldShowNewSetupBuilder && (
-  <RecipeComponentsSection
-    ingredients={
-      ingredients
-    }
-
-    products={
-      products
-    }
-
-    growingSetups={
-      growingSetups
-    }
-
-    selectedIngredientIds={
-      selectedIngredientIds
-    }
-
-    setSelectedIngredientIds={
-      setSelectedIngredientIds
-    }
-
-    recipeComponents={
-      recipeComponents
-    }
-
-    setRecipeComponents={
-      setRecipeComponents
-    }
-
-    onCreateIngredient={
-      createIngredient
-    }
-    
-    onAddProduct={
-      onAddProduct
-    }
-  />
-)}
-
-
-            {/* =======================================
-                NEW GROWING SETUP PHOTOGRAPHS
-            ======================================= */}
-
-            {growingSetupCategory &&
-              shouldShowNewSetupBuilder && (
-              <section className="sprig-form-section">
-                <p className="section-label">
-                  Growing Recipe
-                </p>
-
-                <SprigPhotoPicker
-                  photoUrls={
-                    setupPhotoUrls
+                <input
+                  type="text"
+                  value={
+                    customKindLabel
                   }
                   onChange={
-                    setSetupPhotoUrls
+                    event =>
+                      setCustomKindLabel(
+                        event.target.value,
+                      )
                   }
-                  title="Photographs of what it grows in"
-                  helperText="These photographs belong to the new Growing Recipe itself, such as the mix, soil, ingredients, packaging or growing system."
-                  addButtonText="Add recipe photographs"
-                  photoAltPrefix="Growing Recipe photograph"
+                  placeholder="Your own place type"
                 />
-              </section>
+              </label>
             )}
 
 
-            {/* =======================================
-                GROWING PLACE NOTES
-            ======================================= */}
+            <div>
+              <p className="section-label">
+                Conditions
+              </p>
+
+              <p className="form-whisper">
+                Optional. Add what is useful
+                now and change it whenever
+                the garden changes.
+              </p>
+            </div>
+
 
             <label>
-              Notes to the place
+              Aspect
+
+              <select
+                value={
+                  aspect
+                }
+                onChange={
+                  event =>
+                    setAspect(
+                      event.target.value as
+                        | GardenAspect
+                        | '',
+                    )
+                }
+              >
+                <option value="">
+                  Not recorded
+                </option>
+
+                {ASPECT_OPTIONS.map(
+                  option => (
+                    <option
+                      key={
+                        option.value
+                      }
+                      value={
+                        option.value
+                      }
+                    >
+                      {option.label}
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
+
+
+            <label>
+              Sunlight
+
+              <select
+                value={
+                  sunlight
+                }
+                onChange={
+                  event =>
+                    setSunlight(
+                      event.target.value as
+                        | SunlightLevel
+                        | '',
+                    )
+                }
+              >
+                <option value="">
+                  Not recorded
+                </option>
+
+                {SUNLIGHT_OPTIONS.map(
+                  option => (
+                    <option
+                      key={
+                        option.value
+                      }
+                      value={
+                        option.value
+                      }
+                    >
+                      {option.label}
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
+
+
+            <label>
+              Shelter
+
+              <select
+                value={
+                  shelter
+                }
+                onChange={
+                  event =>
+                    setShelter(
+                      event.target.value as
+                        | ShelterLevel
+                        | '',
+                    )
+                }
+              >
+                <option value="">
+                  Not recorded
+                </option>
+
+                {SHELTER_OPTIONS.map(
+                  option => (
+                    <option
+                      key={
+                        option.value
+                      }
+                      value={
+                        option.value
+                      }
+                    >
+                      {option.label}
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
+
+
+            <label>
+              Notes about this place
 
               <textarea
                 value={
                   notes
                 }
-                onChange={(
-                  event,
-                ) =>
-                  setNotes(
-                    event.target.value,
-                  )
+                onChange={
+                  event =>
+                    setNotes(
+                      event.target.value,
+                    )
                 }
-                placeholder="Sun, shade, size, quirks..."
+                placeholder="Heat reflection, afternoon shade, wind, seasonal changes..."
                 rows={
-                  4
+                  5
                 }
               />
             </label>
 
-
-            {/* =======================================
-                ACTIONS
-            ======================================= */}
 
             <div className="form-actions">
               <button
@@ -2171,16 +853,21 @@ const [
                   onClose
                 }
               >
-                Go back
+                Leave it for now
               </button>
 
               <button
                 type="submit"
                 className="enter-button"
               >
-                Add this growing place
+                {
+                  isEditing
+                    ? 'Save changes'
+                    : 'Add this place'
+                }
               </button>
             </div>
+
           </form>
         </div>
       </section>

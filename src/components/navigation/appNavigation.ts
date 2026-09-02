@@ -16,63 +16,48 @@ export type SprigLibraryView =
 
 
 export type SprigCalendarView =
-  'calculator'
+  | 'calculator'
 
 
 export interface SprigNavigationItem {
-  id:
-    string
+  id: string
 
-  label:
-    string
+  label: string
 
-  icon:
-    string
+  icon: string
 
-  status:
-    SprigPageStatus
+  status: SprigPageStatus
 
-  page?:
-    AppPage
+  page?: AppPage
 
-  /**
+  /*
    * Optional destination inside a major
    * Sprig page.
    *
-   * At present this is used by the Garden
-   * Library so Satchel can open a particular
-   * shelf directly rather than always landing
-   * on the Library overview.
+   * Garden Library uses this when Sprig
+   * needs to open a particular shelf
+   * directly.
    */
+  libraryView?: SprigLibraryView
 
-  libraryView?:
-    SprigLibraryView
-
-  /**
+  /*
    * Optional doorway into a particular part
    * of Calendar.
    *
    * Calendar remains the real destination.
-   * This does not create another AppPage.
    */
+  calendarView?: SprigCalendarView
 
-  calendarView?:
-    SprigCalendarView
-
-  note?:
-    string
+  note?: string
 }
 
 
 export interface SprigNavigationSection {
-  id:
-    string
+  id: string
 
-  title:
-    string
+  title: string
 
-  items:
-    SprigNavigationItem[]
+  items: SprigNavigationItem[]
 }
 
 
@@ -84,30 +69,41 @@ export interface SprigNavigationSection {
  * This is the central map of Sprig.
  *
  * The Satchel reads from this file rather
- * than maintaining its own list of pages.
+ * than maintaining its own independent
+ * navigation list.
  *
- * When a future page is built:
+ * Important architectural rule:
  *
- * 1. Add its route to AppPage if needed.
- * 2. Give the item its page value here.
- * 3. Give it a sub-view destination where
- *    the page contains its own sections.
- * 4. Change status to 'live'.
+ * Growing is one gardener-facing
+ * destination.
  *
- * The Satchel will then automatically make
- * that destination available.
+ * Within Growing:
  *
- * Future navigation tools can also read
- * from this same map.
+ * WHERE IT GROWS
+ *   Growing Places
+ *
+ * WHAT IT GROWS IN
+ *   My Recipes
+ *   Bought Mixes
+ *   Growing Systems
+ *   Ground Types
+ *
+ * Ingredients and Products remain reusable
+ * Library records rather than becoming
+ * top-level garden destinations.
+ *
+ * The internal AppPage route for Growing
+ * currently remains "growing-places" for
+ * backwards compatibility. The gardener
+ * does not need to know or care what the
+ * internal route is called.
  */
-
 export const sprigNavigation:
   SprigNavigationSection[] = [
-    /**
-     * ========================================
-     * TODAY
-     * ========================================
-     */
+
+    /* ========================================
+       TODAY
+    ======================================== */
 
     {
       id:
@@ -160,11 +156,9 @@ export const sprigNavigation:
     },
 
 
-    /**
-     * ========================================
-     * MY GARDEN
-     * ========================================
-     */
+    /* ========================================
+       MY GARDEN
+    ======================================== */
 
     {
       id:
@@ -213,10 +207,10 @@ export const sprigNavigation:
 
         {
           id:
-            'growing-places',
+            'growing',
 
           label:
-            'Growing Places',
+            'Growing',
 
           icon:
             '🪴',
@@ -228,76 +222,7 @@ export const sprigNavigation:
             'growing-places',
 
           note:
-            'Beds, pots, bags and all the places your garden grows',
-        },
-
-        {
-          id:
-            'growing-recipes',
-
-          label:
-            'Growing Recipes',
-
-          icon:
-            '🧺',
-
-          status:
-            'live',
-
-          page:
-            'library',
-
-          libraryView:
-            'growing-recipes',
-
-          note:
-            'Your saved growing recipes',
-        },
-
-        {
-          id:
-            'ingredients',
-
-          label:
-            'Ingredients',
-
-          icon:
-            '🌾',
-
-          status:
-            'live',
-
-          page:
-            'library',
-
-          libraryView:
-            'ingredients',
-
-          note:
-            'The building blocks used throughout your garden',
-        },
-
-        {
-          id:
-            'products',
-
-          label:
-            'Products',
-
-          icon:
-            '🧴',
-
-          status:
-            'live',
-
-          page:
-            'library',
-
-          libraryView:
-            'products',
-
-          note:
-            'Commercial products bought for the garden',
+            'Where the garden grows and what it grows in',
         },
 
         {
@@ -320,17 +245,15 @@ export const sprigNavigation:
             'home',
 
           note:
-            'Browse the whole Garden Library',
+            'Reusable ingredients, products and other garden reference records',
         },
       ],
     },
 
 
-    /**
-     * ========================================
-     * CHRONICLE
-     * ========================================
-     */
+    /* ========================================
+       CHRONICLE
+    ======================================== */
 
     {
       id:
@@ -391,7 +314,7 @@ export const sprigNavigation:
             'garden-trials',
 
           note:
-            'Deliberate garden questions, the evidence gathered around them and what the garden taught you',
+            'Questions, evidence and experiments gathered from the real garden',
         },
 
         {
@@ -440,11 +363,9 @@ export const sprigNavigation:
     },
 
 
-    /**
-     * ========================================
-     * GARDEN KNOWLEDGE
-     * ========================================
-     */
+    /* ========================================
+       GARDEN KNOWLEDGE
+    ======================================== */
 
     {
       id:
@@ -537,11 +458,9 @@ export const sprigNavigation:
     },
 
 
-    /**
-     * ========================================
-     * PHOTOGRAPHS
-     * ========================================
-     */
+    /* ========================================
+       PHOTOGRAPHS
+    ======================================== */
 
     {
       id:
@@ -568,17 +487,15 @@ export const sprigNavigation:
             'garden-gallery',
 
           note:
-            'Browse photographs across Sprig, add Gallery photos, search by date and category, and compare two moments side by side',
+            'One visual doorway into photographs remembered throughout Sprig',
         },
       ],
     },
 
 
-    /**
-     * ========================================
-     * GARDEN STORES
-     * ========================================
-     */
+    /* ========================================
+       GARDEN STORES
+    ======================================== */
 
     {
       id:
@@ -650,11 +567,9 @@ export const sprigNavigation:
     },
 
 
-    /**
-     * ========================================
-     * HISTORY
-     * ========================================
-     */
+    /* ========================================
+       HISTORY
+    ======================================== */
 
     {
       id:
@@ -692,17 +607,15 @@ export const sprigNavigation:
             'coming-later',
 
           note:
-            'Archived recipes, ingredients, products and future records',
+            'Archived growing records, ingredients, products and future records',
         },
       ],
     },
 
 
-    /**
-     * ========================================
-     * SPRIG
-     * ========================================
-     */
+    /* ========================================
+       SPRIG
+    ======================================== */
 
     {
       id:

@@ -13,46 +13,61 @@ import type {
 
 
 interface GrowingPlaceDetailProps {
-  growingPlace: GrowingPlace
+  growingPlace:
+    GrowingPlace
 
-  plants: PlantStory[]
+  plants:
+    PlantStory[]
 
-  events: GardenEvent[]
+  events:
+    GardenEvent[]
 
-  growingSetups: GrowingSetup[]
+  growingSetups:
+    GrowingSetup[]
 
-  journeyBackLabel:
-    string | null
+  journeyBackLabel?:
+    string |
+    null
 
-  onBack: () => void
+  onBack:
+    () => void
 
-  onOpenGrowingPlaces: () => void
+  onOpenGrowingPlaces:
+    () => void
+
+  onEdit:
+    () => void
+
+  onDelete:
+    () => void
 
   onOpenPlant: (
-    plantId: string,
+    plantId:
+      string,
   ) => void
 
   onOpenEvent: (
-    eventId: string,
+    eventId:
+      string,
   ) => void
 
   onOpenRecipe: (
-    recipeId: string,
+    recipeId:
+      string,
   ) => void
 
   onNavigate: (
-    page: AppPage,
+    page:
+      AppPage,
   ) => void
 }
 
 
-/* =======================================
-   LABEL
-======================================= */
-
 function formatLabel(
-  value: string,
-): string {
+  value:
+    string,
+):
+  string {
   return value
     .replaceAll(
       '-',
@@ -60,51 +75,25 @@ function formatLabel(
     )
     .replace(
       /\b\w/g,
-      (
-        letter,
-      ) =>
+      letter =>
         letter.toUpperCase(),
     )
 }
 
 
-/* =======================================
-   DATE
-======================================= */
-
-function formatDate(
-  date?: string,
-): string {
-  if (!date) {
-    return 'Not recorded'
-  }
-
-  return new Date(
-    `${date}T00:00:00`,
-  ).toLocaleDateString(
-    'en-AU',
-    {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    },
-  )
-}
-
-
-/* =======================================
-   PLACE KIND
-======================================= */
-
 function getPlaceKindLabel(
-  place: GrowingPlace,
-): string {
+  place:
+    GrowingPlace,
+):
+  string {
   if (
-    place.kind === 'other' &&
+    place.kind ===
+      'other' &&
     place.customKindLabel
   ) {
     return place.customKindLabel
   }
+
 
   return formatLabel(
     place.kind,
@@ -112,9 +101,127 @@ function getPlaceKindLabel(
 }
 
 
-/* =======================================
-   GROWING PLACE DETAIL
-======================================= */
+function getPlantLabel(
+  plant:
+    PlantStory,
+):
+  string {
+  return (
+    plant.displayName ||
+    plant.variety ||
+    plant.plantName ||
+    'Plant Story'
+  )
+}
+
+
+function getCurrentSetupIds(
+  plant:
+    PlantStory,
+):
+  string[] {
+  if (
+    plant.currentGrowingSetupIds &&
+    plant.currentGrowingSetupIds.length >
+      0
+  ) {
+    return plant.currentGrowingSetupIds
+  }
+
+
+  if (
+    plant.currentGrowingSetupId
+  ) {
+    return [
+      plant.currentGrowingSetupId,
+    ]
+  }
+
+
+  return []
+}
+
+
+const relationshipRowStyle:
+  React.CSSProperties = {
+    width:
+      '100%',
+
+    display:
+      'flex',
+
+    alignItems:
+      'center',
+
+    justifyContent:
+      'space-between',
+
+    gap:
+      '1rem',
+
+    padding:
+      '0.9rem 0',
+
+    border:
+      '0',
+
+    borderBottom:
+      '1px solid rgba(72, 71, 56, 0.18)',
+
+    background:
+      'transparent',
+
+    textAlign:
+      'left',
+
+    cursor:
+      'pointer',
+
+    font:
+      'inherit',
+
+    color:
+      'inherit',
+  }
+
+
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) {
+  return (
+    <div
+      style={{
+        display:
+          'grid',
+
+        gridTemplateColumns:
+          'minmax(7.5rem, 0.8fr) minmax(0, 1.4fr)',
+
+        gap:
+          '1rem',
+
+        padding:
+          '0.7rem 0',
+
+        borderBottom:
+          '1px solid rgba(72, 71, 56, 0.16)',
+      }}
+    >
+      <strong>
+        {label}
+      </strong>
+
+      <span>
+        {value}
+      </span>
+    </div>
+  )
+}
+
 
 export default function GrowingPlaceDetail({
   growingPlace,
@@ -124,36 +231,40 @@ export default function GrowingPlaceDetail({
   journeyBackLabel,
   onBack,
   onOpenGrowingPlaces,
+  onEdit,
+  onDelete,
   onOpenPlant,
   onOpenEvent,
   onOpenRecipe,
   onNavigate,
 }: GrowingPlaceDetailProps) {
 
-  /* =======================================
-     PLANTS CURRENTLY HERE
-  ======================================= */
-
   const plantsHere =
-    plants.filter(
-      (
-        plant,
-      ) =>
-        plant.currentGrowingPlaceId ===
-        growingPlace.id,
-    )
+    plants
+      .filter(
+        plant =>
+          plant.currentGrowingPlaceId ===
+          growingPlace.id,
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          getPlantLabel(
+            first,
+          ).localeCompare(
+            getPlantLabel(
+              second,
+            ),
+          ),
+      )
 
-
-  /* =======================================
-     JOURNAL HISTORY HERE
-  ======================================= */
 
   const eventsHere =
     [...events]
       .filter(
-        (
-          event,
-        ) =>
+        event =>
           event.growingPlaceIds
             ?.includes(
               growingPlace.id,
@@ -164,44 +275,52 @@ export default function GrowingPlaceDetail({
           first,
           second,
         ) =>
-          new Date(
-            second.date,
-          ).getTime() -
-          new Date(
+          second.date.localeCompare(
             first.date,
-          ).getTime(),
+          ),
       )
 
 
-  /* =======================================
-     GROWING RECIPE
-  ======================================= */
-
-  const growingSetup =
-    growingPlace.growingSetupId
-      ? growingSetups.find(
-          (
-            setup,
-          ) =>
-            setup.id ===
-            growingPlace.growingSetupId,
-        )
-      : undefined
-
-
-  /* =======================================
-     NAVIGATION
-  ======================================= */
-
-  const hasJourneyBack =
-    Boolean(
-      journeyBackLabel,
+  const setupIds =
+    Array.from(
+      new Set(
+        plantsHere.flatMap(
+          plant =>
+            getCurrentSetupIds(
+              plant,
+            ),
+        ),
+      ),
     )
 
 
-  const journeyAlreadyReturnsToGrowingPlaces =
-    journeyBackLabel ===
-    'Growing Places'
+  const setupsHere =
+    setupIds
+      .map(
+        setupId =>
+          growingSetups.find(
+            setup =>
+              setup.id ===
+              setupId,
+          ),
+      )
+      .filter(
+        (
+          setup,
+        ): setup is GrowingSetup =>
+          Boolean(
+            setup,
+          ),
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          first.name.localeCompare(
+            second.name,
+          ),
+      )
 
 
   return (
@@ -213,371 +332,498 @@ export default function GrowingPlaceDetail({
     >
       <div className="garden-page">
 
-        {/* =======================================
+        {/* ===================================
             NAVIGATION
-        ======================================= */}
+        =================================== */}
 
         <div
-          className="sprig-detail-navigation"
           style={{
             display:
               'flex',
 
+            gap:
+              '0.65rem',
+
             flexWrap:
               'wrap',
 
-            gap:
-              '10px',
-
             marginBottom:
-              '18px',
+              '1rem',
           }}
         >
+          <button
+            type="button"
+            className="record-action-button"
+            onClick={
+              onBack
+            }
+          >
+            ←{' '}
+            {
+              journeyBackLabel
+                ? `Back to ${journeyBackLabel}`
+                : 'Back'
+            }
+          </button>
 
-          {hasJourneyBack && (
-            <button
-              type="button"
-              className="garden-return-button"
-              onClick={
-                onBack
-              }
-            >
-              ← Back to{' '}
-              {
-                journeyBackLabel
-              }
-            </button>
-          )}
 
-
-          {!journeyAlreadyReturnsToGrowingPlaces && (
-            <button
-              type="button"
-              className="garden-return-button"
-              onClick={
-                onOpenGrowingPlaces
-              }
-            >
-              ← Growing Places
-            </button>
-          )}
-
+          <button
+            type="button"
+            className="record-action-button"
+            onClick={
+              onOpenGrowingPlaces
+            }
+          >
+            Growing Home
+          </button>
         </div>
 
 
-        {/* =======================================
+        {/* ===================================
             HEADER
-        ======================================= */}
+        =================================== */}
 
-        <header className="garden-header">
+        <header className="journal-header">
+          <div>
+            <p className="section-label">
+              Growing · Place
+            </p>
 
-          <p className="page-kicker">
-            SPRIG · GROWING PLACE
-          </p>
+            <h1>
+              {growingPlace.name}
+            </h1>
 
-          <h1>
-            {growingPlace.name}
-          </h1>
-
-          <p className="page-intro">
-            {getPlaceKindLabel(
-              growingPlace,
-            )}
-          </p>
-
+            <p className="journal-intro">
+              {
+                getPlaceKindLabel(
+                  growingPlace,
+                )
+              }
+            </p>
+          </div>
         </header>
 
 
-        {/* =======================================
-            GROWING RECIPE
-        ======================================= */}
+        {/* ===================================
+            RECORD ACTIONS
+        =================================== */}
 
-        {growingSetup && (
-          <section className="story-section">
+        <div
+          style={{
+            display:
+              'flex',
 
-            <div className="section-heading">
-              <div>
-                <p className="section-label">
-                  Growing recipe
-                </p>
+            gap:
+              '0.65rem',
 
-                <h2>
-                  What this place grows in
-                </h2>
-              </div>
-            </div>
+            flexWrap:
+              'wrap',
 
-
-            <button
-              type="button"
-              className="story-info-card"
-              onClick={() =>
-                onOpenRecipe(
-                  growingSetup.id,
-                )
-              }
-              style={{
-                display:
-                  'block',
-
-                width:
-                  '100%',
-
-                textAlign:
-                  'left',
-
-                cursor:
-                  'pointer',
-
-                font:
-                  'inherit',
-              }}
-            >
-
-              <p className="section-label">
-                Growing Recipe
-              </p>
-
-              <h2>
-                {growingSetup.name}
-              </h2>
-
-              <p>
-                Recipe currently connected
-                to this Growing Place.
-              </p>
-
-            </button>
-
-          </section>
-        )}
+            margin:
+              '0 0 1.5rem',
+          }}
+        >
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={
+              onEdit
+            }
+          >
+            ✎ Edit Place
+          </button>
 
 
-        {/* =======================================
-            NOTES
-        ======================================= */}
+          <button
+            type="button"
+            className="record-action-button"
+            onClick={
+              onDelete
+            }
+          >
+            Delete Place
+          </button>
+        </div>
+
+
+        {/* ===================================
+            PLACE DETAILS
+        =================================== */}
 
         <section className="story-section">
 
           <div className="section-heading">
-
             <div>
-
               <p className="section-label">
-                Garden notes
+                About this place
               </p>
 
               <h2>
-                About this place
+                Location & conditions
               </h2>
-
             </div>
-
           </div>
 
 
-          <div className="story-note-card">
+          <div>
+            <DetailRow
+              label="Place type"
+              value={
+                getPlaceKindLabel(
+                  growingPlace,
+                )
+              }
+            />
 
-            <p>
-              {growingPlace.notes ??
-                'No notes have been recorded for this Growing Place yet.'}
-            </p>
 
+            {growingPlace.aspect && (
+              <DetailRow
+                label="Aspect"
+                value={
+                  formatLabel(
+                    growingPlace.aspect,
+                  )
+                }
+              />
+            )}
+
+
+            {growingPlace.sunlight && (
+              <DetailRow
+                label="Sunlight"
+                value={
+                  formatLabel(
+                    growingPlace.sunlight,
+                  )
+                }
+              />
+            )}
+
+
+            {growingPlace.shelter && (
+              <DetailRow
+                label="Shelter"
+                value={
+                  formatLabel(
+                    growingPlace.shelter,
+                  )
+                }
+              />
+            )}
           </div>
 
+
+          {growingPlace.notes && (
+            <div
+              style={{
+                marginTop:
+                  '1rem',
+              }}
+            >
+              <p className="section-label">
+                Notes
+              </p>
+
+              <p>
+                {growingPlace.notes}
+              </p>
+            </div>
+          )}
         </section>
 
 
-        {/* =======================================
-            PLANTS CURRENTLY HERE
-        ======================================= */}
+        {/* ===================================
+            PLANTS
+        =================================== */}
 
         <section className="story-section">
 
           <div className="section-heading">
-
             <div>
-
               <p className="section-label">
-                Growing here
+                Living here now
               </p>
 
               <h2>
-                Plant Stories in this place
+                Plant Stories
               </h2>
-
             </div>
-
           </div>
 
 
-          {plantsHere.length >
+          {plantsHere.length ===
           0 ? (
-            <div className="library-grid">
-
+            <p>
+              No active Plant Stories are
+              currently recorded here.
+            </p>
+          ) : (
+            <div>
               {plantsHere.map(
-                (
-                  plant,
-                ) => (
+                plant => (
                   <button
                     key={
                       plant.id
                     }
                     type="button"
-                    className="library-book"
-                    onClick={() =>
-                      onOpenPlant(
-                        plant.id,
-                      )
+                    style={
+                      relationshipRowStyle
                     }
-                    style={{
-                      textAlign:
-                        'left',
-
-                      cursor:
-                        'pointer',
-
-                      font:
-                        'inherit',
-                    }}
+                    onClick={
+                      () =>
+                        onOpenPlant(
+                          plant.id,
+                        )
+                    }
                   >
+                    <span>
+                      <strong
+                        style={{
+                          display:
+                            'block',
+                        }}
+                      >
+                        {
+                          getPlantLabel(
+                            plant,
+                          )
+                        }
+                      </strong>
 
-                    <p className="section-label">
-                      🌱 Plant Story
-                    </p>
+                      <span
+                        className="form-whisper"
+                      >
+                        Open Plant Story
+                      </span>
+                    </span>
 
-                    <h2>
-                      {plant.displayName}
-                    </h2>
-
-                    {plant.variety && (
-                      <p>
-                        {plant.variety}
-                      </p>
-                    )}
-
+                    <span
+                      aria-hidden="true"
+                    >
+                      →
+                    </span>
                   </button>
                 ),
               )}
-
-            </div>
-          ) : (
-            <div className="empty-story">
-
-              <span>
-                🌿
-              </span>
-
-              <p>
-                No current Plant Stories
-                are connected to this
-                Growing Place.
-              </p>
-
             </div>
           )}
-
         </section>
 
 
-        {/* =======================================
-            JOURNAL HISTORY
-        ======================================= */}
+        {/* ===================================
+            SETUPS GATHERED FROM PLANTS
+        =================================== */}
 
         <section className="story-section">
 
           <div className="section-heading">
-
             <div>
+              <p className="section-label">
+                What they grow in
+              </p>
 
+              <h2>
+                Growing Setups used here
+              </h2>
+
+              <p>
+                These relationships belong to
+                the Plant Stories. The place
+                itself still remembers only
+                where.
+              </p>
+            </div>
+          </div>
+
+
+          {setupsHere.length ===
+          0 ? (
+            <p>
+              No current Growing Setup is
+              linked through Plant Stories
+              living here.
+            </p>
+          ) : (
+            <div>
+              {setupsHere.map(
+                setup => (
+                  <button
+                    key={
+                      setup.id
+                    }
+                    type="button"
+                    style={
+                      relationshipRowStyle
+                    }
+                    onClick={
+                      () =>
+                        onOpenRecipe(
+                          setup.id,
+                        )
+                    }
+                  >
+                    <span>
+                      <strong
+                        style={{
+                          display:
+                            'block',
+                        }}
+                      >
+                        {setup.name}
+                      </strong>
+
+                      <span
+                        className="form-whisper"
+                      >
+                        {
+                          setup.category ===
+                            'own-mix'
+                            ? 'My Recipe'
+                            : setup.category ===
+                              'bought-mix'
+                              ? 'Bought Mix'
+                              : setup.category ===
+                                'growing-system'
+                                ? 'Growing System'
+                                : 'Ground Type'
+                        }
+                      </span>
+                    </span>
+
+                    <span
+                      aria-hidden="true"
+                    >
+                      →
+                    </span>
+                  </button>
+                ),
+              )}
+            </div>
+          )}
+        </section>
+
+
+        {/* ===================================
+            JOURNAL
+        =================================== */}
+
+        <section className="story-section">
+
+          <div className="section-heading">
+            <div>
               <p className="section-label">
                 Chronicle
               </p>
 
               <h2>
-                What has happened here
+                Journal pages from here
               </h2>
-
             </div>
-
           </div>
 
 
-          {eventsHere.length >
+          {eventsHere.length ===
           0 ? (
-            <div className="timeline">
-
+            <p>
+              No Journal pages are linked
+              to this Growing Place yet.
+            </p>
+          ) : (
+            <div>
               {eventsHere.map(
-                (
-                  event,
-                ) => (
+                event => (
                   <button
                     key={
                       event.id
                     }
                     type="button"
-                    className="timeline-entry"
-                    onClick={() =>
-                      onOpenEvent(
-                        event.id,
-                      )
+                    style={
+                      relationshipRowStyle
                     }
-                    style={{
-                      display:
-                        'block',
-
-                      width:
-                        '100%',
-
-                      textAlign:
-                        'left',
-
-                      cursor:
-                        'pointer',
-
-                      font:
-                        'inherit',
-                    }}
+                    onClick={
+                      () =>
+                        onOpenEvent(
+                          event.id,
+                        )
+                    }
                   >
+                    <span>
+                      <strong
+                        style={{
+                          display:
+                            'block',
+                        }}
+                      >
+                        {
+                          event.title ||
+                          'Garden Journal'
+                        }
+                      </strong>
 
-                    <p className="section-label">
-                      {formatDate(
-                        event.date,
-                      )}
-                    </p>
+                      <span
+                        className="form-whisper"
+                      >
+                        {event.date}
+                      </span>
+                    </span>
 
-                    <h3>
-                      {event.title}
-                    </h3>
-
-                    {event.notes && (
-                      <p>
-                        {event.notes}
-                      </p>
-                    )}
-
+                    <span
+                      aria-hidden="true"
+                    >
+                      →
+                    </span>
                   </button>
                 ),
               )}
-
-            </div>
-          ) : (
-            <div className="empty-story">
-
-              <span>
-                📖
-              </span>
-
-              <p>
-                Nothing has been recorded
-                here in the Garden Journal
-                yet.
-              </p>
-
             </div>
           )}
-
         </section>
+
+
+        {/* ===================================
+            NAVIGATION AGAIN
+        =================================== */}
+
+        <div
+          style={{
+            display:
+              'flex',
+
+            gap:
+              '0.65rem',
+
+            flexWrap:
+              'wrap',
+
+            marginTop:
+              '1.5rem',
+          }}
+        >
+          <button
+            type="button"
+            className="record-action-button"
+            onClick={
+              onBack
+            }
+          >
+            ←{' '}
+            {
+              journeyBackLabel
+                ? `Back to ${journeyBackLabel}`
+                : 'Back'
+            }
+          </button>
+
+          <button
+            type="button"
+            className="record-action-button"
+            onClick={
+              onOpenGrowingPlaces
+            }
+          >
+            Growing Home
+          </button>
+        </div>
 
       </div>
     </GardenLayout>

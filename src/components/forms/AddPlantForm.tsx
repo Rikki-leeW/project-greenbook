@@ -8,7 +8,6 @@ import {
 import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
 
 import AddGrowingPlaceForm from './AddGrowingPlaceForm'
-import AddRecipeForm from './AddRecipeForm'
 
 import SprigPicker from '../sprig/SprigPicker'
 import SprigPhotoPicker from '../photos/SprigPhotoPicker'
@@ -16,12 +15,17 @@ import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 import type {
   GardenPlan,
   GardenProduct,
+  GrowingGroundMethod,
+  GrowingGroundType,
   GrowingPlace,
   GrowingSetup,
+  GrowingSetupCategory,
   Ingredient,
   PlantGrowingHistoryEntry,
+  PlantHarvestTimingUnit,
   PlantOriginType,
   PlantStory,
+  SeedlingFloweringState,
   StartMethod,
 } from '../../types'
 
@@ -48,7 +52,6 @@ interface AddPlantFormProps {
 
   onAddGrowingPlace: (
     place: GrowingPlace,
-    setup?: GrowingSetup,
   ) => void
 
   onAddRecipe: (
@@ -64,6 +67,12 @@ interface AddPlantFormProps {
   ) => void
 
   onClose: () => void
+}
+
+
+interface QuickPresetOption {
+  value: string
+  label: string
 }
 
 
@@ -95,6 +104,64 @@ function createPlantId(
 
 
 /* =======================================
+   GROWING SETUP ID
+======================================= */
+
+function createGrowingSetupId(
+  name: string,
+  category:
+    GrowingSetupCategory,
+): string {
+  const safeName =
+    name
+      .trim()
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]+/g,
+        '-',
+      )
+      .replace(
+        /^-|-$/g,
+        '',
+      )
+
+  return `${
+    category
+  }-${
+    safeName ||
+    'growing-setup'
+  }-${Date.now()}`
+}
+
+
+/* =======================================
+   INGREDIENT ID
+======================================= */
+
+function createIngredientId(
+  name: string,
+): string {
+  const safeName =
+    name
+      .trim()
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]+/g,
+        '-',
+      )
+      .replace(
+        /^-|-$/g,
+        '',
+      )
+
+  return `ingredient-${
+    safeName ||
+    'garden-material'
+  }-${Date.now()}`
+}
+
+
+/* =======================================
    GROWING HISTORY ID
 ======================================= */
 
@@ -107,36 +174,60 @@ function createGrowingHistoryId(
 
 
 /* =======================================
-   UNIQUE RELATIONSHIP IDS
+   UNIQUE IDS
 ======================================= */
 
-function addUniqueRelationshipId(
-  ids: string[],
-  id?: string,
+function uniqueIds(
+  ids: Array<
+    string |
+    undefined
+  >,
 ): string[] {
+  return Array.from(
+    new Set(
+      ids.filter(
+        (
+          id,
+        ): id is string =>
+          Boolean(
+            id,
+          ),
+      ),
+    ),
+  )
+}
+
+
+function arraysContainSameIds(
+  first: string[],
+  second: string[],
+): boolean {
   if (
-    !id
+    first.length !==
+    second.length
   ) {
-    return ids
+    return false
   }
 
-  if (
-    ids.includes(
-      id,
-    )
-  ) {
-    return ids
-  }
+  const firstSorted =
+    [...first].sort()
 
-  return [
-    ...ids,
-    id,
-  ]
+  const secondSorted =
+    [...second].sort()
+
+  return firstSorted.every(
+    (
+      value,
+      index,
+    ) =>
+      value ===
+      secondSorted[index],
+  )
 }
 
 
 /* =======================================
-   GROWING RECIPE LABEL
+   GROWING SETUP LABELS
 ======================================= */
 
 function getGrowingSetupCategoryLabel(
@@ -152,15 +243,207 @@ function getGrowingSetupCategoryLabel(
       return 'Bought Mix'
 
     case 'ground-type':
-      return 'Native Ground'
+      return 'Ground Type'
 
     case 'growing-system':
       return 'Growing System'
 
     default:
-      return 'Garden Recipe'
+      return 'Growing Record'
   }
 }
+
+
+function getGrowingSetupCategoryHeading(
+  category:
+    GrowingSetupCategory,
+): string {
+  switch (
+    category
+  ) {
+    case 'own-mix':
+      return 'My Recipes'
+
+    case 'bought-mix':
+      return 'Bought Mixes'
+
+    case 'ground-type':
+      return 'Ground Types'
+
+    case 'growing-system':
+      return 'Growing Systems'
+
+    default:
+      return 'Growing Records'
+  }
+}
+
+
+function getGrowingSetupCategoryHelper(
+  category:
+    GrowingSetupCategory,
+): string {
+  switch (
+    category
+  ) {
+    case 'own-mix':
+      return 'A mix or recipe you put together yourself.'
+
+    case 'bought-mix':
+      return 'A prepared soil, potting mix or other medium you bought.'
+
+    case 'ground-type':
+      return 'The existing ground or soil this plant is growing directly in.'
+
+    case 'growing-system':
+      return 'The container or growing system, such as a grow bag, wicking bed or hydroponic system.'
+
+    default:
+      return ''
+  }
+}
+
+
+/* =======================================
+   GROUND TYPE PRESETS
+
+   Keep these aligned with Add Recipe.
+======================================= */
+
+const groundTypePresets:
+  QuickPresetOption[] = [
+    {
+      value:
+        'native-soil',
+      label:
+        'Native Soil',
+    },
+    {
+      value:
+        'native-clay',
+      label:
+        'Native Clay',
+    },
+    {
+      value:
+        'loam',
+      label:
+        'Loam',
+    },
+    {
+      value:
+        'sandy-soil',
+      label:
+        'Sandy Soil',
+    },
+    {
+      value:
+        'rocky-soil',
+      label:
+        'Rocky Soil',
+    },
+    {
+      value:
+        'peat-soil',
+      label:
+        'Peat Soil',
+    },
+    {
+      value:
+        'imported-topsoil',
+      label:
+        'Imported Topsoil',
+    },
+    {
+      value:
+        'not-sure',
+      label:
+        'Not Sure',
+    },
+  ]
+
+
+/* =======================================
+   GROWING SYSTEM PRESETS
+
+   Keep these aligned with Add Recipe.
+======================================= */
+
+const growingSystemPresets:
+  QuickPresetOption[] = [
+    {
+      value:
+        'no-dig',
+      label:
+        'No-Dig',
+    },
+    {
+      value:
+        'layered-bed',
+      label:
+        'Layered Bed',
+    },
+    {
+      value:
+        'hugelkultur',
+      label:
+        'Hügelkultur',
+    },
+    {
+      value:
+        'filled-raised-bed',
+      label:
+        'Filled Raised Bed',
+    },
+    {
+      value:
+        'wicking-bed',
+      label:
+        'Wicking Bed',
+    },
+    {
+      value:
+        'hydroponic',
+      label:
+        'Hydroponics',
+    },
+    {
+      value:
+        'aquaponic',
+      label:
+        'Aquaponics',
+    },
+    {
+      value:
+        'kratky',
+      label:
+        'Kratky',
+    },
+    {
+      value:
+        'nft',
+      label:
+        'NFT',
+    },
+    {
+      value:
+        'deep-water-culture',
+      label:
+        'Deep Water Culture',
+    },
+    {
+      value:
+        'ebb-and-flow',
+      label:
+        'Ebb & Flow',
+    },
+    {
+      value:
+        'aeroponic',
+      label:
+        'Aeroponics',
+    },
+  ]
 
 
 /* =======================================
@@ -168,7 +451,8 @@ function getGrowingSetupCategoryLabel(
 ======================================= */
 
 function getPlantOriginLabel(
-  originType: PlantOriginType,
+  originType:
+    PlantOriginType,
 ): string {
   switch (
     originType
@@ -257,17 +541,70 @@ function getPlanHarvestTimingReference(
 
 
 /* =======================================
-   HARVEST TIMING UNITS
+   TIMING CONVERSION
 ======================================= */
 
-type HarvestTimingUnit =
-  | 'days'
-  | 'weeks'
-  | 'months'
+function daysPerTimingUnit(
+  unit:
+    PlantHarvestTimingUnit,
+): number {
+  switch (
+    unit
+  ) {
+    case 'weeks':
+      return 7
+
+    case 'months':
+      return 30
+
+    case 'days':
+    default:
+      return 1
+  }
+}
 
 
-function parseHarvestTimingValue(
+function convertDaysToDisplayValue(
+  days:
+    number | undefined,
+  unit:
+    PlantHarvestTimingUnit,
+): string {
+  if (
+    days === undefined ||
+    !Number.isFinite(
+      days,
+    )
+  ) {
+    return ''
+  }
+
+  const divisor =
+    daysPerTimingUnit(
+      unit,
+    )
+
+  const converted =
+    days /
+    divisor
+
+  const rounded =
+    Math.round(
+      converted *
+      100,
+    ) /
+    100
+
+  return String(
+    rounded,
+  )
+}
+
+
+function convertDisplayValueToDays(
   value: string,
+  unit:
+    PlantHarvestTimingUnit,
 ): number | undefined {
   if (
     !value.trim()
@@ -275,109 +612,133 @@ function parseHarvestTimingValue(
     return undefined
   }
 
-  const parsed =
+  const numericValue =
     Number(
       value,
     )
 
   if (
     !Number.isFinite(
-      parsed,
+      numericValue,
     ) ||
-    parsed <=
+    numericValue <
       0
   ) {
     return undefined
   }
 
-  return parsed
-}
-
-
-function harvestTimingValueToDays(
-  value: string,
-  unit: HarvestTimingUnit,
-): number | undefined {
-  const parsed =
-    parseHarvestTimingValue(
-      value,
-    )
-
-  if (
-    parsed ===
-    undefined
-  ) {
-    return undefined
-  }
-
-  if (
-    unit ===
-    'weeks'
-  ) {
-    return Math.round(
-      parsed *
-      7,
-    )
-  }
-
-  if (
-    unit ===
-    'months'
-  ) {
-    return Math.round(
-      parsed *
-      30.4375,
-    )
-  }
-
   return Math.round(
-    parsed,
+    numericValue *
+    daysPerTimingUnit(
+      unit,
+    ),
   )
 }
 
 
-function harvestTimingDaysToValue(
-  days: number | undefined,
-  unit: HarvestTimingUnit,
-): string {
-  if (
-    days ===
-    undefined
-  ) {
-    return ''
-  }
-
-  let value =
-    days
-
-  if (
-    unit ===
-    'weeks'
-  ) {
-    value =
-      days /
-      7
-  }
-
-  if (
-    unit ===
-    'months'
-  ) {
-    value =
-      days /
-      30.4375
-  }
-
-  const rounded =
-    Math.round(
-      value *
-      10,
-    ) /
-    10
-
-  return String(
-    rounded,
+function getHarvestTimingUnit(
+  plant:
+    PlantStory | undefined,
+): PlantHarvestTimingUnit {
+  return (
+    plant
+      ?.harvestTimingInputUnit ??
+    'days'
   )
+}
+
+
+/* =======================================
+   LEGACY + CURRENT SETUP IDS
+======================================= */
+
+function getPlantCurrentGrowingSetupIds(
+  plant:
+    PlantStory | undefined,
+): string[] {
+  if (
+    !plant
+  ) {
+    return []
+  }
+
+  return uniqueIds([
+    ...(
+      plant
+        .currentGrowingSetupIds ??
+      []
+    ),
+    plant
+      .currentGrowingSetupId,
+  ])
+}
+
+
+/* =======================================
+   QUICK CREATE SETUP
+======================================= */
+
+function createMinimalGrowingSetup(
+  name: string,
+  category:
+    GrowingSetupCategory,
+  today:
+    string,
+  structuredValue?:
+    string,
+): GrowingSetup {
+  const baseSetup:
+    GrowingSetup = {
+      id:
+        createGrowingSetupId(
+          name,
+          category,
+        ),
+
+      name:
+        name.trim(),
+
+      category,
+
+      isFavourite:
+        false,
+
+      isArchived:
+        false,
+
+      createdAt:
+        today,
+    }
+
+  if (
+    category ===
+      'ground-type' &&
+    structuredValue
+  ) {
+    return {
+      ...baseSetup,
+
+      groundType:
+        structuredValue as
+          GrowingGroundType,
+    }
+  }
+
+  if (
+    category ===
+      'growing-system' &&
+    structuredValue
+  ) {
+    return {
+      ...baseSetup,
+
+      growingSystemType:
+        structuredValue as
+          GrowingGroundMethod,
+    }
+  }
+
+  return baseSetup
 }
 
 
@@ -401,6 +762,10 @@ export default function AddPlantForm({
   onAddProduct,
   onClose,
 }: AddPlantFormProps) {
+  void Products
+  void onAddProduct
+
+
   const today =
     new Date()
       .toISOString()
@@ -521,6 +886,38 @@ export default function AddPlantForm({
     )
 
   const [
+    seedPotatoEyeCount,
+    setSeedPotatoEyeCount,
+  ] =
+    useState(
+      isVariation
+        ? ''
+        : sourcePlant
+            ?.seedPotatoEyeCount !==
+          undefined
+          ? String(
+              sourcePlant
+                .seedPotatoEyeCount,
+            )
+          : '',
+    )
+
+  const [
+    seedlingFloweringState,
+    setSeedlingFloweringState,
+  ] =
+    useState<
+      SeedlingFloweringState |
+      ''
+    >(
+      isVariation
+        ? ''
+        : sourcePlant
+            ?.seedlingFloweringState ??
+          '',
+    )
+
+  const [
     startedDate,
     setStartedDate,
   ] =
@@ -599,7 +996,9 @@ export default function AddPlantForm({
     isAddGrowingPlaceOpen,
     setIsAddGrowingPlaceOpen,
   ] =
-    useState(false)
+    useState(
+      false,
+    )
 
   const [
     currentGrowingPlaceId,
@@ -618,51 +1017,117 @@ export default function AddPlantForm({
     isGrowingPlacePickerOpen,
     setIsGrowingPlacePickerOpen,
   ] =
-    useState(false)
+    useState(
+      false,
+    )
 
 
   /* =======================================
-     GROWING RECIPE
+     START METHOD PICKER
   ======================================= */
 
   const [
-    currentGrowingSetupId,
-    setCurrentGrowingSetupId,
+    isStartMethodPickerOpen,
+    setIsStartMethodPickerOpen,
   ] =
     useState(
-      sourcePlant
-        ?.currentGrowingSetupId ??
-      recordingPlan
-        ?.growingSetupIds
-        ?.[0] ??
+      false,
+    )
+
+
+  /* =======================================
+     WHAT THIS PLANT GROWS IN
+  ======================================= */
+
+  const startingGrowingSetupIds =
+    sourcePlant
+      ? getPlantCurrentGrowingSetupIds(
+          sourcePlant,
+        )
+      : uniqueIds(
+          recordingPlan
+            ?.growingSetupIds ??
+          [],
+        )
+
+  const [
+    currentGrowingSetupIds,
+    setCurrentGrowingSetupIds,
+  ] =
+    useState<string[]>(
+      startingGrowingSetupIds,
+    )
+
+  const [
+    openGrowingSetupCategory,
+    setOpenGrowingSetupCategory,
+  ] =
+    useState<
+      GrowingSetupCategory |
+      null
+    >(
+      null,
+    )
+
+  const [
+    quickCreateCategory,
+    setQuickCreateCategory,
+  ] =
+    useState<
+      GrowingSetupCategory |
+      'ingredient' |
+      null
+    >(
+      null,
+    )
+
+  const [
+    quickCreateName,
+    setQuickCreateName,
+  ] =
+    useState(
       '',
     )
 
   const [
-    isGrowingSetupPickerOpen,
-    setIsGrowingSetupPickerOpen,
+    quickCreateStructuredValue,
+    setQuickCreateStructuredValue,
   ] =
-    useState(false)
-
-  const [
-    isAddRecipeOpen,
-    setIsAddRecipeOpen,
-  ] =
-    useState(false)
+    useState(
+      '',
+    )
 
 
   /* =======================================
      HARVEST EXPECTATION
   ======================================= */
 
-  const initialHarvestDaysMin =
+  const initialTimingUnit:
+    PlantHarvestTimingUnit =
+    sourcePlant
+      ? getHarvestTimingUnit(
+          sourcePlant,
+        )
+      : 'weeks'
+
+  const [
+    harvestTimingInputUnit,
+    setHarvestTimingInputUnit,
+  ] =
+    useState<
+      PlantHarvestTimingUnit
+    >(
+      initialTimingUnit,
+    )
+
+  const sourceHarvestDaysMin =
     sourcePlant
       ?.expectedHarvestDaysMin ??
     recordingPlan
       ?.timingAssumption
       ?.daysMin
 
-  const initialHarvestDaysMax =
+  const sourceHarvestDaysMax =
     sourcePlant
       ?.expectedHarvestDaysMax ??
     recordingPlan
@@ -670,76 +1135,26 @@ export default function AddPlantForm({
       ?.daysMax
 
   const [
-    harvestTimingUnit,
-    setHarvestTimingUnit,
-  ] =
-    useState<HarvestTimingUnit>(
-      'days',
-    )
-
-  const [
-    expectedHarvestMinValue,
-    setExpectedHarvestMinValue,
+    expectedHarvestMin,
+    setExpectedHarvestMin,
   ] =
     useState(
-      harvestTimingDaysToValue(
-        initialHarvestDaysMin,
-        'days',
+      convertDaysToDisplayValue(
+        sourceHarvestDaysMin,
+        initialTimingUnit,
       ),
     )
 
   const [
-    expectedHarvestMaxValue,
-    setExpectedHarvestMaxValue,
+    expectedHarvestMax,
+    setExpectedHarvestMax,
   ] =
     useState(
-      harvestTimingDaysToValue(
-        initialHarvestDaysMax,
-        'days',
+      convertDaysToDisplayValue(
+        sourceHarvestDaysMax,
+        initialTimingUnit,
       ),
     )
-
-
-  function changeHarvestTimingUnit(
-    nextUnit: HarvestTimingUnit,
-  ) {
-    if (
-      nextUnit ===
-      harvestTimingUnit
-    ) {
-      return
-    }
-
-    const currentMinDays =
-      harvestTimingValueToDays(
-        expectedHarvestMinValue,
-        harvestTimingUnit,
-      )
-
-    const currentMaxDays =
-      harvestTimingValueToDays(
-        expectedHarvestMaxValue,
-        harvestTimingUnit,
-      )
-
-    setExpectedHarvestMinValue(
-      harvestTimingDaysToValue(
-        currentMinDays,
-        nextUnit,
-      ),
-    )
-
-    setExpectedHarvestMaxValue(
-      harvestTimingDaysToValue(
-        currentMaxDays,
-        nextUnit,
-      ),
-    )
-
-    setHarvestTimingUnit(
-      nextUnit,
-    )
-  }
 
 
   /* =======================================
@@ -751,9 +1166,11 @@ export default function AddPlantForm({
     setNotes,
   ] =
     useState(
-      sourcePlant?.notes ??
-      recordingPlan?.notes ??
-      '',
+      isVariation
+        ? ''
+        : sourcePlant?.notes ??
+          recordingPlan?.notes ??
+          '',
     )
 
 
@@ -766,13 +1183,15 @@ export default function AddPlantForm({
     setPhotoUrls,
   ] =
     useState<string[]>(
-      [
-        ...(
-          sourcePlant
-            ?.photoUrls ??
-          []
-        ),
-      ],
+      isVariation
+        ? []
+        : [
+            ...(
+              sourcePlant
+                ?.photoUrls ??
+              []
+            ),
+          ],
     )
 
   const [
@@ -781,38 +1200,33 @@ export default function AddPlantForm({
   ] =
     useState<
       Array<
-        string | undefined
+        string |
+        undefined
       >
     >(
-      (
-        sourcePlant
-          ?.photoUrls ??
-        []
-      ).map(
-        (
-          _photoUrl,
-          index,
-        ) =>
-          sourcePlant
-            ?.photoDates?.[
-              index
-            ],
-      ),
+      isVariation
+        ? []
+        : (
+            sourcePlant
+              ?.photoUrls ??
+            []
+          ).map(
+            (
+              _photoUrl,
+              index,
+            ) =>
+              sourcePlant
+                ?.photoDates?.[
+                  index
+                ],
+          ),
     )
 
-
-  /* =======================================
-     PLANT BEGINNING
-  ======================================= */
 
   const beganFromSeed =
     startMethod ===
     'seed'
 
-
-  /* =======================================
-     FORM REFERENCE
-  ======================================= */
 
   const formRef =
     useRef<HTMLFormElement>(
@@ -913,6 +1327,287 @@ export default function AddPlantForm({
 
 
   /* =======================================
+     TIMING UNIT CHANGE
+  ======================================= */
+
+  function handleTimingUnitChange(
+    nextUnit:
+      PlantHarvestTimingUnit,
+  ) {
+    if (
+      nextUnit ===
+      harvestTimingInputUnit
+    ) {
+      return
+    }
+
+    const minimumDays =
+      convertDisplayValueToDays(
+        expectedHarvestMin,
+        harvestTimingInputUnit,
+      )
+
+    const maximumDays =
+      convertDisplayValueToDays(
+        expectedHarvestMax,
+        harvestTimingInputUnit,
+      )
+
+    setExpectedHarvestMin(
+      convertDaysToDisplayValue(
+        minimumDays,
+        nextUnit,
+      ),
+    )
+
+    setExpectedHarvestMax(
+      convertDaysToDisplayValue(
+        maximumDays,
+        nextUnit,
+      ),
+    )
+
+    setHarvestTimingInputUnit(
+      nextUnit,
+    )
+  }
+
+
+  /* =======================================
+     GROWING SETUP TOGGLE
+  ======================================= */
+
+  function toggleGrowingSetup(
+    setupId:
+      string,
+  ) {
+    setCurrentGrowingSetupIds(
+      current =>
+        current.includes(
+          setupId,
+        )
+          ? current.filter(
+              id =>
+                id !==
+                setupId,
+            )
+          : [
+              ...current,
+              setupId,
+            ],
+    )
+  }
+
+
+  /* =======================================
+     OPEN QUICK CREATE
+  ======================================= */
+
+  function openQuickCreate(
+    category:
+      GrowingSetupCategory |
+      'ingredient',
+  ) {
+    setQuickCreateCategory(
+      category,
+    )
+
+    setQuickCreateName(
+      '',
+    )
+
+    setQuickCreateStructuredValue(
+      '',
+    )
+  }
+
+
+  /* =======================================
+     CHOOSE QUICK PRESET
+  ======================================= */
+
+  function chooseQuickPreset(
+    option:
+      QuickPresetOption,
+  ) {
+    setQuickCreateStructuredValue(
+      option.value,
+    )
+
+    setQuickCreateName(
+      option.label,
+    )
+  }
+
+
+  /* =======================================
+     QUICK CREATE
+  ======================================= */
+
+  function handleQuickCreate() {
+    const trimmedName =
+      quickCreateName.trim()
+
+    if (
+      !trimmedName ||
+      !quickCreateCategory
+    ) {
+      return
+    }
+
+    if (
+      quickCreateCategory ===
+      'ingredient'
+    ) {
+      const existingIngredient =
+        Ingredients.find(
+          ingredient =>
+            ingredient.name
+              .trim()
+              .toLowerCase() ===
+            trimmedName
+              .toLowerCase(),
+        )
+
+      const ingredient =
+        existingIngredient ??
+        {
+          id:
+            createIngredientId(
+              trimmedName,
+            ),
+
+          name:
+            trimmedName,
+
+          createdAt:
+            today,
+        }
+
+      if (
+        !existingIngredient
+      ) {
+        onAddIngredient(
+          ingredient,
+        )
+      }
+
+      setQuickCreateName(
+        '',
+      )
+
+      setQuickCreateStructuredValue(
+        '',
+      )
+
+      setQuickCreateCategory(
+        null,
+      )
+
+      return
+    }
+
+    const existingSetup =
+      GrowingSetups.find(
+        setup =>
+          setup.category ===
+            quickCreateCategory &&
+          setup.name
+            .trim()
+            .toLowerCase() ===
+          trimmedName
+            .toLowerCase(),
+      )
+
+    if (
+      existingSetup
+    ) {
+      setCurrentGrowingSetupIds(
+        current =>
+          uniqueIds([
+            ...current,
+            existingSetup.id,
+          ]),
+      )
+
+      setQuickCreateName(
+        '',
+      )
+
+      setQuickCreateStructuredValue(
+        '',
+      )
+
+      setQuickCreateCategory(
+        null,
+      )
+
+      return
+    }
+
+    const newSetup =
+      createMinimalGrowingSetup(
+        trimmedName,
+        quickCreateCategory,
+        today,
+        quickCreateStructuredValue ||
+          undefined,
+      )
+
+    onAddRecipe(
+      newSetup,
+    )
+
+    setCurrentGrowingSetupIds(
+      current =>
+        uniqueIds([
+          ...current,
+          newSetup.id,
+        ]),
+    )
+
+    setQuickCreateName(
+      '',
+    )
+
+    setQuickCreateStructuredValue(
+      '',
+    )
+
+    setQuickCreateCategory(
+      null,
+    )
+  }
+
+
+  /* =======================================
+     PHOTO CHANGE
+  ======================================= */
+
+  function handlePhotoUrlsChange(
+    nextPhotoUrls:
+      string[],
+  ) {
+    setPhotoUrls(
+      nextPhotoUrls,
+    )
+
+    setPhotoDates(
+      currentDates =>
+        nextPhotoUrls.map(
+          (
+            _photoUrl,
+            index,
+          ) =>
+            currentDates[
+              index
+            ],
+        ),
+    )
+  }
+
+
+  /* =======================================
      SAVE PLANT STORY
   ======================================= */
 
@@ -948,29 +1643,52 @@ export default function AddPlantForm({
       trimmedPlantName
 
     const minimumHarvestDays =
-      harvestTimingValueToDays(
-        expectedHarvestMinValue,
-        harvestTimingUnit,
+      convertDisplayValueToDays(
+        expectedHarvestMin,
+        harvestTimingInputUnit,
       )
 
     const maximumHarvestDays =
-      harvestTimingValueToDays(
-        expectedHarvestMaxValue,
-        harvestTimingUnit,
+      convertDisplayValueToDays(
+        expectedHarvestMax,
+        harvestTimingInputUnit,
       )
 
+    const hasHarvestTiming =
+      minimumHarvestDays !==
+        undefined ||
+      maximumHarvestDays !==
+        undefined
 
-    /* =======================================
-       RESOLVE CURRENT RELATIONSHIPS
-    ======================================= */
 
     const selectedGrowingPlaceId =
       currentGrowingPlaceId ||
       undefined
 
-    const selectedGrowingSetupId =
-      currentGrowingSetupId ||
-      undefined
+    const selectedGrowingSetupIds =
+      uniqueIds(
+        currentGrowingSetupIds,
+      )
+
+    const selectedLegacyGrowingSetupId =
+      selectedGrowingSetupIds
+        .map(
+          id =>
+            GrowingSetups.find(
+              setup =>
+                setup.id ===
+                id,
+            ),
+        )
+        .find(
+          setup =>
+            setup &&
+            setup.category !==
+              'growing-system',
+        )
+        ?.id ??
+      selectedGrowingSetupIds[0]
+
 
     const initialGrowingArrangementDate =
       (
@@ -985,10 +1703,6 @@ export default function AddPlantForm({
         : startedDate
 
 
-    /* =======================================
-       PLANT ID
-    ======================================= */
-
     const savedPlantId =
       isEditing &&
       plantToEdit
@@ -997,10 +1711,6 @@ export default function AddPlantForm({
             displayName,
           )
 
-
-    /* =======================================
-       PREVIOUS RELATIONSHIPS
-    ======================================= */
 
     let nextPreviousGrowingPlaceIds:
       string[] =
@@ -1028,10 +1738,19 @@ export default function AddPlantForm({
           ]
         : []
 
+    let nextPreviousGrowingSetupIdsV2:
+      string[] =
+      isEditing &&
+      plantToEdit
+        ? [
+            ...(
+              plantToEdit
+                .previousGrowingSetupIdsV2 ??
+              []
+            ),
+          ]
+        : []
 
-    /* =======================================
-       DATED GROWING HISTORY
-    ======================================= */
 
     let nextGrowingHistory:
       PlantGrowingHistoryEntry[] =
@@ -1044,6 +1763,15 @@ export default function AddPlantForm({
           ).map(
             entry => ({
               ...entry,
+
+              growingSetupIds:
+                entry
+                  .growingSetupIds
+                  ? [
+                      ...entry
+                        .growingSetupIds,
+                    ]
+                  : undefined,
             }),
           )
         : []
@@ -1052,40 +1780,59 @@ export default function AddPlantForm({
       isEditing &&
       plantToEdit
     ) {
+      const oldGrowingSetupIds =
+        getPlantCurrentGrowingSetupIds(
+          plantToEdit,
+        )
+
       const growingPlaceChanged =
         plantToEdit
           .currentGrowingPlaceId !==
         selectedGrowingPlaceId
 
       const growingSetupChanged =
-        plantToEdit
-          .currentGrowingSetupId !==
-        selectedGrowingSetupId
+        !arraysContainSameIds(
+          oldGrowingSetupIds,
+          selectedGrowingSetupIds,
+        )
 
       const growingArrangementChanged =
         growingPlaceChanged ||
         growingSetupChanged
 
       if (
-        growingPlaceChanged
+        growingPlaceChanged &&
+        plantToEdit
+          .currentGrowingPlaceId
       ) {
         nextPreviousGrowingPlaceIds =
-          addUniqueRelationshipId(
-            nextPreviousGrowingPlaceIds,
+          uniqueIds([
+            ...nextPreviousGrowingPlaceIds,
             plantToEdit
               .currentGrowingPlaceId,
-          )
+          ])
       }
 
       if (
         growingSetupChanged
       ) {
-        nextPreviousGrowingSetupIds =
-          addUniqueRelationshipId(
-            nextPreviousGrowingSetupIds,
-            plantToEdit
-              .currentGrowingSetupId,
-          )
+        nextPreviousGrowingSetupIdsV2 =
+          uniqueIds([
+            ...nextPreviousGrowingSetupIdsV2,
+            ...oldGrowingSetupIds,
+          ])
+
+        if (
+          plantToEdit
+            .currentGrowingSetupId
+        ) {
+          nextPreviousGrowingSetupIds =
+            uniqueIds([
+              ...nextPreviousGrowingSetupIds,
+              plantToEdit
+                .currentGrowingSetupId,
+            ])
+        }
       }
 
       if (
@@ -1097,8 +1844,8 @@ export default function AddPlantForm({
           (
             plantToEdit
               .currentGrowingPlaceId ||
-            plantToEdit
-              .currentGrowingSetupId
+            oldGrowingSetupIds.length >
+              0
           )
         ) {
           nextGrowingHistory.push({
@@ -1125,6 +1872,12 @@ export default function AddPlantForm({
               plantToEdit
                 .currentGrowingSetupId,
 
+            growingSetupIds:
+              oldGrowingSetupIds.length >
+                0
+                ? oldGrowingSetupIds
+                : undefined,
+
             notes:
               'Earlier growing arrangement carried forward from this existing Plant Story. Its exact starting date was not separately recorded.',
           })
@@ -1138,9 +1891,9 @@ export default function AddPlantForm({
               nextGrowingHistory.length -
               1;
             index >=
-            0;
+              0;
             index -=
-            1
+              1
           ) {
             if (
               !nextGrowingHistory[
@@ -1173,13 +1926,14 @@ export default function AddPlantForm({
 
         if (
           selectedGrowingPlaceId ||
-          selectedGrowingSetupId
+          selectedGrowingSetupIds.length >
+            0
         ) {
           nextGrowingHistory.push({
             id:
               createGrowingHistoryId(
                 savedPlantId,
-                'current',
+                'changed',
               ),
 
             startedDate:
@@ -1189,45 +1943,21 @@ export default function AddPlantForm({
               selectedGrowingPlaceId,
 
             growingSetupId:
-              selectedGrowingSetupId,
+              selectedLegacyGrowingSetupId,
+
+            growingSetupIds:
+              selectedGrowingSetupIds.length >
+                0
+                ? selectedGrowingSetupIds
+                : undefined,
           })
         }
-      }
-      else if (
-        nextGrowingHistory.length ===
-          0 &&
-        (
-          selectedGrowingPlaceId ||
-          selectedGrowingSetupId
-        )
-      ) {
-        nextGrowingHistory.push({
-          id:
-            createGrowingHistoryId(
-              savedPlantId,
-              'baseline',
-            ),
-
-          startedDate:
-            plantToEdit
-              .plantedOutDate ??
-            plantToEdit
-              .plantedDate,
-
-          growingPlaceId:
-            selectedGrowingPlaceId,
-
-          growingSetupId:
-            selectedGrowingSetupId,
-
-          notes:
-            'Growing-history starting point carried forward from this existing Plant Story. Its exact arrangement date was not separately recorded.',
-        })
       }
     }
     else if (
       selectedGrowingPlaceId ||
-      selectedGrowingSetupId
+      selectedGrowingSetupIds.length >
+        0
     ) {
       nextGrowingHistory = [
         {
@@ -1244,15 +1974,45 @@ export default function AddPlantForm({
             selectedGrowingPlaceId,
 
           growingSetupId:
-            selectedGrowingSetupId,
+            selectedLegacyGrowingSetupId,
+
+          growingSetupIds:
+            selectedGrowingSetupIds.length >
+              0
+              ? selectedGrowingSetupIds
+              : undefined,
         },
       ]
     }
 
 
-    /* =======================================
-       SAVED PLANT STORY
-    ======================================= */
+    const numericEyeCount =
+      seedPotatoEyeCount.trim()
+        ? Number(
+            seedPotatoEyeCount,
+          )
+        : undefined
+
+    const savedSeedPotatoEyeCount =
+      startMethod ===
+        'seed-potato' &&
+      numericEyeCount !==
+        undefined &&
+      Number.isFinite(
+        numericEyeCount,
+      ) &&
+      numericEyeCount >=
+        0
+        ? numericEyeCount
+        : undefined
+
+    const savedSeedlingFloweringState =
+      startMethod ===
+        'seedling' &&
+      seedlingFloweringState
+        ? seedlingFloweringState
+        : undefined
+
 
     const savedPlant:
       PlantStory = {
@@ -1269,52 +2029,84 @@ export default function AddPlantForm({
         displayName,
 
         personality:
-          isEditing
-            ? plantToEdit
-                ?.personality
-            : 'A story just beginning',
+          isVariation
+            ? 'A story just beginning'
+            : sourcePlant
+                ?.personality,
 
         basedOnPlantStoryId:
           isVariation
             ? variationFrom?.id
-            : plantToEdit
+            : sourcePlant
                 ?.basedOnPlantStoryId,
 
+        isFavourite:
+          isVariation
+            ? false
+            : sourcePlant
+                ?.isFavourite ??
+              false,
+
+        isArchived:
+          isVariation
+            ? false
+            : sourcePlant
+                ?.isArchived ??
+              false,
+
+        archivedAt:
+          isVariation
+            ? undefined
+            : sourcePlant
+                ?.archivedAt,
+
+        completedAt:
+          isVariation
+            ? undefined
+            : sourcePlant
+                ?.completedAt,
+
+        updatedAt:
+          isEditing
+            ? new Date()
+                .toISOString()
+            : undefined,
+
         quantity:
-          Math.max(
-            1,
-            Number(
-              quantity,
-            ) ||
-            1,
-          ),
+          quantity.trim()
+            ? Number(
+                quantity,
+              )
+            : undefined,
 
         startMethod,
 
         customStartMethodLabel:
           startMethod ===
             'other'
-            ? trimmedCustomStartMethodLabel ||
-              undefined
+            ? (
+                trimmedCustomStartMethodLabel ||
+                undefined
+              )
             : undefined,
+
+        seedPotatoEyeCount:
+          savedSeedPotatoEyeCount,
+
+        seedlingFloweringState:
+          savedSeedlingFloweringState,
+
+        sownDate:
+          beganFromSeed
+            ? startedDate
+            : sourcePlant
+                ?.sownDate,
 
         plantedDate:
           startedDate,
 
-        sownDate:
-          beganFromSeed &&
-          !isNewPlantOutFromPlan
-            ? startedDate
-            : undefined,
-
         plantedOutDate:
-          (
-            isNewPlantOutFromPlan ||
-            (
-              beganFromSeed &&
-              hasBeenPlantedOut
-            )
-          ) &&
+          hasBeenPlantedOut &&
           plantedOutDate
             ? plantedOutDate
             : undefined,
@@ -1343,75 +2135,60 @@ export default function AddPlantForm({
         customOriginLabel:
           originType ===
             'other'
-            ? trimmedCustomOriginLabel ||
-              undefined
+            ? (
+                trimmedCustomOriginLabel ||
+                undefined
+              )
             : undefined,
 
         status:
-          isEditing &&
-          plantToEdit
-            ? plantToEdit.status
-            : 'growing',
+          isVariation
+            ? 'growing'
+            : sourcePlant
+                ?.status ??
+              'growing',
 
         currentGrowingSpaceId:
-          isEditing
-            ? plantToEdit
-                ?.currentGrowingSpaceId
-            : undefined,
+          sourcePlant
+            ?.currentGrowingSpaceId,
 
         previousGrowingSpaceIds:
           isEditing
-            ? plantToEdit
+            ? sourcePlant
                 ?.previousGrowingSpaceIds
             : undefined,
+
+        currentGrowingSetupId:
+          selectedLegacyGrowingSetupId,
+
+        previousGrowingSetupIds:
+          nextPreviousGrowingSetupIds,
+
+        currentGrowingSetupIds:
+          selectedGrowingSetupIds.length >
+            0
+            ? selectedGrowingSetupIds
+            : undefined,
+
+        previousGrowingSetupIdsV2:
+          nextPreviousGrowingSetupIdsV2,
 
         currentGrowingPlaceId:
           selectedGrowingPlaceId,
 
         previousGrowingPlaceIds:
-          nextPreviousGrowingPlaceIds.length >
-          0
-            ? nextPreviousGrowingPlaceIds
-            : undefined,
-
-        currentGrowingSetupId:
-          selectedGrowingSetupId,
-
-        previousGrowingSetupIds:
-          nextPreviousGrowingSetupIds.length >
-          0
-            ? nextPreviousGrowingSetupIds
-            : undefined,
+          nextPreviousGrowingPlaceIds,
 
         growingHistory:
-          nextGrowingHistory.length >
-          0
-            ? nextGrowingHistory
-            : undefined,
+          nextGrowingHistory,
 
         notes:
           notes.trim() ||
           undefined,
 
-        photoUrls:
-          photoUrls.length >
-          0
-            ? photoUrls
-            : undefined,
+        photoUrls,
 
-        photoDates:
-          photoUrls.length >
-          0
-            ? photoUrls.map(
-                (
-                  _photoUrl,
-                  index,
-                ) =>
-                  photoDates[
-                    index
-                  ],
-              )
-            : undefined,
+        photoDates,
 
         expectedHarvestDaysMin:
           minimumHarvestDays,
@@ -1419,15 +2196,27 @@ export default function AddPlantForm({
         expectedHarvestDaysMax:
           maximumHarvestDays,
 
+        harvestTimingInputUnit:
+          hasHarvestTiming
+            ? harvestTimingInputUnit
+            : undefined,
+
         harvestTimingReference:
-          isEditing
-            ? plantToEdit
-                ?.harvestTimingReference
-            : isRecordingPlan
-              ? getPlanHarvestTimingReference(
+          hasHarvestTiming
+            ? (
+                sourcePlant
+                  ?.harvestTimingReference ??
+                getPlanHarvestTimingReference(
                   recordingPlan,
-                )
-              : undefined,
+                ) ??
+                {
+                  sourceType:
+                    beganFromSeed
+                      ? 'sown'
+                      : 'planted',
+                }
+              )
+            : undefined,
 
         tags:
           isVariation
@@ -1438,39 +2227,10 @@ export default function AddPlantForm({
                   []
                 ),
               ]
-            : sourcePlant?.tags ??
-              [],
-
-        isFavourite:
-          isEditing
-            ? plantToEdit
-                ?.isFavourite
-            : false,
-
-        isArchived:
-          isEditing
-            ? plantToEdit
-                ?.isArchived
-            : false,
-
-        archivedAt:
-          isEditing
-            ? plantToEdit
-                ?.archivedAt
-            : undefined,
-
-        completedAt:
-          isEditing
-            ? plantToEdit
-                ?.completedAt
-            : undefined,
-
-        updatedAt:
-          isEditing
-            ? new Date()
-                .toISOString()
-            : undefined,
+            : sourcePlant
+                ?.tags,
       }
+
 
     if (
       isEditing &&
@@ -1488,39 +2248,289 @@ export default function AddPlantForm({
     onAddPlant(
       savedPlant,
     )
-
-    onClose()
   }
 
 
   /* =======================================
-     PAGE WORDING
+     OPTIONS
   ======================================= */
 
-  const pageTitle =
+  const startMethodOptions = [
+    {
+      value:
+        'seed',
+      label:
+        'Seed',
+    },
+    {
+      value:
+        'seedling',
+      label:
+        'Seedling',
+    },
+    {
+      value:
+        'cutting',
+      label:
+        'Cutting',
+    },
+    {
+      value:
+        'sucker',
+      label:
+        'Sucker',
+    },
+    {
+      value:
+        'seed-potato',
+      label:
+        'Seed potato',
+    },
+    {
+      value:
+        'tuber',
+      label:
+        'Tuber',
+    },
+    {
+      value:
+        'bulb',
+      label:
+        'Bulb',
+    },
+    {
+      value:
+        'rhizome',
+      label:
+        'Rhizome',
+    },
+    {
+      value:
+        'division',
+      label:
+        'Division',
+    },
+    {
+      value:
+        'bought-plant',
+      label:
+        'Bought plant',
+    },
+    {
+      value:
+        'other',
+      label:
+        'Something else',
+    },
+  ]
+
+
+  const originOptions = (
+    [
+      'bought',
+      'saved-from-garden',
+      'propagated-from-plant',
+      'gifted',
+      'swapped',
+      'found-or-existing',
+      'unknown',
+      'other',
+    ] as PlantOriginType[]
+  ).map(
+    value => ({
+      value,
+
+      label:
+        getPlantOriginLabel(
+          value,
+        ),
+    }),
+  )
+
+
+  const growingPlaceOptions =
+    GrowingPlaces
+      .filter(
+        place =>
+          Boolean(
+            place.id,
+          ),
+      )
+      .map(
+        place => ({
+          value:
+            place.id,
+
+          label:
+            place.name,
+
+          subtitle:
+            place.kind
+              .replaceAll(
+                '-',
+                ' ',
+              ),
+        }),
+      )
+
+
+  const activeGrowingSetups =
+    GrowingSetups.filter(
+      setup =>
+        !setup.isArchived,
+    )
+
+
+  function getGrowingSetupOptions(
+    category:
+      GrowingSetupCategory,
+  ) {
+    return activeGrowingSetups
+      .filter(
+        setup =>
+          setup.category ===
+          category,
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          first.name.localeCompare(
+            second.name,
+          ),
+      )
+      .map(
+        setup => ({
+          value:
+            setup.id,
+
+          label:
+            setup.name,
+
+          subtitle:
+            getGrowingSetupCategoryLabel(
+              setup,
+            ),
+        }),
+      )
+  }
+
+
+  const selectedGrowingSetups =
+    currentGrowingSetupIds
+      .map(
+        id =>
+          GrowingSetups.find(
+            setup =>
+              setup.id ===
+              id,
+          ),
+      )
+      .filter(
+        (
+          setup,
+        ): setup is GrowingSetup =>
+          Boolean(
+            setup,
+          ),
+      )
+
+
+  const timingUnitOptions:
+    Array<{
+      value:
+        PlantHarvestTimingUnit
+      label:
+        string
+    }> = [
+      {
+        value:
+          'days',
+        label:
+          'Days',
+      },
+      {
+        value:
+          'weeks',
+        label:
+          'Weeks',
+      },
+      {
+        value:
+          'months',
+        label:
+          'Months',
+      },
+    ]
+
+
+  const seedlingFloweringOptions:
+    Array<{
+      value:
+        SeedlingFloweringState
+      label:
+        string
+      subtitle:
+        string
+    }> = [
+      {
+        value:
+          'yes',
+        label:
+          'Yes',
+        subtitle:
+          'It already had flowers when this Plant Story began',
+      },
+      {
+        value:
+          'no',
+        label:
+          'No',
+        subtitle:
+          'It was not flowering yet',
+      },
+      {
+        value:
+          'not-sure',
+        label:
+          'Not sure',
+        subtitle:
+          'Leave the starting condition uncertain',
+      },
+    ]
+
+
+  const growingSetupCategories:
+    GrowingSetupCategory[] = [
+      'own-mix',
+      'bought-mix',
+      'growing-system',
+      'ground-type',
+    ]
+
+
+  const heading =
     isEditing
       ? 'Edit Plant Story'
-      : isRecordingPlan
-        ? 'Record what happened'
-        : isVariation
-          ? 'Create a variation'
-          : 'Begin a new growing story'
+      : isVariation
+        ? 'Begin a Variation'
+        : isRecordingPlan
+          ? 'Record this Plant'
+          : 'Add a Plant Story'
 
   const saveLabel =
     isEditing
-      ? 'Save changes'
-      : isRecordingPlan
-        ? 'Create this Plant Story'
-        : isVariation
-          ? 'Create this variation'
+      ? 'Save Plant Story'
+      : isVariation
+        ? 'Begin this variation'
+        : isRecordingPlan
+          ? 'Record this Plant Story'
           : 'Add this Plant Story'
 
 
   return (
-    <div
-      className="form-backdrop"
-      role="presentation"
-    >
+    <div className="form-backdrop">
       <section
         className="add-plant-panel chronicle-panel"
         role="dialog"
@@ -1538,23 +2548,24 @@ export default function AddPlantForm({
 
 
         <div className="chronicle-content">
+          <h2
+            id="add-plant-title"
+            className="notebook-page-title"
+          >
+            {heading}
+          </h2>
 
-          <div className="form-heading">
-            <h2 id="add-plant-title">
-              {pageTitle}
-            </h2>
 
-            <button
-              type="button"
-              className="close-button"
-              onClick={
-                onClose
-              }
-              aria-label="Close Plant Story"
-            >
-              ×
-            </button>
-          </div>
+          <button
+            type="button"
+            className="close-button"
+            onClick={
+              onClose
+            }
+            aria-label="Close Plant Story form"
+          >
+            ×
+          </button>
 
 
           <form
@@ -1566,65 +2577,64 @@ export default function AddPlantForm({
               handleSubmit
             }
           >
-
-            {isRecordingPlan &&
-            recordingPlan ? (
+            {isVariation && (
               <section className="sprig-form-section growing-setup-details">
                 <p className="section-label">
-                  From Garden Plan
+                  New Plant Story
                 </p>
 
                 <h3>
-                  {recordingPlan.title}
+                  Based on{' '}
+                  {variationFrom
+                    ?.displayName ??
+                    'another Plant Story'}
                 </h3>
 
                 <p className="form-whisper">
-                  🌱 Sprig has carried the useful
-                  details from your Plan into this
-                  Plant Story. They are only a
-                  starting point. Change anything
-                  that happened differently.
+                  Sprig has carried across useful
+                  planting details as a starting
+                  point. This is still a brand-new
+                  Plant Story.
                 </p>
 
                 <p className="form-whisper">
-                  The Plan will remain exactly what
-                  you intended. This new Plant Story
-                  will remember what actually
-                  happened.
+                  Photographs, Journal history,
+                  harvest history and personal
+                  notes stay with the original
+                  plant.
                 </p>
-
-                {isNewPlantOutFromPlan && (
-                  <p className="form-whisper">
-                    🌿 This plant was not in Sprig yet.
-                    That is completely fine. Recording
-                    the Plant-out creates its real Plant
-                    Story now, without pretending Sprig
-                    knows what happened before this day.
-                  </p>
-                )}
               </section>
-            ) : isVariation ? (
-              <p className="form-whisper">
-                🌱 Begin with what Sprig
-                already knows, then change
-                anything that makes this
-                growing story different.
-              </p>
-            ) : (
-              <p className="form-whisper">
-                🌱 Give this plant its own
-                page in Sprig.
-              </p>
             )}
 
 
-            {/* =======================================
-                PLANT TYPE
-            ======================================= */}
+            {isRecordingPlan &&
+              recordingPlan && (
+                <section className="sprig-form-section growing-setup-details">
+                  <p className="section-label">
+                    From Garden Plan
+                  </p>
+
+                  <h3>
+                    {recordingPlan.title}
+                  </h3>
+
+                  <p className="form-whisper">
+                    The Plan remains the record
+                    of what you intended. This
+                    Plant Story records what
+                    actually entered the garden.
+                  </p>
+                </section>
+              )}
+
 
             <section className="sprig-form-section growing-setup-details">
+              <p className="section-label">
+                Plant
+              </p>
+
               <label>
-                What type of plant are you growing?
+                What are you growing?
 
                 <input
                   type="text"
@@ -1638,20 +2648,14 @@ export default function AddPlantForm({
                       event.target.value,
                     )
                   }
-                  placeholder="Potato, tomato, broccoli, thyme..."
+                  placeholder="Potato, tomato, broccoli..."
                   required
                 />
               </label>
-            </section>
 
 
-            {/* =======================================
-                VARIETY
-            ======================================= */}
-
-            <section className="sprig-form-section growing-setup-details">
               <label>
-                Which variety?
+                Variety
 
                 <input
                   type="text"
@@ -1665,108 +2669,70 @@ export default function AddPlantForm({
                       event.target.value,
                     )
                   }
-                  placeholder="Royal Blue, Mortgage Lifter..."
+                  placeholder="Royal Blue, Black Russian..."
                 />
               </label>
 
-              <p className="form-whisper">
-                Leave this blank if the
-                variety is unknown.
-              </p>
-            </section>
 
-
-            {/* =======================================
-                START METHOD
-            ======================================= */}
-
-            <section className="sprig-form-section growing-setup-details">
               <label>
-                How did this story begin?
+                How many?
 
-                <select
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
                   value={
-                    startMethod
+                    quantity
                   }
                   onChange={(
                     event,
                   ) =>
-                    setStartMethod(
-                      event.target
-                        .value as StartMethod,
+                    setQuantity(
+                      event.target.value,
                     )
                   }
-                >
-                  <option value="seed">
-                    Seed
-                  </option>
-
-                  <option value="seedling">
-                    Seedling
-                  </option>
-
-                  <option value="cutting">
-                    Cutting
-                  </option>
-
-                  <option value="sucker">
-                    Sucker
-                  </option>
-
-                  <option value="seed-potato">
-                    Seed potato
-                  </option>
-
-                  <option value="tuber">
-                    Tuber
-                  </option>
-
-                  <option value="bulb">
-                    Bulb
-                  </option>
-
-                  <option value="rhizome">
-                    Rhizome
-                  </option>
-
-                  <option value="division">
-                    Division
-                  </option>
-
-                  <option value="bought-plant">
-                    Bought plant
-                  </option>
-
-                  <option value="other">
-                    Something else
-                  </option>
-                </select>
+                />
               </label>
+            </section>
 
 
-              {isNewPlantOutFromPlan ? (
-                <p className="form-whisper">
-                  Sprig has started with “Bought plant”
-                  because this is an already-existing
-                  plant entering Sprig at Plant-out.
-                  Change it if that is not how this
-                  particular plant began.
-                </p>
-              ) : isRecordingPlan && (
-                <p className="form-whisper">
-                  Confirm what you actually started
-                  with. Sprig will not guess that a
-                  potato was a seed potato, a tomato
-                  was a seedling, or anything else
-                  just from its name.
-                </p>
-              )}
+            <section className="sprig-form-section">
+              <SprigPicker
+                title="How did this story begin?"
+                emptySummary="Choose how this plant began"
+                options={
+                  startMethodOptions
+                }
+                selectedValues={[
+                  startMethod,
+                ]}
+                isOpen={
+                  isStartMethodPickerOpen
+                }
+                onToggleOpen={() =>
+                  setIsStartMethodPickerOpen(
+                    current =>
+                      !current,
+                  )
+                }
+                onToggleValue={(
+                  value,
+                ) => {
+                  setStartMethod(
+                    value as StartMethod,
+                  )
+
+                  setIsStartMethodPickerOpen(
+                    false,
+                  )
+                }}
+              />
 
 
               {startMethod ===
                 'other' && (
                 <label>
-                  What did it begin as?
+                  What did it begin from?
 
                   <input
                     type="text"
@@ -1780,114 +2746,170 @@ export default function AddPlantForm({
                         event.target.value,
                       )
                     }
-                    placeholder="Add your own starting method..."
+                    placeholder="Describe the starting material"
                   />
                 </label>
               )}
-            </section>
 
 
-            {/* =======================================
-                QUANTITY
-            ======================================= */}
-
-            <section className="sprig-form-section growing-setup-details">
-              <label>
-                How many plants or starting pieces?
-
-                <input
-                  type="number"
-                  min="1"
-                  value={
-                    quantity
-                  }
-                  onChange={(
-                    event,
-                  ) =>
-                    setQuantity(
-                      event.target.value,
-                    )
-                  }
-                />
-              </label>
-
-              <p className="form-whisper">
-                For example: 3 seed potatoes,
-                6 seedlings or 1 cutting.
-                {isRecordingPlan
-                  ? ' Change this if reality differed from the Plan.'
-                  : ''}
-              </p>
-            </section>
-
-
-            {/* =======================================
-                BEGINNING DATE
-            ======================================= */}
-
-            {!isNewPlantOutFromPlan && (
-              <section className="sprig-form-section growing-setup-details">
+              {startMethod ===
+                'seed-potato' && (
                 <label>
-                  When did this story begin?
+                  How many eyes did the seed potato have?
 
                   <input
-                    type="date"
+                    type="number"
+                    min="0"
+                    step="1"
                     value={
-                      startedDate
+                      seedPotatoEyeCount
                     }
                     onChange={(
                       event,
                     ) =>
-                      setStartedDate(
+                      setSeedPotatoEyeCount(
                         event.target.value,
                       )
                     }
-                    required
+                    placeholder="Optional"
                   />
+
+                  <span className="form-whisper">
+                    Leave this blank if you
+                    did not count them.
+                  </span>
                 </label>
+              )}
 
 
-                {isRecordingPlan ? (
-                  <p className="form-whisper">
-                    Sprig began with the date from your
-                    Plan. Change it to the date you
-                    actually did it. This actual date
-                    will drive the Plant Story&apos;s
-                    Expected timing.
+              {startMethod ===
+                'seedling' && (
+                <div className="plant-beginning-choice">
+                  <p className="section-label">
+                    Was the seedling already flowering?
                   </p>
-                ) : beganFromSeed ? (
+
+                  <div className="selection-card-grid">
+                    {seedlingFloweringOptions.map(
+                      option => {
+                        const isSelected =
+                          seedlingFloweringState ===
+                          option.value
+
+                        return (
+                          <button
+                            key={
+                              option.value
+                            }
+                            type="button"
+                            className={
+                              isSelected
+                                ? 'selection-card selected'
+                                : 'selection-card'
+                            }
+                            aria-pressed={
+                              isSelected
+                            }
+                            onClick={() =>
+                              setSeedlingFloweringState(
+                                current =>
+                                  current ===
+                                    option.value
+                                    ? ''
+                                    : option.value,
+                              )
+                            }
+                          >
+                            <strong>
+                              {isSelected
+                                ? '✓ '
+                                : ''}
+                              {option.label}
+                            </strong>
+
+                            <span>
+                              {option.subtitle}
+                            </span>
+                          </button>
+                        )
+                      },
+                    )}
+                  </div>
+
                   <p className="form-whisper">
-                    For a seed-grown plant,
-                    this is the date the seed
-                    was first sown.
+                    Optional. This records the
+                    condition of this particular
+                    seedling when its story began.
                   </p>
-                ) : (
-                  <p className="form-whisper">
-                    Use the first date you
-                    consider this growing
-                    story to have begun.
-                  </p>
-                )}
-              </section>
-            )}
+                </div>
+              )}
 
 
-            {/* =======================================
-                PLANTED OUT
-            ======================================= */}
+              <label>
+                When did this story begin?
 
-            {isNewPlantOutFromPlan && (
-              <section className="sprig-form-section growing-setup-details">
-                <p className="section-label">
-                  Planting out
-                </p>
+                <input
+                  type="date"
+                  value={
+                    startedDate
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    setStartedDate(
+                      event.target.value,
+                    )
+                  }
+                  required
+                />
+              </label>
 
-                <h3>
-                  The moment this plant joined the garden
-                </h3>
 
+              {beganFromSeed && (
+                <button
+                  type="button"
+                  className={
+                    hasBeenPlantedOut
+                      ? 'plant-out-toggle selected'
+                      : 'plant-out-toggle'
+                  }
+                  aria-pressed={
+                    hasBeenPlantedOut
+                  }
+                  onClick={() =>
+                    setHasBeenPlantedOut(
+                      current =>
+                        !current,
+                    )
+                  }
+                >
+                  <span className="plant-out-toggle-mark">
+                    {hasBeenPlantedOut
+                      ? '✓'
+                      : ''}
+                  </span>
+
+                  <span className="plant-out-toggle-copy">
+                    <strong>
+                      This plant has also been planted out
+                    </strong>
+
+                    <small>
+                      Turn this on when the seed-starting
+                      stage has already moved into its
+                      growing place.
+                    </small>
+                  </span>
+                </button>
+              )}
+
+
+              {(
+                beganFromSeed &&
+                hasBeenPlantedOut
+              ) && (
                 <label>
-                  When was it actually planted out?
+                  Planted out
 
                   <input
                     type="date"
@@ -1896,156 +2918,76 @@ export default function AddPlantForm({
                     }
                     onChange={(
                       event,
-                    ) => {
-                      const nextDate =
-                        event.target.value
-
+                    ) =>
                       setPlantedOutDate(
-                        nextDate,
+                        event.target.value,
                       )
-
-                      setStartedDate(
-                        nextDate,
-                      )
-                    }}
-                    required
+                    }
                   />
                 </label>
+              )}
+            </section>
 
-                <p className="form-whisper">
-                  This is the real Plant-out date. It
-                  will become this Plant Story&apos;s
-                  planted-out date and the beginning of
-                  its first Growing Journey arrangement.
-                </p>
-              </section>
-            )}
-
-
-            {beganFromSeed &&
-              !isNewPlantOutFromPlan && (
-              <section className="sprig-form-section growing-setup-details">
-                <label>
-                  Has it been planted out yet?
-
-                  <select
-                    value={
-                      hasBeenPlantedOut
-                        ? 'yes'
-                        : 'no'
-                    }
-                    onChange={(
-                      event,
-                    ) =>
-                      setHasBeenPlantedOut(
-                        event.target
-                          .value ===
-                          'yes',
-                      )
-                    }
-                  >
-                    <option value="no">
-                      Not yet
-                    </option>
-
-                    <option value="yes">
-                      Yes
-                    </option>
-                  </select>
-                </label>
-
-
-                {hasBeenPlantedOut && (
-                  <label>
-                    When was it planted out?
-
-                    <input
-                      type="date"
-                      value={
-                        plantedOutDate
-                      }
-                      onChange={(
-                        event,
-                      ) =>
-                        setPlantedOutDate(
-                          event.target.value,
-                        )
-                      }
-                    />
-                  </label>
-                )}
-
-
-                <p className="form-whisper">
-                  Potting up, moving from a
-                  snaplock bag, transplanting
-                  and other stages can become
-                  moments in this Plant Story.
-                </p>
-              </section>
-            )}
-
-
-            {/* =======================================
-                ORIGIN
-            ======================================= */}
 
             <section className="sprig-form-section growing-setup-details">
-              <label>
+              <p className="section-label">
                 Where did it come from?
+              </p>
 
-                <select
+              <select
+                value={
+                  originType
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setOriginType(
+                    event.target
+                      .value as PlantOriginType,
+                  )
+                }
+              >
+                {originOptions.map(
+                  option => (
+                    <option
+                      key={
+                        option.value
+                      }
+                      value={
+                        option.value
+                      }
+                    >
+                      {option.label}
+                    </option>
+                  ),
+                )}
+              </select>
+
+
+              <label>
+                Source
+
+                <input
+                  type="text"
                   value={
-                    originType
+                    source
                   }
                   onChange={(
                     event,
                   ) =>
-                    setOriginType(
-                      event.target
-                        .value as PlantOriginType,
+                    setSource(
+                      event.target.value,
                     )
                   }
-                >
-                  <option value="bought">
-                    Bought
-                  </option>
-
-                  <option value="saved-from-garden">
-                    Saved from my garden
-                  </option>
-
-                  <option value="propagated-from-plant">
-                    Propagated from another plant
-                  </option>
-
-                  <option value="gifted">
-                    Given to me
-                  </option>
-
-                  <option value="swapped">
-                    Swapped
-                  </option>
-
-                  <option value="found-or-existing">
-                    Found or already growing
-                  </option>
-
-                  <option value="unknown">
-                    Not sure
-                  </option>
-
-                  <option value="other">
-                    Something else
-                  </option>
-                </select>
+                  placeholder="Nursery, seed packet, friend, my garden..."
+                />
               </label>
 
 
               {originType ===
                 'other' && (
                 <label>
-                  How would you describe its origin?
+                  Describe its origin
 
                   <input
                     type="text"
@@ -2059,71 +3001,29 @@ export default function AddPlantForm({
                         event.target.value,
                       )
                     }
-                    placeholder="Add your own description..."
                   />
                 </label>
               )}
-
-
-              {originType !==
-                'unknown' && (
-                <label>
-                  Source or place
-
-                  <input
-                    type="text"
-                    value={
-                      source
-                    }
-                    onChange={(
-                      event,
-                    ) =>
-                      setSource(
-                        event.target.value,
-                      )
-                    }
-                    placeholder={
-                      originType ===
-                        'bought'
-                        ? 'Bunnings, nursery, seed company...'
-                        : 'Friend, previous crop, garden bed...'
-                    }
-                  />
-                </label>
-              )}
-
-
-              <p className="form-whisper">
-                {getPlantOriginLabel(
-                  originType,
-                )}
-
-                {source.trim()
-                  ? ` · ${source.trim()}`
-                  : ''}
-              </p>
             </section>
 
 
-            {/* =======================================
-                GROWING PLACE
-            ======================================= */}
-
             <section className="sprig-form-section">
-              <SprigPicker
-                title="Where is it growing?"
-                variant="label"
-                emptySummary="Choose a Growing Place"
-                options={
-                  GrowingPlaces.map(
-                    place => ({
-                      value:
-                        place.id,
+              <p className="section-label">
+                Where is it growing?
+              </p>
 
-                      label:
-                        place.name,
-                    }),
-                  )
+              <p className="form-whisper">
+                This is the physical place in
+                your garden. What the plant is
+                growing in is recorded separately
+                below.
+              </p>
+
+              <SprigPicker
+                title="Growing Place"
+                emptySummary="No Growing Place chosen"
+                options={
+                  growingPlaceOptions
                 }
                 selectedValues={
                   currentGrowingPlaceId
@@ -2142,23 +3042,14 @@ export default function AddPlantForm({
                   )
                 }
                 onToggleValue={(
-                  id,
+                  value,
                 ) => {
                   setCurrentGrowingPlaceId(
-                    id,
-                  )
-
-                  const selectedPlace =
-                    GrowingPlaces.find(
-                      place =>
-                        place.id ===
-                        id,
-                    )
-
-                  setCurrentGrowingSetupId(
-                    selectedPlace
-                      ?.growingSetupId ||
-                    '',
+                    current =>
+                      current ===
+                        value
+                        ? ''
+                        : value,
                   )
 
                   setIsGrowingPlacePickerOpen(
@@ -2168,317 +3059,664 @@ export default function AddPlantForm({
               />
 
 
-              {isRecordingPlan &&
-                recordingPlan
-                  ?.growingPlaceIds
-                  ?.[0] && (
-                <p className="form-whisper">
-                  This began with the Growing Place
-                  from your Plan. Choose somewhere
-                  else if the plant actually ended
-                  up in a different place.
-                </p>
-              )}
-
-
               <button
                 type="button"
-                className="garden-place-link"
+                className="secondary-button"
                 onClick={() =>
                   setIsAddGrowingPlaceOpen(
                     true,
                   )
                 }
               >
-                Add a new Growing Place
+                + Add a Growing Place
               </button>
             </section>
 
 
-            {/* =======================================
-                GROWING RECIPE
-            ======================================= */}
-
-            <section className="sprig-form-section">
-              <SprigPicker
-                title="What is it growing in?"
-                variant="label-tall"
-                emptySummary="Choose a Garden Recipe"
-                options={
-                  GrowingSetups.map(
-                    setup => ({
-                      value:
-                        setup.id,
-
-                      label:
-                        setup.name,
-
-                      subtitle:
-                        getGrowingSetupCategoryLabel(
-                          setup,
-                        ),
-
-                      meta:
-                        setup.createdAt
-                          ? `Added ${new Date(
-                              `${setup.createdAt.slice(
-                                0,
-                                10,
-                              )}T00:00:00`,
-                            ).toLocaleDateString(
-                              'en-AU',
-                              {
-                                day:
-                                  'numeric',
-
-                                month:
-                                  'short',
-
-                                year:
-                                  'numeric',
-                              },
-                            )}`
-                          : undefined,
-                    }),
-                  )
-                }
-                selectedValues={
-                  currentGrowingSetupId
-                    ? [
-                        currentGrowingSetupId,
-                      ]
-                    : []
-                }
-                isOpen={
-                  isGrowingSetupPickerOpen
-                }
-                onToggleOpen={() =>
-                  setIsGrowingSetupPickerOpen(
-                    current =>
-                      !current,
-                  )
-                }
-                onToggleValue={(
-                  id,
-                ) => {
-                  setCurrentGrowingSetupId(
-                    id,
-                  )
-
-                  setIsGrowingSetupPickerOpen(
-                    false,
-                  )
-                }}
-              />
-
-
-              {isRecordingPlan &&
-                recordingPlan
-                  ?.growingSetupIds
-                  ?.[0] && (
-                <p className="form-whisper">
-                  This began with the Growing Recipe
-                  from your Plan. Change it if you
-                  actually used something different.
+            <section className="sprig-form-section plant-growing-in-section">
+              <div className="plant-growing-in-heading">
+                <p className="section-label">
+                  Growing
                 </p>
+
+                <h3>
+                  What is it growing in?
+                </h3>
+
+                <p className="form-whisper">
+                  Choose everything that genuinely
+                  describes this planting. A plant
+                  can use more than one Growing
+                  record, such as a fabric grow bag
+                  and your own potato mix.
+                </p>
+              </div>
+
+
+              {selectedGrowingSetups.length >
+                0 && (
+                <div className="plant-growing-selected">
+                  <p className="section-label">
+                    Selected for this Plant Story
+                  </p>
+
+                  <div className="plant-growing-selected-list">
+                    {selectedGrowingSetups.map(
+                      setup => (
+                        <div
+                          key={
+                            setup.id
+                          }
+                          className="selected-item-row plant-growing-selected-row"
+                        >
+                          <div>
+                            <strong>
+                              {setup.name}
+                            </strong>
+
+                            <p className="form-whisper">
+                              {getGrowingSetupCategoryLabel(
+                                setup,
+                              )}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="plant-growing-remove"
+                            onClick={() =>
+                              toggleGrowingSetup(
+                                setup.id,
+                              )
+                            }
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
               )}
 
 
-              <button
-                type="button"
-                className="garden-place-link"
-                onClick={() => {
-                  setIsGrowingSetupPickerOpen(
-                    false,
-                  )
+              <div className="plant-growing-category-list">
+                {growingSetupCategories.map(
+                  category => {
+                    const options =
+                      getGrowingSetupOptions(
+                        category,
+                      )
 
-                  setIsAddRecipeOpen(
-                    true,
-                  )
-                }}
-              >
-                Add a new Garden Recipe
-              </button>
-            </section>
+                    const isOpen =
+                      openGrowingSetupCategory ===
+                      category
+
+                    const selectedCount =
+                      selectedGrowingSetups.filter(
+                        setup =>
+                          setup.category ===
+                          category,
+                      ).length
+
+                    return (
+                      <div
+                        key={
+                          category
+                        }
+                        className={
+                          isOpen
+                            ? 'plant-growing-category open'
+                            : 'plant-growing-category'
+                        }
+                      >
+                        <button
+                          type="button"
+                          className="plant-growing-category-button"
+                          aria-expanded={
+                            isOpen
+                          }
+                          onClick={() =>
+                            setOpenGrowingSetupCategory(
+                              current =>
+                                current ===
+                                  category
+                                  ? null
+                                  : category,
+                            )
+                          }
+                        >
+                          <span>
+                            <strong>
+                              {getGrowingSetupCategoryHeading(
+                                category,
+                              )}
+                            </strong>
+
+                            <small>
+                              {getGrowingSetupCategoryHelper(
+                                category,
+                              )}
+                            </small>
+                          </span>
+
+                          <span className="plant-growing-category-meta">
+                            {selectedCount >
+                              0 && (
+                              <span className="plant-growing-count">
+                                {selectedCount}
+                              </span>
+                            )}
+
+                            <span aria-hidden="true">
+                              {isOpen
+                                ? '−'
+                                : '+'}
+                            </span>
+                          </span>
+                        </button>
 
 
-            {/* =======================================
-                HARVEST TIMING
-            ======================================= */}
+                        {isOpen && (
+                          <div className="plant-growing-category-content">
+                            {options.length >
+                            0 ? (
+                              <SprigPicker
+                                title={
+                                  getGrowingSetupCategoryHeading(
+                                    category,
+                                  )
+                                }
+                                emptySummary="Choose any that apply"
+                                options={
+                                  options
+                                }
+                                selectedValues={
+                                  currentGrowingSetupIds
+                                }
+                                isOpen={
+                                  true
+                                }
+                                onToggleOpen={() => {
+                                  /*
+                                   * The category row owns
+                                   * this open state.
+                                   */
+                                }}
+                                onToggleValue={
+                                  toggleGrowingSetup
+                                }
+                              />
+                            ) : (
+                              <p className="form-whisper">
+                                Nothing has been saved
+                                here yet. You can make a
+                                quick record without
+                                leaving this Plant Story.
+                              </p>
+                            )}
 
-            <section className="sprig-form-section growing-setup-details">
-              <p className="section-label">
-                Harvest timing
-              </p>
 
-              <h3>
-                When might this story begin giving back?
-              </h3>
+                            <button
+                              type="button"
+                              className="plant-growing-add-link"
+                              onClick={() =>
+                                openQuickCreate(
+                                  category,
+                                )
+                              }
+                            >
+                              + Add{' '}
+                              {category ===
+                                'own-mix'
+                                ? 'a Recipe'
+                                : category ===
+                                    'bought-mix'
+                                  ? 'a Bought Mix'
+                                  : category ===
+                                      'growing-system'
+                                    ? 'a Growing System'
+                                    : 'a Ground Type'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  },
+                )}
+              </div>
 
 
-              {isRecordingPlan &&
-              recordingPlan
-                ?.timingAssumption ? (
-                <p className="form-whisper">
-                  Sprig carried your timing estimate
-                  from the Plan. You can keep it or
-                  change it here. Once this Plant
-                  Story is saved, the appropriate
-                  actual date in this Plant Story
-                  becomes the reference for the
-                  expected harvest window.
-                </p>
-              ) : (
-                <p className="form-whisper">
-                  Optional. Use days, weeks or months,
-                  whichever makes the most sense for
-                  this crop.
-                </p>
-              )}
+              <div className="plant-growing-ingredient-note">
+                <div>
+                  <strong>
+                    Need an Ingredient first?
+                  </strong>
 
+                  <p className="form-whisper">
+                    Ingredients are reusable
+                    building blocks for Recipes,
+                    such as compost, manure, coir
+                    or guinea pig bedding. They do
+                    not attach directly to the
+                    Plant Story.
+                  </p>
+                </div>
 
-              <label>
-                Enter the timing in
-
-                <select
-                  value={
-                    harvestTimingUnit
-                  }
-                  onChange={(
-                    event,
-                  ) =>
-                    changeHarvestTimingUnit(
-                      event.target
-                        .value as HarvestTimingUnit,
+                <button
+                  type="button"
+                  className="plant-growing-add-link"
+                  onClick={() =>
+                    openQuickCreate(
+                      'ingredient',
                     )
                   }
                 >
-                  <option value="days">
-                    Days
-                  </option>
+                  + Add Ingredient
+                </button>
+              </div>
 
-                  <option value="weeks">
-                    Weeks
-                  </option>
 
-                  <option value="months">
-                    Months
-                  </option>
-                </select>
-              </label>
+              {quickCreateCategory && (
+                <div className="plant-growing-quick-create">
+                  <p className="section-label">
+                    {quickCreateCategory ===
+                    'ingredient'
+                      ? 'Add Ingredient'
+                      : quickCreateCategory ===
+                          'own-mix'
+                        ? 'Add Recipe'
+                        : quickCreateCategory ===
+                            'bought-mix'
+                          ? 'Add Bought Mix'
+                          : quickCreateCategory ===
+                              'growing-system'
+                            ? 'Add Growing System'
+                            : 'Add Ground Type'}
+                  </p>
+
+
+                  {quickCreateCategory ===
+                    'ground-type' && (
+                    <div className="plant-growing-presets">
+                      <p className="form-whisper">
+                        Choose a common Ground Type
+                        or type your own name below.
+                      </p>
+
+                      <div className="plant-growing-preset-grid">
+                        {groundTypePresets.map(
+                          option => (
+                            <button
+                              key={
+                                option.value
+                              }
+                              type="button"
+                              className={
+                                quickCreateStructuredValue ===
+                                option.value
+                                  ? 'plant-growing-preset selected'
+                                  : 'plant-growing-preset'
+                              }
+                              aria-pressed={
+                                quickCreateStructuredValue ===
+                                option.value
+                              }
+                              onClick={() =>
+                                chooseQuickPreset(
+                                  option,
+                                )
+                              }
+                            >
+                              {quickCreateStructuredValue ===
+                              option.value
+                                ? '✓ '
+                                : ''}
+                              {option.label}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+
+                  {quickCreateCategory ===
+                    'growing-system' && (
+                    <div className="plant-growing-presets">
+                      <p className="form-whisper">
+                        Choose a common Growing
+                        System or type your own
+                        name below.
+                      </p>
+
+                      <div className="plant-growing-preset-grid">
+                        {growingSystemPresets.map(
+                          option => (
+                            <button
+                              key={
+                                option.value
+                              }
+                              type="button"
+                              className={
+                                quickCreateStructuredValue ===
+                                option.value
+                                  ? 'plant-growing-preset selected'
+                                  : 'plant-growing-preset'
+                              }
+                              aria-pressed={
+                                quickCreateStructuredValue ===
+                                option.value
+                              }
+                              onClick={() =>
+                                chooseQuickPreset(
+                                  option,
+                                )
+                              }
+                            >
+                              {quickCreateStructuredValue ===
+                              option.value
+                                ? '✓ '
+                                : ''}
+                              {option.label}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+
+                  <label>
+                    {quickCreateCategory ===
+                      'ingredient'
+                      ? 'Ingredient name'
+                      : quickCreateCategory ===
+                          'own-mix'
+                        ? 'Recipe name'
+                        : quickCreateCategory ===
+                            'bought-mix'
+                          ? 'Bought Mix name'
+                          : quickCreateCategory ===
+                              'growing-system'
+                            ? 'Growing System name'
+                            : 'Ground Type name'}
+
+                    <input
+                      type="text"
+                      value={
+                        quickCreateName
+                      }
+                      onChange={(
+                        event,
+                      ) => {
+                        setQuickCreateName(
+                          event.target.value,
+                        )
+
+                        /*
+                         * If the gardener edits
+                         * the preset label into
+                         * something custom, do
+                         * not falsely store the
+                         * old preset type.
+                         */
+                        if (
+                          quickCreateStructuredValue
+                        ) {
+                          const presetOptions =
+                            quickCreateCategory ===
+                              'ground-type'
+                              ? groundTypePresets
+                              : quickCreateCategory ===
+                                  'growing-system'
+                                ? growingSystemPresets
+                                : []
+
+                          const selectedPreset =
+                            presetOptions.find(
+                              option =>
+                                option.value ===
+                                quickCreateStructuredValue,
+                            )
+
+                          if (
+                            selectedPreset &&
+                            event.target.value !==
+                              selectedPreset.label
+                          ) {
+                            setQuickCreateStructuredValue(
+                              '',
+                            )
+                          }
+                        }
+                      }}
+                      onKeyDown={(
+                        event,
+                      ) => {
+                        if (
+                          event.key ===
+                          'Enter'
+                        ) {
+                          event.preventDefault()
+
+                          handleQuickCreate()
+                        }
+                      }}
+                      placeholder={
+                        quickCreateCategory ===
+                          'ingredient'
+                          ? 'Guinea pig bedding, compost, perlite...'
+                          : quickCreateCategory ===
+                              'growing-system'
+                            ? '43 L fabric grow bag, wicking bed...'
+                            : quickCreateCategory ===
+                                'ground-type'
+                              ? 'Native clay, sandy loam...'
+                              : quickCreateCategory ===
+                                  'bought-mix'
+                                ? 'Premium potting mix...'
+                                : 'Potato Mix #3...'
+                      }
+                      autoFocus
+                    />
+                  </label>
+
+
+                  {quickCreateCategory ===
+                    'ingredient' ? (
+                    <p className="form-whisper">
+                      This creates a real reusable
+                      Ingredient in Growing. It
+                      does not attach the
+                      Ingredient directly to this
+                      Plant Story.
+                    </p>
+                  ) : (
+                    <p className="form-whisper">
+                      Sprig will save this as a
+                      real Growing record and
+                      select it for this Plant
+                      Story. You can fill in its
+                      fuller details later from
+                      Growing.
+                    </p>
+                  )}
+
+
+                  <div className="plant-growing-quick-actions">
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      onClick={() => {
+                        setQuickCreateCategory(
+                          null,
+                        )
+
+                        setQuickCreateName(
+                          '',
+                        )
+
+                        setQuickCreateStructuredValue(
+                          '',
+                        )
+                      }}
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      className="enter-button"
+                      disabled={
+                        !quickCreateName.trim()
+                      }
+                      onClick={
+                        handleQuickCreate
+                      }
+                    >
+                      {quickCreateCategory ===
+                      'ingredient'
+                        ? 'Add Ingredient'
+                        : 'Add and select'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+
+
+            <section className="sprig-form-section growing-setup-details">
+              <p className="section-label">
+                Expected harvest
+              </p>
+
+              <h3>
+                About how long might it take?
+              </h3>
+
+              <p className="form-whisper">
+                Optional. Leave this completely
+                blank if you do not know yet.
+                Sprig can still keep the Plant
+                Story without a harvest estimate.
+              </p>
+
+
+              <div
+                className="selection-card-grid harvest-timing-unit-grid"
+                role="group"
+                aria-label="Harvest timing unit"
+              >
+                {timingUnitOptions.map(
+                  option => {
+                    const isSelected =
+                      harvestTimingInputUnit ===
+                      option.value
+
+                    return (
+                      <button
+                        key={
+                          option.value
+                        }
+                        type="button"
+                        className={
+                          isSelected
+                            ? 'selection-card selected'
+                            : 'selection-card'
+                        }
+                        aria-pressed={
+                          isSelected
+                        }
+                        onClick={() =>
+                          handleTimingUnitChange(
+                            option.value,
+                          )
+                        }
+                      >
+                        <strong>
+                          {isSelected
+                            ? '✓ '
+                            : ''}
+                          {option.label}
+                        </strong>
+
+                        {isSelected && (
+                          <span>
+                            Selected
+                          </span>
+                        )}
+                      </button>
+                    )
+                  },
+                )}
+              </div>
 
 
               <div className="form-row">
                 <label>
-                  Earliest{' '}
-                  {harvestTimingUnit}
+                  Earliest
 
                   <input
                     type="number"
-                    min="0.1"
-                    step={
-                      harvestTimingUnit ===
-                      'days'
-                        ? '1'
-                        : '0.1'
-                    }
-                    inputMode="decimal"
+                    min="0"
+                    step="0.1"
                     value={
-                      expectedHarvestMinValue
+                      expectedHarvestMin
                     }
                     onChange={(
                       event,
                     ) =>
-                      setExpectedHarvestMinValue(
+                      setExpectedHarvestMin(
                         event.target.value,
                       )
                     }
-                    placeholder={
-                      harvestTimingUnit ===
-                      'days'
-                        ? '90'
-                        : harvestTimingUnit ===
-                            'weeks'
-                          ? '13'
-                          : '3'
-                    }
+                    placeholder="Optional"
                   />
                 </label>
 
 
                 <label>
-                  Latest{' '}
-                  {harvestTimingUnit}
+                  Latest
 
                   <input
                     type="number"
-                    min="0.1"
-                    step={
-                      harvestTimingUnit ===
-                      'days'
-                        ? '1'
-                        : '0.1'
-                    }
-                    inputMode="decimal"
+                    min="0"
+                    step="0.1"
                     value={
-                      expectedHarvestMaxValue
+                      expectedHarvestMax
                     }
                     onChange={(
                       event,
                     ) =>
-                      setExpectedHarvestMaxValue(
+                      setExpectedHarvestMax(
                         event.target.value,
                       )
                     }
-                    placeholder={
-                      harvestTimingUnit ===
-                        'days'
-                        ? '120'
-                        : harvestTimingUnit ===
-                            'weeks'
-                          ? '17'
-                          : '4'
-                    }
+                    placeholder="Optional"
                   />
                 </label>
               </div>
 
 
-              {(
-                expectedHarvestMinValue ||
-                expectedHarvestMaxValue
-              ) && (
-                <p className="form-whisper">
-                  Sprig will remember this as{' '}
-                  {
-                    harvestTimingValueToDays(
-                      expectedHarvestMinValue,
-                      harvestTimingUnit,
-                    ) ??
-                    '…'
-                  }
-                  {' – '}
-                  {
-                    harvestTimingValueToDays(
-                      expectedHarvestMaxValue,
-                      harvestTimingUnit,
-                    ) ??
-                    '…'
-                  }
-                  {' '}
-                  days internally so Calendar,
-                  comparisons and Sprig Intelligence
-                  can all work from the same timing.
-                </p>
-              )}
+              <p className="form-whisper">
+                Enter the estimate in{' '}
+                <strong>
+                  {harvestTimingInputUnit}
+                </strong>
+                . Sprig stores the timing in a
+                consistent form behind the scenes
+                while remembering how you chose
+                to enter it.
+              </p>
             </section>
 
 
-            {/* =======================================
-                NOTES
-            ======================================= */}
-
             <section className="sprig-form-section growing-setup-details">
+              <p className="section-label">
+                Notes
+              </p>
+
               <label>
                 Anything worth remembering?
 
@@ -2493,107 +3731,124 @@ export default function AddPlantForm({
                       event.target.value,
                     )
                   }
-                  placeholder="What would future you like to remember?"
                   rows={
-                    4
+                    5
                   }
+                  placeholder="Anything useful about this plant as its story begins..."
                 />
               </label>
-
-
-              {isRecordingPlan &&
-                recordingPlan
-                  ?.notes
-                  ?.trim() && (
-                <p className="form-whisper">
-                  Your Plan note came across as a
-                  starting point too. Rewrite it if
-                  the reality needs a different note.
-                </p>
-              )}
             </section>
 
 
-            {/* =======================================
-                PHOTOGRAPHS
-            ======================================= */}
-
-            <section className="sprig-form-section">
-              <SprigPhotoPicker
-                photoUrls={
-                  photoUrls
-                }
-
-                onChange={
-                  setPhotoUrls
-                }
-
-                photoDates={
-                  photoDates
-                }
-
-                onPhotoDatesChange={
-                  setPhotoDates
-                }
-
-                title="Photographs"
-
-                helperText="Tuck photographs of this plant into its story so Sprig can remember how it looked as it grew."
-
-                addButtonText="Add plant photographs"
-
-                photoAltPrefix="Plant Story photograph"
-
-                photoDateLabel="When was this photograph taken?"
-
-                photoDateHelperText="Sprig uses this date to place the photograph at the right growing age and find useful side-by-side comparisons."
-
-                defaultNewPhotosToToday={
-                  true
-                }
-
-                maxPhotos={
-                  12
-                }
-              />
-            </section>
+            <SprigPhotoPicker
+              photoUrls={
+                photoUrls
+              }
+              onChange={
+                handlePhotoUrlsChange
+              }
+              title="Plant photographs"
+              helperText={
+                isVariation
+                  ? 'This new variation begins with its own empty photograph story.'
+                  : 'Keep photographs that belong directly to this Plant Story.'
+              }
+              addButtonText="Add plant photographs"
+              photoAltPrefix="Plant photograph"
+              maxPhotos={
+                20
+              }
+            />
 
 
-            {/* =======================================
-                PLAN / REALITY REMINDER
-            ======================================= */}
-
-            {isRecordingPlan &&
-              recordingPlan && (
+            {photoUrls.length >
+              0 && (
               <section className="sprig-form-section growing-setup-details">
                 <p className="section-label">
-                  Plan and reality
-                </p>
-
-                <h3>
-                  Two related stories, not one overwritten record
-                </h3>
-
-                <p className="form-whisper">
-                  Your Garden Plan will stay as the
-                  record of what you meant to do.
-                  Saving this page creates the
-                  separate Plant Story for what
-                  actually happened.
+                  Photograph dates
                 </p>
 
                 <p className="form-whisper">
-                  After this Plant Story is saved,
-                  Sprig will link it back to
-                  “{recordingPlan.title}”.
+                  Add a date when it helps future
+                  you understand where the plant
+                  was in its story.
                 </p>
+
+                {photoUrls.map(
+                  (
+                    _photoUrl,
+                    index,
+                  ) => (
+                    <label
+                      key={
+                        `${index}-${photoUrls[index]?.slice(
+                          0,
+                          20,
+                        )}`
+                      }
+                    >
+                      Photo {index + 1}
+
+                      <input
+                        type="date"
+                        value={
+                          photoDates[
+                            index
+                          ] ??
+                          ''
+                        }
+                        onChange={(
+                          event,
+                        ) =>
+                          setPhotoDates(
+                            current =>
+                              photoUrls.map(
+                                (
+                                  _url,
+                                  photoIndex,
+                                ) =>
+                                  photoIndex ===
+                                    index
+                                    ? (
+                                        event
+                                          .target
+                                          .value ||
+                                        undefined
+                                      )
+                                    : current[
+                                        photoIndex
+                                      ],
+                              ),
+                          )
+                        }
+                      />
+                    </label>
+                  ),
+                )}
               </section>
             )}
 
 
-            {/* =======================================
-                ACTIONS
-            ======================================= */}
+            {isRecordingPlan &&
+              recordingPlan && (
+                <section className="sprig-form-section growing-setup-details">
+                  <p className="section-label">
+                    Plan and reality
+                  </p>
+
+                  <p className="form-whisper">
+                    Saving this page creates the
+                    separate Plant Story for what
+                    actually happened.
+                  </p>
+
+                  <p className="form-whisper">
+                    Your Garden Plan stays as the
+                    record of what you meant to do.
+                  </p>
+                </section>
+              )}
+
 
             <div className="form-actions">
               <button
@@ -2613,65 +3868,24 @@ export default function AddPlantForm({
                 {saveLabel}
               </button>
             </div>
-
           </form>
         </div>
       </section>
 
 
-      {/* =======================================
-          ADD GROWING PLACE
-      ======================================= */}
-
       {isAddGrowingPlaceOpen && (
         <AddGrowingPlaceForm
-          ingredients={
-            Ingredients
-          }
-
-          growingSetups={
-            GrowingSetups
-          }
-
-          products={
-            Products
-          }
-
-          onAddIngredient={
-            onAddIngredient
-          }
-
-          onAddProduct={
-            onAddProduct
-          }
-
           onAddPlace={(
             place,
-            setup?: GrowingSetup,
           ) => {
             onAddGrowingPlace(
               place,
-              setup,
             )
 
             setCurrentGrowingPlaceId(
               place.id,
             )
 
-            setCurrentGrowingSetupId(
-              setup?.id ||
-              place.growingSetupId ||
-              '',
-            )
-
-            setIsGrowingPlacePickerOpen(
-              false,
-            )
-
-            setIsGrowingSetupPickerOpen(
-              false,
-            )
-
             setIsAddGrowingPlaceOpen(
               false,
             )
@@ -2684,62 +3898,6 @@ export default function AddPlantForm({
           }
         />
       )}
-
-
-      {/* =======================================
-          ADD GROWING RECIPE
-      ======================================= */}
-
-      {isAddRecipeOpen && (
-        <AddRecipeForm
-          ingredients={
-            Ingredients
-          }
-
-          products={
-            Products
-          }
-
-          growingSetups={
-            GrowingSetups
-          }
-
-          onAddIngredient={
-            onAddIngredient
-          }
-
-          onAddProduct={
-            onAddProduct
-          }
-
-          onAddRecipe={(
-            recipe,
-          ) => {
-            onAddRecipe(
-              recipe,
-            )
-
-            setCurrentGrowingSetupId(
-              recipe.id,
-            )
-
-            setIsGrowingSetupPickerOpen(
-              false,
-            )
-
-            setIsAddRecipeOpen(
-              false,
-            )
-          }}
-
-          onClose={() =>
-            setIsAddRecipeOpen(
-              false,
-            )
-          }
-        />
-      )}
-
     </div>
   )
 }

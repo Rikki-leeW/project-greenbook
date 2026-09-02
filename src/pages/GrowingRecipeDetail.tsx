@@ -1,16 +1,8 @@
-import {
-  useState,
-} from 'react'
-
-import GardenLayout from '../components/layout/GardenLayout'
-import RecordActions from '../components/common/RecordActions'
-import SprigPhotoGallery from '../components/photos/SprigPhotoGallery'
-
-
-import type {
-  AppPage,
-} from '../types/navigation'
-
+import { useState } from 'react';
+import GardenLayout from '../components/layout/GardenLayout';
+import RecordActions from '../components/common/RecordActions';
+import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
+import type { AppPage } from '../types/navigation';
 import type {
   GardenProduct,
   GrowingPlace,
@@ -18,348 +10,206 @@ import type {
   Ingredient,
   PlantStory,
   PurchaseRecord,
-} from '../types'
+} from '../types';
 
-
-type RecipeRating =
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-
+type RecipeRating = 1 | 2 | 3 | 4 | 5;
 
 type RecipeComponent =
-  NonNullable<
-    GrowingSetup['recipeComponents']
-  >[number]
-
+  NonNullable<GrowingSetup['recipeComponents']>[number];
 
 interface GrowingRecipeDetailProps {
-  recipe: GrowingSetup
-
-  ingredients: Ingredient[]
-
-  products: GardenProduct[]
-
-  growingSetups: GrowingSetup[]
-
-  plants: PlantStory[]
-
-  growingPlaces: GrowingPlace[]
-
-  purchases: PurchaseRecord[]
-
-  backLabel?: string
-
-  onBackToOrigin?: () => void
-
-  onBack: () => void
-
-  onEdit: () => void
-
-  onDuplicate: () => void
-
-  onToggleFavourite: () => void
-
-  onSetRating: (
-    rating: RecipeRating,
-  ) => void
-
-  onArchive?: () => void
-
-  onRestore?: () => void
-
-  onDelete?: () => void
-
-  onAddPurchase?: () => void
-
-  onEditPurchase?: (
-    purchase: PurchaseRecord,
-  ) => void
-
-  onOpenGrowingPlace: (
-    growingPlaceId: string,
-  ) => void
-
-  onOpenPlant: (
-    plantId: string,
-  ) => void
-
-  onOpenIngredient: (
-    ingredientId: string,
-  ) => void
-
-  onOpenProduct: (
-    productId: string,
-  ) => void
-
-  onOpenRecipe: (
-    recipeId: string,
-  ) => void
-
-  onNavigate: (
-    page: AppPage,
-  ) => void
+  recipe: GrowingSetup;
+  ingredients: Ingredient[];
+  products: GardenProduct[];
+  growingSetups: GrowingSetup[];
+  plants: PlantStory[];
+  growingPlaces: GrowingPlace[];
+  purchases: PurchaseRecord[];
+  backLabel?: string;
+  onBackToOrigin?: () => void;
+  onBack: () => void;
+  onEdit: () => void;
+  onDuplicate: () => void;
+  onToggleFavourite: () => void;
+  onSetRating: (rating: RecipeRating) => void;
+  onArchive?: () => void;
+  onRestore?: () => void;
+  onDelete?: () => void;
+  onAddPurchase?: () => void;
+  onEditPurchase?: (purchase: PurchaseRecord) => void;
+  onOpenGrowingPlace: (growingPlaceId: string) => void;
+  onOpenPlant: (plantId: string) => void;
+  onOpenIngredient: (ingredientId: string) => void;
+  onOpenProduct: (productId: string) => void;
+  onOpenRecipe: (recipeId: string) => void;
+  onNavigate: (page: AppPage) => void;
 }
-
-
-/* =======================================
-   RECIPE CATEGORY
-======================================= */
 
 function getRecipeCategoryLabel(
   recipe: GrowingSetup,
 ): string {
   switch (recipe.category) {
     case 'own-mix':
-      return 'My Recipe'
-
+      return 'My Recipe';
     case 'bought-mix':
-      return 'Bought Mix'
-
+      return 'Bought Mix';
     case 'ground-type':
-      return 'Native Ground'
-
+      return 'Ground Type';
     case 'growing-system':
-      return 'Growing System'
-
+      return 'Growing System';
     default:
-      return 'Growing Recipe'
+      return 'Growing Record';
   }
 }
 
-
-/* =======================================
-   DATE FORMATTING
-======================================= */
-
-function formatRecipeDate(
-  date?: string,
+function getRecordNoun(
+  recipe: GrowingSetup,
 ): string {
-  if (!date) {
-    return ''
+  switch (recipe.category) {
+    case 'own-mix':
+      return 'recipe';
+    case 'bought-mix':
+      return 'bought mix';
+    case 'ground-type':
+      return 'ground type';
+    case 'growing-system':
+      return 'growing system';
+    default:
+      return 'growing record';
   }
-
-  const safeDate =
-    date.slice(
-      0,
-      10,
-    )
-
-  const parsed =
-    new Date(
-      `${safeDate}T00:00:00`,
-    )
-
-  if (
-    Number.isNaN(
-      parsed.getTime(),
-    )
-  ) {
-    return date
-  }
-
-  return parsed.toLocaleDateString(
-    'en-AU',
-    {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    },
-  )
 }
 
-
-/* =======================================
-   TECHNICAL LABEL
-======================================= */
-
-function formatTechnicalLabel(
-  value: string,
+function getRecordHeading(
+  recipe: GrowingSetup,
 ): string {
+  switch (recipe.category) {
+    case 'own-mix':
+      return 'Growing Recipe';
+    case 'bought-mix':
+      return 'Bought Mix';
+    case 'ground-type':
+      return 'Ground Type';
+    case 'growing-system':
+      return 'Growing System';
+    default:
+      return 'What It Grows In';
+  }
+}
+
+function formatRecipeDate(date?: string): string {
+  if (!date) return '';
+
+  const safeDate = date.slice(0, 10);
+  const parsed = new Date(`${safeDate}T00:00:00`);
+
+  if (Number.isNaN(parsed.getTime())) return date;
+
+  return parsed.toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function formatTechnicalLabel(value: string): string {
   return value
-    .replace(
-      /-/g,
-      ' ',
-    )
-    .replace(
-      /\b\w/g,
-      (letter) =>
-        letter.toUpperCase(),
-    )
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, letter =>
+      letter.toUpperCase(),
+    );
 }
-
-
-/* =======================================
-   RECIPE COMPONENT MEASUREMENT
-======================================= */
 
 function getRecipeComponentUnitLabel(
   component: RecipeComponent,
 ): string {
-  const quantity =
-    component.quantity
+  const quantity = component.quantity;
+  const isSingular = quantity === 1;
 
-  const isSingular =
-    quantity === 1
-
-  switch (
-    component.unit
-  ) {
+  switch (component.unit) {
     case 'part':
-      return isSingular
-        ? 'part'
-        : 'parts'
-
+      return isSingular ? 'part' : 'parts';
     case 'litre':
-      return isSingular
-        ? 'litre'
-        : 'litres'
-
+      return isSingular ? 'litre' : 'litres';
     case 'millilitre':
-      return isSingular
-        ? 'millilitre'
-        : 'millilitres'
-
+      return isSingular ? 'millilitre' : 'millilitres';
     case 'kilogram':
-      return isSingular
-        ? 'kilogram'
-        : 'kilograms'
-
+      return isSingular ? 'kilogram' : 'kilograms';
     case 'gram':
-      return isSingular
-        ? 'gram'
-        : 'grams'
-
+      return isSingular ? 'gram' : 'grams';
     case 'handful':
-      return isSingular
-        ? 'handful'
-        : 'handfuls'
-
+      return isSingular ? 'handful' : 'handfuls';
     case 'scoop':
-      return isSingular
-        ? 'scoop'
-        : 'scoops'
-
+      return isSingular ? 'scoop' : 'scoops';
     case 'other':
-      return component
-        .customUnitLabel
-        ?.trim() ??
-        ''
-
+      return component.customUnitLabel?.trim() ?? '';
     default:
-      return ''
+      return '';
   }
 }
-
 
 function getRecipeComponentMeasurementLabel(
   component?: RecipeComponent,
 ): string {
   if (
     !component ||
-    component.quantity ===
-      undefined
+    component.quantity === undefined
   ) {
-    return ''
+    return '';
   }
 
   const unitLabel =
-    getRecipeComponentUnitLabel(
-      component,
-    )
+    getRecipeComponentUnitLabel(component);
 
   if (!unitLabel) {
-    return String(
-      component.quantity,
-    )
+    return String(component.quantity);
   }
 
-  return `${component.quantity} ${unitLabel}`
+  return `${component.quantity} ${unitLabel}`;
 }
-
-
-/* =======================================
-   PURCHASE PRICE
-======================================= */
 
 function formatPurchasePrice(
   purchase: PurchaseRecord,
 ): string {
   const currency =
-    purchase.currency ??
-    'AUD'
+    purchase.currency ?? 'AUD';
 
   try {
-    return new Intl.NumberFormat(
-      'en-AU',
-      {
-        style: 'currency',
-        currency,
-      },
-    ).format(
-      purchase.pricePaid,
-    )
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency,
+    }).format(purchase.pricePaid);
   } catch {
-    return `$${purchase.pricePaid.toFixed(
-      2,
-    )}`
+    return `$${purchase.pricePaid.toFixed(2)}`;
   }
 }
-
-
-/* =======================================
-   PURCHASE AMOUNT
-======================================= */
 
 function getPurchaseAmountLabel(
   purchase: PurchaseRecord,
 ): string {
-  const pieces:
-    string[] = []
+  const pieces: string[] = [];
 
-  if (
-    purchase.quantity !==
-    undefined
-  ) {
-    const quantityUnit =
-      purchase.unit
-        ? ` ${formatTechnicalLabel(
-            purchase.unit,
-          )}`
-        : ''
+  if (purchase.quantity !== undefined) {
+    const quantityUnit = purchase.unit
+      ? ` ${formatTechnicalLabel(purchase.unit)}`
+      : '';
 
     pieces.push(
       `${purchase.quantity}${quantityUnit}`,
-    )
+    );
   }
 
-  if (
-    purchase.packageSize !==
-    undefined
-  ) {
-    const packageUnit =
-      purchase.packageUnit
-        ? ` ${formatTechnicalLabel(
-            purchase.packageUnit,
-          )}`
-        : ''
+  if (purchase.packageSize !== undefined) {
+    const packageUnit = purchase.packageUnit
+      ? ` ${formatTechnicalLabel(purchase.packageUnit)}`
+      : '';
 
     pieces.push(
       `${purchase.packageSize}${packageUnit} package`,
-    )
+    );
   }
 
-  return pieces.join(
-    ' · ',
-  )
+  return pieces.join(' · ');
 }
-
-
-/* =======================================
-   GROWING RECIPE DETAIL
-======================================= */
 
 export default function GrowingRecipeDetail({
   recipe,
@@ -388,334 +238,241 @@ export default function GrowingRecipeDetail({
   onOpenRecipe,
   onNavigate,
 }: GrowingRecipeDetailProps) {
-
-
-  /* =======================================
-     RATING STATE
-  ======================================= */
+  void onOpenGrowingPlace;
+  void growingPlaces;
 
   const [
     isRatingOpen,
     setIsRatingOpen,
-  ] = useState(false)
+  ] = useState(false);
 
+  const recordNoun =
+    getRecordNoun(recipe);
 
-  /* =======================================
-     RECIPE COMPONENTS
-  ======================================= */
-
-  /*
-   * Modern Growing Recipes can contain
-   * Ingredients, Garden Products and other
-   * Growing Recipes.
-   *
-   * ingredientIds remains supported below
-   * so older Sprig records continue to
-   * display correctly.
-   */
+  const recordHeading =
+    getRecordHeading(recipe);
 
   const recipeComponentIngredients =
-    (
-      recipe.recipeComponents ??
-      []
-    )
+    (recipe.recipeComponents ?? [])
       .filter(
-        (component) =>
-          component.sourceType ===
-          'ingredient',
+        component =>
+          component.sourceType === 'ingredient',
       )
-      .map(
-        (component) => {
-          const ingredient =
-            ingredients.find(
-              (item) =>
-                item.id ===
-                component.sourceId,
-            )
+      .map(component => {
+        const ingredient =
+          ingredients.find(
+            item =>
+              item.id === component.sourceId,
+          );
 
-          if (!ingredient) {
-            return undefined
-          }
+        if (!ingredient) return undefined;
 
-          return {
-            ingredient,
-            component,
-          }
-        },
-      )
+        return {
+          ingredient,
+          component,
+        };
+      })
       .filter(
         (
           item,
         ): item is {
-          ingredient: Ingredient
-          component: RecipeComponent
-        } =>
-          Boolean(
-            item,
-          ),
-      )
-
+          ingredient: Ingredient;
+          component: RecipeComponent;
+        } => Boolean(item),
+      );
 
   const legacyRecipeIngredients =
-    (
-      recipe.ingredientIds ??
-      []
-    )
-      .map(
-        (ingredientId) =>
-          ingredients.find(
-            (ingredient) =>
-              ingredient.id ===
-              ingredientId,
-          ),
+    (recipe.ingredientIds ?? [])
+      .map(ingredientId =>
+        ingredients.find(
+          ingredient =>
+            ingredient.id === ingredientId,
+        ),
       )
       .filter(
         (
           ingredient,
         ): ingredient is Ingredient =>
-          Boolean(
-            ingredient,
-          ),
-      )
-
-
-  /*
-   * Avoid showing an Ingredient twice when
-   * a recipe contains both the legacy link
-   * and its newer recipeComponent link.
-   */
+          Boolean(ingredient),
+      );
 
   const recipeIngredients = [
     ...recipeComponentIngredients.map(
-      (
-        item,
-      ) => ({
-        ingredient:
-          item.ingredient,
-
-        component:
-          item.component,
+      item => ({
+        ingredient: item.ingredient,
+        component: item.component,
       }),
     ),
 
     ...legacyRecipeIngredients
       .filter(
-        (
-          legacyIngredient,
-        ) =>
+        legacyIngredient =>
           !recipeComponentIngredients.some(
-            (
-              item,
-            ) =>
+            item =>
               item.ingredient.id ===
               legacyIngredient.id,
           ),
       )
-      .map(
-        (
-          ingredient,
-        ) => ({
-          ingredient,
-
-          component:
-            undefined,
-        }),
-      ),
-  ]
-
+      .map(ingredient => ({
+        ingredient,
+        component: undefined,
+      })),
+  ];
 
   const recipeProducts =
-    (
-      recipe.recipeComponents ??
-      []
-    )
+    (recipe.recipeComponents ?? [])
       .filter(
-        (component) =>
-          component.sourceType ===
-          'product',
+        component =>
+          component.sourceType === 'product',
       )
-      .map(
-        (component) => {
-          const product =
-            products.find(
-              (item) =>
-                item.id ===
-                component.sourceId,
-            )
+      .map(component => {
+        const product =
+          products.find(
+            item =>
+              item.id === component.sourceId,
+          );
 
-          if (!product) {
-            return undefined
-          }
+        if (!product) return undefined;
 
-          return {
-            product,
-            component,
-          }
-        },
-      )
+        return {
+          product,
+          component,
+        };
+      })
       .filter(
         (
           item,
         ): item is {
-          product: GardenProduct
-          component: RecipeComponent
-        } =>
-          Boolean(
-            item,
-          ),
-      )
-
+          product: GardenProduct;
+          component: RecipeComponent;
+        } => Boolean(item),
+      );
 
   const recipeGrowingSetups =
-    (
-      recipe.recipeComponents ??
-      []
-    )
+    (recipe.recipeComponents ?? [])
       .filter(
-        (component) =>
+        component =>
           component.sourceType ===
           'growing-setup',
       )
-      .map(
-        (component) => {
-          const growingSetup =
-            growingSetups.find(
-              (item) =>
-                item.id ===
-                component.sourceId,
-            )
+      .map(component => {
+        const growingSetup =
+          growingSetups.find(
+            item =>
+              item.id === component.sourceId,
+          );
 
-          if (!growingSetup) {
-            return undefined
-          }
+        if (!growingSetup) return undefined;
 
-          return {
-            growingSetup,
-            component,
-          }
-        },
-      )
+        return {
+          growingSetup,
+          component,
+        };
+      })
       .filter(
         (
           item,
         ): item is {
-          growingSetup: GrowingSetup
-          component: RecipeComponent
-        } =>
-          Boolean(
-            item,
-          ),
-      )
-
-
-  /* =======================================
-     RECIPE RELATIONSHIPS
-  ======================================= */
+          growingSetup: GrowingSetup;
+          component: RecipeComponent;
+        } => Boolean(item),
+      );
 
   const linkedPlants =
-    plants.filter(
-      (plant) =>
-        plant.currentGrowingSetupId ===
-          recipe.id ||
-        plant.previousGrowingSetupIds
-          ?.includes(
-            recipe.id,
-          ),
-    )
+    plants.filter(plant => {
+      const currentModern =
+        plant.currentGrowingSetupIds?.includes(
+          recipe.id,
+        ) ?? false;
 
+      const previousModern =
+        plant.previousGrowingSetupIdsV2?.includes(
+          recipe.id,
+        ) ?? false;
 
-  const linkedGrowingPlaces =
-    growingPlaces.filter(
-      (place) =>
-        place.growingSetupId ===
-        recipe.id,
-    )
+      const historyModern =
+        plant.growingHistory?.some(
+          entry =>
+            (entry.growingSetupIds?.includes(
+              recipe.id,
+            ) ?? false) ||
+            entry.growingSetupId === recipe.id,
+        ) ?? false;
 
+      const legacy =
+        plant.currentGrowingSetupId === recipe.id ||
+        (plant.previousGrowingSetupIds?.includes(
+          recipe.id,
+        ) ?? false);
+
+      return (
+        currentModern ||
+        previousModern ||
+        historyModern ||
+        legacy
+      );
+    });
+
+  const linkedGrowingSetups =
+    growingSetups.filter(
+      otherSetup =>
+        otherSetup.id !== recipe.id &&
+        (otherSetup.recipeComponents?.some(
+          component =>
+            component.sourceType ===
+              'growing-setup' &&
+            component.sourceId === recipe.id,
+        ) ?? false),
+    );
 
   const relationshipCount =
     linkedPlants.length +
-    linkedGrowingPlaces.length
-
-
-  /* =======================================
-     PURCHASE HISTORY
-  ======================================= */
+    linkedGrowingSetups.length;
 
   const recipePurchases =
     purchases
       .filter(
-        (purchase) =>
+        purchase =>
           purchase.itemType ===
             'growing-setup' &&
-          purchase.itemId ===
-            recipe.id,
+          purchase.itemId === recipe.id,
       )
-      .sort(
-        (
-          first,
-          second,
-        ) =>
-          second.date.localeCompare(
-            first.date,
-          ),
-      )
-
-
-  /* =======================================
-     RATING
-  ======================================= */
+      .sort((first, second) =>
+        second.date.localeCompare(first.date),
+      );
 
   function handleChooseRating(
     rating: RecipeRating,
   ) {
-    onSetRating(
-      rating,
-    )
-
-    setIsRatingOpen(
-      false,
-    )
+    onSetRating(rating);
+    setIsRatingOpen(false);
   }
-
 
   return (
     <GardenLayout
       activePage="library"
-      onNavigate={
-        onNavigate
-      }
+      onNavigate={onNavigate}
     >
       <div className="journal-page">
-
-        {/* =======================================
-            HEADER
-        ======================================= */}
-
         <header className="journal-header">
           <div>
             <p className="section-label">
               {recipe.isArchived
-                ? 'Archived Growing Recipe'
-                : 'Growing Recipe'}
+                ? `Archived ${recordHeading}`
+                : recordHeading}
             </p>
 
-            <h1>
-              {recipe.name}
-            </h1>
+            <h1>{recipe.name}</h1>
 
             <p className="journal-intro">
-              {getRecipeCategoryLabel(
-                recipe,
-              )}
+              {getRecipeCategoryLabel(recipe)}
             </p>
-
 
             {recipe.isFavourite && (
               <p className="section-label">
                 ★ Garden Favourite
               </p>
             )}
-
 
             {recipe.isArchived && (
               <p className="section-label">
@@ -725,11 +482,6 @@ export default function GrowingRecipeDetail({
           </div>
         </header>
 
-
-        {/* =======================================
-            ARCHIVED RECORD NOTICE
-        ======================================= */}
-
         {recipe.isArchived && (
           <section className="sprig-form-section">
             <p className="section-label">
@@ -737,15 +489,14 @@ export default function GrowingRecipeDetail({
             </p>
 
             <h2>
-              This recipe has been put away
+              This {recordNoun} has been put away
             </h2>
 
             <p>
               It is no longer on your active
-              Growing Recipe shelf, but Sprig
-              has kept its history,
-              photographs and garden
-              connections.
+              What the Garden Grows In shelf,
+              but Sprig has kept its history,
+              photographs and garden connections.
             </p>
 
             {recipe.archivedAt && (
@@ -761,98 +512,51 @@ export default function GrowingRecipeDetail({
               <button
                 type="button"
                 className="journal-add-button"
-                onClick={
-                  onRestore
-                }
+                onClick={onRestore}
               >
-                🌱 Restore this Growing Recipe
+                🌱 Restore this {recordNoun}
               </button>
             )}
           </section>
         )}
 
-
-        {/* =======================================
-            RECORD ACTIONS
-        ======================================= */}
-
         <RecordActions
           contextualBackLabel={
             backLabel
+              ? `Back to ${backLabel}`
+              : undefined
           }
-
-          onContextualBack={
-            onBackToOrigin
-          }
-
-          backLabel={
-            recipe.isArchived
-              ? 'Back to Archived Recipes'
-              : 'Back to Recipes'
-          }
-
-          editLabel="Edit Growing Recipe"
-
+          onContextualBack={onBackToOrigin}
+          backLabel="Growing Home"
+          editLabel={`Edit ${recordHeading}`}
           duplicateLabel="Create a variation"
-
           rateLabel={
             recipe.rating
               ? 'Change rating'
-              : 'Rate this recipe'
+              : `Rate this ${recordNoun}`
           }
-
-          archiveLabel="Archive this recipe"
-
+          archiveLabel={`Archive this ${recordNoun}`}
           deleteLabel="Delete permanently"
-
-          isFavourite={
-            Boolean(
-              recipe.isFavourite,
-            )
-          }
-
-          rating={
-            recipe.rating
-          }
-
-          onBack={
-            onBack
-          }
-
-          onEdit={
-            onEdit
-          }
-
-          onDuplicate={
-            onDuplicate
-          }
-
+          isFavourite={Boolean(
+            recipe.isFavourite,
+          )}
+          rating={recipe.rating}
+          onBack={onBack}
+          onEdit={onEdit}
+          onDuplicate={onDuplicate}
           onRate={() =>
             setIsRatingOpen(
-              (current) =>
-                !current,
+              current => !current,
             )
           }
-
-          onFavourite={
-            onToggleFavourite
-          }
-
+          onFavourite={onToggleFavourite}
           onArchive={
             recipe.isArchived
               ? undefined
               : onArchive
           }
-
-          onDelete={
-            onDelete
-          }
+          onDelete={onDelete}
         />
-
-
-        {/* =======================================
-            RATING CHOOSER
-        ======================================= */}
 
         {isRatingOpen && (
           <section className="sprig-form-section">
@@ -861,169 +565,112 @@ export default function GrowingRecipeDetail({
             </p>
 
             <h2>
-              How has this recipe worked
+              How has this {recordNoun} worked
               for you?
             </h2>
 
             <p>
-              Give this Growing Recipe a
-              place from one to five stars.
-              You can change it whenever
-              the garden teaches you
+              Give it a place from one to five
+              stars. You can change the rating
+              whenever the garden teaches you
               something new.
             </p>
 
             <div
               className="sprig-rating-picker"
               role="group"
-              aria-label="Rate this Growing Recipe"
+              aria-label={`Rate this ${recordHeading}`}
             >
               {(
-                [
-                  1,
-                  2,
-                  3,
-                  4,
-                  5,
-                ] as RecipeRating[]
-              ).map(
-                (rating) => (
-                  <button
-                    key={
-                      rating
-                    }
-                    type="button"
-                    className="sprig-rating-star"
-                    aria-label={`${rating} ${
-                      rating === 1
-                        ? 'star'
-                        : 'stars'
-                    }`}
-                    aria-pressed={
-                      recipe.rating ===
-                      rating
-                    }
-                    onClick={() =>
-                      handleChooseRating(
-                        rating,
-                      )
-                    }
-                  >
-                    {recipe.rating &&
-                    rating <=
-                      recipe.rating
-                      ? '★'
-                      : '☆'}
-                  </button>
-                ),
-              )}
+                [1, 2, 3, 4, 5] as RecipeRating[]
+              ).map(rating => (
+                <button
+                  key={rating}
+                  type="button"
+                  className="sprig-rating-star"
+                  aria-label={`${rating} ${
+                    rating === 1
+                      ? 'star'
+                      : 'stars'
+                  }`}
+                  aria-pressed={
+                    recipe.rating === rating
+                  }
+                  onClick={() =>
+                    handleChooseRating(rating)
+                  }
+                >
+                  {recipe.rating &&
+                  rating <= recipe.rating
+                    ? '★'
+                    : '☆'}
+                </button>
+              ))}
             </div>
 
             {recipe.rating && (
               <p className="form-whisper">
-                Currently rated{' '}
-                {recipe.rating} out of 5.
+                Currently rated {recipe.rating} out of 5.
               </p>
             )}
           </section>
         )}
 
-
-        {/* =======================================
-            RECIPE CONTENT
-        ======================================= */}
-
         <section className="library-grid">
-
-          {/* =======================================
-              RECIPE DETAILS
-          ======================================= */}
-
           <article className="library-book">
-            <p className="section-label">
-              Recipe details
-            </p>
-
-            <h2>
-              {recipe.name}
-            </h2>
+            <p className="section-label">Details</p>
+            <h2>{recipe.name}</h2>
 
             <p>
-              Added{' '}
-              {formatRecipeDate(
-                recipe.createdAt,
-              )}
+              Added {formatRecipeDate(recipe.createdAt)}
             </p>
-
 
             {recipe.updatedAt && (
               <p>
                 Last updated{' '}
-                {formatRecipeDate(
-                  recipe.updatedAt,
-                )}
+                {formatRecipeDate(recipe.updatedAt)}
               </p>
             )}
-
 
             {recipe.isArchived &&
               recipe.archivedAt && (
-              <p>
-                Archived{' '}
-                {formatRecipeDate(
-                  recipe.archivedAt,
-                )}
-              </p>
-            )}
-
+                <p>
+                  Archived{' '}
+                  {formatRecipeDate(
+                    recipe.archivedAt,
+                  )}
+                </p>
+              )}
 
             <p>
-              Type:{' '}
-              {getRecipeCategoryLabel(
-                recipe,
-              )}
+              Type: {getRecipeCategoryLabel(recipe)}
             </p>
-
 
             {recipe.rating && (
               <p>
                 Rating:{' '}
-                {'★'.repeat(
-                  recipe.rating,
-                )}{' '}
+                {'★'.repeat(recipe.rating)}{' '}
                 {recipe.rating}/5
               </p>
             )}
 
-
             {recipe.isFavourite && (
-              <p>
-                ★ Garden Favourite
-              </p>
+              <p>★ Garden Favourite</p>
             )}
-
 
             {recipe.isArchived && (
-              <p>
-                📦 Archived
-              </p>
+              <p>📦 Archived</p>
             )}
-
 
             {recipe.brand && (
-              <p>
-                Brand: {recipe.brand}
-              </p>
+              <p>Brand: {recipe.brand}</p>
             )}
-
 
             {recipe.productName && (
               <p>
-                Product:{' '}
-                {recipe.productName}
+                Product: {recipe.productName}
               </p>
             )}
-
 
             {recipe.groundType && (
               <p>
@@ -1033,7 +680,6 @@ export default function GrowingRecipeDetail({
                 )}
               </p>
             )}
-
 
             {recipe.growingSystemType && (
               <p>
@@ -1045,55 +691,35 @@ export default function GrowingRecipeDetail({
             )}
           </article>
 
-
-          {/* =======================================
-              PURCHASE HISTORY
-          ======================================= */}
-
-          {recipe.category ===
-            'bought-mix' && (
+          {recipe.category === 'bought-mix' && (
             <article className="library-book">
               <p className="section-label">
                 Purchase history
               </p>
 
-              <h2>
-                What it has cost
-              </h2>
+              <h2>What it has cost</h2>
 
-
-              {recipePurchases.length >
-              0 ? (
+              {recipePurchases.length > 0 ? (
                 <>
                   <p>
                     Sprig remembers{' '}
-                    {
-                      recipePurchases.length
-                    }{' '}
-                    {recipePurchases.length ===
-                    1
+                    {recipePurchases.length}{' '}
+                    {recipePurchases.length === 1
                       ? 'purchase'
                       : 'purchases'}{' '}
                     for this Bought Mix.
                   </p>
 
-
                   <ul className="sprig-purchase-history">
                     {recipePurchases.map(
-                      (
-                        purchase,
-                      ) => {
+                      purchase => {
                         const amountLabel =
                           getPurchaseAmountLabel(
                             purchase,
-                          )
+                          );
 
                         return (
-                          <li
-                            key={
-                              purchase.id
-                            }
-                          >
+                          <li key={purchase.id}>
                             <strong>
                               {formatPurchasePrice(
                                 purchase,
@@ -1101,40 +727,29 @@ export default function GrowingRecipeDetail({
                             </strong>
 
                             {' · '}
-
                             {formatRecipeDate(
                               purchase.date,
                             )}
 
-
                             {purchase.supplier && (
                               <>
                                 {' · '}
-                                {
-                                  purchase.supplier
-                                }
+                                {purchase.supplier}
                               </>
                             )}
-
 
                             {amountLabel && (
                               <>
                                 {' · '}
-                                {
-                                  amountLabel
-                                }
+                                {amountLabel}
                               </>
                             )}
 
-
                             {purchase.notes && (
                               <p className="form-whisper">
-                                {
-                                  purchase.notes
-                                }
+                                {purchase.notes}
                               </p>
                             )}
-
 
                             {onEditPurchase && (
                               <button
@@ -1150,97 +765,70 @@ export default function GrowingRecipeDetail({
                               </button>
                             )}
                           </li>
-                        )
+                        );
                       },
                     )}
                   </ul>
                 </>
               ) : (
                 <p>
-                  No purchase history has
-                  been recorded for this
-                  Bought Mix yet.
+                  No purchase history has been
+                  recorded for this Bought Mix yet.
                 </p>
               )}
-
 
               {onAddPurchase && (
                 <button
                   type="button"
                   className="journal-add-button"
-                  onClick={
-                    onAddPurchase
-                  }
+                  onClick={onAddPurchase}
                 >
                   + Add another purchase
                 </button>
               )}
 
-
               <p className="form-whisper">
-                Each purchase stays
-                separate so Sprig can
-                remember changing prices,
-                suppliers and package sizes
-                over time.
+                Each purchase stays separate so
+                Sprig can remember changing prices,
+                suppliers and package sizes over time.
               </p>
             </article>
           )}
 
-
-          {/* =======================================
-              RECIPE CONTENTS
-          ======================================= */}
-
-          {recipe.category ===
-            'own-mix' && (
+          {recipe.category === 'own-mix' && (
             <article className="library-book">
               <p className="section-label">
                 Recipe contents
               </p>
 
-              <h2>
-                What&apos;s in this recipe
-              </h2>
+              <h2>What&apos;s in this recipe</h2>
 
-              {recipeIngredients.length ===
-                0 &&
-              recipeProducts.length ===
-                0 &&
-              recipeGrowingSetups.length ===
-                0 ? (
+              {recipeIngredients.length === 0 &&
+              recipeProducts.length === 0 &&
+              recipeGrowingSetups.length === 0 ? (
                 <p>
-                  Nothing has been added to
-                  this recipe yet.
+                  Nothing has been added to this
+                  recipe yet.
                 </p>
               ) : (
                 <>
-                  {/* ===================================
-                      GARDEN INGREDIENTS
-                  =================================== */}
-
-                  {recipeIngredients.length >
-                    0 && (
+                  {recipeIngredients.length > 0 && (
                     <section className="sprig-form-section">
                       <p className="section-label">
-                        My own ingredients
+                        Ingredients
                       </p>
 
                       <div className="sprig-ingredient-list">
                         {recipeIngredients.map(
-                          (
-                            item,
-                          ) => {
+                          item => {
                             const measurement =
                               getRecipeComponentMeasurementLabel(
                                 item.component,
-                              )
+                              );
 
                             return (
                               <button
-                                key={
-                                  item.ingredient.id
-                                }
+                                key={item.ingredient.id}
                                 type="button"
                                 className="sprig-ingredient-chip"
                                 onClick={() =>
@@ -1249,113 +837,81 @@ export default function GrowingRecipeDetail({
                                   )
                                 }
                               >
-                                🌿{' '}
-                                {
-                                  item.ingredient.name
-                                }
+                                🌿 {item.ingredient.name}
 
                                 {measurement && (
                                   <>
                                     {' · '}
-                                    {
-                                      measurement
-                                    }
+                                    {measurement}
                                   </>
                                 )}
                               </button>
-                            )
+                            );
                           },
                         )}
                       </div>
                     </section>
                   )}
 
-
-                  {/* ===================================
-                      BOUGHT PRODUCTS
-                  =================================== */}
-
-                  {recipeProducts.length >
-                    0 && (
+                  {recipeProducts.length > 0 && (
                     <section className="sprig-form-section">
                       <p className="section-label">
                         Bought products
                       </p>
 
                       <div className="sprig-ingredient-list">
-                        {recipeProducts.map(
-                          (
-                            item,
-                          ) => {
-                            const measurement =
-                              getRecipeComponentMeasurementLabel(
-                                item.component,
-                              )
+                        {recipeProducts.map(item => {
+                          const measurement =
+                            getRecipeComponentMeasurementLabel(
+                              item.component,
+                            );
 
-                            return (
-                              <button
-                                key={
-                                  item.product.id
-                                }
-                                type="button"
-                                className="sprig-ingredient-chip"
-                                onClick={() =>
-                                  onOpenProduct(
-                                    item.product.id,
-                                  )
-                                }
-                              >
-                                🧺{' '}
-                                {
-                                  item.product.name
-                                }
+                          return (
+                            <button
+                              key={item.product.id}
+                              type="button"
+                              className="sprig-ingredient-chip"
+                              onClick={() =>
+                                onOpenProduct(
+                                  item.product.id,
+                                )
+                              }
+                            >
+                              🧺 {item.product.name}
 
-                                {item.product.brand && (
-                                  <>
-                                    {' · '}
-                                    {
-                                      item.product.brand
-                                    }
-                                  </>
-                                )}
+                              {item.product.brand && (
+                                <>
+                                  {' · '}
+                                  {item.product.brand}
+                                </>
+                              )}
 
-                                {measurement && (
-                                  <>
-                                    {' · '}
-                                    {
-                                      measurement
-                                    }
-                                  </>
-                                )}
-                              </button>
-                            )
-                          },
-                        )}
+                              {measurement && (
+                                <>
+                                  {' · '}
+                                  {measurement}
+                                </>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
                     </section>
                   )}
 
-
-                  {/* ===================================
-                      OTHER GROWING RECIPES
-                  =================================== */}
-
-                  {recipeGrowingSetups.length >
-                    0 && (
+                  {recipeGrowingSetups.length > 0 && (
                     <section className="sprig-form-section">
                       <p className="section-label">
-                        Other Growing Recipes
+                        Other growing records
                       </p>
 
                       <div className="sprig-ingredient-list">
                         {recipeGrowingSetups.map(
-                          (
-                            item,
-                          ) => {
+                          item => {
                             const measurement =
                               getRecipeComponentMeasurementLabel(
                                 item.component,
-                              )
+                              );
 
                             return (
                               <button
@@ -1370,21 +926,16 @@ export default function GrowingRecipeDetail({
                                   )
                                 }
                               >
-                                🌱{' '}
-                                {
-                                  item.growingSetup.name
-                                }
+                                🌱 {item.growingSetup.name}
 
                                 {measurement && (
                                   <>
                                     {' · '}
-                                    {
-                                      measurement
-                                    }
+                                    {measurement}
                                   </>
                                 )}
                               </button>
-                            )
+                            );
                           },
                         )}
                       </div>
@@ -1395,37 +946,19 @@ export default function GrowingRecipeDetail({
             </article>
           )}
 
-
-          {/* =======================================
-              NOTES
-          ======================================= */}
-
           <article className="library-book">
-            <p className="section-label">
-              Notes
-            </p>
-
-            <h2>
-              What Sprig remembers
-            </h2>
+            <p className="section-label">Notes</p>
+            <h2>What Sprig remembers</h2>
 
             {recipe.notes ? (
-              <p>
-                {recipe.notes}
-              </p>
+              <p>{recipe.notes}</p>
             ) : (
               <p>
-                No notes have been
-                tucked into this recipe
-                yet.
+                No notes have been tucked into this{' '}
+                {recordNoun} yet.
               </p>
             )}
           </article>
-
-
-          {/* =======================================
-              PHOTOGRAPHS
-          ======================================= */}
 
           <article className="library-book">
             <p className="section-label">
@@ -1433,203 +966,165 @@ export default function GrowingRecipeDetail({
             </p>
 
             <SprigPhotoGallery
-              photoUrls={
-                recipe.photoUrls ??
-                []
-              }
-
-              title="Recipe photographs"
-
-              emptyMessage="No photographs have been tucked into this recipe yet."
-
+              photoUrls={recipe.photoUrls ?? []}
+              title={`${recordHeading} photographs`}
+              emptyMessage={`No photographs have been tucked into this ${recordNoun} yet.`}
               photoAltPrefix={`${recipe.name} photograph`}
             />
           </article>
-
-
-          {/* =======================================
-              GROWING PLACES
-          ======================================= */}
-
-          <article className="library-book">
-            <p className="section-label">
-              Growing Places
-            </p>
-
-            <h2>
-              Where this recipe is used
-            </h2>
-
-            {linkedGrowingPlaces.length >
-            0 ? (
-              <ul>
-                {linkedGrowingPlaces.map(
-                  (
-                    place,
-                  ) => (
-                    <li
-                      key={
-                        place.id
-                      }
-                    >
-                      <button
-                        type="button"
-                        className="record-link-button"
-                        onClick={() =>
-                          onOpenGrowingPlace(
-                            place.id,
-                          )
-                        }
-                      >
-                        🌿 {place.name}
-                      </button>
-                    </li>
-                  ),
-                )}
-              </ul>
-            ) : (
-              <p>
-                This recipe is not
-                currently linked to a
-                Growing Place.
-              </p>
-            )}
-          </article>
-
-
-          {/* =======================================
-              PLANT STORIES
-          ======================================= */}
 
           <article className="library-book">
             <p className="section-label">
               Plant Stories
             </p>
 
-            <h2>
-              Plants grown with this recipe
-            </h2>
+            <h2>Plants grown with this</h2>
 
-            {linkedPlants.length >
-            0 ? (
+            {linkedPlants.length > 0 ? (
               <ul>
-                {linkedPlants.map(
-                  (
-                    plant,
-                  ) => (
-                    <li
-                      key={
-                        plant.id
+                {linkedPlants.map(plant => (
+                  <li key={plant.id}>
+                    <button
+                      type="button"
+                      className="record-link-button"
+                      onClick={() =>
+                        onOpenPlant(plant.id)
                       }
                     >
+                      🌱 {plant.displayName}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                No Plant Stories are currently
+                connected to this {recordNoun}.
+              </p>
+            )}
+          </article>
+
+          {linkedGrowingSetups.length > 0 && (
+            <article className="library-book">
+              <p className="section-label">
+                Growing Recipes
+              </p>
+
+              <h2>Used inside other recipes</h2>
+
+              <p>
+                This {recordNoun} is also a
+                component in:
+              </p>
+
+              <ul>
+                {linkedGrowingSetups.map(
+                  linkedSetup => (
+                    <li key={linkedSetup.id}>
                       <button
                         type="button"
                         className="record-link-button"
                         onClick={() =>
-                          onOpenPlant(
-                            plant.id,
+                          onOpenRecipe(
+                            linkedSetup.id,
                           )
                         }
                       >
-                        🌱 {plant.displayName}
+                        🌿 {linkedSetup.name}
                       </button>
                     </li>
                   ),
                 )}
               </ul>
-            ) : (
-              <p>
-                No Plant Stories are
-                linked to this recipe
-                yet.
-              </p>
-            )}
+            </article>
+          )}
+
+          <article className="library-book">
+            <p className="section-label">
+              Place and growing setup
+            </p>
+
+            <h2>
+              Where is remembered separately
+            </h2>
+
+            <p>
+              This record describes what a plant
+              grows in. Growing Places describe
+              where the plant physically lives
+              in the garden.
+            </p>
+
+            <p className="form-whisper">
+              A Plant Story brings those facts
+              together, so Sprig can remember
+              that a plant grew in this{' '}
+              {recordNoun} while living in its
+              own Growing Place.
+            </p>
           </article>
-
-
-          {/* =======================================
-              CONNECTION SUMMARY
-          ======================================= */}
 
           <article className="library-book">
             <p className="section-label">
               Garden connections
             </p>
 
-            <h2>
-              Where this story reaches
-            </h2>
+            <h2>Where this record reaches</h2>
 
-            {relationshipCount >
-            0 ? (
+            {relationshipCount > 0 ? (
               <>
                 <p>
-                  This Growing Recipe is
-                  connected to{' '}
-                  {
-                    relationshipCount
-                  }{' '}
-                  {relationshipCount ===
-                  1
+                  This {recordNoun} is connected
+                  to {relationshipCount}{' '}
+                  {relationshipCount === 1
                     ? 'garden record'
                     : 'garden records'}.
                 </p>
 
-                {linkedPlants.length >
-                  0 && (
+                {linkedPlants.length > 0 && (
                   <p>
-                    {
-                      linkedPlants.length
-                    }{' '}
-                    {linkedPlants.length ===
-                    1
+                    {linkedPlants.length}{' '}
+                    {linkedPlants.length === 1
                       ? 'Plant Story'
                       : 'Plant Stories'}
                   </p>
                 )}
 
-                {linkedGrowingPlaces.length >
-                  0 && (
+                {linkedGrowingSetups.length > 0 && (
                   <p>
-                    {
-                      linkedGrowingPlaces.length
-                    }{' '}
-                    {linkedGrowingPlaces.length ===
-                    1
-                      ? 'Growing Place'
-                      : 'Growing Places'}
+                    {linkedGrowingSetups.length}{' '}
+                    {linkedGrowingSetups.length === 1
+                      ? 'Growing Recipe uses it'
+                      : 'Growing Recipes use it'}
                   </p>
                 )}
 
                 <p className="form-whisper">
-                  These connections are why
-                  Sprig preserves archived
-                  Recipes rather than simply
-                  throwing their history away.
+                  These relationships are why
+                  Sprig preserves archived records
+                  rather than throwing their
+                  history away.
                 </p>
               </>
             ) : (
               <>
                 <p>
-                  This Growing Recipe does
-                  not currently have any
-                  Plant Story or Growing
-                  Place connections.
+                  This {recordNoun} does not
+                  currently have any Plant Story
+                  or Growing Recipe connections.
                 </p>
 
                 <p className="form-whisper">
-                  A recipe with no
-                  connections can be
-                  permanently removed if
-                  you no longer want to
-                  keep it.
+                  A growing record with no
+                  connections can be permanently
+                  removed if you no longer want
+                  to keep it.
                 </p>
               </>
             )}
           </article>
-
         </section>
       </div>
     </GardenLayout>
-  )
+  );
 }

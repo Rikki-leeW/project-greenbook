@@ -27,6 +27,7 @@ import type {
   PurchaseUnit,
 } from '../../types'
 
+
 interface AddRecipeFormProps {
   ingredients: Ingredient[]
 
@@ -34,36 +35,16 @@ interface AddRecipeFormProps {
 
   growingSetups: GrowingSetup[]
 
-  /*
-   * When supplied, the form becomes an
-   * Edit Growing Recipe form.
-   */
   recipeToEdit?: GrowingSetup
 
-  /*
-   * Used when creating a brand-new
-   * Growing Recipe.
-   */
   onAddRecipe: (
     recipe: GrowingSetup,
   ) => void
 
-  /*
-   * Used when editing an existing
-   * Growing Recipe.
-   */
   onUpdateRecipe?: (
     recipe: GrowingSetup,
   ) => void
 
-  /*
-   * Bought Mix purchases live separately
-   * from the Growing Recipe itself.
-   *
-   * This lets Sprig preserve changing
-   * prices, suppliers and package sizes
-   * over time.
-   */
   onAddPurchase?: (
     purchase: PurchaseRecord,
   ) => void
@@ -79,16 +60,11 @@ interface AddRecipeFormProps {
   onClose: () => void
 }
 
+
 interface PickerOption {
   value: string
   label: string
 }
-
-const CUSTOM_GROUND_TYPES_KEY =
-  'sprig-custom-ground-types'
-
-const CUSTOM_GROWING_SYSTEMS_KEY =
-  'sprig-custom-growing-systems'
 
 
 /* =======================================
@@ -114,7 +90,7 @@ function createGrowingSetupId(
 
   return `${category}-${
     safeName ||
-    'growing-recipe'
+    'growing-setup'
   }-${Date.now()}`
 }
 
@@ -158,106 +134,6 @@ function createPurchaseId(
 
 
 /* =======================================
-   CUSTOM OPTION ID
-======================================= */
-
-function createCustomOptionValue(
-  group: string,
-  label: string,
-): string {
-  const safeLabel =
-    label
-      .trim()
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        '-',
-      )
-      .replace(
-        /^-|-$/g,
-        '',
-      )
-
-  return `custom:${group}:${
-    safeLabel ||
-    Date.now()
-  }`
-}
-
-
-/* =======================================
-   CUSTOM OPTION STORAGE
-======================================= */
-
-function loadCustomOptions(
-  storageKey: string,
-): PickerOption[] {
-  try {
-    const raw =
-      localStorage.getItem(
-        storageKey,
-      )
-
-    if (!raw) {
-      return []
-    }
-
-    const parsed: unknown =
-      JSON.parse(
-        raw,
-      )
-
-    if (
-      !Array.isArray(
-        parsed,
-      )
-    ) {
-      return []
-    }
-
-    return parsed.filter(
-      (
-        item,
-      ): item is PickerOption => {
-        if (
-          typeof item !==
-            'object' ||
-          item === null
-        ) {
-          return false
-        }
-
-        const candidate =
-          item as Partial<PickerOption>
-
-        return (
-          typeof candidate.value ===
-            'string' &&
-          typeof candidate.label ===
-            'string'
-        )
-      },
-    )
-  } catch {
-    return []
-  }
-}
-
-
-function saveCustomOptions(
-  storageKey: string,
-  options: PickerOption[],
-) {
-  localStorage.setItem(
-    storageKey,
-    JSON.stringify(
-      options,
-    ),
-  )
-}
-
-
-/* =======================================
    CATEGORY OPTIONS
 ======================================= */
 
@@ -275,7 +151,7 @@ const recipeCategoryOptions: {
   },
   {
     value: 'ground-type',
-    label: 'Native Ground',
+    label: 'Ground Type',
   },
   {
     value: 'growing-system',
@@ -318,6 +194,10 @@ const groundTypeOptions:
       value: 'not-sure',
       label: 'Not Sure',
     },
+    {
+      value: 'something-else',
+      label: 'Something Else',
+    },
   ]
 
 
@@ -338,6 +218,10 @@ const growingSystemOptions:
     {
       value: 'filled-raised-bed',
       label: 'Filled Raised Bed',
+    },
+    {
+      value: 'container-mix',
+      label: 'Container / Pot',
     },
     {
       value: 'wicking-bed',
@@ -371,11 +255,37 @@ const growingSystemOptions:
       value: 'aeroponic',
       label: 'Aeroponics',
     },
+    {
+      value: 'something-else',
+      label: 'Something Else',
+    },
   ]
 
 
 /* =======================================
-   ADD / EDIT GROWING RECIPE
+   LABEL HELPERS
+======================================= */
+
+function findOptionLabel(
+  options: PickerOption[],
+  value?: string | null,
+): string {
+  if (!value) {
+    return ''
+  }
+
+  return (
+    options.find(
+      (option) =>
+        option.value === value,
+    )?.label ??
+    ''
+  )
+}
+
+
+/* =======================================
+   ADD / EDIT GROWING SETUP
 ======================================= */
 
 export default function AddRecipeForm({
@@ -467,6 +377,10 @@ export default function AddRecipeForm({
     )
 
 
+  /* =======================================
+     COMPONENT RELATIONSHIPS
+  ======================================= */
+
   const [
     selectedIngredientIds,
     setSelectedIngredientIds,
@@ -556,18 +470,6 @@ export default function AddRecipeForm({
      BOUGHT MIX PURCHASE DETAILS
   ======================================= */
 
-  /*
-   * These fields deliberately begin blank
-   * when editing.
-   *
-   * Existing historical purchases are edited
-   * from the Purchase history on the detail
-   * page.
-   *
-   * Entering values here while editing creates
-   * another PurchaseRecord instead.
-   */
-
   const [
     supplier,
     setSupplier,
@@ -631,7 +533,7 @@ export default function AddRecipeForm({
 
 
   /* =======================================
-     NATIVE GROUND
+     GROUND TYPE
   ======================================= */
 
   const [
@@ -645,6 +547,18 @@ export default function AddRecipeForm({
             .groundType ??
           null
         : null,
+    )
+
+
+  const [
+    groundTypeName,
+    setGroundTypeName,
+  ] =
+    useState(
+      recipeToEdit?.category ===
+        'ground-type'
+        ? recipeToEdit.name
+        : '',
     )
 
 
@@ -697,6 +611,18 @@ export default function AddRecipeForm({
 
 
   const [
+    growingSystemName,
+    setGrowingSystemName,
+  ] =
+    useState(
+      recipeToEdit?.category ===
+        'growing-system'
+        ? recipeToEdit.name
+        : '',
+    )
+
+
+  const [
     growingSystemAddedDate,
     setGrowingSystemAddedDate,
   ] =
@@ -738,46 +664,6 @@ export default function AddRecipeForm({
       recipeToEdit?.photoUrls ??
         [],
     )
-
-
-  /* =======================================
-     CUSTOM OPTIONS
-  ======================================= */
-
-  const [
-    customGroundTypeOptions,
-    setCustomGroundTypeOptions,
-  ] =
-    useState<PickerOption[]>(
-      () =>
-        loadCustomOptions(
-          CUSTOM_GROUND_TYPES_KEY,
-        ),
-    )
-
-
-  const [
-    customGrowingSystemOptions,
-    setCustomGrowingSystemOptions,
-  ] =
-    useState<PickerOption[]>(
-      () =>
-        loadCustomOptions(
-          CUSTOM_GROWING_SYSTEMS_KEY,
-        ),
-    )
-
-
-  const allGroundTypeOptions = [
-    ...groundTypeOptions,
-    ...customGroundTypeOptions,
-  ]
-
-
-  const allGrowingSystemOptions = [
-    ...growingSystemOptions,
-    ...customGrowingSystemOptions,
-  ]
 
 
   /* =======================================
@@ -930,127 +816,6 @@ export default function AddRecipeForm({
 
 
   /* =======================================
-     CUSTOM GROUND TYPE
-  ======================================= */
-
-  function createCustomGroundType(
-    label: string,
-  ): string {
-    const trimmed =
-      label.trim()
-
-    if (!trimmed) {
-      return ''
-    }
-
-    const existing =
-      allGroundTypeOptions.find(
-        (option) =>
-          option.label
-            .toLowerCase() ===
-          trimmed
-            .toLowerCase(),
-      )
-
-    if (existing) {
-      return existing.value
-    }
-
-    const newOption = {
-      value:
-        createCustomOptionValue(
-          'ground-type',
-          trimmed,
-        ),
-
-      label:
-        trimmed,
-    }
-
-    const updated = [
-      ...customGroundTypeOptions,
-      newOption,
-    ]
-
-    setCustomGroundTypeOptions(
-      updated,
-    )
-
-    saveCustomOptions(
-      CUSTOM_GROUND_TYPES_KEY,
-      updated,
-    )
-
-    return newOption.value
-  }
-
-
-  /* =======================================
-     CUSTOM GROWING SYSTEM
-  ======================================= */
-
-  function createCustomGrowingSystem(
-    label: string,
-  ): string {
-    const trimmed =
-      label.trim()
-
-    if (!trimmed) {
-      return ''
-    }
-
-    const existing =
-      allGrowingSystemOptions.find(
-        (option) =>
-          option.label
-            .toLowerCase() ===
-          trimmed
-            .toLowerCase(),
-      )
-
-    if (existing) {
-      return existing.value
-    }
-
-    const newOption = {
-      value:
-        createCustomOptionValue(
-          'growing-system',
-          trimmed,
-        ),
-
-      label:
-        trimmed,
-    }
-
-    const updated = [
-      ...customGrowingSystemOptions,
-      newOption,
-    ]
-
-    setCustomGrowingSystemOptions(
-      updated,
-    )
-
-    saveCustomOptions(
-      CUSTOM_GROWING_SYSTEMS_KEY,
-      updated,
-    )
-
-    return newOption.value
-  }
-
-
-  /*
-   * Keep these helpers available while
-   * custom ground/system creation remains
-   * owned by this form.
-   */
-  void createCustomGroundType
-  void createCustomGrowingSystem
-
-
-  /* =======================================
      CREATE BOUGHT MIX PURCHASE
   ======================================= */
 
@@ -1060,11 +825,6 @@ export default function AddRecipeForm({
     const trimmedPrice =
       pricePaid.trim()
 
-    /*
-     * Purchase details are optional.
-     *
-     * No price means no PurchaseRecord.
-     */
     if (!trimmedPrice) {
       return undefined
     }
@@ -1112,12 +872,6 @@ export default function AddRecipeForm({
           savedRecipe.id,
         ),
 
-      /*
-       * This is a Growing Setup purchase.
-       *
-       * Bought Mix is a GrowingSetup record,
-       * not a GardenProduct.
-       */
       itemType:
         'growing-setup',
 
@@ -1242,6 +996,26 @@ export default function AddRecipeForm({
 
         photoUrls,
 
+        isFavourite:
+          recipeToEdit
+            ?.isFavourite,
+
+        rating:
+          recipeToEdit
+            ?.rating,
+
+        isArchived:
+          recipeToEdit
+            ?.isArchived,
+
+        archivedAt:
+          recipeToEdit
+            ?.archivedAt,
+
+        basedOnRecipeId:
+          recipeToEdit
+            ?.basedOnRecipeId,
+
         createdAt:
           recipeToEdit
             ?.createdAt ??
@@ -1312,6 +1086,26 @@ export default function AddRecipeForm({
 
         photoUrls,
 
+        isFavourite:
+          recipeToEdit
+            ?.isFavourite,
+
+        rating:
+          recipeToEdit
+            ?.rating,
+
+        isArchived:
+          recipeToEdit
+            ?.isArchived,
+
+        archivedAt:
+          recipeToEdit
+            ?.archivedAt,
+
+        basedOnRecipeId:
+          recipeToEdit
+            ?.basedOnRecipeId,
+
         createdAt:
           recipeToEdit
             ?.createdAt ??
@@ -1325,7 +1119,7 @@ export default function AddRecipeForm({
     }
 
 
-    /* ---------- NATIVE GROUND ---------- */
+    /* ---------- GROUND TYPE ---------- */
 
     if (
       category ===
@@ -1335,23 +1129,20 @@ export default function AddRecipeForm({
         return
       }
 
-      const selectedOption =
-        allGroundTypeOptions.find(
-          (option) =>
-            option.value ===
-            groundType,
+      const standardLabel =
+        findOptionLabel(
+          groundTypeOptions,
+          groundType,
         )
+
+      const trimmedName =
+        groundTypeName.trim()
 
       const recipeName =
-        selectedOption
-          ?.label ??
-        recipeToEdit?.name ??
-        'Native Ground'
-
-      const isCustom =
-        groundType.startsWith(
-          'custom:',
-        )
+        trimmedName ||
+        standardLabel ||
+        recipeToEdit?.name ||
+        'Ground Type'
 
       recipe = {
         id:
@@ -1368,9 +1159,7 @@ export default function AddRecipeForm({
           'ground-type',
 
         groundType:
-          isCustom
-            ? 'something-else'
-            : groundType as GrowingGroundType,
+          groundType as GrowingGroundType,
 
         ingredientIds:
           selectedIngredientIds,
@@ -1384,6 +1173,26 @@ export default function AddRecipeForm({
           undefined,
 
         photoUrls,
+
+        isFavourite:
+          recipeToEdit
+            ?.isFavourite,
+
+        rating:
+          recipeToEdit
+            ?.rating,
+
+        isArchived:
+          recipeToEdit
+            ?.isArchived,
+
+        archivedAt:
+          recipeToEdit
+            ?.archivedAt,
+
+        basedOnRecipeId:
+          recipeToEdit
+            ?.basedOnRecipeId,
 
         createdAt:
           recipeToEdit
@@ -1410,24 +1219,20 @@ export default function AddRecipeForm({
         return
       }
 
-      const selectedOption =
-        allGrowingSystemOptions.find(
-          (option) =>
-            option.value ===
-            growingSystemType,
+      const standardLabel =
+        findOptionLabel(
+          growingSystemOptions,
+          growingSystemType,
         )
 
-      const recipeName =
-        selectedOption
-          ?.label ??
-        recipeToEdit?.name ??
-        'Growing System'
+      const trimmedName =
+        growingSystemName.trim()
 
-      const isCustom =
-        growingSystemType
-          .startsWith(
-            'custom:',
-          )
+      const recipeName =
+        trimmedName ||
+        standardLabel ||
+        recipeToEdit?.name ||
+        'Growing System'
 
       recipe = {
         id:
@@ -1444,9 +1249,7 @@ export default function AddRecipeForm({
           'growing-system',
 
         growingSystemType:
-          isCustom
-            ? 'something-else'
-            : growingSystemType as GrowingGroundMethod,
+          growingSystemType as GrowingGroundMethod,
 
         ingredientIds:
           selectedIngredientIds,
@@ -1460,6 +1263,26 @@ export default function AddRecipeForm({
           undefined,
 
         photoUrls,
+
+        isFavourite:
+          recipeToEdit
+            ?.isFavourite,
+
+        rating:
+          recipeToEdit
+            ?.rating,
+
+        isArchived:
+          recipeToEdit
+            ?.isArchived,
+
+        archivedAt:
+          recipeToEdit
+            ?.archivedAt,
+
+        basedOnRecipeId:
+          recipeToEdit
+            ?.basedOnRecipeId,
 
         createdAt:
           recipeToEdit
@@ -1479,9 +1302,6 @@ export default function AddRecipeForm({
     }
 
 
-    /*
-     * Existing Growing Recipe.
-     */
     if (
       isEditing &&
       onUpdateRecipe
@@ -1490,14 +1310,7 @@ export default function AddRecipeForm({
         recipe,
       )
 
-      /*
-       * Bought Mix:
-       *
-       * A price entered while editing is
-       * intentionally treated as another
-       * purchase, not a rewrite of an older
-       * historical purchase.
-       */
+
       if (
         category ===
           'bought-mix'
@@ -1521,20 +1334,11 @@ export default function AddRecipeForm({
     }
 
 
-    /*
-     * Brand-new Growing Recipe.
-     */
     onAddRecipe(
       recipe,
     )
 
 
-    /*
-     * Bought Mix:
-     *
-     * Create the first PurchaseRecord when
-     * purchase information was entered.
-     */
     if (
       category ===
       'bought-mix'
@@ -1580,8 +1384,8 @@ export default function AddRecipeForm({
           <div className="form-heading">
             <h2 id="add-recipe-title">
               {isEditing
-                ? 'Edit Growing Recipe'
-                : 'Create a Growing Recipe'}
+                ? 'Edit What It Grows In'
+                : 'Add What It Grows In'}
             </h2>
 
             <button
@@ -1592,8 +1396,8 @@ export default function AddRecipeForm({
               }
               aria-label={
                 isEditing
-                  ? 'Close Growing Recipe editor'
-                  : 'Close Growing Recipe'
+                  ? 'Close editor'
+                  : 'Close form'
               }
             >
               ×
@@ -1611,19 +1415,21 @@ export default function AddRecipeForm({
             }
           >
             <p className="form-whisper">
-              🌱 Keep the mixtures,
-              methods and ground your
-              garden grows by.
+              🌱 Remember what the plant
+              actually grows in. Location
+              belongs to Growing Places;
+              recipes, bought mixes, ground
+              and growing systems live here.
             </p>
 
 
             {/* =======================================
-                RECIPE CATEGORY
+                CATEGORY
             ======================================= */}
 
             <section className="sprig-form-section">
               <SprigPicker
-                title="How are your plants growing?"
+                title="What kind is it?"
                 variant="label"
                 showTrigger={
                   false
@@ -1722,10 +1528,6 @@ export default function AddRecipeForm({
                 />
 
 
-                {/* =======================================
-                    PURCHASE DETAILS
-                ======================================= */}
-
                 <PurchaseDetailsSection
                   supplier={
                     supplier
@@ -1796,15 +1598,10 @@ export default function AddRecipeForm({
                     </h3>
 
                     <p className="form-whisper">
-                      The purchase fields above
-                      are intentionally blank
-                      when editing this Bought
-                      Mix. Fill them in only if
-                      you are recording another
-                      purchase. Existing
-                      purchases can be changed
-                      from Edit purchase on this
-                      Growing Recipe&apos;s page.
+                      Existing purchases stay
+                      untouched. Fill in the
+                      purchase fields only when
+                      recording another purchase.
                     </p>
                   </section>
                 )}
@@ -1813,37 +1610,100 @@ export default function AddRecipeForm({
 
 
             {/* =======================================
-                NATIVE GROUND
+                GROUND TYPE
             ======================================= */}
 
             {category ===
               'ground-type' && (
-              <GroundTypeSection
-                groundType={
-                  groundType
-                }
-                setGroundType={
-                  setGroundType
-                }
+              <>
+                <GroundTypeSection
+                  groundType={
+                    groundType
+                  }
+                  setGroundType={(
+                    value,
+                  ) => {
+                    setGroundType(
+                      value,
+                    )
 
-                groundTypeOptions={
-                  allGroundTypeOptions
-                }
+                    if (
+                      value &&
+                      value !==
+                        'something-else'
+                    ) {
+                      setGroundTypeName(
+                        findOptionLabel(
+                          groundTypeOptions,
+                          value,
+                        ),
+                      )
+                    }
 
-                groundTypeAddedDate={
-                  groundTypeAddedDate
-                }
-                setGroundTypeAddedDate={
-                  setGroundTypeAddedDate
-                }
+                    if (
+                      value ===
+                      'something-else'
+                    ) {
+                      setGroundTypeName(
+                        '',
+                      )
+                    }
+                  }}
 
-                groundTypeNotes={
-                  groundTypeNotes
-                }
-                setGroundTypeNotes={
-                  setGroundTypeNotes
-                }
-              />
+                  groundTypeOptions={
+                    groundTypeOptions
+                  }
+
+                  groundTypeAddedDate={
+                    groundTypeAddedDate
+                  }
+                  setGroundTypeAddedDate={
+                    setGroundTypeAddedDate
+                  }
+
+                  groundTypeNotes={
+                    groundTypeNotes
+                  }
+                  setGroundTypeNotes={
+                    setGroundTypeNotes
+                  }
+                />
+
+
+                {groundType ===
+                  'something-else' && (
+                  <section className="sprig-form-section">
+                    <label>
+                      What do you call this ground?
+
+                      <input
+                        type="text"
+                        value={
+                          groundTypeName
+                        }
+                        onChange={(
+                          event,
+                        ) =>
+                          setGroundTypeName(
+                            event
+                              .target
+                              .value,
+                          )
+                        }
+                        placeholder="e.g. Heavy clay by the west wall"
+                      />
+                    </label>
+
+                    <p className="form-whisper">
+                      This name belongs to the
+                      saved Ground Type record.
+                      It will be available
+                      anywhere Sprig asks what
+                      a plant grows in.
+                    </p>
+                  </section>
+                )}
+              </>
             )}
 
 
@@ -1853,37 +1713,96 @@ export default function AddRecipeForm({
 
             {category ===
               'growing-system' && (
-              <GrowingSystemSection
-                growingSystemType={
-                  growingSystemType
-                }
-                setGrowingSystemType={
-                  setGrowingSystemType
-                }
+              <>
+                <GrowingSystemSection
+                  growingSystemType={
+                    growingSystemType
+                  }
+                  setGrowingSystemType={(
+                    value,
+                  ) => {
+                    setGrowingSystemType(
+                      value,
+                    )
 
-                growingSystemOptions={
-                  allGrowingSystemOptions
-                }
+                    if (
+                      value &&
+                      value !==
+                        'something-else'
+                    ) {
+                      setGrowingSystemName(
+                        findOptionLabel(
+                          growingSystemOptions,
+                          value,
+                        ),
+                      )
+                    }
 
-                growingSystemAddedDate={
-                  growingSystemAddedDate
-                }
-                setGrowingSystemAddedDate={
-                  setGrowingSystemAddedDate
-                }
+                    if (
+                      value ===
+                      'something-else'
+                    ) {
+                      setGrowingSystemName(
+                        '',
+                      )
+                    }
+                  }}
 
-                growingSystemNotes={
-                  growingSystemNotes
-                }
-                setGrowingSystemNotes={
-                  setGrowingSystemNotes
-                }
-              />
+                  growingSystemOptions={
+                    growingSystemOptions
+                  }
+
+                  growingSystemAddedDate={
+                    growingSystemAddedDate
+                  }
+                  setGrowingSystemAddedDate={
+                    setGrowingSystemAddedDate
+                  }
+
+                  growingSystemNotes={
+                    growingSystemNotes
+                  }
+                  setGrowingSystemNotes={
+                    setGrowingSystemNotes
+                  }
+                />
+
+
+                <section className="sprig-form-section">
+                  <label>
+                    Name this growing system
+
+                    <input
+                      type="text"
+                      value={
+                        growingSystemName
+                      }
+                      onChange={(
+                        event,
+                      ) =>
+                        setGrowingSystemName(
+                          event
+                            .target
+                            .value,
+                        )
+                      }
+                      placeholder="e.g. 43 L fabric grow bag"
+                    />
+                  </label>
+
+                  <p className="form-whisper">
+                    The system type tells Sprig
+                    what kind of system it is.
+                    The name lets you remember
+                    the actual setup you used.
+                  </p>
+                </section>
+              </>
             )}
 
 
             {/* =======================================
-                SHARED GROWING SETUP COMPONENTS
+                COMPONENTS
             ======================================= */}
 
             {category && (
@@ -1943,9 +1862,9 @@ export default function AddRecipeForm({
                 setPhotoUrls
               }
               title="Photographs"
-              helperText="Tuck photographs of the recipe, ingredients, packaging or mixture into this page."
+              helperText="Tuck photographs of the recipe, mix, ground, system, packaging or ingredients into this record."
               addButtonText="Add photographs"
-              photoAltPrefix="Growing Recipe photograph"
+              photoAltPrefix="Growing setup photograph"
             />
 
 
@@ -1970,7 +1889,7 @@ export default function AddRecipeForm({
               >
                 {isEditing
                   ? 'Save changes'
-                  : 'Save this Growing Recipe'}
+                  : 'Save this'}
               </button>
             </div>
           </form>

@@ -1,142 +1,85 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react';
 
-import Library from '../../pages/Library'
-import GrowingRecipes from '../../pages/GrowingRecipes'
-import GrowingRecipeDetail from '../../pages/GrowingRecipeDetail'
-import Ingredients from '../../pages/Ingredients'
-import IngredientDetail from '../../pages/IngredientDetail'
-import Products from '../../pages/Products'
-import PurchaseEditor from '../purchases/PurchaseEditor'
-import AddRecipeForm from '../forms/AddRecipeForm'
-import AddIngredientForm from '../forms/AddIngredientForm'
-import AddProductForm from '../forms/AddProductForm'
-import ProductDetail from '../../pages/ProductDetail'
+import Library from '../../pages/Library';
+import GrowingRecipes from '../../pages/GrowingRecipes';
+import GrowingRecipeDetail from '../../pages/GrowingRecipeDetail';
+import Ingredients from '../../pages/Ingredients';
+import IngredientDetail from '../../pages/IngredientDetail';
+import Products from '../../pages/Products';
+import PurchaseEditor from '../purchases/PurchaseEditor';
+import AddRecipeForm from '../forms/AddRecipeForm';
+import AddIngredientForm from '../forms/AddIngredientForm';
+import AddProductForm from '../forms/AddProductForm';
+import ProductDetail from '../../pages/ProductDetail';
 
 import type {
   GardenProduct,
   GrowingPlace,
   GrowingSetup,
+  GrowingSetupCategory,
   Ingredient,
   PlantStory,
   PurchaseRecord,
-} from '../../types'
+} from '../../types';
 
-import type {
-  AppPage,
-} from '../../types/navigation'
+import type { AppPage } from '../../types/navigation';
 
+type GrowingLibraryDestination =
+  | 'growing-recipes'
+  | 'growing-own-mix'
+  | 'growing-bought-mix'
+  | 'growing-system'
+  | 'growing-ground-type';
 
 type LibraryDestination =
   | 'library'
-  | 'growing-recipes'
+  | GrowingLibraryDestination
   | 'ingredients'
-  | 'products'
+  | 'products';
 
+type GrowingCategoryFilter =
+  | 'all'
+  | GrowingSetupCategory;
 
 interface AppLibraryProps {
-  recipes: GrowingSetup[]
+  recipes: GrowingSetup[];
+  ingredients: Ingredient[];
+  products: GardenProduct[];
+  purchases: PurchaseRecord[];
+  plants: PlantStory[];
+  growingPlaces: GrowingPlace[];
 
-  ingredients: Ingredient[]
+  initialRecipeId?: string | null;
+  initialIngredientId?: string | null;
+  initialProductId?: string | null;
+  initialView?: LibraryDestination | null;
 
-  products: GardenProduct[]
+  journeyBackLabel?: string | null;
+  onJourneyBack?: () => void;
 
-  purchases: PurchaseRecord[]
+  onAddRecipe: (recipe: GrowingSetup) => void;
+  onUpdateRecipe: (recipe: GrowingSetup) => void;
+  onDeleteRecipe: (recipeId: string) => void;
 
-  plants: PlantStory[]
+  onAddIngredient: (ingredient: Ingredient) => void;
+  onUpdateIngredient: (ingredient: Ingredient) => void;
+  onDeleteIngredient: (ingredientId: string) => void;
 
-  growingPlaces: GrowingPlace[]
+  onAddProduct: (product: GardenProduct) => void;
+  onUpdateProduct: (product: GardenProduct) => void;
+  onDeleteProduct: (productId: string) => void;
 
-  /*
-   * DIRECT LIBRARY DESTINATIONS
-   *
-   * A Library shelf and a Library record are
-   * different destinations.
-   *
-   * The shelf props answer:
-   *   "Which part of the Library?"
-   *
-   * The record ID props answer:
-   *   "Which actual thing?"
-   *
-   * Search and other Sprig relationships can
-   * therefore open the real saved record rather
-   * than merely opening its containing shelf.
-   */
+  onAddPurchase: (purchase: PurchaseRecord) => void;
+  onUpdatePurchase: (purchase: PurchaseRecord) => void;
 
-  initialRecipeId?: string | null
-
-  initialIngredientId?: string | null
-
-  initialProductId?: string | null
-
-  initialView?:
-    | 'library'
-    | 'growing-recipes'
-    | 'ingredients'
-    | 'products'
-    | null
-
-  onAddRecipe: (
-    recipe: GrowingSetup,
-  ) => void
-
-  onUpdateRecipe: (
-    recipe: GrowingSetup,
-  ) => void
-
-  onDeleteRecipe: (
-    recipeId: string,
-  ) => void
-
-  onAddIngredient: (
-    ingredient: Ingredient,
-  ) => void
-
-  onUpdateIngredient: (
-    ingredient: Ingredient,
-  ) => void
-
-  onDeleteIngredient: (
-    ingredientId: string,
-  ) => void
-
-  onAddProduct: (
-    product: GardenProduct,
-  ) => void
-
-  onUpdateProduct: (
-    product: GardenProduct,
-  ) => void
-
-  onDeleteProduct: (
-    productId: string,
-  ) => void
-
-  onAddPurchase: (
-    purchase: PurchaseRecord,
-  ) => void
-
-  onUpdatePurchase: (
-    purchase: PurchaseRecord,
-  ) => void
-
-  onOpenGrowingPlace: (
-    growingPlaceId: string,
-  ) => void
-
-  onOpenPlant: (
-    plantId: string,
-  ) => void
+  onOpenGrowingPlace: (growingPlaceId: string) => void;
+  onOpenPlant: (plantId: string) => void;
 
   onNavigate: (
     page: AppPage,
     libraryView?: LibraryDestination,
-  ) => void
+  ) => void;
 }
-
 
 type LibraryView =
   | 'library'
@@ -147,90 +90,120 @@ type LibraryView =
   | 'archived-ingredients'
   | 'ingredient-detail'
   | 'products'
-  | 'product-detail'
-
+  | 'product-detail';
 
 type RecipeEditorMode =
   | 'create'
   | 'edit'
-  | 'variation'
+  | 'variation';
 
+type IngredientEditorMode =
+  | 'create'
+  | 'edit'
+  | 'variation';
 
 type ProductEditorMode =
   | 'new'
   | 'edit'
-  | 'variation'
-
+  | 'variation';
 
 type RecordRating =
   | 1
   | 2
   | 3
   | 4
-  | 5
+  | 5;
 
+function isGrowingLibraryDestination(
+  destination: LibraryDestination,
+): destination is GrowingLibraryDestination {
+  return (
+    destination === 'growing-recipes' ||
+    destination === 'growing-own-mix' ||
+    destination === 'growing-bought-mix' ||
+    destination === 'growing-system' ||
+    destination === 'growing-ground-type'
+  );
+}
+
+function getGrowingCategoryFromDestination(
+  destination: GrowingLibraryDestination,
+): GrowingCategoryFilter {
+  switch (destination) {
+    case 'growing-own-mix':
+      return 'own-mix';
+    case 'growing-bought-mix':
+      return 'bought-mix';
+    case 'growing-system':
+      return 'growing-system';
+    case 'growing-ground-type':
+      return 'ground-type';
+    default:
+      return 'all';
+  }
+}
+
+function getInitialLibraryView(
+  initialView:
+    | LibraryDestination
+    | null
+    | undefined,
+): LibraryView {
+  if (!initialView) {
+    return 'library';
+  }
+
+  if (
+    isGrowingLibraryDestination(
+      initialView,
+    )
+  ) {
+    return 'growing-recipes';
+  }
+
+  return initialView;
+}
+
+function makeSafeIdName(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 function createVariationId(
   recipe: GrowingSetup,
 ): string {
-  const safeName =
-    recipe.name
-      .trim()
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        '-',
-      )
-      .replace(
-        /^-|-$/g,
-        '',
-      )
-
   return `variation-${
-    safeName || 'recipe'
-  }-${Date.now()}`
+    makeSafeIdName(recipe.name) ||
+    'recipe'
+  }-${Date.now()}`;
 }
 
-
-/* =======================================
-   PRODUCT VARIATION ID
-======================================= */
+function createIngredientVariationId(
+  ingredient: Ingredient,
+): string {
+  return `ingredient-variation-${
+    makeSafeIdName(ingredient.name) ||
+    'ingredient'
+  }-${Date.now()}`;
+}
 
 function createProductVariationId(
   product: GardenProduct,
 ): string {
-  const safeName =
-    product.name
-      .trim()
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        '-',
-      )
-      .replace(
-        /^-|-$/g,
-        '',
-      )
-
   return `product-variation-${
-    safeName || 'product'
-  }-${Date.now()}`
+    makeSafeIdName(product.name) ||
+    'product'
+  }-${Date.now()}`;
 }
-
-
-/* =======================================
-   TODAY
-======================================= */
 
 function getTodayDate(): string {
   return new Date()
     .toISOString()
-    .slice(
-      0,
-      10,
-    )
+    .slice(0, 10);
 }
-
 
 export default function AppLibrary({
   recipes,
@@ -243,6 +216,8 @@ export default function AppLibrary({
   initialIngredientId,
   initialProductId,
   initialView,
+  journeyBackLabel,
+  onJourneyBack,
   onAddRecipe,
   onUpdateRecipe,
   onDeleteRecipe,
@@ -258,890 +233,678 @@ export default function AppLibrary({
   onOpenPlant,
   onNavigate,
 }: AppLibraryProps) {
-
-  /* =======================================
-     CURRENT LIBRARY VIEW
-  ======================================= */
+  const initialGrowingCategory:
+    GrowingCategoryFilter =
+      initialView &&
+      isGrowingLibraryDestination(
+        initialView,
+      )
+        ? getGrowingCategoryFromDestination(
+            initialView,
+          )
+        : 'all';
 
   const [
     currentView,
     setCurrentView,
-  ] =
-    useState<LibraryView>(
-      initialRecipeId
-        ? 'recipe-detail'
-        : initialIngredientId
-          ? 'ingredient-detail'
-          : initialProductId
-            ? 'product-detail'
-            : initialView ??
-              'library',
-    )
+  ] = useState<LibraryView>(
+    initialRecipeId
+      ? 'recipe-detail'
+      : initialIngredientId
+        ? 'ingredient-detail'
+        : initialProductId
+          ? 'product-detail'
+          : getInitialLibraryView(
+              initialView,
+            ),
+  );
 
-
-  /* =======================================
-     LIBRARY NAVIGATION ORIGIN
-  ======================================= */
+  const [
+    growingCategory,
+    setGrowingCategory,
+  ] = useState<GrowingCategoryFilter>(
+    initialGrowingCategory,
+  );
 
   type LibraryNavigationOrigin =
     | {
-        view: 'recipe-detail'
-        recordId: string
-        label: string
+        view: 'recipe-detail';
+        recordId: string;
+        label: string;
       }
     | {
-        view: 'ingredient-detail'
-        recordId: string
-        label: string
+        view: 'ingredient-detail';
+        recordId: string;
+        label: string;
       }
     | {
-        view: 'product-detail'
-        recordId: string
-        label: string
+        view: 'product-detail';
+        recordId: string;
+        label: string;
       }
     | {
         view:
           | 'growing-recipes'
           | 'ingredients'
           | 'products'
-          | 'library'
-        recordId?: never
-        label: string
-      }
-
+          | 'library';
+        recordId?: never;
+        label: string;
+      };
 
   const [
     navigationOrigin,
     setNavigationOrigin,
-  ] =
-    useState<LibraryNavigationOrigin | null>(
-      null,
-    )
-
-
-  /* =======================================
-     RECIPE STATE
-  ======================================= */
+  ] = useState<
+    LibraryNavigationOrigin | null
+  >(null);
 
   const [
     selectedRecipeId,
     setSelectedRecipeId,
-  ] =
-    useState<string | null>(
-      initialRecipeId ??
-      null,
-    )
-
+  ] = useState<string | null>(
+    initialRecipeId ?? null,
+  );
 
   const [
     isRecipeEditorOpen,
     setIsRecipeEditorOpen,
-  ] =
-    useState(false)
-
+  ] = useState(false);
 
   const [
     recipeEditorMode,
     setRecipeEditorMode,
-  ] =
-    useState<RecipeEditorMode>(
-      'create',
-    )
-
+  ] = useState<RecipeEditorMode>(
+    'create',
+  );
 
   const [
     editorRecipe,
     setEditorRecipe,
-  ] =
-    useState<GrowingSetup | null>(
-      null,
-    )
-
-
-  /* =======================================
-     INGREDIENT STATE
-  ======================================= */
+  ] = useState<GrowingSetup | null>(
+    null,
+  );
 
   const [
     selectedIngredientId,
     setSelectedIngredientId,
-  ] =
-    useState<string | null>(
-      initialIngredientId ??
-      null,
-    )
-
+  ] = useState<string | null>(
+    initialIngredientId ?? null,
+  );
 
   const [
     isIngredientEditorOpen,
     setIsIngredientEditorOpen,
-  ] =
-    useState(false)
+  ] = useState(false);
 
+  const [
+    ingredientEditorMode,
+    setIngredientEditorMode,
+  ] = useState<IngredientEditorMode>(
+    'create',
+  );
 
   const [
     editorIngredient,
     setEditorIngredient,
-  ] =
-    useState<Ingredient | null>(
-      null,
-    )
-
-
-  /* =======================================
-     PRODUCT STATE
-  ======================================= */
+  ] = useState<Ingredient | null>(
+    null,
+  );
 
   const [
     selectedProductId,
     setSelectedProductId,
-  ] =
-    useState<string | null>(
-      initialProductId ??
-      null,
-    )
-
+  ] = useState<string | null>(
+    initialProductId ?? null,
+  );
 
   const [
     isProductEditorOpen,
     setIsProductEditorOpen,
-  ] =
-    useState(false)
-
+  ] = useState(false);
 
   const [
     productEditorMode,
     setProductEditorMode,
-  ] =
-    useState<ProductEditorMode>(
-      'new',
-    )
-
+  ] = useState<ProductEditorMode>(
+    'new',
+  );
 
   const [
     editorProduct,
     setEditorProduct,
-  ] =
-    useState<GardenProduct | null>(
-      null,
-    )
-
+  ] = useState<GardenProduct | null>(
+    null,
+  );
 
   const [
     variationPurchaseTemplate,
     setVariationPurchaseTemplate,
-  ] =
-    useState<PurchaseRecord | null>(
-      null,
-    )
+  ] = useState<PurchaseRecord | null>(
+    null,
+  );
 
+  const [
+    isPurchaseEditorOpen,
+    setIsPurchaseEditorOpen,
+  ] = useState(false);
 
-  /* =======================================
-     RESPOND TO EXTERNAL LIBRARY DESTINATION
-  ======================================= */
+  const [
+    editorPurchase,
+    setEditorPurchase,
+  ] = useState<PurchaseRecord | null>(
+    null,
+  );
 
-  useEffect(() => {
+  const [
+    purchaseEditorMode,
+    setPurchaseEditorMode,
+  ] = useState<
+    'new' | 'edit' | 'repeat'
+  >('new');
 
-    /*
-     * Direct records always win over shelves.
-     *
-     * This is the external doorway used by
-     * Search and other Sprig relationships.
-     *
-     * Internal navigation between Recipe,
-     * Ingredient and Product detail records
-     * continues to use navigationOrigin.
-     */
-
-    if (
-      initialRecipeId
-    ) {
-      setNavigationOrigin(
-        null,
-      )
-
-      setSelectedRecipeId(
-        initialRecipeId,
-      )
-
-      setSelectedIngredientId(
-        null,
-      )
-
-      setSelectedProductId(
-        null,
-      )
-
-      setCurrentView(
-        'recipe-detail',
-      )
-
-      return
+  function handleReturnToNavigationOrigin():
+    boolean {
+    if (!navigationOrigin) {
+      return false;
     }
 
+    const origin = navigationOrigin;
+
+    setNavigationOrigin(null);
+    setSelectedRecipeId(null);
+    setSelectedIngredientId(null);
+    setSelectedProductId(null);
 
     if (
-      initialIngredientId
+      origin.view === 'recipe-detail'
     ) {
-      setNavigationOrigin(
-        null,
-      )
-
       setSelectedRecipeId(
-        null,
-      )
+        origin.recordId,
+      );
+      setCurrentView('recipe-detail');
+      return true;
+    }
 
+    if (
+      origin.view ===
+      'ingredient-detail'
+    ) {
       setSelectedIngredientId(
-        initialIngredientId,
-      )
-
-      setSelectedProductId(
-        null,
-      )
-
+        origin.recordId,
+      );
       setCurrentView(
         'ingredient-detail',
-      )
-
-      return
+      );
+      return true;
     }
 
-
     if (
-      initialProductId
+      origin.view === 'product-detail'
     ) {
-      setNavigationOrigin(
-        null,
-      )
+      setSelectedProductId(
+        origin.recordId,
+      );
+      setCurrentView('product-detail');
+      return true;
+    }
 
+    setCurrentView(origin.view);
+    return true;
+  }
+
+  useEffect(() => {
+    if (initialRecipeId) {
+      const recipe =
+        recipes.find(
+          item =>
+            item.id ===
+            initialRecipeId,
+        );
+
+      setNavigationOrigin(null);
       setSelectedRecipeId(
-        null,
-      )
+        initialRecipeId,
+      );
+      setSelectedIngredientId(null);
+      setSelectedProductId(null);
 
+      if (recipe) {
+        setGrowingCategory(
+          recipe.category,
+        );
+      }
+
+      setCurrentView('recipe-detail');
+      return;
+    }
+
+    if (initialIngredientId) {
+      setNavigationOrigin(null);
+      setSelectedRecipeId(null);
       setSelectedIngredientId(
-        null,
-      )
+        initialIngredientId,
+      );
+      setSelectedProductId(null);
+      setCurrentView(
+        'ingredient-detail',
+      );
+      return;
+    }
 
+    if (initialProductId) {
+      setNavigationOrigin(null);
+      setSelectedRecipeId(null);
+      setSelectedIngredientId(null);
       setSelectedProductId(
         initialProductId,
-      )
-
-      setCurrentView(
-        'product-detail',
-      )
-
-      return
+      );
+      setCurrentView('product-detail');
+      return;
     }
 
+    if (initialView) {
+      setNavigationOrigin(null);
+      setSelectedRecipeId(null);
+      setSelectedIngredientId(null);
+      setSelectedProductId(null);
 
-    if (
-      initialView
-    ) {
-      setNavigationOrigin(
-        null,
-      )
+      if (
+        isGrowingLibraryDestination(
+          initialView,
+        )
+      ) {
+        setGrowingCategory(
+          getGrowingCategoryFromDestination(
+            initialView,
+          ),
+        );
 
-      setSelectedRecipeId(
-        null,
-      )
+        setCurrentView(
+          'growing-recipes',
+        );
+        return;
+      }
 
-      setSelectedIngredientId(
-        null,
-      )
-
-      setSelectedProductId(
-        null,
-      )
-
-      setCurrentView(
-        initialView,
-      )
+      setCurrentView(initialView);
     }
   }, [
     initialRecipeId,
     initialIngredientId,
     initialProductId,
     initialView,
-  ])
-
-
-  /* =======================================
-     PURCHASE STATE
-  ======================================= */
-
-  const [
-    isPurchaseEditorOpen,
-    setIsPurchaseEditorOpen,
-  ] =
-    useState(false)
-
-
-  const [
-    editorPurchase,
-    setEditorPurchase,
-  ] =
-    useState<PurchaseRecord | null>(
-      null,
-    )
-
-
-  const [
-    purchaseEditorMode,
-    setPurchaseEditorMode,
-  ] =
-    useState<
-      'new' |
-      'edit' |
-      'repeat'
-    >(
-      'new',
-    )
-
-
-  /* =======================================
-     RECIPE COLLECTIONS
-  ======================================= */
+    recipes,
+  ]);
 
   const activeRecipes =
     recipes.filter(
-      (
-        recipe,
-      ) =>
+      recipe =>
         !recipe.isArchived,
-    )
-
+    );
 
   const archivedRecipes =
     recipes.filter(
-      (
-        recipe,
-      ) =>
-        Boolean(
-          recipe.isArchived,
-        ),
-    )
-
+      recipe =>
+        Boolean(recipe.isArchived),
+    );
 
   const selectedRecipe =
     recipes.find(
-      (
-        recipe,
-      ) =>
+      recipe =>
         recipe.id ===
         selectedRecipeId,
-    )
-
-
-  /* =======================================
-     PRODUCT COLLECTIONS
-  ======================================= */
+    );
 
   const selectedProduct =
     products.find(
-      (
-        product,
-      ) =>
+      product =>
         product.id ===
         selectedProductId,
-    )
-
-
-  /* =======================================
-     INGREDIENT COLLECTIONS
-  ======================================= */
+    );
 
   const activeIngredients =
     ingredients.filter(
-      (
-        ingredient,
-      ) =>
+      ingredient =>
         !ingredient.isArchived,
-    )
-
+    );
 
   const archivedIngredients =
     ingredients.filter(
-      (
-        ingredient,
-      ) =>
+      ingredient =>
         Boolean(
           ingredient.isArchived,
         ),
-    )
-
+    );
 
   const selectedIngredient =
     ingredients.find(
-      (
-        ingredient,
-      ) =>
+      ingredient =>
         ingredient.id ===
         selectedIngredientId,
-    )
-
-
-  /* =======================================
-     RELEASE STALE PAGE LOCK
-  ======================================= */
+    );
 
   useEffect(() => {
     const hasOpenEditor =
       isRecipeEditorOpen ||
       isIngredientEditorOpen ||
       isProductEditorOpen ||
-      isPurchaseEditorOpen
+      isPurchaseEditorOpen;
 
-    if (
-      hasOpenEditor
-    ) {
-      return
-    }
+    if (hasOpenEditor) return;
 
-    document.body.style.overflow =
-      ''
-
-    document.body.style.position =
-      ''
-
-    document.body.style.top =
-      ''
-
-    document.body.style.width =
-      ''
-
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
     document.documentElement.style.overflow =
-      ''
+      '';
   }, [
     isRecipeEditorOpen,
     isIngredientEditorOpen,
     isProductEditorOpen,
     isPurchaseEditorOpen,
-  ])
-
-
-  /* =======================================
-     LIBRARY-AWARE NAVIGATION
-  ======================================= */
+  ]);
 
   function handleLibraryNavigate(
     page: AppPage,
     libraryView?: LibraryDestination,
   ) {
-    setIsProductEditorOpen(
-      false,
-    )
+    setIsProductEditorOpen(false);
+    setEditorProduct(null);
+    setProductEditorMode('new');
 
-    setEditorProduct(
-      null,
-    )
+    setIsIngredientEditorOpen(false);
+    setEditorIngredient(null);
+    setIngredientEditorMode('create');
 
-    setProductEditorMode(
-      'new',
-    )
+    setIsRecipeEditorOpen(false);
+    setEditorRecipe(null);
+    setRecipeEditorMode('create');
 
-
-    setIsIngredientEditorOpen(
-      false,
-    )
-
-    setEditorIngredient(
-      null,
-    )
-
-
-    setIsRecipeEditorOpen(
-      false,
-    )
-
-    setEditorRecipe(
-      null,
-    )
-
-    setRecipeEditorMode(
-      'create',
-    )
-
-
-    setIsPurchaseEditorOpen(
-      false,
-    )
-
-    setEditorPurchase(
-      null,
-    )
-
-    setPurchaseEditorMode(
-      'new',
-    )
-
+    setIsPurchaseEditorOpen(false);
+    setEditorPurchase(null);
+    setPurchaseEditorMode('new');
 
     if (
       page === 'library' &&
       libraryView
     ) {
-      setNavigationOrigin(
-        null,
-      )
+      setNavigationOrigin(null);
+      setSelectedRecipeId(null);
+      setSelectedIngredientId(null);
+      setSelectedProductId(null);
 
-      setSelectedRecipeId(
-        null,
-      )
+      if (
+        isGrowingLibraryDestination(
+          libraryView,
+        )
+      ) {
+        setGrowingCategory(
+          getGrowingCategoryFromDestination(
+            libraryView,
+          ),
+        );
 
-      setSelectedIngredientId(
-        null,
-      )
+        setCurrentView(
+          'growing-recipes',
+        );
+      } else {
+        setCurrentView(libraryView);
+      }
 
-      setSelectedProductId(
-        null,
-      )
-
-      setCurrentView(
-        libraryView,
-      )
-
-
-      onNavigate(
-        page,
-        libraryView,
-      )
-
-      return
+      onNavigate(page, libraryView);
+      return;
     }
 
-
-    onNavigate(
-      page,
-      libraryView,
-    )
+    onNavigate(page, libraryView);
   }
-
-
-  /* =======================================
-     RECIPE RELATIONSHIP CHECKING
-  ======================================= */
 
   function getRecipeRelationshipCount(
     recipe: GrowingSetup,
   ): number {
     const linkedPlantCount =
-      plants.filter(
-        (
-          plant,
-        ) =>
+      plants.filter(plant => {
+        const linkedInCurrentSetups =
+          plant.currentGrowingSetupIds
+            ?.includes(recipe.id) ??
+          false;
+
+        const linkedInPreviousSetups =
+          plant.previousGrowingSetupIdsV2
+            ?.includes(recipe.id) ??
+          false;
+
+        const linkedInGrowingHistory =
+          plant.growingHistory?.some(
+            entry =>
+              (entry.growingSetupIds
+                ?.includes(recipe.id) ??
+                false) ||
+              entry.growingSetupId ===
+                recipe.id,
+          ) ?? false;
+
+        const linkedByLegacyPlantFields =
           plant.currentGrowingSetupId ===
             recipe.id ||
-          plant.previousGrowingSetupIds
-            ?.includes(
-              recipe.id,
-            ),
-      ).length
+          (plant.previousGrowingSetupIds
+            ?.includes(recipe.id) ??
+            false);
 
+        return (
+          linkedInCurrentSetups ||
+          linkedInPreviousSetups ||
+          linkedInGrowingHistory ||
+          linkedByLegacyPlantFields
+        );
+      }).length;
 
-    const linkedGrowingPlaceCount =
-      growingPlaces.filter(
-        (
-          place,
-        ) =>
-          place.growingSetupId ===
-          recipe.id,
-      ).length
-
+    const linkedRecipeCount =
+      recipes.filter(
+        otherRecipe =>
+          otherRecipe.id !== recipe.id &&
+          (otherRecipe.recipeComponents
+            ?.some(
+              component =>
+                component.sourceType ===
+                  'growing-setup' &&
+                component.sourceId ===
+                  recipe.id,
+            ) ?? false),
+      ).length;
 
     const linkedPurchaseCount =
       purchases.filter(
-        (
-          purchase,
-        ) =>
+        purchase =>
           purchase.itemType ===
             'growing-setup' &&
-          purchase.itemId ===
-            recipe.id,
-      ).length
-
+          purchase.itemId === recipe.id,
+      ).length;
 
     return (
       linkedPlantCount +
-      linkedGrowingPlaceCount +
+      linkedRecipeCount +
       linkedPurchaseCount
-    )
+    );
   }
-
-
-  /* =======================================
-     INGREDIENT RELATIONSHIP CHECKING
-  ======================================= */
 
   function getIngredientRelationshipCount(
     ingredient: Ingredient,
   ): number {
     return recipes.filter(
-      (
-        recipe,
-      ) =>
-        recipe.ingredientIds
-          ?.includes(
-            ingredient.id,
-          ),
-    ).length
+      recipe =>
+        (recipe.ingredientIds?.includes(
+          ingredient.id,
+        ) ?? false) ||
+        (recipe.recipeComponents?.some(
+          component =>
+            component.sourceType ===
+              'ingredient' &&
+            component.sourceId ===
+              ingredient.id,
+        ) ?? false),
+    ).length;
   }
-
-
-  /* =======================================
-     OPEN RECIPE
-  ======================================= */
 
   function handleOpenRecipe(
     recipeId: string,
   ) {
-    setNavigationOrigin(
-      null,
-    )
-
-    setSelectedIngredientId(
-      null,
-    )
-
-    setSelectedProductId(
-      null,
-    )
-
-    setSelectedRecipeId(
-      recipeId,
-    )
-
-    setCurrentView(
-      'recipe-detail',
-    )
+    setNavigationOrigin(null);
+    setSelectedIngredientId(null);
+    setSelectedProductId(null);
+    setSelectedRecipeId(recipeId);
+    setCurrentView('recipe-detail');
   }
-
-
-  /* =======================================
-     OPEN INGREDIENT
-  ======================================= */
 
   function handleOpenIngredient(
     ingredientId: string,
   ) {
-    setNavigationOrigin(
-      null,
-    )
-
-    setSelectedRecipeId(
-      null,
-    )
-
-    setSelectedProductId(
-      null,
-    )
-
+    setNavigationOrigin(null);
+    setSelectedRecipeId(null);
+    setSelectedProductId(null);
     setSelectedIngredientId(
       ingredientId,
-    )
-
+    );
     setCurrentView(
       'ingredient-detail',
-    )
+    );
   }
-
-
-  /* =======================================
-     OPEN PRODUCT
-  ======================================= */
 
   function handleOpenProduct(
     productId: string,
   ) {
-    setNavigationOrigin(
-      null,
-    )
-
-    setSelectedRecipeId(
-      null,
-    )
-
-    setSelectedIngredientId(
-      null,
-    )
-
-    setSelectedProductId(
-      productId,
-    )
-
-    setCurrentView(
-      'product-detail',
-    )
+    setNavigationOrigin(null);
+    setSelectedRecipeId(null);
+    setSelectedIngredientId(null);
+    setSelectedProductId(productId);
+    setCurrentView('product-detail');
   }
-
-
-  /* =======================================
-     CREATE RECIPE
-  ======================================= */
 
   function handleOpenCreateRecipe() {
-    setRecipeEditorMode(
-      'create',
-    )
-
-    setEditorRecipe(
-      null,
-    )
-
-    setIsRecipeEditorOpen(
-      true,
-    )
+    setRecipeEditorMode('create');
+    setEditorRecipe(null);
+    setIsRecipeEditorOpen(true);
   }
-
-
-  /* =======================================
-     EDIT RECIPE
-  ======================================= */
 
   function handleOpenEditRecipe(
     recipe: GrowingSetup,
   ) {
-    setRecipeEditorMode(
-      'edit',
-    )
-
-    setEditorRecipe(
-      recipe,
-    )
-
-    setIsRecipeEditorOpen(
-      true,
-    )
+    setRecipeEditorMode('edit');
+    setEditorRecipe(recipe);
+    setIsRecipeEditorOpen(true);
   }
-
-
-  /* =======================================
-     CREATE RECIPE VARIATION
-  ======================================= */
 
   function handleCreateVariation(
     sourceRecipe: GrowingSetup,
   ) {
     const createdAt =
-      getTodayDate()
-
+      getTodayDate();
 
     const variationDraft:
       GrowingSetup = {
         ...sourceRecipe,
-
-        id:
-          createVariationId(
-            sourceRecipe,
-          ),
-
+        id: createVariationId(
+          sourceRecipe,
+        ),
         name:
           `${sourceRecipe.name} (Copy)`,
-
         basedOnRecipeId:
           sourceRecipe.id,
-
-        isFavourite:
-          false,
-
-        rating:
-          undefined,
-
-        isArchived:
-          false,
-
-        archivedAt:
-          undefined,
-
+        isFavourite: false,
+        rating: undefined,
+        isArchived: false,
+        archivedAt: undefined,
         ingredientIds: [
-          ...(
-            sourceRecipe
-              .ingredientIds ??
-            []
-          ),
+          ...(sourceRecipe.ingredientIds ??
+            []),
         ],
-
-        photoUrls: [
-          ...(
-            sourceRecipe
-              .photoUrls ??
-            []
-          ),
-        ],
-
+        recipeComponents:
+          sourceRecipe.recipeComponents
+            ?.map(component => ({
+              ...component,
+            })),
+        photoUrls: [],
         createdAt,
-
-        updatedAt:
-          undefined,
-      }
-
+        updatedAt: undefined,
+      };
 
     setRecipeEditorMode(
       'variation',
-    )
-
+    );
     setEditorRecipe(
       variationDraft,
-    )
-
-    setIsRecipeEditorOpen(
-      true,
-    )
+    );
+    setIsRecipeEditorOpen(true);
   }
-
-
-  /* =======================================
-     CREATE INGREDIENT
-  ======================================= */
 
   function handleOpenCreateIngredient() {
-    setEditorIngredient(
-      null,
-    )
-
-    setIsIngredientEditorOpen(
-      true,
-    )
+    setIngredientEditorMode('create');
+    setEditorIngredient(null);
+    setIsIngredientEditorOpen(true);
   }
-
-
-  /* =======================================
-     EDIT INGREDIENT
-  ======================================= */
 
   function handleOpenEditIngredient(
     ingredient: Ingredient,
   ) {
-    setEditorIngredient(
-      ingredient,
-    )
-
-    setIsIngredientEditorOpen(
-      true,
-    )
+    setIngredientEditorMode('edit');
+    setEditorIngredient(ingredient);
+    setIsIngredientEditorOpen(true);
   }
 
+  function handleCreateIngredientVariation(
+    sourceIngredient: Ingredient,
+  ) {
+    const today = getTodayDate();
 
-  /* =======================================
-     RECIPE FAVOURITE
-  ======================================= */
+    const variationDraft:
+      Ingredient = {
+        id:
+          createIngredientVariationId(
+            sourceIngredient,
+          ),
+        name:
+          `${sourceIngredient.name} (Variation)`,
+        category:
+          sourceIngredient.category,
+        customCategoryLabel:
+          sourceIngredient.customCategoryLabel,
+        basedOnIngredientId:
+          sourceIngredient.id,
+        manufacturer:
+          sourceIngredient.manufacturer,
+        source:
+          sourceIngredient.source,
+        notes: undefined,
+        photoUrls: [],
+        isFavourite: false,
+        rating: undefined,
+        isArchived: false,
+        archivedAt: undefined,
+        createdAt: today,
+        updatedAt: undefined,
+      };
+
+    setIngredientEditorMode(
+      'variation',
+    );
+
+    setEditorIngredient(
+      variationDraft,
+    );
+
+    setIsIngredientEditorOpen(true);
+  }
 
   function handleToggleFavourite(
     recipe: GrowingSetup,
   ) {
     onUpdateRecipe({
       ...recipe,
-
       isFavourite:
         !recipe.isFavourite,
-
-      updatedAt:
-        getTodayDate(),
-    })
+      updatedAt: getTodayDate(),
+    });
   }
-
-
-  /* =======================================
-     RECIPE RATING
-  ======================================= */
 
   function handleSetRating(
     recipe: GrowingSetup,
@@ -1149,37 +912,21 @@ export default function AppLibrary({
   ) {
     onUpdateRecipe({
       ...recipe,
-
       rating,
-
-      updatedAt:
-        getTodayDate(),
-    })
+      updatedAt: getTodayDate(),
+    });
   }
-
-
-  /* =======================================
-     INGREDIENT FAVOURITE
-  ======================================= */
 
   function handleToggleIngredientFavourite(
     ingredient: Ingredient,
   ) {
     onUpdateIngredient({
       ...ingredient,
-
       isFavourite:
         !ingredient.isFavourite,
-
-      updatedAt:
-        getTodayDate(),
-    })
+      updatedAt: getTodayDate(),
+    });
   }
-
-
-  /* =======================================
-     INGREDIENT RATING
-  ======================================= */
 
   function handleSetIngredientRating(
     ingredient: Ingredient,
@@ -1187,44 +934,24 @@ export default function AppLibrary({
   ) {
     onUpdateIngredient({
       ...ingredient,
-
-      rating:
-        Math.max(
-          1,
-          Math.min(
-            5,
-            rating,
-          ),
-        ) as RecordRating,
-
-      updatedAt:
-        getTodayDate(),
-    })
+      rating: Math.max(
+        1,
+        Math.min(5, rating),
+      ) as RecordRating,
+      updatedAt: getTodayDate(),
+    });
   }
-
-
-  /* =======================================
-     PRODUCT FAVOURITE
-  ======================================= */
 
   function handleToggleProductFavourite(
     product: GardenProduct,
   ) {
     onUpdateProduct({
       ...product,
-
       isFavourite:
         !product.isFavourite,
-
-      updatedAt:
-        getTodayDate(),
-    })
+      updatedAt: getTodayDate(),
+    });
   }
-
-
-  /* =======================================
-     PRODUCT RATING
-  ======================================= */
 
   function handleSetProductRating(
     product: GardenProduct,
@@ -1232,173 +959,95 @@ export default function AppLibrary({
   ) {
     onUpdateProduct({
       ...product,
-
-      rating:
-        Math.max(
-          1,
-          Math.min(
-            5,
-            rating,
-          ),
-        ) as RecordRating,
-
-      updatedAt:
-        getTodayDate(),
-    })
+      rating: Math.max(
+        1,
+        Math.min(5, rating),
+      ) as RecordRating,
+      updatedAt: getTodayDate(),
+    });
   }
-
-
-  /* =======================================
-     OPEN EDIT PRODUCT
-  ======================================= */
 
   function handleOpenEditProduct(
     product: GardenProduct,
   ) {
-    setProductEditorMode(
-      'edit',
-    )
-
-    setEditorProduct(
-      product,
-    )
-
-    setIsProductEditorOpen(
-      true,
-    )
+    setProductEditorMode('edit');
+    setEditorProduct(product);
+    setIsProductEditorOpen(true);
   }
-
-
-  /* =======================================
-     PRODUCT QUICK ACTIONS
-  ======================================= */
 
   function handleCreateProductVariation(
     sourceProduct: GardenProduct,
   ) {
-    const today =
-      getTodayDate()
-
+    const today = getTodayDate();
 
     const variationDraft:
       GardenProduct = {
         ...sourceProduct,
-
         id:
           createProductVariationId(
             sourceProduct,
           ),
-
         name:
           `${sourceProduct.name} (Variation)`,
-
-        isFavourite:
-          false,
-
-        rating:
-          undefined,
-
-        isArchived:
-          false,
-
-        archivedAt:
-          undefined,
-
+        isFavourite: false,
+        rating: undefined,
+        isArchived: false,
+        archivedAt: undefined,
         photoUrls: [],
-
-        createdAt:
-          today,
-
-        updatedAt:
-          undefined,
-      }
-
+        createdAt: today,
+        updatedAt: undefined,
+      };
 
     const mostRecentPurchase =
       purchases
         .filter(
-          (
-            purchase,
-          ) =>
+          purchase =>
             purchase.itemType ===
               'product' &&
             purchase.itemId ===
               sourceProduct.id,
         )
-        .sort(
-          (
-            first,
-            second,
-          ) =>
-            second.date.localeCompare(
-              first.date,
-            ),
-        )[0] ??
-      null
-
+        .sort((first, second) =>
+          second.date.localeCompare(
+            first.date,
+          ),
+        )[0] ?? null;
 
     setVariationPurchaseTemplate(
       mostRecentPurchase,
-    )
-
-
+    );
     setProductEditorMode(
       'variation',
-    )
-
+    );
     setEditorProduct(
       variationDraft,
-    )
-
-    setIsProductEditorOpen(
-      true,
-    )
+    );
+    setIsProductEditorOpen(true);
   }
-
 
   function handleAddProductNote(
     product: GardenProduct,
   ) {
-    const note =
-      window.prompt(
-        `Add a note to "${product.name}"`,
-        product.notes ??
-          '',
-      )
+    const note = window.prompt(
+      `Add a note to "${product.name}"`,
+      product.notes ?? '',
+    );
 
-
-    if (
-      note === null
-    ) {
-      return
-    }
-
+    if (note === null) return;
 
     onUpdateProduct({
       ...product,
-
       notes:
-        note.trim() ||
-        undefined,
-
-      updatedAt:
-        getTodayDate(),
-    })
+        note.trim() || undefined,
+      updatedAt: getTodayDate(),
+    });
   }
-
 
   function handleAddProductPhotographs(
     product: GardenProduct,
   ) {
-    handleOpenEditProduct(
-      product,
-    )
+    handleOpenEditProduct(product);
   }
-
-
-  /* =======================================
-     ARCHIVE PRODUCT
-  ======================================= */
 
   function handleArchiveProduct(
     product: GardenProduct,
@@ -1407,139 +1056,77 @@ export default function AppLibrary({
       window.confirm(
         `Archive "${product.name}"?\n\n` +
         'It will leave your active Product shelf, but Sprig will keep its history and purchase records.',
-      )
+      );
 
+    if (!confirmed) return;
 
-    if (!confirmed) {
-      return
-    }
-
-
-    const today =
-      getTodayDate()
-
+    const today = getTodayDate();
 
     onUpdateProduct({
       ...product,
+      isArchived: true,
+      archivedAt: today,
+      updatedAt: today,
+    });
 
-      isArchived:
-        true,
-
-      archivedAt:
-        today,
-
-      updatedAt:
-        today,
-    })
-
-
-    setSelectedProductId(
-      null,
-    )
-
-    setCurrentView(
-      'products',
-    )
+    setSelectedProductId(null);
+    setCurrentView('products');
   }
-
-
-  /* =======================================
-     RESTORE PRODUCT
-  ======================================= */
 
   function handleRestoreProduct(
     product: GardenProduct,
   ) {
     onUpdateProduct({
       ...product,
-
-      isArchived:
-        false,
-
-      archivedAt:
-        undefined,
-
-      updatedAt:
-        getTodayDate(),
-    })
-
+      isArchived: false,
+      archivedAt: undefined,
+      updatedAt: getTodayDate(),
+    });
 
     setSelectedProductId(
       product.id,
-    )
-
+    );
     setCurrentView(
       'product-detail',
-    )
+    );
   }
-
-
-  /* =======================================
-     DELETE PRODUCT SAFETY
-  ======================================= */
 
   function handleDeleteProduct(
     product: GardenProduct,
   ) {
     const purchaseCount =
       purchases.filter(
-        (
-          purchase,
-        ) =>
+        purchase =>
           purchase.itemType ===
             'product' &&
           purchase.itemId ===
             product.id,
-      ).length
+      ).length;
 
-
-    if (
-      purchaseCount >
-      0
-    ) {
+    if (purchaseCount > 0) {
       window.alert(
         `Sprig can't permanently delete "${product.name}" because it has ${purchaseCount} ${
           purchaseCount === 1
             ? 'Purchase record'
             : 'Purchase records'
         } connected to it.\n\nArchive it instead so its price history remains intact.`,
-      )
-
-      return
+      );
+      return;
     }
-
 
     const confirmed =
       window.confirm(
         `Permanently delete "${product.name}"?\n\n` +
         'This Product has no Purchase records connected to it.\n\n' +
         'This cannot be undone.',
-      )
+      );
 
+    if (!confirmed) return;
 
-    if (!confirmed) {
-      return
-    }
-
-
-    onDeleteProduct(
-      product.id,
-    )
-
-
-    setSelectedProductId(
-      null,
-    )
-
-    setCurrentView(
-      'products',
-    )
+    onDeleteProduct(product.id);
+    setSelectedProductId(null);
+    setCurrentView('products');
   }
-
-
-  /* =======================================
-     ARCHIVE RECIPE
-  ======================================= */
 
   function handleArchiveRecipe(
     recipe: GrowingSetup,
@@ -1547,77 +1134,49 @@ export default function AppLibrary({
     const confirmed =
       window.confirm(
         `Archive "${recipe.name}"?\n\n` +
-        'It will leave your active Growing Recipe shelf, but Sprig will keep its history and garden connections.',
-      )
+        'It will leave your active What It Grows In shelf, but Sprig will keep its history and garden connections.',
+      );
 
+    if (!confirmed) return;
 
-    if (!confirmed) {
-      return
-    }
-
-
-    const today =
-      getTodayDate()
-
+    const today = getTodayDate();
 
     onUpdateRecipe({
       ...recipe,
+      isArchived: true,
+      archivedAt: today,
+      updatedAt: today,
+    });
 
-      isArchived:
-        true,
-
-      archivedAt:
-        today,
-
-      updatedAt:
-        today,
-    })
-
-
-    setSelectedRecipeId(
-      null,
-    )
-
+    setGrowingCategory(
+      recipe.category,
+    );
+    setSelectedRecipeId(null);
     setCurrentView(
       'growing-recipes',
-    )
+    );
   }
-
-
-  /* =======================================
-     RESTORE RECIPE
-  ======================================= */
 
   function handleRestoreRecipe(
     recipe: GrowingSetup,
   ) {
     onUpdateRecipe({
       ...recipe,
+      isArchived: false,
+      archivedAt: undefined,
+      updatedAt: getTodayDate(),
+    });
 
-      isArchived:
-        false,
-
-      archivedAt:
-        undefined,
-
-      updatedAt:
-        getTodayDate(),
-    })
-
-
+    setGrowingCategory(
+      recipe.category,
+    );
     setSelectedRecipeId(
       recipe.id,
-    )
-
+    );
     setCurrentView(
       'recipe-detail',
-    )
+    );
   }
-
-
-  /* =======================================
-     ARCHIVE INGREDIENT
-  ======================================= */
 
   function handleArchiveIngredient(
     ingredient: Ingredient,
@@ -1626,74 +1185,40 @@ export default function AppLibrary({
       window.confirm(
         `Archive "${ingredient.name}"?\n\n` +
         'It will leave your active Ingredient shelf, but Sprig will keep its history and Growing Recipe connections.',
-      )
+      );
 
+    if (!confirmed) return;
 
-    if (!confirmed) {
-      return
-    }
-
-
-    const today =
-      getTodayDate()
-
+    const today = getTodayDate();
 
     onUpdateIngredient({
       ...ingredient,
+      isArchived: true,
+      archivedAt: today,
+      updatedAt: today,
+    });
 
-      isArchived:
-        true,
-
-      archivedAt:
-        today,
-
-      updatedAt:
-        today,
-    })
-
-
-    setSelectedIngredientId(
-      null,
-    )
-
-    setCurrentView(
-      'ingredients',
-    )
+    setSelectedIngredientId(null);
+    setCurrentView('ingredients');
   }
-
-
-  /* =======================================
-     RESTORE INGREDIENT
-  ======================================= */
 
   function handleRestoreIngredient(
     ingredient: Ingredient,
   ) {
     onUpdateIngredient({
       ...ingredient,
-
-      isArchived:
-        false,
-
-      archivedAt:
-        undefined,
-
-      updatedAt:
-        getTodayDate(),
-    })
-
+      isArchived: false,
+      archivedAt: undefined,
+      updatedAt: getTodayDate(),
+    });
 
     setSelectedIngredientId(
       ingredient.id,
-    )
-
+    );
     setCurrentView(
       'ingredient-detail',
-    )
+    );
   }
-    /* =======================================
-     DELETE RECIPE SAFETY
-  ======================================= */
 
   function handleDeleteRecipe(
     recipe: GrowingSetup,
@@ -1701,261 +1226,153 @@ export default function AppLibrary({
     const relationshipCount =
       getRecipeRelationshipCount(
         recipe,
-      )
+      );
 
-
-    if (
-      relationshipCount >
-      0
-    ) {
+    if (relationshipCount > 0) {
       window.alert(
         `Sprig can't permanently delete "${recipe.name}" because it is still connected to ${relationshipCount} ${
           relationshipCount === 1
             ? 'garden record'
             : 'garden records'
         }.\n\nArchive it instead so those connections remain intact.`,
-      )
-
-      return
+      );
+      return;
     }
-
 
     const confirmed =
       window.confirm(
         `Permanently delete "${recipe.name}"?\n\n` +
-        'This Growing Recipe has no Plant Story, Growing Place, or Purchase connections.\n\n' +
+        'This record has no Plant Story, Growing Recipe, or Purchase connections.\n\n' +
         'This cannot be undone.',
-      )
+      );
 
-
-    if (!confirmed) {
-      return
-    }
-
+    if (!confirmed) return;
 
     const wasArchived =
-      Boolean(
-        recipe.isArchived,
-      )
+      Boolean(recipe.isArchived);
 
+    onDeleteRecipe(recipe.id);
 
-    onDeleteRecipe(
-      recipe.id,
-    )
-
-
-    setSelectedRecipeId(
-      null,
-    )
-
+    setGrowingCategory(
+      recipe.category,
+    );
+    setSelectedRecipeId(null);
 
     setCurrentView(
       wasArchived
         ? 'archived-growing-recipes'
         : 'growing-recipes',
-    )
+    );
   }
-
-
-  /* =======================================
-     DELETE INGREDIENT SAFETY
-  ======================================= */
 
   function handleDeleteIngredient(
     ingredient: Ingredient,
   ) {
     const purchaseCount =
       purchases.filter(
-        (
-          purchase,
-        ) =>
+        purchase =>
           purchase.itemType ===
             'ingredient' &&
           purchase.itemId ===
             ingredient.id,
-      ).length
+      ).length;
 
-
-    if (
-      purchaseCount >
-      0
-    ) {
+    if (purchaseCount > 0) {
       window.alert(
         `Sprig can't permanently delete "${ingredient.name}" because it has ${purchaseCount} ${
           purchaseCount === 1
             ? 'Purchase record'
             : 'Purchase records'
         } connected to it.\n\nArchive it instead so its price history remains intact.`,
-      )
-
-      return
+      );
+      return;
     }
-
 
     const relationshipCount =
       getIngredientRelationshipCount(
         ingredient,
-      )
+      );
 
-
-    if (
-      relationshipCount >
-      0
-    ) {
+    if (relationshipCount > 0) {
       window.alert(
         `Sprig can't permanently delete "${ingredient.name}" because it is still used by ${relationshipCount} ${
           relationshipCount === 1
             ? 'Growing Recipe'
             : 'Growing Recipes'
         }.\n\nArchive it instead so those recipe connections remain intact.`,
-      )
-
-      return
+      );
+      return;
     }
-
 
     const confirmed =
       window.confirm(
         `Permanently delete "${ingredient.name}"?\n\n` +
         'This Ingredient has no Purchase records and is not currently used by a Growing Recipe.\n\n' +
         'This cannot be undone.',
-      )
+      );
 
-
-    if (!confirmed) {
-      return
-    }
-
+    if (!confirmed) return;
 
     const wasArchived =
       Boolean(
         ingredient.isArchived,
-      )
-
+      );
 
     onDeleteIngredient(
       ingredient.id,
-    )
-
-
-    setSelectedIngredientId(
-      null,
-    )
-
+    );
+    setSelectedIngredientId(null);
 
     setCurrentView(
       wasArchived
         ? 'archived-ingredients'
         : 'ingredients',
-    )
+    );
   }
-
-
-  /* =======================================
-     CLOSE RECIPE EDITOR
-  ======================================= */
 
   function handleCloseRecipeEditor() {
-    setIsRecipeEditorOpen(
-      false,
-    )
-
-    setEditorRecipe(
-      null,
-    )
-
-    setRecipeEditorMode(
-      'create',
-    )
+    setIsRecipeEditorOpen(false);
+    setEditorRecipe(null);
+    setRecipeEditorMode('create');
   }
-
-
-  /* =======================================
-     CLOSE INGREDIENT EDITOR
-  ======================================= */
 
   function handleCloseIngredientEditor() {
-    setIsIngredientEditorOpen(
-      false,
-    )
-
-    setEditorIngredient(
-      null,
-    )
+    setIsIngredientEditorOpen(false);
+    setEditorIngredient(null);
+    setIngredientEditorMode('create');
   }
-
-
-  /* =======================================
-     SAVE PURCHASE
-  ======================================= */
 
   function handleSaveProductPurchase(
     purchase: PurchaseRecord,
   ) {
     if (
-      purchaseEditorMode ===
-      'edit'
+      purchaseEditorMode === 'edit'
     ) {
-      onUpdatePurchase(
-        purchase,
-      )
+      onUpdatePurchase(purchase);
     } else {
-      onAddPurchase(
-        purchase,
-      )
+      onAddPurchase(purchase);
     }
 
-
-    setEditorPurchase(
-      null,
-    )
-
-    setPurchaseEditorMode(
-      'new',
-    )
-
-    setIsPurchaseEditorOpen(
-      false,
-    )
+    setEditorPurchase(null);
+    setPurchaseEditorMode('new');
+    setIsPurchaseEditorOpen(false);
   }
-
-
-  /* =======================================
-     SAVE NEW RECIPE
-  ======================================= */
 
   function handleAddRecipe(
     recipe: GrowingSetup,
   ) {
-    onAddRecipe(
-      recipe,
-    )
-
+    onAddRecipe(recipe);
+    setGrowingCategory(
+      recipe.category,
+    );
     setSelectedRecipeId(
       recipe.id,
-    )
-
-    setEditorRecipe(
-      null,
-    )
-
-    setRecipeEditorMode(
-      'create',
-    )
-
-    setIsRecipeEditorOpen(
-      false,
-    )
-
-    setCurrentView(
-      'recipe-detail',
-    )
+    );
+    setEditorRecipe(null);
+    setRecipeEditorMode('create');
+    setIsRecipeEditorOpen(false);
+    setCurrentView('recipe-detail');
   }
-
-
-  /* =======================================
-     SAVE EDITED RECIPE
-  ======================================= */
 
   function handleUpdateRecipe(
     recipe: GrowingSetup,
@@ -1964,128 +1381,62 @@ export default function AppLibrary({
       recipeEditorMode ===
       'variation'
     ) {
-      onAddRecipe(
-        recipe,
-      )
-
-      setSelectedRecipeId(
-        recipe.id,
-      )
-
-      setEditorRecipe(
-        null,
-      )
-
-      setRecipeEditorMode(
-        'create',
-      )
-
-      setIsRecipeEditorOpen(
-        false,
-      )
-
-      setCurrentView(
-        'recipe-detail',
-      )
-
-      return
+      onAddRecipe(recipe);
+    } else {
+      onUpdateRecipe(recipe);
     }
 
-
-    onUpdateRecipe(
-      recipe,
-    )
-
+    setGrowingCategory(
+      recipe.category,
+    );
     setSelectedRecipeId(
       recipe.id,
-    )
-
-    setEditorRecipe(
-      null,
-    )
-
-    setRecipeEditorMode(
-      'create',
-    )
-
-    setIsRecipeEditorOpen(
-      false,
-    )
-
-    setCurrentView(
-      'recipe-detail',
-    )
+    );
+    setEditorRecipe(null);
+    setRecipeEditorMode('create');
+    setIsRecipeEditorOpen(false);
+    setCurrentView('recipe-detail');
   }
-
-
-  /* =======================================
-     SAVE NEW INGREDIENT
-  ======================================= */
 
   function handleAddIngredient(
     ingredient: Ingredient,
   ) {
-    onAddIngredient(
-      ingredient,
-    )
-
+    onAddIngredient(ingredient);
     setSelectedIngredientId(
       ingredient.id,
-    )
-
-    setEditorIngredient(
-      null,
-    )
-
-    setIsIngredientEditorOpen(
-      false,
-    )
-
+    );
+    setEditorIngredient(null);
+    setIngredientEditorMode('create');
+    setIsIngredientEditorOpen(false);
     setCurrentView(
       'ingredient-detail',
-    )
+    );
   }
-
-
-  /* =======================================
-     SAVE EDITED INGREDIENT
-  ======================================= */
 
   function handleUpdateIngredient(
     ingredient: Ingredient,
   ) {
-    onUpdateIngredient(
-      ingredient,
-    )
+    if (
+      ingredientEditorMode ===
+      'variation'
+    ) {
+      onAddIngredient(ingredient);
+    } else {
+      onUpdateIngredient(ingredient);
+    }
 
     setSelectedIngredientId(
       ingredient.id,
-    )
-
-    setEditorIngredient(
-      null,
-    )
-
-    setIsIngredientEditorOpen(
-      false,
-    )
-
+    );
+    setEditorIngredient(null);
+    setIngredientEditorMode('create');
+    setIsIngredientEditorOpen(false);
     setCurrentView(
       'ingredient-detail',
-    )
+    );
   }
 
-
-  /* =======================================
-     PAGE CONTENT
-  ======================================= */
-
-  let pageContent
-
-
-  /* =======================================
-     INGREDIENT DETAIL
-  ======================================= */
+  let pageContent;
 
   if (
     currentView ===
@@ -2094,86 +1445,47 @@ export default function AppLibrary({
   ) {
     pageContent = (
       <IngredientDetail
-        ingredient={
-          selectedIngredient
-        }
-
-        recipes={
-          recipes
-        }
-
-        purchases={
-          purchases
-        }
-
+        ingredient={selectedIngredient}
+        recipes={recipes}
+        purchases={purchases}
         backLabel={
-          navigationOrigin?.label
+          navigationOrigin?.label ??
+          journeyBackLabel ??
+          undefined
         }
-
         onBackToOrigin={
           navigationOrigin
             ? () => {
-                if (
-                  navigationOrigin.view ===
-                  'recipe-detail'
-                ) {
-                  setSelectedRecipeId(
-                    navigationOrigin.recordId,
-                  )
-
-                  setSelectedIngredientId(
-                    null,
-                  )
-
-                  setCurrentView(
-                    'recipe-detail',
-                  )
-                }
-
-                setNavigationOrigin(
-                  null,
-                )
+                handleReturnToNavigationOrigin();
               }
-            : undefined
+            : onJourneyBack
         }
-
-        onBack={() => {
-          setNavigationOrigin(
-            null,
+        onBack={() =>
+          onNavigate(
+            'growing-places',
           )
-
-          setSelectedIngredientId(
-            null,
-          )
-
-          setCurrentView(
-            selectedIngredient.isArchived
-              ? 'archived-ingredients'
-              : 'ingredients',
-          )
-        }}
-
+        }
         onEdit={() =>
           handleOpenEditIngredient(
             selectedIngredient,
           )
         }
-
+        onCreateVariation={() =>
+          handleCreateIngredientVariation(
+            selectedIngredient,
+          )
+        }
         onToggleFavourite={() =>
           handleToggleIngredientFavourite(
             selectedIngredient,
           )
         }
-
-        onSetRating={(
-          rating,
-        ) =>
+        onSetRating={rating =>
           handleSetIngredientRating(
             selectedIngredient,
             rating,
           )
         }
-
         onArchive={
           selectedIngredient.isArchived
             ? undefined
@@ -2182,7 +1494,6 @@ export default function AppLibrary({
                   selectedIngredient,
                 )
         }
-
         onRestore={
           selectedIngredient.isArchived
             ? () =>
@@ -2191,268 +1502,141 @@ export default function AppLibrary({
                 )
             : undefined
         }
-
         onDelete={() =>
           handleDeleteIngredient(
             selectedIngredient,
           )
         }
-
         onAddPurchase={() => {
-          setEditorPurchase(
-            null,
-          )
-
-          setPurchaseEditorMode(
-            'new',
-          )
-
-          setIsPurchaseEditorOpen(
-            true,
-          )
+          setEditorPurchase(null);
+          setPurchaseEditorMode('new');
+          setIsPurchaseEditorOpen(true);
         }}
-
-        onEditPurchase={(
-          purchase,
-        ) => {
-          setEditorPurchase(
-            purchase,
-          )
-
-          setPurchaseEditorMode(
-            'edit',
-          )
-
-          setIsPurchaseEditorOpen(
-            true,
-          )
+        onEditPurchase={purchase => {
+          setEditorPurchase(purchase);
+          setPurchaseEditorMode('edit');
+          setIsPurchaseEditorOpen(true);
         }}
-
-        onOpenRecipe={(
-          recipeId,
-        ) => {
+        onOpenRecipe={recipeId => {
           setNavigationOrigin({
             view: 'ingredient-detail',
             recordId:
               selectedIngredient.id,
             label:
               selectedIngredient.name,
-          })
+          });
 
-          setSelectedIngredientId(
-            null,
-          )
-
-          setSelectedRecipeId(
-            recipeId,
-          )
-
+          setSelectedIngredientId(null);
+          setSelectedRecipeId(recipeId);
           setCurrentView(
             'recipe-detail',
-          )
+          );
         }}
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     ACTIVE INGREDIENT INDEX
-  ======================================= */
-
-  else if (
-    currentView ===
-    'ingredients'
+    );
+  } else if (
+    currentView === 'ingredients'
   ) {
     pageContent = (
       <Ingredients
-        ingredients={
-          activeIngredients
-        }
-
-        recipes={
-          recipes
-        }
-
+        ingredients={activeIngredients}
+        recipes={recipes}
         archivedCount={
           archivedIngredients.length
         }
-
         onOpenIngredient={
           handleOpenIngredient
         }
-
         onAddIngredient={
           handleOpenCreateIngredient
         }
-
         onShowArchived={() =>
           setCurrentView(
             'archived-ingredients',
           )
         }
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     ARCHIVED INGREDIENT INDEX
-  ======================================= */
-
-  else if (
+    );
+  } else if (
     currentView ===
     'archived-ingredients'
   ) {
     pageContent = (
       <Ingredients
-        ingredients={
-          archivedIngredients
-        }
-
-        recipes={
-          recipes
-        }
-
+        ingredients={archivedIngredients}
+        recipes={recipes}
         title="Archived Ingredients"
-
         intro="Ingredients kept safely in Sprig's history after their work on the active shelf is done."
-
         emptyTitle="No archived Ingredients"
-
         emptyMessage="Nothing has been tucked away from the Ingredient shelf yet."
-
         showArchivedStatus
-
         onOpenIngredient={
           handleOpenIngredient
         }
-
         onAddIngredient={
           handleOpenCreateIngredient
         }
-
         onShowArchived={() =>
-          setCurrentView(
-            'ingredients',
-          )
+          setCurrentView('ingredients')
         }
-
         archivedButtonLabel="Back to Active Ingredients"
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     RECIPE DETAIL
-  ======================================= */
-
-  else if (
+    );
+  } else if (
     currentView ===
       'recipe-detail' &&
     selectedRecipe
   ) {
     pageContent = (
       <GrowingRecipeDetail
-        recipe={
-          selectedRecipe
-        }
-
-        ingredients={
-          ingredients
-        }
-
-        products={
-          products
-        }
-
-        growingSetups={
-          recipes
-        }
-
-        plants={
-          plants
-        }
-
-        growingPlaces={
-          growingPlaces
-        }
-
-        purchases={
-          purchases
-        }
-
+        recipe={selectedRecipe}
+        ingredients={ingredients}
+        products={products}
+        growingSetups={recipes}
+        plants={plants}
+        growingPlaces={growingPlaces}
+        purchases={purchases}
         backLabel={
-          navigationOrigin?.label
+          navigationOrigin?.label ??
+          journeyBackLabel ??
+          undefined
         }
-
         onBackToOrigin={
           navigationOrigin
             ? () => {
-                if (
-                  navigationOrigin.view ===
-                  'ingredient-detail'
-                ) {
-                  setSelectedIngredientId(
-                    navigationOrigin.recordId,
-                  )
-
-                  setSelectedRecipeId(
-                    null,
-                  )
-
-                  setCurrentView(
-                    'ingredient-detail',
-                  )
-                }
-
-                setNavigationOrigin(
-                  null,
-                )
+                handleReturnToNavigationOrigin();
               }
-            : undefined
+            : onJourneyBack
         }
-
+        onBack={() =>
+          onNavigate(
+            'growing-places',
+          )
+        }
         onEdit={() =>
           handleOpenEditRecipe(
             selectedRecipe,
           )
         }
-
         onDuplicate={() =>
           handleCreateVariation(
             selectedRecipe,
           )
         }
-
         onToggleFavourite={() =>
           handleToggleFavourite(
             selectedRecipe,
           )
         }
-
-        onSetRating={(
-          rating,
-        ) =>
+        onSetRating={rating =>
           handleSetRating(
             selectedRecipe,
             rating,
           )
         }
-
         onArchive={
           selectedRecipe.isArchived
             ? undefined
@@ -2461,7 +1645,6 @@ export default function AppLibrary({
                   selectedRecipe,
                 )
         }
-
         onRestore={
           selectedRecipe.isArchived
             ? () =>
@@ -2470,354 +1653,211 @@ export default function AppLibrary({
                 )
             : undefined
         }
-
         onDelete={() =>
           handleDeleteRecipe(
             selectedRecipe,
           )
         }
-
-        onBack={() => {
-          setNavigationOrigin(
-            null,
-          )
-
-          setSelectedRecipeId(
-            null,
-          )
-
-          setCurrentView(
-            selectedRecipe.isArchived
-              ? 'archived-growing-recipes'
-              : 'growing-recipes',
-          )
-        }}
-
         onAddPurchase={() => {
-          setEditorPurchase(
-            null,
-          )
-
-          setPurchaseEditorMode(
-            'new',
-          )
-
-          setIsPurchaseEditorOpen(
-            true,
-          )
+          setEditorPurchase(null);
+          setPurchaseEditorMode('new');
+          setIsPurchaseEditorOpen(true);
         }}
-
-        onEditPurchase={(
-          purchase,
-        ) => {
-          setEditorPurchase(
-            purchase,
-          )
-
-          setPurchaseEditorMode(
-            'edit',
-          )
-
-          setIsPurchaseEditorOpen(
-            true,
-          )
+        onEditPurchase={purchase => {
+          setEditorPurchase(purchase);
+          setPurchaseEditorMode('edit');
+          setIsPurchaseEditorOpen(true);
         }}
+        onOpenGrowingPlace={
+          growingPlaceId =>
+            onOpenGrowingPlace(
+              growingPlaceId,
+            )
+        }
+        onOpenPlant={plantId =>
+          onOpenPlant(plantId)
+        }
+        onOpenIngredient={
+          ingredientId => {
+            setNavigationOrigin({
+              view: 'recipe-detail',
+              recordId:
+                selectedRecipe.id,
+              label:
+                selectedRecipe.name,
+            });
 
-        onOpenGrowingPlace={(
-          growingPlaceId,
-        ) => {
-          onOpenGrowingPlace(
-            growingPlaceId,
-          )
-        }}
-
-        onOpenPlant={(
-          plantId,
-        ) => {
-          onOpenPlant(
-            plantId,
-          )
-        }}
-
-        onOpenIngredient={(
-          ingredientId,
-        ) => {
+            setSelectedRecipeId(null);
+            setSelectedProductId(null);
+            setSelectedIngredientId(
+              ingredientId,
+            );
+            setCurrentView(
+              'ingredient-detail',
+            );
+          }
+        }
+        onOpenProduct={productId => {
           setNavigationOrigin({
             view: 'recipe-detail',
             recordId:
               selectedRecipe.id,
             label:
               selectedRecipe.name,
-          })
+          });
 
-          setSelectedRecipeId(
-            null,
-          )
-
-          setSelectedProductId(
-            null,
-          )
-
-          setSelectedIngredientId(
-            ingredientId,
-          )
-
-          setCurrentView(
-            'ingredient-detail',
-          )
-        }}
-
-        onOpenProduct={(
-          productId,
-        ) => {
-          setNavigationOrigin({
-            view: 'recipe-detail',
-            recordId:
-              selectedRecipe.id,
-            label:
-              selectedRecipe.name,
-          })
-
-          setSelectedRecipeId(
-            null,
-          )
-
-          setSelectedIngredientId(
-            null,
-          )
-
-          setSelectedProductId(
-            productId,
-          )
-
+          setSelectedRecipeId(null);
+          setSelectedIngredientId(null);
+          setSelectedProductId(productId);
           setCurrentView(
             'product-detail',
-          )
+          );
         }}
+        onOpenRecipe={recipeId => {
+          const nextRecipe =
+            recipes.find(
+              item =>
+                item.id === recipeId,
+            );
 
-        onOpenRecipe={(
-          recipeId,
-        ) => {
-          setNavigationOrigin(
-            null,
-          )
+          if (nextRecipe) {
+            setGrowingCategory(
+              nextRecipe.category,
+            );
+          }
 
-          setSelectedIngredientId(
-            null,
-          )
+          setNavigationOrigin({
+            view: 'recipe-detail',
+            recordId:
+              selectedRecipe.id,
+            label:
+              selectedRecipe.name,
+          });
 
-          setSelectedProductId(
-            null,
-          )
-
-          setSelectedRecipeId(
-            recipeId,
-          )
-
+          setSelectedIngredientId(null);
+          setSelectedProductId(null);
+          setSelectedRecipeId(recipeId);
           setCurrentView(
             'recipe-detail',
-          )
+          );
         }}
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     ARCHIVED RECIPE INDEX
-  ======================================= */
-
-  else if (
+    );
+  } else if (
     currentView ===
     'archived-growing-recipes'
   ) {
     pageContent = (
       <GrowingRecipes
-        recipes={
-          archivedRecipes
-        }
-
-        title="Archived Growing Recipes"
-
-        intro="Growing Recipes kept safely in Sprig's history after their work in the garden is done."
-
-        emptyTitle="No archived recipes"
-
-        emptyMessage="Nothing has been retired from the Growing Recipe shelf yet."
-
+        recipes={archivedRecipes}
+        title="Archived What It Grows In"
+        intro="Growing records kept safely in Sprig's history after their active work in the garden is done."
+        emptyTitle="No archived growing records"
+        emptyMessage="Nothing has been retired from What the Garden Grows In yet."
         showArchivedStatus
-
-        onOpenRecipe={
-          handleOpenRecipe
+        initialCategory="all"
+        onCategoryChange={
+          setGrowingCategory
         }
-
+        onOpenRecipe={handleOpenRecipe}
         onAddRecipe={
           handleOpenCreateRecipe
         }
-
         onShowArchived={() =>
           setCurrentView(
             'growing-recipes',
           )
         }
-
-        archivedButtonLabel="Back to Active Recipes"
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        archivedButtonLabel="Back to Active Growing Records"
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     ACTIVE RECIPE INDEX
-  ======================================= */
-
-  else if (
+    );
+  } else if (
     currentView ===
     'growing-recipes'
   ) {
     pageContent = (
       <GrowingRecipes
-        recipes={
-          activeRecipes
-        }
-
+        recipes={activeRecipes}
         archivedCount={
           archivedRecipes.length
         }
-
-        onOpenRecipe={
-          handleOpenRecipe
+        initialCategory={
+          growingCategory
         }
-
+        onCategoryChange={
+          setGrowingCategory
+        }
+        onOpenRecipe={handleOpenRecipe}
         onAddRecipe={
           handleOpenCreateRecipe
         }
-
         onShowArchived={() =>
           setCurrentView(
             'archived-growing-recipes',
           )
         }
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     PRODUCT DETAIL
-  ======================================= */
-
-  else if (
+    );
+  } else if (
     currentView ===
       'product-detail' &&
     selectedProduct
   ) {
     pageContent = (
       <ProductDetail
-        product={
-          selectedProduct
-        }
-
-        purchases={
-          purchases
-        }
-
+        product={selectedProduct}
+        purchases={purchases}
         backLabel={
-          navigationOrigin?.label
+          navigationOrigin?.label ??
+          journeyBackLabel ??
+          undefined
         }
-
         onBackToOrigin={
           navigationOrigin
             ? () => {
-                if (
-                  navigationOrigin.view ===
-                  'recipe-detail'
-                ) {
-                  setSelectedRecipeId(
-                    navigationOrigin.recordId,
-                  )
-
-                  setSelectedProductId(
-                    null,
-                  )
-
-                  setCurrentView(
-                    'recipe-detail',
-                  )
-                }
-
-                setNavigationOrigin(
-                  null,
-                )
+                handleReturnToNavigationOrigin();
               }
-            : undefined
+            : onJourneyBack
         }
-
-        onBack={() => {
-          setNavigationOrigin(
-            null,
+        onBack={() =>
+          onNavigate(
+            'growing-places',
           )
-
-          setSelectedProductId(
-            null,
-          )
-
-          setCurrentView(
-            'products',
-          )
-        }}
-
+        }
         onEdit={() =>
           handleOpenEditProduct(
             selectedProduct,
           )
         }
-
         onCreateVariation={() =>
           handleCreateProductVariation(
             selectedProduct,
           )
         }
-
         onAddPhotographs={() =>
           handleAddProductPhotographs(
             selectedProduct,
           )
         }
-
         onAddNote={() =>
           handleAddProductNote(
             selectedProduct,
           )
         }
-
         onToggleFavourite={() =>
           handleToggleProductFavourite(
             selectedProduct,
           )
         }
-
-        onSetRating={(
-          rating,
-        ) =>
+        onSetRating={rating =>
           handleSetProductRating(
             selectedProduct,
             rating,
           )
         }
-
         onArchive={
           selectedProduct.isArchived
             ? undefined
@@ -2826,7 +1866,6 @@ export default function AppLibrary({
                   selectedProduct,
                 )
         }
-
         onRestore={
           selectedProduct.isArchived
             ? () =>
@@ -2835,251 +1874,122 @@ export default function AppLibrary({
                 )
             : undefined
         }
-
         onDelete={() =>
           handleDeleteProduct(
             selectedProduct,
           )
         }
-
         onAddPurchase={() => {
           const mostRecentPurchase =
             purchases
               .filter(
-                (
-                  purchase,
-                ) =>
+                purchase =>
                   purchase.itemType ===
                     'product' &&
                   purchase.itemId ===
                     selectedProduct.id,
               )
-              .sort(
-                (
-                  first,
-                  second,
-                ) =>
-                  second.date.localeCompare(
-                    first.date,
-                  ),
-              )[0] ??
-            null
-
+              .sort((first, second) =>
+                second.date.localeCompare(
+                  first.date,
+                ),
+              )[0] ?? null;
 
           setEditorPurchase(
             mostRecentPurchase,
-          )
+          );
 
           setPurchaseEditorMode(
             mostRecentPurchase
               ? 'repeat'
               : 'new',
-          )
+          );
 
-          setIsPurchaseEditorOpen(
-            true,
-          )
+          setIsPurchaseEditorOpen(true);
         }}
-
-        onEditPurchase={(
-          purchase,
-        ) => {
-          setEditorPurchase(
-            purchase,
-          )
-
-          setPurchaseEditorMode(
-            'edit',
-          )
-
-          setIsPurchaseEditorOpen(
-            true,
-          )
+        onEditPurchase={purchase => {
+          setEditorPurchase(purchase);
+          setPurchaseEditorMode('edit');
+          setIsPurchaseEditorOpen(true);
         }}
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     PRODUCT INDEX
-  ======================================= */
-
-  else if (
-    currentView ===
-    'products'
+    );
+  } else if (
+    currentView === 'products'
   ) {
     pageContent = (
       <Products
-        products={
-          products
-        }
-
+        products={products}
         onOpenProduct={
           handleOpenProduct
         }
-
         onAddProduct={() => {
-          setProductEditorMode(
-            'new',
-          )
-
-          setEditorProduct(
-            null,
-          )
-
-          setIsProductEditorOpen(
-            true,
-          )
+          setProductEditorMode('new');
+          setEditorProduct(null);
+          setIsProductEditorOpen(true);
         }}
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
-  }
-
-
-  /* =======================================
-     MAIN LIBRARY
-  ======================================= */
-
-  else {
+    );
+  } else {
     pageContent = (
       <Library
         onOpenGrowingRecipes={() => {
-          setNavigationOrigin(
-            null,
-          )
-
-          setSelectedRecipeId(
-            null,
-          )
-
-          setSelectedIngredientId(
-            null,
-          )
-
-          setSelectedProductId(
-            null,
-          )
-
+          setNavigationOrigin(null);
+          setSelectedRecipeId(null);
+          setSelectedIngredientId(null);
+          setSelectedProductId(null);
+          setGrowingCategory('all');
           setCurrentView(
             'growing-recipes',
-          )
+          );
         }}
-
         onOpenIngredients={() => {
-          setNavigationOrigin(
-            null,
-          )
-
-          setSelectedRecipeId(
-            null,
-          )
-
-          setSelectedIngredientId(
-            null,
-          )
-
-          setSelectedProductId(
-            null,
-          )
-
-          setCurrentView(
-            'ingredients',
-          )
+          setNavigationOrigin(null);
+          setSelectedRecipeId(null);
+          setSelectedIngredientId(null);
+          setSelectedProductId(null);
+          setCurrentView('ingredients');
         }}
-
         onOpenProducts={() => {
-          setNavigationOrigin(
-            null,
-          )
-
-          setSelectedRecipeId(
-            null,
-          )
-
-          setSelectedIngredientId(
-            null,
-          )
-
-          setSelectedProductId(
-            null,
-          )
-
-          setCurrentView(
-            'products',
-          )
+          setNavigationOrigin(null);
+          setSelectedRecipeId(null);
+          setSelectedIngredientId(null);
+          setSelectedProductId(null);
+          setCurrentView('products');
         }}
-
-        onNavigate={
-          handleLibraryNavigate
-        }
+        onNavigate={handleLibraryNavigate}
       />
-    )
+    );
   }
-
-
-  /* =======================================
-     SHARED EDITORS
-  ======================================= */
 
   return (
     <>
       {pageContent}
 
-
       {isRecipeEditorOpen && (
         <AddRecipeForm
-          ingredients={
-            ingredients
-          }
-
-          products={
-            products
-          }
-
-          growingSetups={
-            recipes
-          }
-
+          ingredients={ingredients}
+          products={products}
+          growingSetups={recipes}
           recipeToEdit={
-            editorRecipe ??
-            undefined
+            editorRecipe ?? undefined
           }
-
-          onAddRecipe={
-            handleAddRecipe
-          }
-
+          onAddRecipe={handleAddRecipe}
           onUpdateRecipe={
             handleUpdateRecipe
           }
-
           onAddIngredient={
             onAddIngredient
           }
-
-          onAddProduct={
-            onAddProduct
-          }
-
-          onAddPurchase={
-            onAddPurchase
-          }
-
+          onAddProduct={onAddProduct}
+          onAddPurchase={onAddPurchase}
           onClose={
             handleCloseRecipeEditor
           }
         />
       )}
-
 
       {isIngredientEditorOpen && (
         <AddIngredientForm
@@ -3087,258 +1997,140 @@ export default function AppLibrary({
             editorIngredient ??
             undefined
           }
-
           onAddIngredient={
             handleAddIngredient
           }
-
           onUpdateIngredient={
             handleUpdateIngredient
           }
-
-          onAddPurchase={
-            onAddPurchase
-          }
-
+          onAddPurchase={onAddPurchase}
           onClose={
             handleCloseIngredientEditor
           }
         />
       )}
 
-
       {isProductEditorOpen && (
         <AddProductForm
-          product={
-            editorProduct
-          }
-
-          mode={
-            productEditorMode
-          }
-
+          product={editorProduct}
+          mode={productEditorMode}
           initialPurchase={
             productEditorMode ===
-              'variation'
+            'variation'
               ? variationPurchaseTemplate
               : null
           }
-
           onSave={(
             product,
             purchase,
           ) => {
             if (
-              productEditorMode ===
-              'edit'
+              productEditorMode === 'edit'
             ) {
-              onUpdateProduct(
-                product,
-              )
+              onUpdateProduct(product);
             } else {
-              onAddProduct(
-                product,
-              )
+              onAddProduct(product);
             }
 
-
-            if (
-              purchase
-            ) {
-              onAddPurchase(
-                purchase,
-              )
+            if (purchase) {
+              onAddPurchase(purchase);
             }
-
 
             setSelectedProductId(
               product.id,
-            )
-
-            setEditorProduct(
-              null,
-            )
-
+            );
+            setEditorProduct(null);
             setVariationPurchaseTemplate(
               null,
-            )
-
-            setProductEditorMode(
-              'new',
-            )
-
-            setIsProductEditorOpen(
-              false,
-            )
-
+            );
+            setProductEditorMode('new');
+            setIsProductEditorOpen(false);
             setCurrentView(
               'product-detail',
-            )
+            );
           }}
-
           onClose={() => {
-            setEditorProduct(
-              null,
-            )
-
+            setEditorProduct(null);
             setVariationPurchaseTemplate(
               null,
-            )
-
-            setProductEditorMode(
-              'new',
-            )
-
-            setIsProductEditorOpen(
-              false,
-            )
+            );
+            setProductEditorMode('new');
+            setIsProductEditorOpen(false);
           }}
         />
       )}
-
 
       {isPurchaseEditorOpen &&
         currentView ===
           'product-detail' &&
         selectedProduct && (
-        <PurchaseEditor
-          purchase={
-            editorPurchase
-          }
-
-          mode={
-            purchaseEditorMode
-          }
-
-          itemType="product"
-
-          itemId={
-            selectedProduct.id
-          }
-
-          itemName={
-            selectedProduct.name
-          }
-
-          brand={
-            selectedProduct.brand
-          }
-
-          onSave={
-            handleSaveProductPurchase
-          }
-
-          onClose={() => {
-            setEditorPurchase(
-              null,
-            )
-
-            setPurchaseEditorMode(
-              'new',
-            )
-
-            setIsPurchaseEditorOpen(
-              false,
-            )
-          }}
-        />
-      )}
-
+          <PurchaseEditor
+            purchase={editorPurchase}
+            mode={purchaseEditorMode}
+            itemType="product"
+            itemId={selectedProduct.id}
+            itemName={selectedProduct.name}
+            brand={selectedProduct.brand}
+            onSave={
+              handleSaveProductPurchase
+            }
+            onClose={() => {
+              setEditorPurchase(null);
+              setPurchaseEditorMode('new');
+              setIsPurchaseEditorOpen(false);
+            }}
+          />
+        )}
 
       {isPurchaseEditorOpen &&
         currentView ===
           'recipe-detail' &&
         selectedRecipe && (
-        <PurchaseEditor
-          purchase={
-            editorPurchase
-          }
-
-          mode={
-            purchaseEditorMode
-          }
-
-          itemType="growing-setup"
-
-          itemId={
-            selectedRecipe.id
-          }
-
-          itemName={
-            selectedRecipe.name
-          }
-
-          brand={
-            selectedRecipe.brand
-          }
-
-          onSave={
-            handleSaveProductPurchase
-          }
-
-          onClose={() => {
-            setEditorPurchase(
-              null,
-            )
-
-            setPurchaseEditorMode(
-              'new',
-            )
-
-            setIsPurchaseEditorOpen(
-              false,
-            )
-          }}
-        />
-      )}
-
+          <PurchaseEditor
+            purchase={editorPurchase}
+            mode={purchaseEditorMode}
+            itemType="growing-setup"
+            itemId={selectedRecipe.id}
+            itemName={selectedRecipe.name}
+            brand={selectedRecipe.brand}
+            onSave={
+              handleSaveProductPurchase
+            }
+            onClose={() => {
+              setEditorPurchase(null);
+              setPurchaseEditorMode('new');
+              setIsPurchaseEditorOpen(false);
+            }}
+          />
+        )}
 
       {isPurchaseEditorOpen &&
         currentView ===
           'ingredient-detail' &&
         selectedIngredient && (
-        <PurchaseEditor
-          purchase={
-            editorPurchase
-          }
-
-          mode={
-            purchaseEditorMode
-          }
-
-          itemType="ingredient"
-
-          itemId={
-            selectedIngredient.id
-          }
-
-          itemName={
-            selectedIngredient.name
-          }
-
-          brand={
-            selectedIngredient.manufacturer
-          }
-
-          onSave={
-            handleSaveProductPurchase
-          }
-
-          onClose={() => {
-            setEditorPurchase(
-              null,
-            )
-
-            setPurchaseEditorMode(
-              'new',
-            )
-
-            setIsPurchaseEditorOpen(
-              false,
-            )
-          }}
-        />
-      )}
+          <PurchaseEditor
+            purchase={editorPurchase}
+            mode={purchaseEditorMode}
+            itemType="ingredient"
+            itemId={
+              selectedIngredient.id
+            }
+            itemName={
+              selectedIngredient.name
+            }
+            brand={
+              selectedIngredient.manufacturer
+            }
+            onSave={
+              handleSaveProductPurchase
+            }
+            onClose={() => {
+              setEditorPurchase(null);
+              setPurchaseEditorMode('new');
+              setIsPurchaseEditorOpen(false);
+            }}
+          />
+        )}
     </>
-  )
+  );
 }

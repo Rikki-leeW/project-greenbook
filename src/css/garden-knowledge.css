@@ -229,6 +229,8 @@
     display: -webkit-box;
     overflow: hidden;
     -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
+line-clamp: 3;
     -webkit-box-orient: vertical;
     color: #6a7467;
     line-height: 1.35;

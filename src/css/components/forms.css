@@ -57,6 +57,7 @@
 /* =======================================
    FORM PANEL
 ======================================= */
+
 .add-plant-panel,
 .chronicle-panel {
   position:
@@ -672,7 +673,143 @@
 
 
 /* =======================================
-   FORM SECTIONS
+   GENERAL ADD PLANT SECTIONS
+
+   Open notebook structure rather than
+   a stack of heavy grey containers.
+======================================= */
+
+.add-plant-form
+.sprig-form-section {
+  display:
+    grid;
+
+  gap:
+    14px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  margin:
+    0;
+
+  padding:
+    0
+    0
+    20px;
+
+  border:
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(
+      73,
+      91,
+      71,
+      0.14
+    );
+
+  background:
+    transparent;
+}
+
+
+.add-plant-form
+.sprig-form-section:last-of-type {
+  border-bottom:
+    0;
+}
+
+
+.add-plant-form
+.growing-setup-details {
+  padding:
+    16px;
+
+  border:
+    1px solid
+    rgba(
+      76,
+      96,
+      73,
+      0.13
+    );
+
+  border-radius:
+    14px;
+
+  background:
+    rgba(
+      255,
+      253,
+      246,
+      0.72
+    );
+
+  box-shadow:
+    0 2px 10px
+    rgba(
+      48,
+      65,
+      48,
+      0.035
+    );
+}
+
+
+.add-plant-form
+.sprig-form-section
+h3 {
+  margin:
+    0;
+
+  color:
+    #314b37;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    1.08rem;
+
+  line-height:
+    1.3;
+}
+
+
+.add-plant-form
+.section-label {
+  margin:
+    0;
+
+  color:
+    #61715f;
+
+  font-size:
+    0.76rem;
+
+  font-weight:
+    800;
+
+  line-height:
+    1.2;
+
+  letter-spacing:
+    0.08em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* =======================================
+   JOURNAL FORM SECTIONS
 ======================================= */
 
 .journal-connection-section {
@@ -758,6 +895,433 @@
 
 
 /* =======================================
+   SELECTION CARDS
+
+   Used for seedling condition and
+   harvest timing units in Add Plant.
+======================================= */
+
+.add-plant-form
+.selection-card-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    10px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+}
+
+
+.add-plant-form
+.selection-card {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    flex-start;
+
+  gap:
+    5px;
+
+  min-width:
+    0;
+
+  min-height:
+    68px;
+
+  margin:
+    0;
+
+  padding:
+    11px
+    12px;
+
+  border:
+    1px solid
+    rgba(
+      71,
+      92,
+      69,
+      0.18
+    );
+
+  border-radius:
+    12px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  color:
+    #405644;
+
+  text-align:
+    left;
+
+  font:
+    inherit;
+
+  line-height:
+    1.3;
+
+  box-shadow:
+    0 1px 4px
+    rgba(
+      42,
+      58,
+      43,
+      0.035
+    );
+
+  cursor:
+    pointer;
+
+  transition:
+    border-color
+      120ms ease,
+    background
+      120ms ease,
+    box-shadow
+      120ms ease,
+    transform
+      120ms ease;
+}
+
+
+.add-plant-form
+.selection-card:hover {
+  border-color:
+    rgba(
+      81,
+      111,
+      81,
+      0.34
+    );
+
+  background:
+    #f7f8f1;
+}
+
+
+.add-plant-form
+.selection-card.selected {
+  border-color:
+    rgba(
+      84,
+      116,
+      82,
+      0.48
+    );
+
+  background:
+    #eef3e7;
+
+  color:
+    #304b35;
+
+  box-shadow:
+    0 2px 8px
+    rgba(
+      59,
+      84,
+      59,
+      0.08
+    );
+}
+
+
+.add-plant-form
+.selection-card strong {
+  color:
+    inherit;
+
+  font-size:
+    0.92rem;
+
+  line-height:
+    1.25;
+}
+
+
+.add-plant-form
+.selection-card span {
+  color:
+    #697669;
+
+  font-size:
+    0.78rem;
+
+  font-weight:
+    500;
+
+  line-height:
+    1.35;
+}
+
+
+.add-plant-form
+.selection-card.selected
+span {
+  color:
+    #536a56;
+}
+
+
+/* =======================================
+   SEEDLING FLOWERING CONDITION
+======================================= */
+
+.plant-beginning-choice {
+  display:
+    grid;
+
+  gap:
+    10px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  margin:
+    2px
+    0
+    0;
+}
+
+
+/* =======================================
+   PLANTED OUT TOGGLE
+
+   Replaces the oversized native checkbox
+   with a clear Sprig choice card.
+======================================= */
+
+.plant-out-toggle {
+  display:
+    grid;
+
+  grid-template-columns:
+    30px
+    minmax(
+      0,
+      1fr
+    );
+
+  align-items:
+    center;
+
+  gap:
+    11px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  margin:
+    0;
+
+  padding:
+    12px
+    13px;
+
+  border:
+    1px solid
+    rgba(
+      70,
+      91,
+      68,
+      0.18
+    );
+
+  border-radius:
+    12px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  color:
+    #3d5541;
+
+  text-align:
+    left;
+
+  font:
+    inherit;
+
+  cursor:
+    pointer;
+
+  transition:
+    border-color
+      120ms ease,
+    background
+      120ms ease,
+    box-shadow
+      120ms ease;
+}
+
+
+.plant-out-toggle:hover {
+  border-color:
+    rgba(
+      81,
+      111,
+      81,
+      0.34
+    );
+
+  background:
+    #f7f8f1;
+}
+
+
+.plant-out-toggle.selected {
+  border-color:
+    rgba(
+      84,
+      116,
+      82,
+      0.48
+    );
+
+  background:
+    #eef3e7;
+
+  box-shadow:
+    0 2px 8px
+    rgba(
+      59,
+      84,
+      59,
+      0.07
+    );
+}
+
+
+.plant-out-toggle-mark {
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  width:
+    28px;
+
+  height:
+    28px;
+
+  border:
+    1px solid
+    rgba(
+      74,
+      97,
+      72,
+      0.28
+    );
+
+  border-radius:
+    8px;
+
+  background:
+    #ffffff;
+
+  color:
+    #466149;
+
+  font-size:
+    0.95rem;
+
+  font-weight:
+    800;
+
+  line-height:
+    1;
+}
+
+
+.plant-out-toggle.selected
+.plant-out-toggle-mark {
+  border-color:
+    #70866c;
+
+  background:
+    #dfead7;
+}
+
+
+.plant-out-toggle-copy {
+  display:
+    grid;
+
+  gap:
+    3px;
+
+  min-width:
+    0;
+}
+
+
+.plant-out-toggle-copy
+strong {
+  color:
+    #344c39;
+
+  font-size:
+    0.91rem;
+
+  line-height:
+    1.3;
+}
+
+
+.plant-out-toggle-copy
+small {
+  color:
+    #68766a;
+
+  font-size:
+    0.8rem;
+
+  font-weight:
+    500;
+
+  line-height:
+    1.4;
+}
+
+
+/* =======================================
    GROWING PLACE SHORTCUT
 ======================================= */
 
@@ -825,6 +1389,1054 @@
 .garden-place-link:hover {
   background:
     #f1f3eb;
+}
+
+
+/* =======================================
+   ADD PLANT
+   WHAT IS IT GROWING IN?
+
+   Growing Place remains location only.
+   This section owns setup / medium /
+   system relationships.
+======================================= */
+
+.plant-growing-in-section {
+  display:
+    grid;
+
+  gap:
+    15px;
+
+  padding:
+    18px !important;
+
+  border:
+    1px solid
+    rgba(
+      73,
+      95,
+      71,
+      0.15
+    ) !important;
+
+  border-radius:
+    16px;
+
+  background:
+    rgba(
+      255,
+      253,
+      245,
+      0.76
+    ) !important;
+
+  box-shadow:
+    0 3px 12px
+    rgba(
+      47,
+      65,
+      47,
+      0.045
+    );
+}
+
+
+.plant-growing-in-heading {
+  display:
+    grid;
+
+  gap:
+    7px;
+}
+
+
+.plant-growing-in-heading
+h3 {
+  margin:
+    0;
+
+  color:
+    #304b35;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    1.2rem;
+
+  line-height:
+    1.25;
+}
+
+
+/* =======================================
+   SELECTED GROWING RECORDS
+======================================= */
+
+.plant-growing-selected {
+  display:
+    grid;
+
+  gap:
+    9px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  padding:
+    13px;
+
+  border:
+    1px solid
+    rgba(
+      84,
+      116,
+      82,
+      0.25
+    );
+
+  border-radius:
+    13px;
+
+  background:
+    #eef3e7;
+}
+
+
+.plant-growing-selected-list {
+  display:
+    grid;
+
+  gap:
+    0;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+}
+
+
+.selected-item-row.plant-growing-selected-row {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  margin:
+    0;
+
+  padding:
+    10px
+    2px;
+
+  border:
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(
+      75,
+      101,
+      73,
+      0.14
+    );
+
+  border-radius:
+    0;
+
+  background:
+    transparent;
+}
+
+
+.selected-item-row.plant-growing-selected-row:first-child {
+  padding-top:
+    4px;
+}
+
+
+.selected-item-row.plant-growing-selected-row:last-child {
+  padding-bottom:
+    3px;
+
+  border-bottom:
+    0;
+}
+
+
+.plant-growing-selected-row
+> div {
+  display:
+    grid;
+
+  gap:
+    2px;
+
+  min-width:
+    0;
+}
+
+
+.plant-growing-selected-row
+strong {
+  color:
+    #304b35;
+
+  font-size:
+    0.92rem;
+
+  line-height:
+    1.3;
+}
+
+
+.plant-growing-selected-row
+.form-whisper {
+  font-size:
+    0.78rem;
+
+  font-style:
+    normal;
+}
+
+
+.plant-growing-remove {
+  flex:
+    0 0 auto;
+
+  min-height:
+    34px;
+
+  margin:
+    0;
+
+  padding:
+    6px
+    9px;
+
+  border:
+    1px solid
+    rgba(
+      76,
+      99,
+      74,
+      0.17
+    );
+
+  border-radius:
+    9px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.66
+    );
+
+  color:
+    #596b59;
+
+  font:
+    inherit;
+
+  font-size:
+    0.76rem;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+}
+
+
+.plant-growing-remove:hover {
+  background:
+    #ffffff;
+
+  color:
+    #3f5943;
+}
+
+
+/* =======================================
+   GROWING CATEGORIES
+
+   Open rows, not four chunky grey cards.
+======================================= */
+
+.plant-growing-category-list {
+  display:
+    grid;
+
+  gap:
+    0;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  border-top:
+    1px solid
+    rgba(
+      68,
+      89,
+      67,
+      0.14
+    );
+}
+
+
+.plant-growing-category {
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  border-bottom:
+    1px solid
+    rgba(
+      68,
+      89,
+      67,
+      0.14
+    );
+}
+
+
+.plant-growing-category-button {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    14px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  min-height:
+    64px;
+
+  margin:
+    0;
+
+  padding:
+    11px
+    3px;
+
+  border:
+    0;
+
+  border-radius:
+    0;
+
+  background:
+    transparent;
+
+  color:
+    #344c39;
+
+  text-align:
+    left;
+
+  font:
+    inherit;
+
+  cursor:
+    pointer;
+}
+
+
+.plant-growing-category-button:hover {
+  background:
+    rgba(
+      239,
+      243,
+      233,
+      0.58
+    );
+}
+
+
+.plant-growing-category.open
+.plant-growing-category-button {
+  color:
+    #2f4c35;
+}
+
+
+.plant-growing-category-button
+> span:first-child {
+  display:
+    grid;
+
+  gap:
+    3px;
+
+  min-width:
+    0;
+}
+
+
+.plant-growing-category-button
+strong {
+  color:
+    inherit;
+
+  font-size:
+    0.94rem;
+
+  line-height:
+    1.25;
+}
+
+
+.plant-growing-category-button
+small {
+  max-width:
+    430px;
+
+  color:
+    #68766a;
+
+  font-size:
+    0.79rem;
+
+  font-weight:
+    500;
+
+  line-height:
+    1.35;
+}
+
+
+.plant-growing-category-meta {
+  flex:
+    0 0 auto;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  color:
+    #61705f;
+
+  font-size:
+    1.1rem;
+
+  font-weight:
+    700;
+}
+
+
+.plant-growing-count {
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  min-width:
+    24px;
+
+  height:
+    24px;
+
+  padding:
+    0
+    6px;
+
+  border:
+    1px solid
+    rgba(
+      84,
+      116,
+      82,
+      0.24
+    );
+
+  border-radius:
+    999px;
+
+  background:
+    #e6eee0;
+
+  color:
+    #405b44;
+
+  font-size:
+    0.72rem;
+
+  font-weight:
+    800;
+}
+
+
+.plant-growing-category-content {
+  display:
+    grid;
+
+  gap:
+    10px;
+
+  padding:
+    3px
+    3px
+    14px;
+}
+
+
+/* =======================================
+   EXISTING SPRIG PICKER INSIDE GROWING
+
+   Keep SprigPicker itself intact while
+   letting the category row provide the
+   outer visual structure.
+======================================= */
+
+.plant-growing-category-content
+.sprig-picker {
+  margin:
+    0;
+
+  border-color:
+    rgba(
+      71,
+      92,
+      69,
+      0.15
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.62
+    );
+}
+
+
+/* =======================================
+   GROWING ADD LINKS
+======================================= */
+
+.plant-growing-add-link {
+  justify-self:
+    start;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  min-height:
+    36px;
+
+  margin:
+    0;
+
+  padding:
+    6px
+    8px;
+
+  border:
+    0;
+
+  border-radius:
+    8px;
+
+  background:
+    transparent;
+
+  color:
+    #4d6a52;
+
+  font:
+    inherit;
+
+  font-size:
+    0.83rem;
+
+  font-weight:
+    800;
+
+  line-height:
+    1.25;
+
+  cursor:
+    pointer;
+}
+
+
+.plant-growing-add-link:hover {
+  background:
+    #eef3e8;
+
+  color:
+    #38543d;
+}
+
+
+/* =======================================
+   INGREDIENT EXPLANATION
+======================================= */
+
+.plant-growing-ingredient-note {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    space-between;
+
+  gap:
+    14px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  padding:
+    12px
+    0
+    0;
+
+  border-top:
+    1px dashed
+    rgba(
+      74,
+      95,
+      72,
+      0.18
+    );
+}
+
+
+.plant-growing-ingredient-note
+> div {
+  display:
+    grid;
+
+  gap:
+    4px;
+
+  min-width:
+    0;
+}
+
+
+.plant-growing-ingredient-note
+strong {
+  color:
+    #405644;
+
+  font-size:
+    0.88rem;
+
+  line-height:
+    1.3;
+}
+
+
+.plant-growing-ingredient-note
+.form-whisper {
+  max-width:
+    390px;
+
+  font-size:
+    0.81rem;
+}
+
+
+/* =======================================
+   QUICK CREATE
+
+   A warm working slip within Add Plant.
+======================================= */
+
+.plant-growing-quick-create {
+  display:
+    grid;
+
+  gap:
+    12px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  padding:
+    15px;
+
+  border:
+    1px solid
+    rgba(
+      79,
+      104,
+      77,
+      0.22
+    );
+
+  border-radius:
+    14px;
+
+  background:
+    #f7f5e9;
+
+  box-shadow:
+    inset
+    0 1px 0
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+}
+
+
+.plant-growing-quick-create
+label {
+  margin:
+    0;
+}
+
+
+/* =======================================
+   GROUND / SYSTEM PRESETS
+======================================= */
+
+.plant-growing-presets {
+  display:
+    grid;
+
+  gap:
+    9px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+}
+
+
+.plant-growing-preset-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    8px;
+
+  width:
+    100%;
+
+  min-width:
+    0;
+}
+
+
+.plant-growing-preset {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    flex-start;
+
+  min-width:
+    0;
+
+  min-height:
+    42px;
+
+  margin:
+    0;
+
+  padding:
+    8px
+    10px;
+
+  border:
+    1px solid
+    rgba(
+      71,
+      92,
+      69,
+      0.18
+    );
+
+  border-radius:
+    10px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  color:
+    #455d48;
+
+  text-align:
+    left;
+
+  font:
+    inherit;
+
+  font-size:
+    0.82rem;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.25;
+
+  cursor:
+    pointer;
+}
+
+
+.plant-growing-preset:hover {
+  border-color:
+    rgba(
+      84,
+      116,
+      82,
+      0.36
+    );
+
+  background:
+    #f0f4ea;
+}
+
+
+.plant-growing-preset.selected {
+  border-color:
+    rgba(
+      84,
+      116,
+      82,
+      0.5
+    );
+
+  background:
+    #e7efe0;
+
+  color:
+    #304c35;
+}
+
+
+/* =======================================
+   QUICK CREATE ACTIONS
+======================================= */
+
+.plant-growing-quick-actions {
+  display:
+    flex;
+
+  align-items:
+    stretch;
+
+  justify-content:
+    flex-end;
+
+  gap:
+    9px;
+
+  width:
+    100%;
+}
+
+
+.plant-growing-quick-actions
+.secondary-button,
+.plant-growing-quick-actions
+.enter-button {
+  min-height:
+    42px;
+
+  margin:
+    0;
+
+  padding:
+    8px
+    12px;
+
+  border-radius:
+    10px;
+
+  font:
+    inherit;
+
+  font-size:
+    0.83rem;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+}
+
+
+.plant-growing-quick-actions
+.secondary-button {
+  border:
+    1px solid
+    rgba(
+      61,
+      82,
+      65,
+      0.19
+    );
+
+  background:
+    #ffffff;
+
+  color:
+    #405644;
+}
+
+
+.plant-growing-quick-actions
+.enter-button {
+  border:
+    1px solid
+    #536f59;
+
+  background:
+    #536f59;
+
+  color:
+    #ffffff;
+}
+
+
+.plant-growing-quick-actions
+.secondary-button:hover {
+  background:
+    #f1f3eb;
+}
+
+
+.plant-growing-quick-actions
+.enter-button:hover {
+  background:
+    #465f4c;
+}
+
+
+.plant-growing-quick-actions
+.enter-button:disabled {
+  opacity:
+    0.48;
+
+  cursor:
+    default;
+}
+
+
+/* =======================================
+   HARVEST TIMING UNIT
+
+   A compact three-choice row.
+======================================= */
+
+.harvest-timing-unit-grid
+.selection-card {
+  align-items:
+    center !important;
+
+  justify-content:
+    center !important;
+
+  min-height:
+    54px !important;
+
+  padding:
+    9px !important;
+
+  text-align:
+    center !important;
+}
+
+
+.harvest-timing-unit-grid
+.selection-card
+strong {
+  text-align:
+    center;
+}
+
+
+.harvest-timing-unit-grid
+.selection-card
+span {
+  width:
+    100%;
+
+  text-align:
+    center;
 }
 
 
@@ -958,6 +2570,70 @@ label.journal-photo-picker
 
   text-align:
     center;
+}
+
+
+/* =======================================
+   GENERAL SECONDARY BUTTONS
+   WITHIN ADD PLANT
+
+   Keep this scoped so other forms retain
+   their existing presentation.
+======================================= */
+
+.add-plant-form
+> .sprig-form-section
+> .secondary-button {
+  justify-self:
+    start;
+
+  min-height:
+    40px;
+
+  margin:
+    0;
+
+  padding:
+    8px
+    12px;
+
+  border:
+    1px solid
+    rgba(
+      61,
+      82,
+      65,
+      0.18
+    );
+
+  border-radius:
+    10px;
+
+  background:
+    #ffffff;
+
+  color:
+    #405644;
+
+  font:
+    inherit;
+
+  font-size:
+    0.85rem;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+}
+
+
+.add-plant-form
+> .sprig-form-section
+> .secondary-button:hover {
+  background:
+    #f1f3eb;
 }
 
 
@@ -1150,10 +2826,147 @@ button:disabled {
 
 
 /* =======================================
+   ADD PLANT FORM ACTIONS
+
+   The current AddPlantForm uses
+   .form-actions rather than the older
+   .chronicle-page-actions wrapper.
+======================================= */
+
+.add-plant-form
+.form-actions {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    10px;
+
+  width:
+    100%;
+
+  margin:
+    4px
+    0
+    0;
+
+  padding:
+    16px
+    0
+    0;
+
+  border-top:
+    1px solid
+    rgba(
+      61,
+      82,
+      65,
+      0.14
+    );
+}
+
+
+.add-plant-form
+.form-actions
+.secondary-button,
+.add-plant-form
+.form-actions
+.enter-button {
+  min-width:
+    0;
+
+  min-height:
+    48px;
+
+  margin:
+    0;
+
+  padding:
+    10px
+    12px;
+
+  border-radius:
+    10px;
+
+  font:
+    inherit;
+
+  font-size:
+    0.88rem;
+
+  font-weight:
+    800;
+
+  line-height:
+    1.2;
+
+  cursor:
+    pointer;
+}
+
+
+.add-plant-form
+.form-actions
+.secondary-button {
+  border:
+    1px solid
+    rgba(
+      61,
+      82,
+      65,
+      0.20
+    );
+
+  background:
+    #ffffff;
+
+  color:
+    #405644;
+}
+
+
+.add-plant-form
+.form-actions
+.enter-button {
+  border:
+    1px solid
+    #536f59;
+
+  background:
+    #536f59;
+
+  color:
+    #ffffff;
+}
+
+
+.add-plant-form
+.form-actions
+.secondary-button:hover {
+  background:
+    #f1f3eb;
+}
+
+
+.add-plant-form
+.form-actions
+.enter-button:hover {
+  background:
+    #465f4c;
+}
+
+
+/* =======================================
    MOBILE
 
-   Intentionally boring.
-   One column, normal flow.
+   Phone first.
+   Keep choices readable without turning
+   the form into a tower of giant cards.
 ======================================= */
 
 @media (max-width: 620px) {
@@ -1253,8 +3066,8 @@ button:disabled {
 
     font-size:
       1.35rem;
-      
-      padding:
+
+    padding:
       4px
       44px
       0
@@ -1326,6 +3139,264 @@ button:disabled {
   }
 
 
+  /* ---------------------------------------
+     ADD PLANT SECTION CARDS
+  --------------------------------------- */
+
+  .add-plant-form
+  .growing-setup-details {
+    padding:
+      14px;
+
+    border-radius:
+      12px;
+  }
+
+
+  /* ---------------------------------------
+     SEEDLING CHOICES
+  --------------------------------------- */
+
+  .add-plant-form
+  .selection-card-grid {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      8px;
+  }
+
+
+  .add-plant-form
+  .selection-card {
+    min-height:
+      0;
+
+    padding:
+      11px
+      12px;
+  }
+
+
+  .harvest-timing-unit-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      ) !important;
+  }
+
+
+  .harvest-timing-unit-grid
+  .selection-card {
+    min-height:
+      54px !important;
+
+    padding:
+      8px
+      5px !important;
+  }
+
+
+  .harvest-timing-unit-grid
+  .selection-card
+  span {
+    font-size:
+      0.7rem;
+  }
+
+
+  /* ---------------------------------------
+     PLANTED OUT
+  --------------------------------------- */
+
+  .plant-out-toggle {
+    grid-template-columns:
+      28px
+      minmax(
+        0,
+        1fr
+      );
+
+    gap:
+      10px;
+
+    padding:
+      11px;
+  }
+
+
+  .plant-out-toggle-mark {
+    width:
+      26px;
+
+    height:
+      26px;
+  }
+
+
+  /* ---------------------------------------
+     GROWING
+  --------------------------------------- */
+
+  .plant-growing-in-section {
+    gap:
+      14px;
+
+    padding:
+      15px !important;
+
+    border-radius:
+      14px;
+  }
+
+
+  .plant-growing-in-heading
+  h3 {
+    font-size:
+      1.12rem;
+  }
+
+
+  .plant-growing-selected {
+    padding:
+      11px;
+  }
+
+
+  .selected-item-row.plant-growing-selected-row {
+    align-items:
+      flex-start;
+
+    gap:
+      8px;
+  }
+
+
+  .plant-growing-remove {
+    min-height:
+      32px;
+
+    padding:
+      5px
+      7px;
+
+    font-size:
+      0.72rem;
+  }
+
+
+  .plant-growing-category-button {
+    min-height:
+      66px;
+
+    gap:
+      10px;
+
+    padding:
+      10px
+      2px;
+  }
+
+
+  .plant-growing-category-button
+  small {
+    font-size:
+      0.76rem;
+  }
+
+
+  .plant-growing-category-content {
+    padding:
+      2px
+      2px
+      13px;
+  }
+
+
+  .plant-growing-ingredient-note {
+    display:
+      grid;
+
+    gap:
+      8px;
+  }
+
+
+  .plant-growing-add-link {
+    min-height:
+      34px;
+
+    padding:
+      5px
+      6px;
+  }
+
+
+  .plant-growing-quick-create {
+    padding:
+      13px;
+  }
+
+
+  .plant-growing-preset-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap:
+      7px;
+  }
+
+
+  .plant-growing-preset {
+    min-height:
+      42px;
+
+    padding:
+      8px;
+
+    font-size:
+      0.78rem;
+  }
+
+
+  .plant-growing-quick-actions {
+    display:
+      grid;
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap:
+      8px;
+  }
+
+
+  .plant-growing-quick-actions
+  .secondary-button,
+  .plant-growing-quick-actions
+  .enter-button {
+    width:
+      100%;
+
+    min-width:
+      0;
+
+    white-space:
+      normal;
+  }
+
+
+  /* ---------------------------------------
+     OLD CHRONICLE ACTIONS
+  --------------------------------------- */
+
   .chronicle-page-actions {
     grid-template-columns:
       1fr;
@@ -1361,6 +3432,40 @@ button:disabled {
     white-space:
       normal;
   }
+
+
+  /* ---------------------------------------
+     CURRENT ADD PLANT ACTIONS
+  --------------------------------------- */
+
+  .add-plant-form
+  .form-actions {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      8px;
+
+    padding-top:
+      13px;
+  }
+
+
+  .add-plant-form
+  .form-actions
+  .secondary-button,
+  .add-plant-form
+  .form-actions
+  .enter-button {
+    width:
+      100%;
+
+    min-height:
+      48px;
+
+    white-space:
+      normal;
+  }
 }
 
 
@@ -1381,7 +3486,28 @@ button:disabled {
     padding:
       12px;
   }
+
+
+  .plant-growing-in-section {
+    padding:
+      13px !important;
+  }
+
+
+  .plant-growing-preset-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .plant-growing-category-button
+  small {
+    max-width:
+      220px;
+  }
 }
+
+
 /* =======================================
    GLOBAL SPRIG SAVE GUARD
 
