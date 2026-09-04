@@ -4315,9 +4315,86 @@ function App() {
   }
 
 
-  /* =======================================
+    /* =======================================
      HARVEST
   ======================================= */
+
+  function applyHarvestPlantOutcome(
+    harvest:
+      HarvestRecord,
+
+    plantStories:
+      PlantStory[],
+  ):
+    PlantStory[] {
+    /*
+     * Most Harvest outcomes describe the
+     * meaning of this particular gathering
+     * without changing Plant Story lifecycle.
+     *
+     * "Finished" is deliberately different.
+     *
+     * When the gardener says this Harvest
+     * finished the growing story, every
+     * Plant Story attached to this Harvest
+     * should immediately become completed.
+     *
+     * We deliberately DO NOT automatically
+     * reopen a Plant Story when an existing
+     * Harvest is later edited away from
+     * "finished".
+     *
+     * Reopening is an explicit Plant Story
+     * action because another later Harvest,
+     * or a deliberate gardener decision,
+     * may also have completed the story.
+     */
+    if (
+      harvest.plantOutcome !==
+      'finished'
+    ) {
+      return plantStories
+    }
+
+
+    const affectedPlantIds =
+      new Set(
+        harvest.plantStoryIds,
+      )
+
+
+    const now =
+      new Date()
+        .toISOString()
+
+
+    return plantStories.map(
+      plant => {
+        if (
+          !affectedPlantIds.has(
+            plant.id,
+          )
+        ) {
+          return plant
+        }
+
+
+        return {
+          ...plant,
+
+          status:
+            'finished',
+
+          completedAt:
+            harvest.date,
+
+          updatedAt:
+            now,
+        }
+      },
+    )
+  }
+
 
   function handleAddHarvest(
     newHarvest:
@@ -4330,16 +4407,22 @@ function App() {
         ...gardenData.harvests,
         newHarvest,
       ],
-    };
+
+      plantStories:
+        applyHarvestPlantOutcome(
+          newHarvest,
+          gardenData.plantStories,
+        ),
+    }
 
 
     setGardenData(
       updatedGardenData,
-    );
+    )
 
     saveGardenData(
       updatedGardenData,
-    );
+    )
   }
 
 
@@ -4348,7 +4431,7 @@ function App() {
       HarvestRecord,
   ) {
     const sourcePlan =
-      planToRecord;
+      planToRecord
 
 
     if (
@@ -4356,15 +4439,15 @@ function App() {
     ) {
       handleAddHarvest(
         newHarvest,
-      );
+      )
 
-      return;
+      return
     }
 
 
     const now =
       new Date()
-        .toISOString();
+        .toISOString()
 
 
     const recordedPlan =
@@ -4373,7 +4456,7 @@ function App() {
         'harvest',
         newHarvest.id,
         now,
-      );
+      )
 
 
     const updatedGardenData = {
@@ -4384,32 +4467,38 @@ function App() {
         newHarvest,
       ],
 
+      plantStories:
+        applyHarvestPlantOutcome(
+          newHarvest,
+          gardenData.plantStories,
+        ),
+
       plans:
         replaceRecordedPlan(
           gardenData.plans ??
           [],
           recordedPlan,
         ),
-    };
+    }
 
 
     setGardenData(
       updatedGardenData,
-    );
+    )
 
     saveGardenData(
       updatedGardenData,
-    );
+    )
 
     setPlanToRecord(
       null,
-    );
+    )
 
-    handleCloseHarvestEditor();
+    handleCloseHarvestEditor()
 
     handleOpenHarvestRecord(
       newHarvest.id,
-    );
+    )
   }
 
 
@@ -4430,16 +4519,22 @@ function App() {
                 ? updatedHarvest
                 : harvest,
           ),
-    };
+
+      plantStories:
+        applyHarvestPlantOutcome(
+          updatedHarvest,
+          gardenData.plantStories,
+        ),
+    }
 
 
     setGardenData(
       updatedGardenData,
-    );
+    )
 
     saveGardenData(
       updatedGardenData,
-    );
+    )
   }
 
 
@@ -5403,6 +5498,19 @@ function App() {
                 handleAddEvent
               }
 
+              onAddHarvest={
+                plantStoryIds => {
+                  setIsAddEventOpen(
+                    false,
+                  );
+
+                  handleOpenNewHarvest(
+                    plantStoryIds,
+                    true,
+                  );
+                }
+              }
+
               onClose={() =>
                 setIsAddEventOpen(
                   false,
@@ -5611,6 +5719,23 @@ function App() {
 
             onAddEvent={
               handleAddEvent
+            }
+
+            onAddHarvest={
+              plantStoryIds => {
+                setIsAddEventOpen(
+                  false,
+                );
+
+                handleNavigate(
+                  'harvest',
+                );
+
+                handleOpenNewHarvest(
+                  plantStoryIds,
+                  false,
+                );
+              }
             }
 
             onClose={() =>
@@ -6981,6 +7106,23 @@ function App() {
 
           onAddEvent={
             handleAddEvent
+          }
+
+          onAddHarvest={
+            plantStoryIds => {
+              setIsAddEventOpen(
+                false,
+              );
+
+              handleNavigate(
+                'harvest',
+              );
+
+              handleOpenNewHarvest(
+                plantStoryIds,
+                false,
+              );
+            }
           }
 
           onClose={() =>

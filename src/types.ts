@@ -1,11 +1,127 @@
-export type PlantStatus = 'planned' | 'growing' | 'harvesting' | 'finished' | 'failed';
-export type GrowingPlaceKind = 'garden-area' | 'garden-bed' | 'raised-bed' | 'pot' | 'grow-bag' | 'planter-box' | 'greenhouse' | 'cold-frame' | 'shade-house' | 'deck' | 'patio' | 'balcony' | 'courtyard' | 'grass-area' | 'retaining-wall' | 'rock-wall' | 'orchard' | 'food-forest' | 'herb-garden' | 'flower-garden' | 'vine' | 'compost-area' | 'nursery-area' | 'indoor' | 'windowsill' | 'other';
-export type GrowingGroundType = 'my-own-blend' | 'potting-mix' | 'top-soil' | 'seed-raising-mix' | 'native-soil' | 'native-clay' | 'loam' | 'sandy-soil' | 'rocky-soil' | 'peat-soil' | 'raised-bed-mix' | 'compost-based-mix' | 'soilless-mix' | 'hugelkultur' | 'layered-bed' | 'imported-topsoil' | 'coco-coir' | 'peat-moss' | 'sphagnum-moss' | 'pine-needles' | 'straw' | 'hydroponic' | 'aquaponic' | 'homemade-blend' | 'something-else' | 'not-sure';
-export type GrowingGroundMethod = 'existing-ground' | 'dug-and-improved' | 'no-dig' | 'layered-bed' | 'hugelkultur' | 'filled-raised-bed' | 'container-mix' | 'seed-raising-mix' | 'wicking-bed' | 'hydroponic' | 'aquaponic' | 'kratky' | 'nft' | 'deep-water-culture' | 'ebb-and-flow' | 'aeroponic' | 'custom-blend' | 'something-else';
-export type GardenAspect = 'north' | 'north-east' | 'east' | 'south-east' | 'south' | 'south-west' | 'west' | 'north-west';
-export type SunlightLevel = 'full-sun' | 'mostly-sun' | 'part-sun' | 'dappled-light' | 'mostly-shade' | 'deep-shade';
-export type ShelterLevel = 'very-exposed' | 'some-shelter' | 'well-sheltered' | 'fully-protected' | 'changes-with-season' | 'not-sure';
-export type IngredientCategory = 'compost' | 'manure' | 'organic-matter' | 'minerals' | 'aeration' | 'water-retention' | 'amendments' | 'fertiliser' | 'biological-additives' | 'ph-adjusters' | 'structure-bulk' | 'growing-medium' | 'mulch' | 'other';
+export type PlantStatus =
+  | 'planned'
+  | 'growing'
+  | 'harvesting'
+  | 'finished'
+  | 'failed';
+
+export type GrowingPlaceKind =
+  | 'garden-area'
+  | 'garden-bed'
+  | 'raised-bed'
+  | 'pot'
+  | 'grow-bag'
+  | 'planter-box'
+  | 'greenhouse'
+  | 'cold-frame'
+  | 'shade-house'
+  | 'deck'
+  | 'patio'
+  | 'balcony'
+  | 'courtyard'
+  | 'grass-area'
+  | 'retaining-wall'
+  | 'rock-wall'
+  | 'orchard'
+  | 'food-forest'
+  | 'herb-garden'
+  | 'flower-garden'
+  | 'vine'
+  | 'compost-area'
+  | 'nursery-area'
+  | 'indoor'
+  | 'windowsill'
+  | 'other';
+
+export type GrowingGroundType =
+  | 'my-own-blend'
+  | 'potting-mix'
+  | 'top-soil'
+  | 'seed-raising-mix'
+  | 'native-soil'
+  | 'native-clay'
+  | 'loam'
+  | 'sandy-soil'
+  | 'rocky-soil'
+  | 'peat-soil'
+  | 'raised-bed-mix'
+  | 'compost-based-mix'
+  | 'soilless-mix'
+  | 'hugelkultur'
+  | 'layered-bed'
+  | 'imported-topsoil'
+  | 'coco-coir'
+  | 'peat-moss'
+  | 'sphagnum-moss'
+  | 'pine-needles'
+  | 'straw'
+  | 'hydroponic'
+  | 'aquaponic'
+  | 'homemade-blend'
+  | 'something-else'
+  | 'not-sure';
+
+export type GrowingGroundMethod =
+  | 'existing-ground'
+  | 'dug-and-improved'
+  | 'no-dig'
+  | 'layered-bed'
+  | 'hugelkultur'
+  | 'filled-raised-bed'
+  | 'container-mix'
+  | 'seed-raising-mix'
+  | 'wicking-bed'
+  | 'hydroponic'
+  | 'aquaponic'
+  | 'kratky'
+  | 'nft'
+  | 'deep-water-culture'
+  | 'ebb-and-flow'
+  | 'aeroponic'
+  | 'custom-blend'
+  | 'something-else';
+
+export type GardenAspect =
+  | 'north'
+  | 'north-east'
+  | 'east'
+  | 'south-east'
+  | 'south'
+  | 'south-west'
+  | 'west'
+  | 'north-west';
+
+export type SunlightLevel =
+  | 'full-sun'
+  | 'mostly-sun'
+  | 'part-sun'
+  | 'dappled-light'
+  | 'mostly-shade'
+  | 'deep-shade';
+
+export type ShelterLevel =
+  | 'very-exposed'
+  | 'some-shelter'
+  | 'well-sheltered'
+  | 'fully-protected'
+  | 'changes-with-season'
+  | 'not-sure';
+
+export type IngredientCategory =
+  | 'compost'
+  | 'manure'
+  | 'organic-matter'
+  | 'minerals'
+  | 'aeration'
+  | 'water-retention'
+  | 'amendments'
+  | 'fertiliser'
+  | 'biological-additives'
+  | 'ph-adjusters'
+  | 'structure-bulk'
+  | 'growing-medium'
+  | 'mulch'
+  | 'other';
 
 export interface Ingredient {
   id: string;
@@ -25,7 +141,21 @@ export interface Ingredient {
   updatedAt?: string;
 }
 
-export type GardenProductCategory = 'fertiliser' | 'soil-conditioner' | 'wetting-agent' | 'pest-treatment' | 'disease-treatment' | 'weed-treatment' | 'biological-treatment' | 'root-treatment' | 'plant-tonic' | 'growing-medium' | 'mulch' | 'seed-treatment' | 'cleaning-product' | 'other';
+export type GardenProductCategory =
+  | 'fertiliser'
+  | 'soil-conditioner'
+  | 'wetting-agent'
+  | 'pest-treatment'
+  | 'disease-treatment'
+  | 'weed-treatment'
+  | 'biological-treatment'
+  | 'root-treatment'
+  | 'plant-tonic'
+  | 'growing-medium'
+  | 'mulch'
+  | 'seed-treatment'
+  | 'cleaning-product'
+  | 'other';
 
 export interface GardenProduct {
   id: string;
@@ -44,7 +174,11 @@ export interface GardenProduct {
   updatedAt?: string;
 }
 
-export type GrowingSetupCategory = 'own-mix' | 'bought-mix' | 'ground-type' | 'growing-system';
+export type GrowingSetupCategory =
+  | 'own-mix'
+  | 'bought-mix'
+  | 'ground-type'
+  | 'growing-system';
 
 export interface GrowingSetup {
   id: string;
@@ -56,13 +190,30 @@ export interface GrowingSetup {
   isArchived?: boolean;
   archivedAt?: string;
   ingredientIds?: string[];
+
   recipeComponents?: Array<{
-    sourceType: 'ingredient' | 'product' | 'growing-setup';
+    sourceType:
+      | 'ingredient'
+      | 'product'
+      | 'growing-setup';
+
     sourceId: string;
+
     quantity?: number;
-    unit?: 'part' | 'litre' | 'millilitre' | 'kilogram' | 'gram' | 'handful' | 'scoop' | 'other';
+
+    unit?:
+      | 'part'
+      | 'litre'
+      | 'millilitre'
+      | 'kilogram'
+      | 'gram'
+      | 'handful'
+      | 'scoop'
+      | 'other';
+
     customUnitLabel?: string;
   }>;
+
   brand?: string;
   productName?: string;
   groundType?: GrowingGroundType;
@@ -88,8 +239,30 @@ export interface GrowingPlace {
   updatedAt?: string;
 }
 
-export type PurchaseItemType = 'ingredient' | 'growing-setup' | 'plant' | 'seed' | 'seedling' | 'fertiliser' | 'product' | 'container' | 'equipment' | 'other';
-export type PurchaseUnit = 'each' | 'packet' | 'bag' | 'box' | 'tray' | 'litre' | 'millilitre' | 'kilogram' | 'gram' | 'metre' | 'other';
+export type PurchaseItemType =
+  | 'ingredient'
+  | 'growing-setup'
+  | 'plant'
+  | 'seed'
+  | 'seedling'
+  | 'fertiliser'
+  | 'product'
+  | 'container'
+  | 'equipment'
+  | 'other';
+
+export type PurchaseUnit =
+  | 'each'
+  | 'packet'
+  | 'bag'
+  | 'box'
+  | 'tray'
+  | 'litre'
+  | 'millilitre'
+  | 'kilogram'
+  | 'gram'
+  | 'metre'
+  | 'other';
 
 export interface PurchaseRecord {
   id: string;
@@ -113,7 +286,13 @@ export interface PurchaseRecord {
   updatedAt?: string;
 }
 
-export type CostAllocationTargetType = 'plant' | 'growing-setup' | 'growing-place' | 'harvest' | 'garden-trial' | 'other';
+export type CostAllocationTargetType =
+  | 'plant'
+  | 'growing-setup'
+  | 'growing-place'
+  | 'harvest'
+  | 'garden-trial'
+  | 'other';
 
 export interface CostAllocation {
   id: string;
@@ -128,10 +307,43 @@ export interface CostAllocation {
   updatedAt?: string;
 }
 
-export type StartMethod = 'seed' | 'seedling' | 'cutting' | 'sucker' | 'seed-potato' | 'tuber' | 'bulb' | 'rhizome' | 'division' | 'bought-plant' | 'other';
-export type SeedlingFloweringState = 'yes' | 'no' | 'not-sure';
-export type PlantOriginType = 'bought' | 'saved-from-garden' | 'propagated-from-plant' | 'gifted' | 'swapped' | 'found-or-existing' | 'unknown' | 'other';
-export type GrowingSpaceType = 'garden-bed' | 'in-ground' | 'pot' | 'grow-bag' | 'greenhouse' | 'hanging-basket' | 'indoor' | 'other';
+export type StartMethod =
+  | 'seed'
+  | 'seedling'
+  | 'cutting'
+  | 'sucker'
+  | 'seed-potato'
+  | 'tuber'
+  | 'bulb'
+  | 'rhizome'
+  | 'division'
+  | 'bought-plant'
+  | 'other';
+
+export type SeedlingFloweringState =
+  | 'yes'
+  | 'no'
+  | 'not-sure';
+
+export type PlantOriginType =
+  | 'bought'
+  | 'saved-from-garden'
+  | 'propagated-from-plant'
+  | 'gifted'
+  | 'swapped'
+  | 'found-or-existing'
+  | 'unknown'
+  | 'other';
+
+export type GrowingSpaceType =
+  | 'garden-bed'
+  | 'in-ground'
+  | 'pot'
+  | 'grow-bag'
+  | 'greenhouse'
+  | 'hanging-basket'
+  | 'indoor'
+  | 'other';
 
 export interface GrowingSpace {
   id: string;
@@ -140,7 +352,10 @@ export interface GrowingSpace {
   notes?: string;
 }
 
-export type PlantHarvestTimingUnit = 'days' | 'weeks' | 'months';
+export type PlantHarvestTimingUnit =
+  | 'days'
+  | 'weeks'
+  | 'months';
 
 export interface PlantGrowingHistoryEntry {
   id: string;
@@ -195,18 +410,51 @@ export interface PlantStory {
   expectedHarvestDaysMin?: number;
   expectedHarvestDaysMax?: number;
   harvestTimingInputUnit?: PlantHarvestTimingUnit;
+
   harvestTimingReference?: {
-    sourceType: 'sown' | 'planted' | 'planted-out' | 'purchased' | 'garden-event' | 'custom-date';
+    sourceType:
+      | 'sown'
+      | 'planted'
+      | 'planted-out'
+      | 'purchased'
+      | 'garden-event'
+      | 'custom-date';
+
     eventId?: string;
     customDate?: string;
     customLabel?: string;
   };
+
   tags?: string[];
 }
 
-export type EventType = 'planted' | 'sprouted' | 'watered' | 'fed' | 'moved' | 'hilled' | 'pruned' | 'treated' | 'weather' | 'observation' | 'photo' | 'harvest' | 'note';
-export type GrowingPlaceScope = 'none' | 'single' | 'multiple' | 'entire-garden';
-export type PlantScope = 'none' | 'single' | 'multiple' | 'category' | 'all-plants';
+export type EventType =
+  | 'planted'
+  | 'sprouted'
+  | 'watered'
+  | 'fed'
+  | 'moved'
+  | 'hilled'
+  | 'pruned'
+  | 'treated'
+  | 'weather'
+  | 'observation'
+  | 'photo'
+  | 'harvest'
+  | 'note';
+
+export type GrowingPlaceScope =
+  | 'none'
+  | 'single'
+  | 'multiple'
+  | 'entire-garden';
+
+export type PlantScope =
+  | 'none'
+  | 'single'
+  | 'multiple'
+  | 'category'
+  | 'all-plants';
 
 export interface GardenEvent {
   id: string;
@@ -225,10 +473,41 @@ export interface GardenEvent {
   plantCategory?: string;
 }
 
-export type HarvestType = 'first' | 'regular' | 'main' | 'secondary' | 'final' | 'other';
-export type HarvestQuality = 'poor' | 'fair' | 'good' | 'excellent';
-export type HarvestPlantOutcome = 'still-producing' | 'more-expected' | 'main-harvest-complete' | 'finished' | 'no-change' | 'not-sure' | 'other';
-export type HarvestMeasurementUnit = 'gram' | 'kilogram' | 'millilitre' | 'litre' | 'centimetre' | 'inch' | 'bunch' | 'handful' | 'basket' | 'container' | 'other';
+export type HarvestType =
+  | 'first'
+  | 'regular'
+  | 'main'
+  | 'secondary'
+  | 'final'
+  | 'other';
+
+export type HarvestQuality =
+  | 'poor'
+  | 'fair'
+  | 'good'
+  | 'excellent';
+
+export type HarvestPlantOutcome =
+  | 'still-producing'
+  | 'more-expected'
+  | 'main-harvest-complete'
+  | 'finished'
+  | 'no-change'
+  | 'not-sure'
+  | 'other';
+
+export type HarvestMeasurementUnit =
+  | 'gram'
+  | 'kilogram'
+  | 'millilitre'
+  | 'litre'
+  | 'centimetre'
+  | 'inch'
+  | 'bunch'
+  | 'handful'
+  | 'basket'
+  | 'container'
+  | 'other';
 
 export interface HarvestRecord {
   id: string;
@@ -249,8 +528,22 @@ export interface HarvestRecord {
   updatedAt?: string;
 }
 
-export type GardenPlanKind = 'sow' | 'plant' | 'plant-out' | 'move' | 'feed' | 'treat' | 'harvest' | 'buy' | 'garden-task' | 'other';
-export type GardenPlanStatus = 'planned' | 'recorded' | 'not-done';
+export type GardenPlanKind =
+  | 'sow'
+  | 'plant'
+  | 'plant-out'
+  | 'move'
+  | 'feed'
+  | 'treat'
+  | 'harvest'
+  | 'buy'
+  | 'garden-task'
+  | 'other';
+
+export type GardenPlanStatus =
+  | 'planned'
+  | 'recorded'
+  | 'not-done';
 
 export interface PlannedPlantDetails {
   plantName?: string;
@@ -260,8 +553,16 @@ export interface PlannedPlantDetails {
   customStartMethodLabel?: string;
 }
 
-export type GardenPlanTimingReference = 'sown' | 'planted' | 'planted-out';
-export type GardenPlanTimingKnowledgeSource = 'gardener' | 'sprig-history' | 'reference' | 'unknown';
+export type GardenPlanTimingReference =
+  | 'sown'
+  | 'planted'
+  | 'planted-out';
+
+export type GardenPlanTimingKnowledgeSource =
+  | 'gardener'
+  | 'sprig-history'
+  | 'reference'
+  | 'unknown';
 
 export interface GardenPlanTimingAssumption {
   referenceType: GardenPlanTimingReference;
@@ -279,7 +580,11 @@ export interface GardenPlanScheduleChange {
   changedAt: string;
 }
 
-export type GardenPlanResultRecordType = 'plant-story' | 'garden-event' | 'harvest' | 'purchase';
+export type GardenPlanResultRecordType =
+  | 'plant-story'
+  | 'garden-event'
+  | 'harvest'
+  | 'purchase';
 
 export interface GardenPlanResult {
   recordType: GardenPlanResultRecordType;
@@ -308,7 +613,10 @@ export interface GardenPlan {
   updatedAt?: string;
 }
 
-export type ComparisonRecordType = 'plant-story' | 'growing-place' | 'growing-setup';
+export type ComparisonRecordType =
+  | 'plant-story'
+  | 'growing-place'
+  | 'growing-setup';
 
 export interface ComparisonItem {
   recordType: ComparisonRecordType;
@@ -323,7 +631,21 @@ export interface SavedComparison {
   updatedAt?: string;
 }
 
-export type KnowledgeRelationshipTargetType = 'plant-story' | 'garden-event' | 'harvest' | 'plan' | 'growing-place' | 'growing-setup' | 'ingredient' | 'product' | 'purchase' | 'garden-note' | 'plant-reference' | 'saved-source' | 'comparison' | 'garden-trial';
+export type KnowledgeRelationshipTargetType =
+  | 'plant-story'
+  | 'garden-event'
+  | 'harvest'
+  | 'plan'
+  | 'growing-place'
+  | 'growing-setup'
+  | 'ingredient'
+  | 'product'
+  | 'purchase'
+  | 'garden-note'
+  | 'plant-reference'
+  | 'saved-source'
+  | 'comparison'
+  | 'garden-trial';
 
 export interface KnowledgeRelationship {
   targetType: KnowledgeRelationshipTargetType;
@@ -332,8 +654,17 @@ export interface KnowledgeRelationship {
   createdAt?: string;
 }
 
-export type GardenNoteOrigin = 'sprig-note' | 'imported-text';
-export type KnowledgePlacementDestinationType = 'garden-note' | 'plant-reference' | 'saved-source' | 'garden-event' | 'plan' | 'existing-record';
+export type GardenNoteOrigin =
+  | 'sprig-note'
+  | 'imported-text';
+
+export type KnowledgePlacementDestinationType =
+  | 'garden-note'
+  | 'plant-reference'
+  | 'saved-source'
+  | 'garden-event'
+  | 'plan'
+  | 'existing-record';
 
 export interface KnowledgePlacement {
   id: string;
@@ -348,6 +679,13 @@ export interface GardenNote {
   id: string;
   title?: string;
   body: string;
+
+  /*
+   * Gardener-created filing label.
+   * Optional and deliberately open-ended.
+   */
+  category?: string;
+
   noteDate?: string;
   origin: GardenNoteOrigin;
   originalBody?: string;
@@ -360,13 +698,29 @@ export interface GardenNote {
   updatedAt?: string;
 }
 
-export type SavedKnowledgeSourceKind = 'website' | 'facebook' | 'chatgpt' | 'person' | 'nursery' | 'book' | 'video' | 'screenshot' | 'other';
+export type SavedKnowledgeSourceKind =
+  | 'website'
+  | 'facebook'
+  | 'chatgpt'
+  | 'person'
+  | 'nursery'
+  | 'book'
+  | 'video'
+  | 'screenshot'
+  | 'other';
 
 export interface SavedKnowledgeSource {
   id: string;
   title: string;
   kind: SavedKnowledgeSourceKind;
   customKindLabel?: string;
+
+  /*
+   * Gardener-created filing label.
+   * This is separate from the source kind.
+   */
+  category?: string;
+
   sourceName?: string;
   url?: string;
   excerpt?: string;
@@ -378,12 +732,49 @@ export interface SavedKnowledgeSource {
   updatedAt?: string;
 }
 
+export type GardenReferenceSubjectType =
+  | 'plant-crop'
+  | 'product'
+  | 'pest-problem'
+  | 'other';
+
+export type PlantReferenceTopic =
+  | 'planting-timing'
+  | 'watering'
+  | 'sun-position'
+  | 'feeding'
+  | 'harvesting'
+  | 'growing-behaviour'
+  | 'pests-problems'
+  | 'other';
+
 export interface PlantReference {
   id: string;
+
+  /*
+   * Broad Garden Reference subject architecture.
+   */
+  subjectType?: GardenReferenceSubjectType;
+  subjectId?: string;
+  subjectLabel?: string;
+  customSubjectTypeLabel?: string;
+
+  /*
+   * Required for compatibility with older Sprig records.
+   * Non-plant Garden References store an empty string.
+   */
   plantName: string;
+
   variety?: string;
-  aliases?: string[];
+
+  title?: string;
+  topic?: PlantReferenceTopic;
+  customTopicLabel?: string;
+
+  knowledge?: string;
   notes?: string;
+
+  aliases?: string[];
   referenceDate?: string;
   photoUrls?: string[];
   sourceIds?: string[];
@@ -392,9 +783,21 @@ export interface PlantReference {
   updatedAt?: string;
 }
 
-export type GardenTrialStatus = 'active' | 'completed' | 'set-aside';
-export type GardenTrialResult = 'clear' | 'mixed' | 'inconclusive' | 'interrupted';
-export type GardenTrialTimingUnit = 'days' | 'weeks' | 'months';
+export type GardenTrialStatus =
+  | 'active'
+  | 'completed'
+  | 'set-aside';
+
+export type GardenTrialResult =
+  | 'clear'
+  | 'mixed'
+  | 'inconclusive'
+  | 'interrupted';
+
+export type GardenTrialTimingUnit =
+  | 'days'
+  | 'weeks'
+  | 'months';
 
 export interface GardenTrialObservation {
   id: string;

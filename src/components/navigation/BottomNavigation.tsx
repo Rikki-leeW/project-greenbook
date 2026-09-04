@@ -28,10 +28,8 @@ const bottomItems:
     {
       page:
         'gate',
-
       label:
         'Today',
-
       icon:
         '🌿',
     },
@@ -39,10 +37,8 @@ const bottomItems:
     {
       page:
         'plants',
-
       label:
         'Plants',
-
       icon:
         '🌱',
     },
@@ -50,10 +46,8 @@ const bottomItems:
     {
       page:
         'journal',
-
       label:
         'Journal',
-
       icon:
         '📖',
     },
@@ -81,8 +75,16 @@ export default function BottomNavigation({
         bottom:
           0,
 
+        /*
+         * Persistent navigation belongs
+         * underneath Sprig's modal forms.
+         *
+         * Form backdrops use z-index 1000,
+         * so navigation must remain below
+         * that layer.
+         */
         zIndex:
-          3000,
+          500,
 
         display:
           'grid',
@@ -120,17 +122,21 @@ export default function BottomNavigation({
               key={
                 item.page
               }
+
               type="button"
+
               onClick={() =>
                 onNavigate(
                   item.page,
                 )
               }
+
               aria-current={
                 isActive
                   ? 'page'
                   : undefined
               }
+
               style={{
                 display:
                   'flex',
@@ -185,6 +191,7 @@ export default function BottomNavigation({
                 }
               </span>
 
+
               <span
                 style={{
                   fontSize:
@@ -207,9 +214,11 @@ export default function BottomNavigation({
 
       <button
         type="button"
+
         onClick={
           onOpenSatchel
         }
+
         style={{
           display:
             'flex',
@@ -254,6 +263,7 @@ export default function BottomNavigation({
         >
           ☰
         </span>
+
 
         <span
           style={{

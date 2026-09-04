@@ -466,6 +466,67 @@
   cursor: not-allowed;
 }
 
+/* =======================================
+   PLANT STORY ACTIVE / HISTORY VIEW
+======================================= */
+
+.plant-story-view-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 24px;
+}
+
+.plant-story-view-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 11px 15px;
+  border: 1px solid rgba(66, 91, 57, 0.13);
+  border-radius: 16px;
+  background: rgba(255, 253, 247, 0.72);
+  color: #52604e;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.plant-story-view-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(66, 91, 57, 0.26);
+}
+
+.plant-story-view-button.active {
+  border-color: rgba(82, 112, 71, 0.32);
+  background: rgba(231, 240, 221, 0.82);
+}
+
+.plant-story-view-button > span:first-child {
+  flex: 0 0 auto;
+  font-size: 1.1rem;
+}
+
+.plant-story-view-button > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.plant-story-view-button strong {
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.plant-story-view-button small {
+  color: #758071;
+  font-size: 0.74rem;
+}
 
 /* Leave enough room to scroll past the tray */
 

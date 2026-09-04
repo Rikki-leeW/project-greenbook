@@ -1,1726 +1,3273 @@
-import { useEffect, useMemo, useState, } from 'react';
+import {
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
+
 import GardenLayout from '../components/layout/GardenLayout';
+import GardenReference from '../components/knowledge/GardenReference';
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 import SprigPhotoPicker from '../components/photos/SprigPhotoPicker';
-import type { AppPage, } from '../types/navigation';
-import type { GardenData, GardenEvent, GardenNote, GardenPlan, KnowledgePlacement, KnowledgeRelationship, KnowledgeRelationshipTargetType, PlantReference, SavedKnowledgeSource, SavedKnowledgeSourceKind, } from '../types';
+
+import type {
+    AppPage,
+} from '../types/navigation';
+
+import type {
+    GardenData,
+    GardenEvent,
+    GardenNote,
+    GardenPlan,
+    KnowledgePlacement,
+    KnowledgeRelationship,
+    KnowledgeRelationshipTargetType,
+    PlantReference,
+    SavedKnowledgeSource,
+    SavedKnowledgeSourceKind,
+} from '../types';
+
 import '../css/garden-knowledge.css';
-export type GardenKnowledgeView = 'notes' | 'almanac' | 'reference' | 'sources';
-export type GardenKnowledgeRecordType = 'garden-note' | 'plant-reference' | 'saved-source';
+
+
+export type GardenKnowledgeView =
+    | 'notes'
+    | 'almanac'
+    | 'reference'
+    | 'sources';
+
+
+export type GardenKnowledgeRecordType =
+    | 'garden-note'
+    | 'plant-reference'
+    | 'saved-source';
+
+
 interface GardenKnowledgeRecordDestination {
-    sourceType: GardenKnowledgeRecordType;
-    recordId: string;
+    sourceType:
+        GardenKnowledgeRecordType;
+
+    recordId:
+        string;
 }
+
+
 interface GardenKnowledgeProps {
-    view: GardenKnowledgeView;
-    gardenData: GardenData;
-    initialRecord?: GardenKnowledgeRecordDestination | null;
-    journeyBackLabel?: string | null;
-    onJourneyBack?: () => void;
-    onGardenDataChange: (gardenData: GardenData) => void;
-    onRecordSelectionChange: (destination: GardenKnowledgeRecordDestination | null) => void;
-    onNavigate: (page: AppPage) => void;
-    onOpenRelationship: (targetType: KnowledgeRelationshipTargetType, targetId: string) => void;
+    view:
+        GardenKnowledgeView;
+
+    gardenData:
+        GardenData;
+
+    initialRecord?:
+        GardenKnowledgeRecordDestination |
+        null;
+
+    journeyBackLabel?:
+        string |
+        null;
+
+    onJourneyBack?:
+        () => void;
+
+    onGardenDataChange:
+        (
+            gardenData:
+                GardenData,
+        ) => void;
+
+    onRecordSelectionChange:
+        (
+            destination:
+                | GardenKnowledgeRecordDestination
+                | null,
+        ) => void;
+
+    onNavigate:
+        (
+            page:
+                AppPage,
+        ) => void;
+
+    onOpenRelationship:
+        (
+            targetType:
+                KnowledgeRelationshipTargetType,
+            targetId:
+                string,
+        ) => void;
 }
-type KnowledgePlacementSuggestionType = 'journal' | 'plan' | 'reference' | 'source' | 'keep-note';
-interface KnowledgePlacementSuggestion {
-    type: KnowledgePlacementSuggestionType;
-    label: string;
-    reason: string;
-}
+
+
 interface RelationshipOption {
-    targetType: KnowledgeRelationshipTargetType;
-    targetId: string;
-    label: string;
-    group: string;
+    targetType:
+        KnowledgeRelationshipTargetType;
+
+    targetId:
+        string;
+
+    label:
+        string;
+
+    group:
+        string;
 }
-interface KnowledgeExportSection {
-    heading?: string;
-    body?: string;
-    lines?: string[];
-}
-interface KnowledgeExportDocument {
-    eyebrow: string;
-    title: string;
-    dateLine?: string;
-    meta?: string[];
-    sections: KnowledgeExportSection[];
-    photoUrls?: string[];
-}
+
+
 interface AlmanacThread {
-    key: string;
-    label: string;
-    plantStoryCount: number;
-    harvestCount: number;
-    noteCount: number;
-    sourceCount: number;
-    referenceCount: number;
-    evidenceCount: number;
+    key:
+        string;
+
+    label:
+        string;
+
+    plantStoryCount:
+        number;
+
+    harvestCount:
+        number;
+
+    noteCount:
+        number;
+
+    sourceCount:
+        number;
+
+    referenceCount:
+        number;
+
+    evidenceCount:
+        number;
 }
-const KNOWLEDGE_TABS: Array<{
-    page: AppPage;
-    view: GardenKnowledgeView;
-    label: string;
-    icon: string;
-}> = [
-    {
-        page: 'garden-notes',
-        view: 'notes',
-        label: 'Garden Notes',
-        icon: '📝',
-    },
-    {
-        page: 'garden-almanac',
-        view: 'almanac',
-        label: 'Garden Almanac',
-        icon: '📖',
-    },
-    {
-        page: 'plant-reference',
-        view: 'reference',
-        label: 'Plant Reference',
-        icon: '🌿',
-    },
-    {
-        page: 'saved-sources',
-        view: 'sources',
-        label: 'Tips & Sources',
-        icon: '🔖',
-    },
-];
-const SOURCE_KIND_OPTIONS: Array<{
-    value: SavedKnowledgeSourceKind;
-    label: string;
-}> = [
-    {
-        value: 'website',
-        label: 'Website or article',
-    },
-    {
-        value: 'facebook',
-        label: 'Facebook gardener or group',
-    },
-    {
-        value: 'chatgpt',
-        label: 'ChatGPT conversation',
-    },
-    {
-        value: 'person',
-        label: 'A person or gardener',
-    },
-    {
-        value: 'nursery',
-        label: 'Nursery or garden store',
-    },
-    {
-        value: 'book',
-        label: 'Book or printed reference',
-    },
-    {
-        value: 'video',
-        label: 'Video',
-    },
-    {
-        value: 'screenshot',
-        label: 'Screenshot',
-    },
-    {
-        value: 'other',
-        label: 'Something else',
-    },
-];
-function getToday(): string {
+
+
+type KnowledgePlacementSuggestionType =
+    | 'journal'
+    | 'plan'
+    | 'reference'
+    | 'source'
+    | 'keep-note';
+
+
+interface KnowledgePlacementSuggestion {
+    type:
+        KnowledgePlacementSuggestionType;
+
+    label:
+        string;
+
+    reason:
+        string;
+}
+
+
+interface KnowledgeExportSection {
+    heading?:
+        string;
+
+    body?:
+        string;
+
+    lines?:
+        string[];
+}
+
+
+interface KnowledgeExportDocument {
+    eyebrow:
+        string;
+
+    title:
+        string;
+
+    dateLine?:
+        string;
+
+    meta?:
+        string[];
+
+    sections:
+        KnowledgeExportSection[];
+
+    photoUrls?:
+        string[];
+}
+
+
+const KNOWLEDGE_TABS:
+    Array<{
+        page:
+            AppPage;
+
+        view:
+            GardenKnowledgeView;
+
+        label:
+            string;
+
+        icon:
+            string;
+    }> = [
+        {
+            page:
+                'garden-notes',
+
+            view:
+                'notes',
+
+            label:
+                'Garden Notes',
+
+            icon:
+                '📝',
+        },
+
+        {
+            page:
+                'garden-almanac',
+
+            view:
+                'almanac',
+
+            label:
+                'Garden Almanac',
+
+            icon:
+                '📖',
+        },
+
+        {
+            page:
+                'plant-reference',
+
+            view:
+                'reference',
+
+            label:
+                'Garden Reference',
+
+            icon:
+                '🌿',
+        },
+
+        {
+            page:
+                'saved-sources',
+
+            view:
+                'sources',
+
+            label:
+                'Tips & Sources',
+
+            icon:
+                '🔖',
+        },
+    ];
+
+
+const SOURCE_KIND_OPTIONS:
+    Array<{
+        value:
+            SavedKnowledgeSourceKind;
+
+        label:
+            string;
+    }> = [
+        {
+            value:
+                'website',
+
+            label:
+                'Website or article',
+        },
+
+        {
+            value:
+                'facebook',
+
+            label:
+                'Facebook gardener or group',
+        },
+
+        {
+            value:
+                'chatgpt',
+
+            label:
+                'ChatGPT conversation',
+        },
+
+        {
+            value:
+                'person',
+
+            label:
+                'A person or gardener',
+        },
+
+        {
+            value:
+                'nursery',
+
+            label:
+                'Nursery or garden store',
+        },
+
+        {
+            value:
+                'book',
+
+            label:
+                'Book or printed reference',
+        },
+
+        {
+            value:
+                'video',
+
+            label:
+                'Video',
+        },
+
+        {
+            value:
+                'screenshot',
+
+            label:
+                'Screenshot',
+        },
+
+        {
+            value:
+                'other',
+
+            label:
+                'Something else',
+        },
+    ];
+
+
+function getToday():
+    string {
     return new Date()
         .toISOString()
-        .slice(0, 10);
+        .slice(
+            0,
+            10,
+        );
 }
-function getNow(): string {
+
+
+function getNow():
+    string {
     return new Date()
         .toISOString();
 }
-function formatDate(value?: string): string {
-    if (!value) {
-        return '';
-    }
-    const safe = value.slice(0, 10);
-    const date = new Date(`${safe}T00:00:00`);
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-    return date.toLocaleDateString('en-AU', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
-}
-function getFirstUsefulLine(body: string): string {
-    return (body
-        .split(/\r?\n/)
-        .map(line => line.trim())
-        .find(Boolean) ??
-        'Garden note');
-}
-function makeTitleFromBody(body: string): string {
-    const line = getFirstUsefulLine(body);
-    if (line.length <= 68) {
-        return line;
-    }
-    return `${line
-        .slice(0, 65)
-        .trim()}…`;
-}
-function normalise(value?: string): string {
-    return (value ?? '')
+
+
+function normalise(
+    value?:
+        string,
+):
+    string {
+    return (
+        value ??
+        ''
+    )
         .toLocaleLowerCase()
-        .replace(/[^a-z0-9]+/g, ' ')
-        .replace(/\s+/g, ' ')
+        .replace(
+            /[^a-z0-9]+/g,
+            ' ',
+        )
+        .replace(
+            /\s+/g,
+            ' ',
+        )
         .trim();
 }
-function getReferenceLabel(reference: PlantReference): string {
-    return [
-        reference.plantName,
-        reference.variety,
-    ]
-        .filter(Boolean)
-        .join(' · ');
+
+
+function formatDate(
+    value?:
+        string,
+):
+    string {
+    if (
+        !value
+    ) {
+        return '';
+    }
+
+    const safe =
+        value.slice(
+            0,
+            10,
+        );
+
+    const date =
+        new Date(
+            `${safe}T00:00:00`,
+        );
+
+    if (
+        Number.isNaN(
+            date.getTime(),
+        )
+    ) {
+        return value;
+    }
+
+    return date.toLocaleDateString(
+        'en-AU',
+        {
+            day:
+                'numeric',
+
+            month:
+                'short',
+
+            year:
+                'numeric',
+        },
+    );
 }
-function getSourceKindLabel(source: SavedKnowledgeSource): string {
-    if (source.kind === 'other' &&
-        source.customKindLabel?.trim()) {
+
+
+function makeTitleFromBody(
+    body:
+        string,
+):
+    string {
+    const firstLine =
+        body
+            .split(
+                /\r?\n/,
+            )
+            .map(
+                line =>
+                    line.trim(),
+            )
+            .find(
+                Boolean,
+            ) ??
+        'Garden note';
+
+    return firstLine.length <=
+        68
+        ? firstLine
+        : `${firstLine
+              .slice(
+                  0,
+                  65,
+              )
+              .trim()}…`;
+}
+
+
+function getReferenceKnowledge(
+    reference:
+        PlantReference,
+):
+    string {
+    return (
+        reference.knowledge?.trim() ||
+        reference.notes?.trim() ||
+        ''
+    );
+}
+
+
+function getReferenceTitle(
+    reference:
+        PlantReference,
+):
+    string {
+    if (
+        reference.title?.trim()
+    ) {
+        return reference.title.trim();
+    }
+
+    const knowledge =
+        getReferenceKnowledge(
+            reference,
+        );
+
+    if (
+        knowledge
+    ) {
+        return makeTitleFromBody(
+            knowledge,
+        );
+    }
+
+    return (
+        reference.variety?.trim() ||
+        reference.plantName?.trim() ||
+        reference.subjectLabel?.trim() ||
+        'Garden Reference'
+    );
+}
+
+
+function getReferenceSubjectLabel(
+    reference:
+        PlantReference,
+):
+    string {
+    if (
+        reference.subjectType &&
+        reference.subjectType !==
+            'plant-crop'
+    ) {
+        return (
+            reference.subjectLabel?.trim() ||
+            getReferenceTitle(
+                reference,
+            )
+        );
+    }
+
+    return (
+        reference.plantName?.trim() ||
+        'Garden Reference'
+    );
+}
+
+
+function getSourceKindLabel(
+    source:
+        SavedKnowledgeSource,
+):
+    string {
+    if (
+        source.kind ===
+            'other' &&
+        source.customKindLabel?.trim()
+    ) {
         return source.customKindLabel.trim();
     }
-    return (SOURCE_KIND_OPTIONS.find(option => option.value === source.kind)?.label ??
-        'Saved source');
+
+    return (
+        SOURCE_KIND_OPTIONS.find(
+            option =>
+                option.value ===
+                source.kind,
+        )?.label ??
+        'Saved source'
+    );
 }
-function getPlacementSuggestions(note: GardenNote): KnowledgePlacementSuggestion[] {
-    const text = normalise(`${note.title ?? ''} ${note.body}`);
-    const rawText = `${note.title ?? ''} ${note.body}`;
-    const suggestions: KnowledgePlacementSuggestion[] = [];
-    const containsUrl = /https?:\/\/\S+/i.test(rawText);
-    const soundsLikeExternalAdvice = /\b(facebook|article|website|chatgpt|someone said|grower said|nursery|read that|tip|recommended|recommends)\b/.test(text);
-    const soundsLikeReality = /\b(planted|sowed|sown|sprouted|watered|fed|fertilised|fertilized|harvested|moved|sprayed|treated|bought|noticed|died|flowered|hilled)\b/.test(text);
-    const soundsLikePlan = /\b(to do|remember to|need to|want to|plan to|next time|buy|plant next|sow next|get kennebec|get )\b/.test(text);
-    const soundsLikeReference = /\b(variety|weeks|days to harvest|determinate|indeterminate|usually|good for|best for|planting depth|spacing|harvest window|warm climate|cool climate)\b/.test(text);
-    const soundsUncertain = rawText.includes('?') ||
-        /\b(maybe|perhaps|possibly|seems|wonder|effect)\b/.test(text);
-    if (soundsLikeReality) {
-        suggestions.push({
-            type: 'journal',
-            label: 'Possible garden history',
-            reason: 'This note uses words that sound like something may actually have happened. Sprig can create a Journal record only if you confirm it.',
-        });
-    }
-    if (soundsLikePlan) {
-        suggestions.push({
-            type: 'plan',
-            label: 'Possible Plan',
-            reason: 'This sounds as though part of the note may be something you intend to do rather than something already done.',
-        });
-    }
-    if (soundsLikeReference) {
-        suggestions.push({
-            type: 'reference',
-            label: 'Possible Plant Reference',
-            reason: 'This contains reusable plant or variety information that may belong beside Plant Reference rather than inside one Plant Story.',
-        });
-    }
-    if (containsUrl ||
-        soundsLikeExternalAdvice) {
-        suggestions.push({
-            type: 'source',
-            label: 'Possible Tip or Source',
-            reason: 'Sprig noticed a link or language that sounds like advice from somewhere outside your own garden.',
-        });
-    }
-    if (soundsUncertain ||
-        suggestions.length === 0) {
-        suggestions.push({
-            type: 'keep-note',
-            label: 'Keep this as a Garden Note',
-            reason: soundsUncertain
-                ? 'This sounds uncertain or exploratory. Sprig should preserve the question rather than turn it into a fact.'
-                : 'Nothing here needs to be forced into another home. A Garden Note is allowed to stay exactly where it is.',
-        });
-    }
-    return suggestions;
+
+
+function getRelationshipOptions(
+    gardenData:
+        GardenData,
+):
+    RelationshipOption[] {
+    const options:
+        RelationshipOption[] =
+        [];
+
+    (
+        gardenData.plantStories ??
+        []
+    ).forEach(
+        plant => {
+            options.push({
+                targetType:
+                    'plant-story',
+
+                targetId:
+                    plant.id,
+
+                label:
+                    plant.displayName ||
+                    plant.variety ||
+                    plant.plantName,
+
+                group:
+                    'Plant Stories',
+            });
+        },
+    );
+
+    (
+        gardenData.events ??
+        []
+    ).forEach(
+        event => {
+            options.push({
+                targetType:
+                    'garden-event',
+
+                targetId:
+                    event.id,
+
+                label:
+                    event.title,
+
+                group:
+                    'Journal',
+            });
+        },
+    );
+
+    (
+        gardenData.harvests ??
+        []
+    ).forEach(
+        harvest => {
+            const plantNames =
+                harvest.plantStoryIds
+                    .map(
+                        plantId =>
+                            gardenData.plantStories.find(
+                                plant =>
+                                    plant.id ===
+                                    plantId,
+                            ),
+                    )
+                    .filter(
+                        Boolean,
+                    )
+                    .map(
+                        plant =>
+                            plant?.displayName ||
+                            plant?.variety ||
+                            plant?.plantName ||
+                            '',
+                    )
+                    .filter(
+                        Boolean,
+                    );
+
+            options.push({
+                targetType:
+                    'harvest',
+
+                targetId:
+                    harvest.id,
+
+                label:
+                    plantNames.length >
+                    0
+                        ? `Harvest · ${plantNames.join(
+                              ', ',
+                          )}`
+                        : `Harvest · ${formatDate(
+                              harvest.date,
+                          )}`,
+
+                group:
+                    'Harvests',
+            });
+        },
+    );
+
+    (
+        gardenData.plans ??
+        []
+    ).forEach(
+        plan => {
+            options.push({
+                targetType:
+                    'plan',
+
+                targetId:
+                    plan.id,
+
+                label:
+                    plan.title,
+
+                group:
+                    'Plans',
+            });
+        },
+    );
+
+    (
+        gardenData.growingPlaces ??
+        []
+    ).forEach(
+        place => {
+            options.push({
+                targetType:
+                    'growing-place',
+
+                targetId:
+                    place.id,
+
+                label:
+                    place.name,
+
+                group:
+                    'Growing Places',
+            });
+        },
+    );
+
+    (
+        gardenData.growingSetups ??
+        []
+    ).forEach(
+        setup => {
+            options.push({
+                targetType:
+                    'growing-setup',
+
+                targetId:
+                    setup.id,
+
+                label:
+                    setup.name,
+
+                group:
+                    'Growing Recipes',
+            });
+        },
+    );
+
+    (
+        gardenData.ingredients ??
+        []
+    ).forEach(
+        ingredient => {
+            options.push({
+                targetType:
+                    'ingredient',
+
+                targetId:
+                    ingredient.id,
+
+                label:
+                    ingredient.name,
+
+                group:
+                    'Ingredients',
+            });
+        },
+    );
+
+    (
+        gardenData.products ??
+        []
+    ).forEach(
+        product => {
+            options.push({
+                targetType:
+                    'product',
+
+                targetId:
+                    product.id,
+
+                label:
+                    product.name,
+
+                group:
+                    'Products',
+            });
+        },
+    );
+
+    (
+        gardenData.purchases ??
+        []
+    ).forEach(
+        purchase => {
+            options.push({
+                targetType:
+                    'purchase',
+
+                targetId:
+                    purchase.id,
+
+                label:
+                    `${purchase.itemName} · ${formatDate(
+                        purchase.date,
+                    )}`,
+
+                group:
+                    'Purchases',
+            });
+        },
+    );
+
+    (
+        gardenData.plantReferences ??
+        []
+    ).forEach(
+        reference => {
+            options.push({
+                targetType:
+                    'plant-reference',
+
+                targetId:
+                    reference.id,
+
+                label:
+                    getReferenceTitle(
+                        reference,
+                    ),
+
+                group:
+                    'Garden Reference',
+            });
+        },
+    );
+
+    (
+        gardenData.savedKnowledgeSources ??
+        []
+    ).forEach(
+        source => {
+            options.push({
+                targetType:
+                    'saved-source',
+
+                targetId:
+                    source.id,
+
+                label:
+                    source.title,
+
+                group:
+                    'Tips & Sources',
+            });
+        },
+    );
+
+    return options.sort(
+        (
+            first,
+            second,
+        ) => {
+            const groupDifference =
+                first.group.localeCompare(
+                    second.group,
+                );
+
+            if (
+                groupDifference !==
+                0
+            ) {
+                return groupDifference;
+            }
+
+            return first.label.localeCompare(
+                second.label,
+            );
+        },
+    );
 }
-function getRelationshipOptions(gardenData: GardenData): RelationshipOption[] {
-    const options: RelationshipOption[] = [];
-    (gardenData.plantStories ?? []).forEach(plant => {
-        options.push({
-            targetType: 'plant-story',
-            targetId: plant.id,
-            label: plant.displayName ||
-                plant.variety ||
-                plant.plantName,
-            group: 'Plant Stories',
-        });
-    });
-    (gardenData.events ?? []).forEach(event => {
-        options.push({
-            targetType: 'garden-event',
-            targetId: event.id,
-            label: event.title,
-            group: 'Journal',
-        });
-    });
-    (gardenData.harvests ?? []).forEach(harvest => {
-        const plantNames = harvest.plantStoryIds
-            .map(plantId => gardenData.plantStories.find(plant => plant.id === plantId))
-            .filter(Boolean)
-            .map(plant => plant?.displayName ||
-            plant?.variety ||
-            plant?.plantName ||
-            '')
-            .filter(Boolean);
-        options.push({
-            targetType: 'harvest',
-            targetId: harvest.id,
-            label: plantNames.length > 0
-                ? `Harvest · ${plantNames.join(', ')}`
-                : `Harvest · ${formatDate(harvest.date)}`,
-            group: 'Harvests',
-        });
-    });
-    (gardenData.plans ?? []).forEach(plan => {
-        options.push({
-            targetType: 'plan',
-            targetId: plan.id,
-            label: plan.title,
-            group: 'Plans',
-        });
-    });
-    (gardenData.growingPlaces ?? []).forEach(place => {
-        options.push({
-            targetType: 'growing-place',
-            targetId: place.id,
-            label: place.name,
-            group: 'Growing Places',
-        });
-    });
-    (gardenData.growingSetups ?? []).forEach(setup => {
-        options.push({
-            targetType: 'growing-setup',
-            targetId: setup.id,
-            label: setup.name,
-            group: 'Growing Recipes',
-        });
-    });
-    (gardenData.ingredients ?? []).forEach(ingredient => {
-        options.push({
-            targetType: 'ingredient',
-            targetId: ingredient.id,
-            label: ingredient.name,
-            group: 'Ingredients',
-        });
-    });
-    (gardenData.products ?? []).forEach(product => {
-        options.push({
-            targetType: 'product',
-            targetId: product.id,
-            label: product.name,
-            group: 'Products',
-        });
-    });
-    (gardenData.purchases ?? []).forEach(purchase => {
-        options.push({
-            targetType: 'purchase',
-            targetId: purchase.id,
-            label: `${purchase.itemName} · ${formatDate(purchase.date)}`,
-            group: 'Purchases',
-        });
-    });
-    (gardenData.plantReferences ?? []).forEach(reference => {
-        options.push({
-            targetType: 'plant-reference',
-            targetId: reference.id,
-            label: getReferenceLabel(reference),
-            group: 'Plant Reference',
-        });
-    });
-    (gardenData.savedKnowledgeSources ?? []).forEach(source => {
-        options.push({
-            targetType: 'saved-source',
-            targetId: source.id,
-            label: source.title,
-            group: 'Tips & Sources',
-        });
-    });
-    return options.sort((first, second) => {
-        const groupDifference = first.group.localeCompare(second.group);
-        if (groupDifference !== 0) {
-            return groupDifference;
-        }
-        return first.label.localeCompare(second.label);
-    });
-}
-function getRelationshipLabel(gardenData: GardenData, relationship: KnowledgeRelationship): string {
-    if (relationship.label?.trim()) {
+
+
+function getRelationshipLabel(
+    gardenData:
+        GardenData,
+
+    relationship:
+        KnowledgeRelationship,
+):
+    string {
+    if (
+        relationship.label?.trim()
+    ) {
         return relationship.label.trim();
     }
-    const option = getRelationshipOptions(gardenData).find(candidate => candidate.targetType ===
-        relationship.targetType &&
-        candidate.targetId ===
-            relationship.targetId);
-    return (option?.label ??
-        'Linked Sprig record');
+
+    const option =
+        getRelationshipOptions(
+            gardenData,
+        ).find(
+            candidate =>
+                candidate.targetType ===
+                    relationship.targetType &&
+                candidate.targetId ===
+                    relationship.targetId,
+        );
+
+    return (
+        option?.label ??
+        'Linked Sprig record'
+    );
 }
-function buildAlmanacThreads(gardenData: GardenData): AlmanacThread[] {
-    const threadMap = new Map<string, AlmanacThread>();
-    function ensureThread(label: string): AlmanacThread {
-        const cleanedLabel = label.trim();
-        const key = normalise(cleanedLabel);
-        const existing = threadMap.get(key);
-        if (existing) {
+
+
+function getPlacementSuggestions(
+    note:
+        GardenNote,
+):
+    KnowledgePlacementSuggestion[] {
+    const text =
+        normalise(
+            `${note.title ?? ''} ${note.body}`,
+        );
+
+    const rawText =
+        `${note.title ?? ''} ${note.body}`;
+
+    const suggestions:
+        KnowledgePlacementSuggestion[] =
+        [];
+
+    const containsUrl =
+        /https?:\/\/\S+/i.test(
+            rawText,
+        );
+
+    const soundsLikeExternalAdvice =
+        /\b(facebook|article|website|chatgpt|someone said|grower said|nursery|read that|tip|recommended|recommends)\b/.test(
+            text,
+        );
+
+    const soundsLikeReality =
+        /\b(planted|sowed|sown|sprouted|watered|fed|fertilised|fertilized|harvested|moved|sprayed|treated|bought|noticed|died|flowered|hilled)\b/.test(
+            text,
+        );
+
+    const soundsLikePlan =
+        /\b(to do|remember to|need to|want to|plan to|next time|buy|plant next|sow next|get )\b/.test(
+            text,
+        );
+
+    const soundsLikeReference =
+        /\b(variety|weeks|days to harvest|determinate|indeterminate|usually|good for|best for|planting depth|spacing|harvest window|warm climate|cool climate)\b/.test(
+            text,
+        );
+
+    const soundsUncertain =
+        rawText.includes(
+            '?',
+        ) ||
+        /\b(maybe|perhaps|possibly|seems|wonder|effect)\b/.test(
+            text,
+        );
+
+    if (
+        soundsLikeReality
+    ) {
+        suggestions.push({
+            type:
+                'journal',
+
+            label:
+                'Possible garden history',
+
+            reason:
+                'This sounds as though something may actually have happened in the garden.',
+        });
+    }
+
+    if (
+        soundsLikePlan
+    ) {
+        suggestions.push({
+            type:
+                'plan',
+
+            label:
+                'Possible Plan',
+
+            reason:
+                'This may be something you intend to do rather than something already done.',
+        });
+    }
+
+    if (
+        soundsLikeReference
+    ) {
+        suggestions.push({
+            type:
+                'reference',
+
+            label:
+                'Possible Garden Reference',
+
+            reason:
+                'This contains reusable garden knowledge that may deserve a permanent reference.',
+        });
+    }
+
+    if (
+        containsUrl ||
+        soundsLikeExternalAdvice
+    ) {
+        suggestions.push({
+            type:
+                'source',
+
+            label:
+                'Possible Tip or Source',
+
+            reason:
+                'Sprig noticed a link or language that sounds like advice from somewhere outside your own garden.',
+        });
+    }
+
+    if (
+        soundsUncertain ||
+        suggestions.length ===
+            0
+    ) {
+        suggestions.push({
+            type:
+                'keep-note',
+
+            label:
+                'Keep this as a Garden Note',
+
+            reason:
+                soundsUncertain
+                    ? 'This sounds uncertain or exploratory. Sprig can preserve the thought without turning it into a fact.'
+                    : 'Nothing here needs to be forced into another home.',
+        });
+    }
+
+    return suggestions;
+}
+
+
+function buildAlmanacThreads(
+    gardenData:
+        GardenData,
+):
+    AlmanacThread[] {
+    const threadMap =
+        new Map<
+            string,
+            AlmanacThread
+        >();
+
+    function ensureThread(
+        label:
+            string,
+    ):
+        AlmanacThread {
+        const clean =
+            label.trim();
+
+        const key =
+            normalise(
+                clean,
+            );
+
+        const existing =
+            threadMap.get(
+                key,
+            );
+
+        if (
+            existing
+        ) {
             return existing;
         }
-        const next: AlmanacThread = {
+
+        const thread:
+            AlmanacThread =
+            {
+                key,
+
+                label:
+                    clean,
+
+                plantStoryCount:
+                    0,
+
+                harvestCount:
+                    0,
+
+                noteCount:
+                    0,
+
+                sourceCount:
+                    0,
+
+                referenceCount:
+                    0,
+
+                evidenceCount:
+                    0,
+            };
+
+        threadMap.set(
             key,
-            label: cleanedLabel,
-            plantStoryCount: 0,
-            harvestCount: 0,
-            noteCount: 0,
-            sourceCount: 0,
-            referenceCount: 0,
-            evidenceCount: 0,
-        };
-        threadMap.set(key, next);
-        return next;
+            thread,
+        );
+
+        return thread;
     }
-    (gardenData.plantStories ?? []).forEach(plant => {
-        const plantThread = ensureThread(plant.plantName);
-        plantThread.plantStoryCount += 1;
-        if (plant.variety?.trim()) {
-            const varietyThread = ensureThread(`${plant.plantName} · ${plant.variety}`);
-            varietyThread.plantStoryCount += 1;
-        }
-    });
-    (gardenData.plantReferences ?? []).forEach(reference => {
-        const referenceThread = ensureThread(reference.variety
-            ? `${reference.plantName} · ${reference.variety}`
-            : reference.plantName);
-        referenceThread.referenceCount += 1;
-    });
-    const baseThreads = Array.from(threadMap.values());
-    baseThreads.forEach(thread => {
-        const threadNeedle = normalise(thread.label);
-        const broadPlantNeedle = normalise(thread.label
-            .split('·')[0]);
-        thread.noteCount =
-            (gardenData.gardenNotes ?? [])
-                .filter(note => {
-                const text = normalise(`${note.title ?? ''} ${note.body}`);
-                return (text.includes(threadNeedle) ||
-                    (broadPlantNeedle.length > 2 &&
-                        text.includes(broadPlantNeedle)));
-            })
-                .length;
-        thread.sourceCount =
-            (gardenData.savedKnowledgeSources ?? [])
-                .filter(source => {
-                const text = normalise(`${source.title} ${source.sourceName ?? ''} ${source.excerpt ?? ''} ${source.notes ?? ''}`);
-                return (text.includes(threadNeedle) ||
-                    (broadPlantNeedle.length > 2 &&
-                        text.includes(broadPlantNeedle)));
-            })
-                .length;
-        const matchingPlantIds = (gardenData.plantStories ?? [])
-            .filter(plant => {
-            const label = normalise(`${plant.plantName} ${plant.variety ?? ''}`);
-            return (label.includes(threadNeedle) ||
-                threadNeedle.includes(label) ||
-                label.includes(broadPlantNeedle));
-        })
-            .map(plant => plant.id);
-        thread.harvestCount =
-            (gardenData.harvests ?? [])
-                .filter(harvest => harvest.plantStoryIds.some(plantId => matchingPlantIds.includes(plantId)))
-                .length;
-        thread.evidenceCount =
-            thread.plantStoryCount +
+
+    (
+        gardenData.plantStories ??
+        []
+    ).forEach(
+        plant => {
+            ensureThread(
+                plant.plantName,
+            ).plantStoryCount +=
+                1;
+
+            if (
+                plant.variety?.trim()
+            ) {
+                ensureThread(
+                    `${plant.plantName} · ${plant.variety.trim()}`,
+                ).plantStoryCount +=
+                    1;
+            }
+        },
+    );
+
+    (
+        gardenData.plantReferences ??
+        []
+    )
+        .filter(
+            reference =>
+                (
+                    reference.subjectType ??
+                    'plant-crop'
+                ) ===
+                    'plant-crop' &&
+                Boolean(
+                    reference.plantName?.trim(),
+                ),
+        )
+        .forEach(
+            reference => {
+                ensureThread(
+                    reference.plantName,
+                ).referenceCount +=
+                    1;
+
+                if (
+                    reference.variety?.trim()
+                ) {
+                    ensureThread(
+                        `${reference.plantName} · ${reference.variety.trim()}`,
+                    ).referenceCount +=
+                        1;
+                }
+            },
+        );
+
+    const threads =
+        Array.from(
+            threadMap.values(),
+        );
+
+    threads.forEach(
+        thread => {
+            const threadNeedle =
+                normalise(
+                    thread.label,
+                );
+
+            const broadNeedle =
+                normalise(
+                    thread.label.split(
+                        '·',
+                    )[0],
+                );
+
+            thread.noteCount =
+                (
+                    gardenData.gardenNotes ??
+                    []
+                ).filter(
+                    note => {
+                        const text =
+                            normalise(
+                                `${note.title ?? ''} ${note.category ?? ''} ${note.body}`,
+                            );
+
+                        return (
+                            text.includes(
+                                threadNeedle,
+                            ) ||
+                            (
+                                broadNeedle.length >
+                                    2 &&
+                                text.includes(
+                                    broadNeedle,
+                                )
+                            )
+                        );
+                    },
+                ).length;
+
+            thread.sourceCount =
+                (
+                    gardenData.savedKnowledgeSources ??
+                    []
+                ).filter(
+                    source => {
+                        const text =
+                            normalise(
+                                `${source.title} ${source.category ?? ''} ${source.sourceName ?? ''} ${source.excerpt ?? ''} ${source.notes ?? ''}`,
+                            );
+
+                        return (
+                            text.includes(
+                                threadNeedle,
+                            ) ||
+                            (
+                                broadNeedle.length >
+                                    2 &&
+                                text.includes(
+                                    broadNeedle,
+                                )
+                            )
+                        );
+                    },
+                ).length;
+
+            const matchingPlantIds =
+                (
+                    gardenData.plantStories ??
+                    []
+                )
+                    .filter(
+                        plant =>
+                            normalise(
+                                `${plant.plantName} ${plant.variety ?? ''}`,
+                            ).includes(
+                                broadNeedle,
+                            ),
+                    )
+                    .map(
+                        plant =>
+                            plant.id,
+                    );
+
+            thread.harvestCount =
+                (
+                    gardenData.harvests ??
+                    []
+                ).filter(
+                    harvest =>
+                        harvest.plantStoryIds.some(
+                            plantId =>
+                                matchingPlantIds.includes(
+                                    plantId,
+                                ),
+                        ),
+                ).length;
+
+            thread.evidenceCount =
+                thread.plantStoryCount +
                 thread.harvestCount +
                 thread.noteCount;
-    });
-    return baseThreads
-        .filter(thread => thread.plantStoryCount > 0 ||
-        thread.referenceCount > 0 ||
-        thread.noteCount > 0 ||
-        thread.sourceCount > 0)
-        .sort((first, second) => {
-        const evidenceDifference = second.evidenceCount -
-            first.evidenceCount;
-        if (evidenceDifference !== 0) {
-            return evidenceDifference;
-        }
-        return first.label.localeCompare(second.label);
-    });
-}
-function getAlmanacThreadMaterial(
-    gardenData: GardenData,
-    thread: AlmanacThread,
-) {
-    const threadNeedle = normalise(thread.label);
-    const broadPlantNeedle = normalise(
-        thread.label.split('·')[0],
+        },
     );
 
-    function textMatchesThread(value: string): boolean {
-        const text = normalise(value);
+    return threads
+        .filter(
+            thread =>
+                thread.plantStoryCount >
+                    0 ||
+                thread.harvestCount >
+                    0 ||
+                thread.noteCount >
+                    0 ||
+                thread.referenceCount >
+                    0 ||
+                thread.sourceCount >
+                    0,
+        )
+        .sort(
+            (
+                first,
+                second,
+            ) => {
+                const evidenceDifference =
+                    second.evidenceCount -
+                    first.evidenceCount;
 
-        return (
-            text.includes(threadNeedle) ||
-            (broadPlantNeedle.length > 2 &&
-                text.includes(broadPlantNeedle))
+                return (
+                    evidenceDifference ||
+                    first.label.localeCompare(
+                        second.label,
+                    )
+                );
+            },
         );
+}
+
+
+function getEvidencePhrase(
+    count:
+        number,
+):
+    string {
+    if (
+        count <=
+        0
+    ) {
+        return 'Reference only so far';
     }
 
-    const plantStories = (gardenData.plantStories ?? [])
-        .filter(plant => {
-            const plantLabel = normalise(
-                `${plant.plantName} ${plant.variety ?? ''}`,
-            );
+    if (
+        count ===
+        1
+    ) {
+        return 'One piece of your garden story';
+    }
 
-            if (thread.label.includes('·')) {
-                return (
-                    plantLabel.includes(threadNeedle) ||
-                    threadNeedle.includes(plantLabel)
-                );
-            }
+    if (
+        count <=
+        3
+    ) {
+        return 'A small pattern may be forming';
+    }
 
-            return plantLabel.includes(broadPlantNeedle);
-        })
-        .sort((first, second) =>
-            (second.plantedDate ?? '').localeCompare(
-                first.plantedDate ?? '',
-            ),
-        );
+    if (
+        count <=
+        7
+    ) {
+        return 'Several pieces of your garden story';
+    }
 
-    const plantStoryIds = plantStories.map(
-        plant => plant.id,
-    );
-
-    const harvests = (gardenData.harvests ?? [])
-        .filter(harvest =>
-            harvest.plantStoryIds.some(plantId =>
-                plantStoryIds.includes(plantId),
-            ),
-        )
-        .sort((first, second) =>
-            second.date.localeCompare(first.date),
-        );
-
-    const notes = (gardenData.gardenNotes ?? [])
-        .filter(note =>
-            textMatchesThread(
-                `${note.title ?? ''} ${note.body}`,
-            ),
-        )
-        .sort((first, second) =>
-            (
-                second.noteDate ??
-                second.createdAt
-            ).localeCompare(
-                first.noteDate ??
-                    first.createdAt,
-            ),
-        );
-
-    const references = (
-        gardenData.plantReferences ?? []
-    )
-        .filter(reference => {
-            const referenceLabel = normalise(
-                `${reference.plantName} ${
-                    reference.variety ?? ''
-                } ${(reference.aliases ?? []).join(' ')}`,
-            );
-
-            if (thread.label.includes('·')) {
-                return (
-                    referenceLabel.includes(threadNeedle) ||
-                    threadNeedle.includes(referenceLabel)
-                );
-            }
-
-            return referenceLabel.includes(
-                broadPlantNeedle,
-            );
-        })
-        .sort((first, second) =>
-            getReferenceLabel(first).localeCompare(
-                getReferenceLabel(second),
-            ),
-        );
-
-    const sources = (
-        gardenData.savedKnowledgeSources ?? []
-    )
-        .filter(source =>
-            textMatchesThread(
-                `${source.title} ${
-                    source.sourceName ?? ''
-                } ${source.excerpt ?? ''} ${
-                    source.notes ?? ''
-                }`,
-            ),
-        )
-        .sort((first, second) =>
-            (
-                second.savedDate ??
-                second.createdAt
-            ).localeCompare(
-                first.savedDate ??
-                    first.createdAt,
-            ),
-        );
-
-    return {
-        plantStories,
-        harvests,
-        notes,
-        references,
-        sources,
-    };
+    return 'A well-populated garden thread';
 }
-function escapeHtml(value: string): string {
+
+
+function escapeHtml(
+    value:
+        string,
+):
+    string {
     return value
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+        .replace(
+            /&/g,
+            '&amp;',
+        )
+        .replace(
+            /</g,
+            '&lt;',
+        )
+        .replace(
+            />/g,
+            '&gt;',
+        )
+        .replace(
+            /"/g,
+            '&quot;',
+        )
+        .replace(
+            /'/g,
+            '&#039;',
+        );
 }
-function escapeRtf(value: string): string {
-    let result = '';
-    for (let index = 0; index < value.length; index += 1) {
-        const character = value[index];
-        const code = value.charCodeAt(index);
-        if (character === '\\') {
-            result += '\\\\';
-            continue;
+
+
+function escapeRtf(
+    value:
+        string,
+):
+    string {
+    let result =
+        '';
+
+    for (
+        const character
+        of value
+    ) {
+        if (
+            character ===
+            '\\'
+        ) {
+            result +=
+                '\\\\';
         }
-        if (character === '{') {
-            result += '\\{';
-            continue;
+        else if (
+            character ===
+            '{'
+        ) {
+            result +=
+                '\\{';
         }
-        if (character === '}') {
-            result += '\\}';
-            continue;
+        else if (
+            character ===
+            '}'
+        ) {
+            result +=
+                '\\}';
         }
-        if (character === '\r') {
-            continue;
+        else if (
+            character ===
+            '\n'
+        ) {
+            result +=
+                '\\par\n';
         }
-        if (character === '\n') {
-            result += '\\par\n';
-            continue;
+        else {
+            const code =
+                character.charCodeAt(
+                    0,
+                );
+
+            result +=
+                code >
+                127
+                    ? `\\u${
+                          code >
+                          32767
+                              ? code -
+                                65536
+                              : code
+                      }?`
+                    : character;
         }
-        if (code > 127) {
-            const signedCode = code > 32767
-                ? code - 65536
-                : code;
-            result += `\\u${signedCode}?`;
-            continue;
-        }
-        result += character;
     }
+
     return result;
 }
-function getExportFilePart(value: string): string {
-    const cleaned = value
-        .trim()
-        .replace(/[^a-z0-9]+/gi, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 72);
-    return cleaned || 'sprig-export';
-}
-function getNoteExportDocument(note: GardenNote, gardenData: GardenData): KnowledgeExportDocument {
-    const sections: KnowledgeExportSection[] = [
-        {
-            heading: 'Garden Note',
-            body: note.body,
-        },
-    ];
-    if (note.origin === 'imported-text') {
-        sections.push({
-            heading: 'Original imported note · preserved snapshot',
-            body: note.originalBody ?? note.body,
-        });
-    }
-    if ((note.relationships ?? []).length > 0) {
-        sections.push({
-            heading: 'Related Sprig records',
-            lines: (note.relationships ?? []).map(relationship => getRelationshipLabel(gardenData, relationship)),
-        });
-    }
-    if ((note.placements ?? []).length > 0) {
-        sections.push({
-            heading: 'Placed from this note',
-            lines: (note.placements ?? []).map(placement => `${placement.destinationLabel ?? placement.destinationType} · ${formatDate(placement.placedAt)}`),
-        });
-    }
-    const meta: string[] = [];
-    if (note.origin === 'imported-text') {
-        meta.push('Imported Garden Note');
-    }
-    if (note.sourceLabel?.trim()) {
-        meta.push(`Source: ${note.sourceLabel.trim()}`);
-    }
-    if (note.sourceUrl?.trim()) {
-        meta.push(note.sourceUrl.trim());
-    }
-    return {
-        eyebrow: note.origin === 'imported-text'
-            ? 'Imported Garden Note'
-            : 'Garden Note',
-        title: note.title ||
-            makeTitleFromBody(note.body),
-        dateLine: `Note dated ${formatDate(note.noteDate ?? note.createdAt)}`,
-        meta,
-        sections,
-        photoUrls: note.photoUrls,
-    };
-}
-function getReferenceExportDocument(reference: PlantReference, gardenData: GardenData): KnowledgeExportDocument {
-    const sections: KnowledgeExportSection[] = [];
-    if ((reference.aliases ?? []).length > 0) {
-        sections.push({
-            heading: 'Other names',
-            lines: reference.aliases,
-        });
-    }
-    if (reference.notes?.trim()) {
-        sections.push({
-            heading: 'Reference notes',
-            body: reference.notes,
-        });
-    }
-    if ((reference.relationships ?? []).length > 0) {
-        sections.push({
-            heading: 'Related Sprig records',
-            lines: (reference.relationships ?? []).map(relationship => getRelationshipLabel(gardenData, relationship)),
-        });
-    }
-    return {
-        eyebrow: 'Plant Reference',
-        title: getReferenceLabel(reference),
-        dateLine: `Reference dated ${formatDate(reference.referenceDate ?? reference.createdAt)}`,
-        sections,
-        photoUrls: reference.photoUrls,
-    };
-}
-function getSourceExportDocument(source: SavedKnowledgeSource, gardenData: GardenData): KnowledgeExportDocument {
-    const meta: string[] = [
-        `Source kind: ${getSourceKindLabel(source)}`,
-    ];
-    if (source.sourceName?.trim()) {
-        meta.push(`From: ${source.sourceName.trim()}`);
-    }
-    if (source.url?.trim()) {
-        meta.push(source.url.trim());
-    }
-    const sections: KnowledgeExportSection[] = [];
-    if (source.excerpt?.trim()) {
-        sections.push({
-            heading: 'Saved words',
-            body: source.excerpt,
-        });
-    }
-    if (source.notes?.trim()) {
-        sections.push({
-            heading: 'My note',
-            body: source.notes,
-        });
-    }
-    if ((source.relationships ?? []).length > 0) {
-        sections.push({
-            heading: 'Related Sprig records',
-            lines: (source.relationships ?? []).map(relationship => getRelationshipLabel(gardenData, relationship)),
-        });
-    }
-    return {
-        eyebrow: getSourceKindLabel(source),
-        title: source.title,
-        dateLine: `Saved / noted ${formatDate(source.savedDate ?? source.createdAt)}`,
-        meta,
-        sections,
-        photoUrls: source.photoUrls,
-    };
-}
-function buildExportHtml(documentTitle: string, documents: KnowledgeExportDocument[]): string {
-    const documentBlocks = documents.map((document, documentIndex) => {
-        const metaHtml = (document.meta ?? [])
-            .filter(Boolean)
-            .map(item => `<div class="meta-line">${escapeHtml(item)}</div>`)
+
+
+function downloadRtf(
+    fileName:
+        string,
+
+    title:
+        string,
+
+    documents:
+        KnowledgeExportDocument[],
+) {
+    const body =
+        documents
+            .map(
+                (
+                    document,
+                    index,
+                ) => {
+                    const page =
+                        index >
+                        0
+                            ? '\\page\n'
+                            : '';
+
+                    const meta =
+                        (
+                            document.meta ??
+                            []
+                        )
+                            .map(
+                                line =>
+                                    `${escapeRtf(
+                                        line,
+                                    )}\\par\n`,
+                            )
+                            .join('');
+
+                    const sections =
+                        document.sections
+                            .map(
+                                section =>
+                                    `${section.heading
+                                        ? `\\par\\b ${escapeRtf(
+                                              section.heading,
+                                          )}\\b0\\par\n`
+                                        : ''}${
+                                        section.body
+                                            ? `${escapeRtf(
+                                                  section.body,
+                                              )}\\par\n`
+                                            : ''
+                                    }${
+                                        section.lines
+                                            ? section.lines
+                                                  .map(
+                                                      line =>
+                                                          `${escapeRtf(
+                                                              line,
+                                                          )}\\par\n`,
+                                                  )
+                                                  .join(
+                                                      '',
+                                                  )
+                                            : ''
+                                    }`,
+                            )
+                            .join('');
+
+                    return (
+                        page +
+                        `\\b ${escapeRtf(
+                            document.eyebrow,
+                        )}\\b0\\par\n` +
+                        `\\fs32\\b ${escapeRtf(
+                            document.title,
+                        )}\\b0\\fs22\\par\n` +
+                        `${
+                            document.dateLine
+                                ? `${escapeRtf(
+                                      document.dateLine,
+                                  )}\\par\n`
+                                : ''
+                        }` +
+                        meta +
+                        sections
+                    );
+                },
+            )
             .join('');
-        const sectionHtml = document.sections
-            .map(section => {
-            const heading = section.heading
-                ? `<h2>${escapeHtml(section.heading)}</h2>`
-                : '';
-            const body = section.body
-                ? section.body
-                    .split(/\r?\n/)
-                    .map(line => `<p>${escapeHtml(line || ' ')}</p>`)
-                    .join('')
-                : '';
-            const lines = section.lines?.length
-                ? `<ul>${section.lines
-                    .map(line => `<li>${escapeHtml(line)}</li>`)
-                    .join('')}</ul>`
-                : '';
-            return `<section>${heading}${body}${lines}</section>`;
-        })
+
+    const rtf =
+        `{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Georgia;}{\\f1 Arial;}}` +
+        `\\f0\\fs22\\b ${escapeRtf(
+            title,
+        )}\\b0\\par\\par\n` +
+        body +
+        '}';
+
+    const blob =
+        new Blob(
+            [
+                rtf,
+            ],
+            {
+                type:
+                    'application/rtf;charset=utf-8',
+            },
+        );
+
+    const url =
+        URL.createObjectURL(
+            blob,
+        );
+
+    const anchor =
+        document.createElement(
+            'a',
+        );
+
+    anchor.href =
+        url;
+
+    anchor.download =
+        fileName;
+
+    document.body.appendChild(
+        anchor,
+    );
+
+    anchor.click();
+
+    anchor.remove();
+
+    URL.revokeObjectURL(
+        url,
+    );
+}
+
+
+function printDocuments(
+    title:
+        string,
+
+    documents:
+        KnowledgeExportDocument[],
+) {
+    const printWindow =
+        window.open(
+            '',
+            '_blank',
+        );
+
+    if (
+        !printWindow
+    ) {
+        window.alert(
+            'Sprig could not open the PDF print view. Please allow pop-ups and try again.',
+        );
+
+        return;
+    }
+
+    const body =
+        documents
+            .map(
+                document => `
+<article>
+<p class="eyebrow">${escapeHtml(
+                    document.eyebrow,
+                )}</p>
+<h1>${escapeHtml(
+                    document.title,
+                )}</h1>
+${
+    document.dateLine
+        ? `<p class="meta">${escapeHtml(
+              document.dateLine,
+          )}</p>`
+        : ''
+}
+${(
+    document.meta ??
+    []
+)
+    .map(
+        line =>
+            `<p class="meta">${escapeHtml(
+                line,
+            )}</p>`,
+    )
+    .join('')}
+${document.sections
+    .map(
+        section => `
+<section>
+${
+    section.heading
+        ? `<h2>${escapeHtml(
+              section.heading,
+          )}</h2>`
+        : ''
+}
+${
+    section.body
+        ? `<div>${escapeHtml(
+              section.body,
+          ).replace(
+              /\n/g,
+              '<br />',
+          )}</div>`
+        : ''
+}
+${
+    section.lines
+        ? `<ul>${section.lines
+              .map(
+                  line =>
+                      `<li>${escapeHtml(
+                          line,
+                      )}</li>`,
+              )
+              .join('')}</ul>`
+        : ''
+}
+</section>`
+    )
+    .join('')}
+</article>`,
+            )
             .join('');
-        const photos = (document.photoUrls ?? []).length > 0
-            ? `<section><h2>Photographs</h2><div class="photo-grid">${(document.photoUrls ?? [])
-                .map((photoUrl, photoIndex) => `<figure><img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(`${document.title} photograph ${photoIndex + 1}`)}" /></figure>`)
-                .join('')}</div></section>`
-            : '';
-        return `
-                <article class="record ${documentIndex > 0 ? 'record-break' : ''}">
-                    <div class="eyebrow">${escapeHtml(document.eyebrow)}</div>
-                    <h1>${escapeHtml(document.title)}</h1>
-                    ${document.dateLine ? `<div class="date-line">${escapeHtml(document.dateLine)}</div>` : ''}
-                    ${metaHtml ? `<div class="meta">${metaHtml}</div>` : ''}
-                    ${sectionHtml}
-                    ${photos}
-                </article>
-            `;
-    }).join('');
-    return `<!doctype html>
+
+    printWindow.opener =
+        null;
+
+    printWindow.document.open();
+
+    printWindow.document.write(
+        `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
-<title>${escapeHtml(documentTitle)}</title>
+<title>${escapeHtml(
+            title,
+        )}</title>
 <style>
-    @page { margin: 16mm; }
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        color: #2d342d;
-        background: #ffffff;
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: 11.5pt;
-        line-height: 1.55;
-    }
-    .record { max-width: 820px; margin: 0 auto; }
-    .record-break { break-before: page; page-break-before: always; }
-    .eyebrow {
-        margin-bottom: 8px;
-        font: 700 9pt/1.2 Arial, sans-serif;
-        text-transform: uppercase;
-        letter-spacing: .12em;
-        color: #687467;
-    }
-    h1 { margin: 0 0 6px; font-size: 25pt; line-height: 1.15; }
-    h2 { margin: 24px 0 8px; font-size: 14pt; }
-    p { margin: 0 0 8px; white-space: pre-wrap; }
-    ul { margin: 6px 0 12px 20px; padding: 0; }
-    li { margin-bottom: 5px; }
-    .date-line { margin-bottom: 12px; color: #596358; font-style: italic; }
-    .meta {
-        margin: 14px 0 20px;
-        padding: 10px 12px;
-        border-left: 3px solid #9da99b;
-        background: #f7f8f4;
-        font-family: Arial, sans-serif;
-        font-size: 9.5pt;
-    }
-    .meta-line + .meta-line { margin-top: 4px; }
-    .photo-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-    }
-    figure { margin: 0; break-inside: avoid; }
-    img {
-        display: block;
-        width: 100%;
-        max-height: 92mm;
-        object-fit: contain;
-        border: 1px solid #d9ded6;
-    }
-    .footer {
-        max-width: 820px;
-        margin: 24px auto 0;
-        padding-top: 10px;
-        border-top: 1px solid #dfe3dc;
-        font: 9pt/1.4 Arial, sans-serif;
-        color: #777f76;
-    }
+@page { margin: 16mm; }
+body { font-family: Georgia, serif; color:#2f382e; line-height:1.55; }
+article { max-width:820px; margin:0 auto 34px; padding-bottom:24px; border-bottom:1px solid #d8dfd5; }
+.eyebrow { text-transform:uppercase; letter-spacing:.09em; font-size:9pt; color:#657061; }
+.meta { color:#626c60; }
+h1 { margin:.25rem 0 .7rem; }
+h2 { margin:1.3rem 0 .35rem; font-size:14pt; }
 </style>
 </head>
-<body>
-${documentBlocks}
-<div class="footer">Exported from Sprig · ${escapeHtml(formatDate(getToday()))}</div>
-</body>
-</html>`;
-}
-function buildExportRtf(documentTitle: string, documents: KnowledgeExportDocument[]): string {
-    const body = documents.map((document, documentIndex) => {
-        const parts: string[] = [];
-        if (documentIndex > 0) {
-            parts.push('\\page\n');
-        }
-        parts.push(`\\fs18\\b ${escapeRtf(document.eyebrow.toUpperCase())}\\b0\\par\n`);
-        parts.push(`\\fs34\\b ${escapeRtf(document.title)}\\b0\\par\n`);
-        if (document.dateLine) {
-            parts.push(`\\fs20\\i ${escapeRtf(document.dateLine)}\\i0\\par\n`);
-        }
-        (document.meta ?? []).forEach(item => {
-            parts.push(`\\fs20 ${escapeRtf(item)}\\par\n`);
-        });
-        document.sections.forEach(section => {
-            if (section.heading) {
-                parts.push(`\\par\\fs24\\b ${escapeRtf(section.heading)}\\b0\\par\n`);
-            }
-            if (section.body) {
-                parts.push(`\\fs22 ${escapeRtf(section.body)}\\par\n`);
-            }
-            (section.lines ?? []).forEach(line => {
-                parts.push(`\\fs22 \\bullet\\tab ${escapeRtf(line)}\\par\n`);
-            });
-        });
-        const photoCount = (document.photoUrls ?? []).length;
-        if (photoCount > 0) {
-            parts.push(`\\par\\fs20\\i ${photoCount} photograph${photoCount === 1 ? '' : 's'} are kept with this Sprig record. Photographs are included in the PDF export.\\i0\\par\n`);
-        }
-        return parts.join('');
-    }).join('');
-    return `{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Georgia;}{\\f1 Arial;}}\n` +
-        `\\f0\\fs22\n` +
-        `\\fs18\\f1 Exported from Sprig · ${escapeRtf(formatDate(getToday()))}\\par\\par\n` +
-        `\\f0 ${body}` +
-        `\\par\\fs18\\f1 ${escapeRtf(documentTitle)}\\par\n` +
-        `}`;
-}
-function downloadTextFile(fileName: string, contents: string, mimeType: string) {
-    const blob = new Blob([contents], {
-        type: mimeType,
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = fileName;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
-}
-function printKnowledgeDocuments(documentTitle: string, documents: KnowledgeExportDocument[]) {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-        window.alert('Sprig could not open the PDF print view. Please allow pop-ups for this page and try again.');
-        return;
-    }
-    printWindow.opener = null;
-    printWindow.document.open();
-    printWindow.document.write(buildExportHtml(documentTitle, documents));
-    printWindow.document.close();
-    window.setTimeout(() => {
-        printWindow.focus();
-        printWindow.print();
-    }, 450);
-}
-function getEvidencePhrase(count: number): string {
-    if (count <= 0) {
-        return 'Reference only so far';
-    }
-    if (count === 1) {
-        return 'One piece of your garden story';
-    }
-    if (count <= 3) {
-        return 'A small pattern may be forming';
-    }
-    if (count <= 7) {
-        return 'Several pieces of your garden story';
-    }
-    return 'A well-populated garden thread';
-}
-export default function GardenKnowledge({ view, gardenData, initialRecord, journeyBackLabel, onJourneyBack, onGardenDataChange, onRecordSelectionChange, onNavigate, onOpenRelationship, }: GardenKnowledgeProps) {
-    const [selectedNoteId, setSelectedNoteId,] = useState<string | null>(null);
-    const [selectedReferenceId, setSelectedReferenceId,] = useState<string | null>(null);
-    const [selectedSourceId, setSelectedSourceId,] = useState<string | null>(null);
-    const [noteTitle, setNoteTitle,] = useState('');
-    const [noteBody, setNoteBody,] = useState('');
-    const [noteDate, setNoteDate,] = useState(getToday());
-    const [notePhotoUrls, setNotePhotoUrls,] = useState<string[]>([]);
-    const [isImporting, setIsImporting,] = useState(false);
-    const [importSourceLabel, setImportSourceLabel,] = useState('');
-    const [importSourceUrl, setImportSourceUrl,] = useState('');
-    const [referencePlantName, setReferencePlantName,] = useState('');
-    const [referenceVariety, setReferenceVariety,] = useState('');
-    const [referenceAliases, setReferenceAliases,] = useState('');
-    const [referenceNotes, setReferenceNotes,] = useState('');
-    const [referenceDate, setReferenceDate,] = useState(getToday());
-    const [referencePhotoUrls, setReferencePhotoUrls,] = useState<string[]>([]);
-    const [sourceTitle, setSourceTitle,] = useState('');
-    const [sourceKind, setSourceKind,] = useState<SavedKnowledgeSourceKind>('website');
-    const [sourceCustomKind, setSourceCustomKind,] = useState('');
-    const [sourceName, setSourceName,] = useState('');
-    const [sourceUrl, setSourceUrl,] = useState('');
-    const [sourceExcerpt, setSourceExcerpt,] = useState('');
-    const [sourceNotes, setSourceNotes,] = useState('');
-    const [sourceSavedDate, setSourceSavedDate,] = useState(getToday());
-    const [sourcePhotoUrls, setSourcePhotoUrls,] = useState<string[]>([]);
-    const [editingNoteId, setEditingNoteId,] = useState<string | null>(null);
-    const [editNoteTitle, setEditNoteTitle,] = useState('');
-    const [editNoteBody, setEditNoteBody,] = useState('');
-    const [editNoteDate, setEditNoteDate,] = useState('');
-    const [editNoteSourceLabel, setEditNoteSourceLabel,] = useState('');
-    const [editNoteSourceUrl, setEditNoteSourceUrl,] = useState('');
-    const [editNotePhotoUrls, setEditNotePhotoUrls,] = useState<string[]>([]);
-    const [editingReferenceId, setEditingReferenceId,] = useState<string | null>(null);
-    const [editReferencePlantName, setEditReferencePlantName,] = useState('');
-    const [editReferenceVariety, setEditReferenceVariety,] = useState('');
-    const [editReferenceAliases, setEditReferenceAliases,] = useState('');
-    const [editReferenceNotes, setEditReferenceNotes,] = useState('');
-    const [editReferenceDate, setEditReferenceDate,] = useState('');
-    const [editReferencePhotoUrls, setEditReferencePhotoUrls,] = useState<string[]>([]);
-    const [editingSourceId, setEditingSourceId,] = useState<string | null>(null);
-    const [editSourceTitle, setEditSourceTitle,] = useState('');
-    const [editSourceKind, setEditSourceKind,] = useState<SavedKnowledgeSourceKind>('website');
-    const [editSourceCustomKind, setEditSourceCustomKind,] = useState('');
-    const [editSourceName, setEditSourceName,] = useState('');
-    const [editSourceUrl, setEditSourceUrl,] = useState('');
-    const [editSourceExcerpt, setEditSourceExcerpt,] = useState('');
-    const [editSourceNotes, setEditSourceNotes,] = useState('');
-    const [editSourceSavedDate, setEditSourceSavedDate,] = useState('');
-    const [editSourcePhotoUrls, setEditSourcePhotoUrls,] = useState<string[]>([]);
-    const [relationshipSearch, setRelationshipSearch,] = useState('');
-    const [selectedRelationshipKey, setSelectedRelationshipKey,] = useState('');
-    const [placementJournalDate, setPlacementJournalDate,] = useState(getToday());
-    const [placementPlanDate, setPlacementPlanDate,] = useState('');
-    const [placementExcerpt, setPlacementExcerpt,] = useState('');
-    const [almanacQuery, setAlmanacQuery,] = useState('');
-    const [selectedAlmanacThreadKey, setSelectedAlmanacThreadKey,] = useState<string | null>(null);
-    const notes = gardenData.gardenNotes ??
-        [];
-    const references = gardenData.plantReferences ??
-        [];
-    const sources = gardenData.savedKnowledgeSources ??
-        [];
-    const relationshipOptions = useMemo(() => getRelationshipOptions(gardenData), [
-        gardenData,
-    ]);
-    const almanacThreads = useMemo(() => buildAlmanacThreads(gardenData), [
-        gardenData,
-    ]);
-    const filteredAlmanacThreads = useMemo(() => {
-        const query = normalise(almanacQuery);
-        if (!query) {
-            return almanacThreads;
-        }
-        return almanacThreads.filter(thread => normalise(thread.label).includes(query));
-    }, [
-        almanacQuery,
-        almanacThreads,
-    ]);
-    const selectedNote = notes.find(note => note.id ===
-        selectedNoteId) ??
-        null;
-    const selectedReference = references.find(reference => reference.id ===
-        selectedReferenceId) ??
-        null;
-    const selectedSource = sources.find(source => source.id ===
-        selectedSourceId) ??
-        null;
-    useEffect(() => {
-        if (selectedNote) {
-            setPlacementExcerpt(selectedNote.body);
-            setPlacementJournalDate(selectedNote.noteDate ??
-                getToday());
-        }
-    }, [
-        selectedNoteId,
-    ]);
-    useEffect(() => {
-        if (!initialRecord) {
-            return;
-        }
-        if (initialRecord.sourceType ===
-            'garden-note') {
-            setSelectedNoteId(initialRecord.recordId);
-            setSelectedReferenceId(null);
-            setSelectedSourceId(null);
-            return;
-        }
-        if (initialRecord.sourceType ===
-            'plant-reference') {
-            setSelectedReferenceId(initialRecord.recordId);
-            setSelectedNoteId(null);
-            setSelectedSourceId(null);
-            return;
-        }
-        setSelectedSourceId(initialRecord.recordId);
-        setSelectedNoteId(null);
-        setSelectedReferenceId(null);
-    }, [
-        initialRecord,
-    ]);
-    function selectNote(recordId: string | null) {
-        setEditingNoteId(null);
-        setEditingReferenceId(null);
-        setEditingSourceId(null);
-        setSelectedNoteId(recordId);
-        setSelectedReferenceId(null);
-        setSelectedSourceId(null);
-        onRecordSelectionChange(recordId
-            ? {
-                sourceType: 'garden-note',
-                recordId,
-            }
-            : null);
-    }
-    function selectReference(recordId: string | null) {
-        setEditingNoteId(null);
-        setEditingReferenceId(null);
-        setEditingSourceId(null);
-        setSelectedReferenceId(recordId);
-        setSelectedNoteId(null);
-        setSelectedSourceId(null);
-        onRecordSelectionChange(recordId
-            ? {
-                sourceType: 'plant-reference',
-                recordId,
-            }
-            : null);
-    }
-    function selectSource(recordId: string | null) {
-        setEditingNoteId(null);
-        setEditingReferenceId(null);
-        setEditingSourceId(null);
-        setSelectedSourceId(recordId);
-        setSelectedNoteId(null);
-        setSelectedReferenceId(null);
-        onRecordSelectionChange(recordId
-            ? {
-                sourceType: 'saved-source',
-                recordId,
-            }
-            : null);
-    }
-    function save(nextGardenData: GardenData) {
-        onGardenDataChange(nextGardenData);
-    }
-    function resetNoteComposer() {
-        setNoteTitle('');
-        setNoteBody('');
-        setNoteDate(getToday());
-        setIsImporting(false);
-        setImportSourceLabel('');
-        setImportSourceUrl('');
-        setNotePhotoUrls([]);
-    }
-    function handleSaveNote() {
-        const rawBody = noteBody;
-        const body = isImporting
-            ? rawBody
-            : rawBody.trim();
-        if (!rawBody.trim()) {
-            return;
-        }
-        const now = getNow();
-        const note: GardenNote = {
+<body>${body}</body>
+</html>`,
+    );
 
-            id: crypto.randomUUID(),
-            title: noteTitle.trim() ||
-                undefined,
-            body,
-            noteDate: noteDate ||
-                undefined,
-            origin: isImporting
-                ? 'imported-text'
-                : 'sprig-note',
-            originalBody: isImporting
-                ? rawBody
-                : undefined,
-            sourceLabel: isImporting
-                ? importSourceLabel.trim() ||
-                    undefined
-                : undefined,
-            sourceUrl: isImporting
-                ? importSourceUrl.trim() ||
-                    undefined
-                : undefined,
-            relationships: [],
-            placements: [],
-            photoUrls: notePhotoUrls.length > 0
-                ? notePhotoUrls
-                : undefined,
-            createdAt: now,
-        };
+    printWindow.document.close();
+
+    window.setTimeout(
+        () => {
+            printWindow.focus();
+            printWindow.print();
+        },
+        350,
+    );
+}
+
+
+export default function GardenKnowledge({
+    view,
+    gardenData,
+    initialRecord,
+    journeyBackLabel,
+    onJourneyBack,
+    onGardenDataChange,
+    onRecordSelectionChange,
+    onNavigate,
+    onOpenRelationship,
+}: GardenKnowledgeProps) {
+    const notes =
+        gardenData.gardenNotes ??
+        [];
+
+    const sources =
+        gardenData.savedKnowledgeSources ??
+        [];
+
+    const references =
+        gardenData.plantReferences ??
+        [];
+
+    const [
+        selectedNoteId,
+        setSelectedNoteId,
+    ] =
+        useState<
+            string |
+            null
+        >(
+            null,
+        );
+
+    const [
+        selectedSourceId,
+        setSelectedSourceId,
+    ] =
+        useState<
+            string |
+            null
+        >(
+            null,
+        );
+
+    const [
+        editingNoteId,
+        setEditingNoteId,
+    ] =
+        useState<
+            string |
+            null
+        >(
+            null,
+        );
+
+    const [
+        editingSourceId,
+        setEditingSourceId,
+    ] =
+        useState<
+            string |
+            null
+        >(
+            null,
+        );
+
+    const [
+        noteTitle,
+        setNoteTitle,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        noteBody,
+        setNoteBody,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        noteCategory,
+        setNoteCategory,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        noteDate,
+        setNoteDate,
+    ] =
+        useState(
+            getToday(),
+        );
+
+    const [
+        notePhotoUrls,
+        setNotePhotoUrls,
+    ] =
+        useState<
+            string[]
+        >(
+            [],
+        );
+
+    const [
+        isImporting,
+        setIsImporting,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        importSourceLabel,
+        setImportSourceLabel,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        importSourceUrl,
+        setImportSourceUrl,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        noteComposerOpen,
+        setNoteComposerOpen,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        noteSearch,
+        setNoteSearch,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editNoteTitle,
+        setEditNoteTitle,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editNoteBody,
+        setEditNoteBody,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editNoteCategory,
+        setEditNoteCategory,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editNoteDate,
+        setEditNoteDate,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editNotePhotoUrls,
+        setEditNotePhotoUrls,
+    ] =
+        useState<
+            string[]
+        >(
+            [],
+        );
+
+    const [
+        sourceTitle,
+        setSourceTitle,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        sourceKind,
+        setSourceKind,
+    ] =
+        useState<
+            SavedKnowledgeSourceKind
+        >(
+            'website',
+        );
+
+    const [
+        sourceCustomKind,
+        setSourceCustomKind,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        sourceName,
+        setSourceName,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        sourceUrl,
+        setSourceUrl,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        sourceCategory,
+        setSourceCategory,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        sourceExcerpt,
+        setSourceExcerpt,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        sourceNotes,
+        setSourceNotes,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        sourceSavedDate,
+        setSourceSavedDate,
+    ] =
+        useState(
+            getToday(),
+        );
+
+    const [
+        sourcePhotoUrls,
+        setSourcePhotoUrls,
+    ] =
+        useState<
+            string[]
+        >(
+            [],
+        );
+
+    const [
+        sourceComposerOpen,
+        setSourceComposerOpen,
+    ] =
+        useState(
+            false,
+        );
+
+    const [
+        sourceSearch,
+        setSourceSearch,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceTitle,
+        setEditSourceTitle,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceKind,
+        setEditSourceKind,
+    ] =
+        useState<
+            SavedKnowledgeSourceKind
+        >(
+            'website',
+        );
+
+    const [
+        editSourceCustomKind,
+        setEditSourceCustomKind,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceName,
+        setEditSourceName,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceUrl,
+        setEditSourceUrl,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceCategory,
+        setEditSourceCategory,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceExcerpt,
+        setEditSourceExcerpt,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceNotes,
+        setEditSourceNotes,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourceSavedDate,
+        setEditSourceSavedDate,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        editSourcePhotoUrls,
+        setEditSourcePhotoUrls,
+    ] =
+        useState<
+            string[]
+        >(
+            [],
+        );
+
+    const [
+        relationshipSearch,
+        setRelationshipSearch,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        selectedRelationshipKey,
+        setSelectedRelationshipKey,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        placementExcerpt,
+        setPlacementExcerpt,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        placementJournalDate,
+        setPlacementJournalDate,
+    ] =
+        useState(
+            getToday(),
+        );
+
+    const [
+        placementPlanDate,
+        setPlacementPlanDate,
+    ] =
+        useState(
+            getToday(),
+        );
+
+    const [
+        almanacQuery,
+        setAlmanacQuery,
+    ] =
+        useState(
+            '',
+        );
+
+    const [
+        selectedAlmanacThreadKey,
+        setSelectedAlmanacThreadKey,
+    ] =
+        useState<
+            string |
+            null
+        >(
+            null,
+        );
+
+
+    const selectedNote =
+        notes.find(
+            note =>
+                note.id ===
+                selectedNoteId,
+        ) ??
+        null;
+
+
+    const selectedSource =
+        sources.find(
+            source =>
+                source.id ===
+                selectedSourceId,
+        ) ??
+        null;
+
+
+    const relationshipOptions =
+        useMemo(
+            () =>
+                getRelationshipOptions(
+                    gardenData,
+                ),
+            [
+                gardenData,
+            ],
+        );
+
+
+    const almanacThreads =
+        useMemo(
+            () =>
+                buildAlmanacThreads(
+                    gardenData,
+                ),
+            [
+                gardenData,
+            ],
+        );
+
+
+    const knowledgeCategories =
+        useMemo(
+            () =>
+                Array.from(
+                    new Set(
+                        [
+                            ...notes.map(
+                                note =>
+                                    note.category?.trim() ||
+                                    '',
+                            ),
+
+                            ...sources.map(
+                                source =>
+                                    source.category?.trim() ||
+                                    '',
+                            ),
+                        ].filter(
+                            Boolean,
+                        ),
+                    ),
+                ).sort(
+                    (
+                        first,
+                        second,
+                    ) =>
+                        first.localeCompare(
+                            second,
+                        ),
+                ),
+            [
+                notes,
+                sources,
+            ],
+        );
+
+
+    const filteredNotes =
+        useMemo(
+            () => {
+                const query =
+                    normalise(
+                        noteSearch,
+                    );
+
+                if (
+                    !query
+                ) {
+                    return [
+                        ...notes,
+                    ].sort(
+                        (
+                            first,
+                            second,
+                        ) =>
+                            (
+                                second.noteDate ??
+                                second.createdAt
+                            ).localeCompare(
+                                first.noteDate ??
+                                first.createdAt,
+                            ),
+                    );
+                }
+
+                return notes
+                    .filter(
+                        note =>
+                            normalise(
+                                `${note.title ?? ''} ${note.body} ${note.category ?? ''} ${note.sourceLabel ?? ''} ${note.noteDate ?? ''}`,
+                            ).includes(
+                                query,
+                            ),
+                    )
+                    .sort(
+                        (
+                            first,
+                            second,
+                        ) =>
+                            (
+                                second.noteDate ??
+                                second.createdAt
+                            ).localeCompare(
+                                first.noteDate ??
+                                first.createdAt,
+                            ),
+                    );
+            },
+            [
+                notes,
+                noteSearch,
+            ],
+        );
+
+
+    const filteredSources =
+        useMemo(
+            () => {
+                const query =
+                    normalise(
+                        sourceSearch,
+                    );
+
+                const sorted =
+                    [
+                        ...sources,
+                    ].sort(
+                        (
+                            first,
+                            second,
+                        ) =>
+                            (
+                                second.savedDate ??
+                                second.createdAt
+                            ).localeCompare(
+                                first.savedDate ??
+                                first.createdAt,
+                            ),
+                    );
+
+                if (
+                    !query
+                ) {
+                    return sorted;
+                }
+
+                return sorted.filter(
+                    source =>
+                        normalise(
+                            `${source.title} ${source.category ?? ''} ${getSourceKindLabel(
+                                source,
+                            )} ${source.sourceName ?? ''} ${source.url ?? ''} ${source.excerpt ?? ''} ${source.notes ?? ''}`,
+                        ).includes(
+                            query,
+                        ),
+                );
+            },
+            [
+                sources,
+                sourceSearch,
+            ],
+        );
+
+
+    const filteredAlmanacThreads =
+        useMemo(
+            () => {
+                const query =
+                    normalise(
+                        almanacQuery,
+                    );
+
+                if (
+                    !query
+                ) {
+                    return almanacThreads;
+                }
+
+                return almanacThreads.filter(
+                    thread =>
+                        normalise(
+                            thread.label,
+                        ).includes(
+                            query,
+                        ),
+                );
+            },
+            [
+                almanacThreads,
+                almanacQuery,
+            ],
+        );
+
+
+    useEffect(
+        () => {
+            if (
+                !initialRecord
+            ) {
+                return;
+            }
+
+            if (
+                initialRecord.sourceType ===
+                'garden-note'
+            ) {
+                setSelectedNoteId(
+                    initialRecord.recordId,
+                );
+
+                setSelectedSourceId(
+                    null,
+                );
+
+                return;
+            }
+
+            if (
+                initialRecord.sourceType ===
+                'saved-source'
+            ) {
+                setSelectedSourceId(
+                    initialRecord.recordId,
+                );
+
+                setSelectedNoteId(
+                    null,
+                );
+            }
+        },
+        [
+            initialRecord,
+        ],
+    );
+
+
+    useEffect(
+        () => {
+            if (
+                selectedNote
+            ) {
+                setPlacementExcerpt(
+                    selectedNote.body,
+                );
+
+                setPlacementJournalDate(
+                    selectedNote.noteDate ??
+                    getToday(),
+                );
+            }
+        },
+        [
+            selectedNoteId,
+        ],
+    );
+
+
+    function save(
+        nextGardenData:
+            GardenData,
+    ) {
+        onGardenDataChange(
+            nextGardenData,
+        );
+    }
+
+
+    function selectNote(
+        recordId:
+            string |
+            null,
+    ) {
+        setEditingNoteId(
+            null,
+        );
+
+        setSelectedNoteId(
+            recordId,
+        );
+
+        setSelectedSourceId(
+            null,
+        );
+
+        onRecordSelectionChange(
+            recordId
+                ? {
+                      sourceType:
+                          'garden-note',
+
+                      recordId,
+                  }
+                : null,
+        );
+    }
+
+
+    function selectSource(
+        recordId:
+            string |
+            null,
+    ) {
+        setEditingSourceId(
+            null,
+        );
+
+        setSelectedSourceId(
+            recordId,
+        );
+
+        setSelectedNoteId(
+            null,
+        );
+
+        onRecordSelectionChange(
+            recordId
+                ? {
+                      sourceType:
+                          'saved-source',
+
+                      recordId,
+                  }
+                : null,
+        );
+    }
+
+
+    function resetNoteComposer() {
+        setNoteTitle(
+            '',
+        );
+
+        setNoteBody(
+            '',
+        );
+
+        setNoteCategory(
+            '',
+        );
+
+        setNoteDate(
+            getToday(),
+        );
+
+        setIsImporting(
+            false,
+        );
+
+        setImportSourceLabel(
+            '',
+        );
+
+        setImportSourceUrl(
+            '',
+        );
+
+        setNotePhotoUrls(
+            [],
+        );
+    }
+
+
+    function resetSourceComposer() {
+        setSourceTitle(
+            '',
+        );
+
+        setSourceKind(
+            'website',
+        );
+
+        setSourceCustomKind(
+            '',
+        );
+
+        setSourceName(
+            '',
+        );
+
+        setSourceUrl(
+            '',
+        );
+
+        setSourceCategory(
+            '',
+        );
+
+        setSourceExcerpt(
+            '',
+        );
+
+        setSourceNotes(
+            '',
+        );
+
+        setSourceSavedDate(
+            getToday(),
+        );
+
+        setSourcePhotoUrls(
+            [],
+        );
+    }
+
+
+    function handleSaveNote() {
+        const rawBody =
+            noteBody;
+
+        if (
+            !rawBody.trim()
+        ) {
+            return;
+        }
+
+        const now =
+            getNow();
+
+        const note:
+            GardenNote =
+            {
+                id:
+                    crypto.randomUUID(),
+
+                title:
+                    noteTitle.trim() ||
+                    undefined,
+
+                body:
+                    isImporting
+                        ? rawBody
+                        : rawBody.trim(),
+
+                category:
+                    noteCategory.trim() ||
+                    undefined,
+
+                noteDate:
+                    noteDate ||
+                    undefined,
+
+                origin:
+                    isImporting
+                        ? 'imported-text'
+                        : 'sprig-note',
+
+                originalBody:
+                    isImporting
+                        ? rawBody
+                        : undefined,
+
+                sourceLabel:
+                    isImporting
+                        ? importSourceLabel.trim() ||
+                          undefined
+                        : undefined,
+
+                sourceUrl:
+                    isImporting
+                        ? importSourceUrl.trim() ||
+                          undefined
+                        : undefined,
+
+                relationships:
+                    [],
+
+                placements:
+                    [],
+
+                photoUrls:
+                    notePhotoUrls.length >
+                    0
+                        ? notePhotoUrls
+                        : undefined,
+
+                createdAt:
+                    now,
+            };
+
         save({
             ...gardenData,
+
             gardenNotes: [
                 ...notes,
                 note,
             ],
         });
-        selectNote(note.id);
-        resetNoteComposer();
-    }
-    function startEditNote(note: GardenNote) {
-        setEditNoteTitle(note.title ?? '');
-        setEditNoteBody(note.body);
-        setEditNoteDate(note.noteDate ??
-            note.createdAt.slice(0, 10));
-        setEditNoteSourceLabel(note.sourceLabel ?? '');
-        setEditNoteSourceUrl(note.sourceUrl ?? '');
-        setEditNotePhotoUrls(note.photoUrls ?? []);
-        setEditingNoteId(note.id);
-    }
-    function cancelEditNote() {
-        setEditingNoteId(null);
-    }
-    function handleSaveEditedNote(note: GardenNote) {
-        if (!editNoteBody.trim()) {
-            return;
-        }
-        const updatedNote: GardenNote = {
-            ...note,
-            title: editNoteTitle.trim() ||
-                undefined,
-            body: note.origin === 'imported-text'
-                ? editNoteBody
-                : editNoteBody.trim(),
-            noteDate: editNoteDate ||
-                undefined,
-            sourceLabel: note.origin === 'imported-text'
-                ? editNoteSourceLabel.trim() ||
-                    undefined
-                : note.sourceLabel,
-            sourceUrl: note.origin === 'imported-text'
-                ? editNoteSourceUrl.trim() ||
-                    undefined
-                : note.sourceUrl,
-            photoUrls: editNotePhotoUrls.length > 0
-                ? editNotePhotoUrls
-                : undefined,
-            updatedAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            gardenNotes: notes.map(item => item.id === note.id
-                ? updatedNote
-                : item),
-        });
-        setEditingNoteId(null);
-    }
-    function handleDeleteNote(note: GardenNote) {
-        const confirmed = window.confirm(`Delete "${note.title || makeTitleFromBody(note.body)}"?\n\n` +
-            'Imported originals and placement history inside this Garden Note will also be removed. Real Sprig records created from it will not be deleted.');
-        if (!confirmed) {
-            return;
-        }
-        save({
-            ...gardenData,
-            gardenNotes: notes.filter(item => item.id !== note.id),
-        });
-        selectNote(null);
-    }
-    function handleAddRelationshipToNote(note: GardenNote) {
-        const option = relationshipOptions.find(candidate => `${candidate.targetType}:${candidate.targetId}` ===
-            selectedRelationshipKey);
-        if (!option) {
-            return;
-        }
-        const existing = note.relationships ??
-            [];
-        const alreadyLinked = existing.some(relationship => relationship.targetType ===
-            option.targetType &&
-            relationship.targetId ===
-                option.targetId);
-        if (alreadyLinked) {
-            return;
-        }
-        const relationship: KnowledgeRelationship = {
-            targetType: option.targetType,
-            targetId: option.targetId,
-            label: option.label,
-            createdAt: getNow(),
-        };
-        const updatedNote: GardenNote = {
-            ...note,
-            relationships: [
-                ...existing,
-                relationship,
-            ],
-            updatedAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            gardenNotes: notes.map(item => item.id === note.id
-                ? updatedNote
-                : item),
-        });
-        setSelectedRelationshipKey('');
-        setRelationshipSearch('');
-    }
-    function handleRemoveRelationshipFromNote(note: GardenNote, relationship: KnowledgeRelationship) {
-        const updatedNote: GardenNote = {
-            ...note,
-            relationships: (note.relationships ??
-                []).filter(item => !(item.targetType ===
-                relationship.targetType &&
-                item.targetId ===
-                    relationship.targetId)),
-            updatedAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            gardenNotes: notes.map(item => item.id === note.id
-                ? updatedNote
-                : item),
-        });
-    }
-    function appendPlacement(note: GardenNote, placement: KnowledgePlacement, partialGardenData: Partial<GardenData>) {
-        const updatedNote: GardenNote = {
-            ...note,
-            placements: [
-                ...(note.placements ??
-                    []),
-                placement,
-            ],
-            updatedAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            ...partialGardenData,
-            gardenNotes: notes.map(item => item.id === note.id
-                ? updatedNote
-                : item),
-        });
-    }
-    function handlePlaceAsReference(note: GardenNote) {
-        const excerpt = placementExcerpt.trim() ||
-            note.body;
-        const plantName = window.prompt('Which plant or crop should this Plant Reference belong to?', '');
-        if (!plantName?.trim()) {
-            return;
-        }
-        const variety = window.prompt('Variety, if this is variety-specific. Leave blank for general crop knowledge.', '');
-        const now = getNow();
-        const reference: PlantReference = {
-            id: crypto.randomUUID(),
-            plantName: plantName.trim(),
-            variety: variety?.trim() ||
-                undefined,
-            notes: excerpt,
-            referenceDate: note.noteDate ??
-                getToday(),
-            relationships: [
-                {
-                    targetType: 'garden-note',
-                    targetId: note.id,
-                    label: note.title ||
-                        makeTitleFromBody(note.body),
-                    createdAt: now,
-                },
-            ],
-            createdAt: now,
-        };
-        appendPlacement(note, {
-            id: crypto.randomUUID(),
-            excerpt,
-            destinationType: 'plant-reference',
-            destinationId: reference.id,
-            destinationLabel: getReferenceLabel(reference),
-            placedAt: now,
-        }, {
-            plantReferences: [
-                ...references,
-                reference,
-            ],
-        });
-    }
-    function handlePlaceAsSource(note: GardenNote) {
-        const excerpt = placementExcerpt.trim() ||
-            note.body;
-        const now = getNow();
-        const detectedUrl = note.body.match(/https?:\/\/\S+/i)?.[0];
-        const source: SavedKnowledgeSource = {
-            id: crypto.randomUUID(),
-            title: note.title ||
-                makeTitleFromBody(note.body),
-            kind: note.sourceUrl ||
-                detectedUrl
-                ? 'website'
-                : 'other',
-            sourceName: note.sourceLabel,
-            url: note.sourceUrl ||
-                detectedUrl,
-            excerpt,
-            notes: 'Placed from a Garden Note. The original note remains untouched.',
-            savedDate: note.noteDate,
-            relationships: [
-                {
-                    targetType: 'garden-note',
-                    targetId: note.id,
-                    label: note.title ||
-                        makeTitleFromBody(note.body),
-                    createdAt: now,
-                },
-            ],
-            createdAt: now,
-        };
-        appendPlacement(note, {
-            id: crypto.randomUUID(),
-            excerpt,
-            destinationType: 'saved-source',
-            destinationId: source.id,
-            destinationLabel: source.title,
-            placedAt: now,
-        }, {
-            savedKnowledgeSources: [
-                ...sources,
-                source,
-            ],
-        });
-    }
-    function handlePlaceAsJournal(note: GardenNote) {
-        const excerpt = placementExcerpt.trim() ||
-            note.body;
-        if (!placementJournalDate) {
-            window.alert('Choose the date the garden event actually happened first.');
-            return;
-        }
-        const confirmed = window.confirm('Create a real Garden Journal record from this note?\n\n' +
-            'This is an explicit reality action. The Garden Note will stay where it is and remain linked back to the new Journal record.');
-        if (!confirmed) {
-            return;
-        }
-        const now = getNow();
-        const linkedPlantIds = (note.relationships ??
-            [])
-            .filter(relationship => relationship.targetType ===
-            'plant-story')
-            .map(relationship => relationship.targetId);
-        const linkedPlaceIds = (note.relationships ??
-            [])
-            .filter(relationship => relationship.targetType ===
-            'growing-place')
-            .map(relationship => relationship.targetId);
-        const event: GardenEvent = {
-            id: crypto.randomUUID(),
-            date: placementJournalDate,
-            type: 'note',
-            activityTypes: [
-                'note',
-            ],
-            title: note.title ||
-                makeTitleFromBody(note.body),
-            notes: excerpt,
-            originatingKnowledgeNoteId: note.id,
-            growingPlaceScope: linkedPlaceIds.length === 0
-                ? 'none'
-                : linkedPlaceIds.length === 1
-                    ? 'single'
-                    : 'multiple',
-            growingPlaceIds: linkedPlaceIds,
-            plantScope: linkedPlantIds.length === 0
-                ? 'none'
-                : linkedPlantIds.length === 1
-                    ? 'single'
-                    : 'multiple',
-            plantStoryIds: linkedPlantIds,
-        };
-        appendPlacement(note, {
-            id: crypto.randomUUID(),
-            excerpt,
-            destinationType: 'garden-event',
-            destinationId: event.id,
-            destinationLabel: event.title,
-            placedAt: now,
-        }, {
-            events: [
-                ...(gardenData.events ??
-                    []),
-                event,
-            ],
-        });
-    }
-    function handlePlaceAsPlan(note: GardenNote) {
-        const excerpt = placementExcerpt.trim() ||
-            note.body;
-        if (!placementPlanDate) {
-            window.alert('Choose the intended date before creating a Plan.');
-            return;
-        }
-        const confirmed = window.confirm('Create a real Garden Plan from this note?\n\n' +
-            'The Plan will remain future intention. This Garden Note will stay intact as its source.');
-        if (!confirmed) {
-            return;
-        }
-        const now = getNow();
-        const linkedPlantIds = (note.relationships ??
-            [])
-            .filter(relationship => relationship.targetType ===
-            'plant-story')
-            .map(relationship => relationship.targetId);
-        const linkedPlaceIds = (note.relationships ??
-            [])
-            .filter(relationship => relationship.targetType ===
-            'growing-place')
-            .map(relationship => relationship.targetId);
-        const plan: GardenPlan = {
-            id: crypto.randomUUID(),
-            title: note.title ||
-                makeTitleFromBody(note.body),
-            kind: 'garden-task',
-            notes: excerpt,
-            originatingKnowledgeNoteId: note.id,
-            date: placementPlanDate,
-            plantStoryIds: linkedPlantIds,
-            growingPlaceIds: linkedPlaceIds,
-            growingSetupIds: [],
-            status: 'planned',
-            scheduleHistory: [],
-            results: [],
-            createdAt: now,
-        };
-        appendPlacement(note, {
-            id: crypto.randomUUID(),
-            excerpt,
-            destinationType: 'plan',
-            destinationId: plan.id,
-            destinationLabel: plan.title,
-            placedAt: now,
-        }, {
-            plans: [
-                ...(gardenData.plans ??
-                    []),
-                plan,
-            ],
-        });
-    }
-    function handleSaveReference() {
-        if (!referencePlantName.trim()) {
-            return;
-        }
-        const reference: PlantReference = {
-            id: crypto.randomUUID(),
-            plantName: referencePlantName.trim(),
-            variety: referenceVariety.trim() ||
-                undefined,
-            aliases: referenceAliases
-                .split(',')
-                .map(alias => alias.trim())
-                .filter(Boolean),
-            notes: referenceNotes.trim() ||
-                undefined,
-            referenceDate: referenceDate ||
-                undefined,
-            photoUrls: referencePhotoUrls.length > 0
-                ? referencePhotoUrls
-                : undefined,
-            sourceIds: [],
-            relationships: [],
-            createdAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            plantReferences: [
-                ...references,
-                reference,
-            ],
-        });
-        selectReference(reference.id);
-        setReferencePlantName('');
-        setReferenceVariety('');
-        setReferenceAliases('');
-        setReferenceNotes('');
-        setReferenceDate(getToday());
-        setReferencePhotoUrls([]);
-    }
-    function startEditReference(reference: PlantReference) {
-        setEditReferencePlantName(reference.plantName);
-        setEditReferenceVariety(reference.variety ?? '');
-        setEditReferenceAliases((reference.aliases ?? []).join(', '));
-        setEditReferenceNotes(reference.notes ?? '');
-        setEditReferenceDate(reference.referenceDate ??
-            reference.createdAt.slice(0, 10));
-        setEditReferencePhotoUrls(reference.photoUrls ?? []);
-        setEditingReferenceId(reference.id);
-    }
-    function cancelEditReference() {
-        setEditingReferenceId(null);
-    }
-    function handleSaveEditedReference(reference: PlantReference) {
-        if (!editReferencePlantName.trim()) {
-            return;
-        }
-        const updatedReference: PlantReference = {
-            ...reference,
-            plantName: editReferencePlantName.trim(),
-            variety: editReferenceVariety.trim() ||
-                undefined,
-            aliases: editReferenceAliases
-                .split(',')
-                .map(alias => alias.trim())
-                .filter(Boolean),
-            notes: editReferenceNotes.trim() ||
-                undefined,
-            referenceDate: editReferenceDate ||
-                undefined,
-            photoUrls: editReferencePhotoUrls.length > 0
-                ? editReferencePhotoUrls
-                : undefined,
-            updatedAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            plantReferences: references.map(item => item.id === reference.id
-                ? updatedReference
-                : item),
-        });
-        setEditingReferenceId(null);
-    }
-    function handleDeleteReference(reference: PlantReference) {
-        const confirmed = window.confirm(`Delete Plant Reference "${getReferenceLabel(reference)}"?\n\nPlant Stories are separate records and will not be deleted.`);
-        if (!confirmed) {
-            return;
-        }
-        save({
-            ...gardenData,
-            plantReferences: references.filter(item => item.id !== reference.id),
-        });
-        selectReference(null);
-    }
-    function handleSaveSource() {
-        if (!sourceTitle.trim()) {
-            return;
-        }
-        const source: SavedKnowledgeSource = {
-            id: crypto.randomUUID(),
-            title: sourceTitle.trim(),
-            kind: sourceKind,
-            customKindLabel: sourceKind ===
-                'other'
-                ? sourceCustomKind.trim() ||
-                    undefined
-                : undefined,
-            sourceName: sourceName.trim() ||
-                undefined,
-            url: sourceUrl.trim() ||
-                undefined,
-            excerpt: sourceExcerpt.trim() ||
-                undefined,
-            notes: sourceNotes.trim() ||
-                undefined,
-            photoUrls: sourcePhotoUrls.length > 0
-                ? sourcePhotoUrls
-                : undefined,
-            savedDate: sourceSavedDate ||
-                undefined,
-            relationships: [],
-            createdAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            savedKnowledgeSources: [
-                ...sources,
-                source,
-            ],
-        });
-        selectSource(source.id);
-        setSourceTitle('');
-        setSourceKind('website');
-        setSourceCustomKind('');
-        setSourceName('');
-        setSourceUrl('');
-        setSourceExcerpt('');
-        setSourceNotes('');
-        setSourceSavedDate(getToday());
-        setSourcePhotoUrls([]);
-    }
-    function startEditSource(source: SavedKnowledgeSource) {
-        setEditSourceTitle(source.title);
-        setEditSourceKind(source.kind);
-        setEditSourceCustomKind(source.customKindLabel ?? '');
-        setEditSourceName(source.sourceName ?? '');
-        setEditSourceUrl(source.url ?? '');
-        setEditSourceExcerpt(source.excerpt ?? '');
-        setEditSourceNotes(source.notes ?? '');
-        setEditSourceSavedDate(source.savedDate ??
-            source.createdAt.slice(0, 10));
-        setEditSourcePhotoUrls(source.photoUrls ?? []);
-        setEditingSourceId(source.id);
-    }
-    function cancelEditSource() {
-        setEditingSourceId(null);
-    }
-    function handleSaveEditedSource(source: SavedKnowledgeSource) {
-        if (!editSourceTitle.trim()) {
-            return;
-        }
-        const updatedSource: SavedKnowledgeSource = {
-            ...source,
-            title: editSourceTitle.trim(),
-            kind: editSourceKind,
-            customKindLabel: editSourceKind === 'other'
-                ? editSourceCustomKind.trim() ||
-                    undefined
-                : undefined,
-            sourceName: editSourceName.trim() ||
-                undefined,
-            url: editSourceUrl.trim() ||
-                undefined,
-            excerpt: editSourceExcerpt.trim() ||
-                undefined,
-            notes: editSourceNotes.trim() ||
-                undefined,
-            savedDate: editSourceSavedDate ||
-                undefined,
-            photoUrls: editSourcePhotoUrls.length > 0
-                ? editSourcePhotoUrls
-                : undefined,
-            updatedAt: getNow(),
-        };
-        save({
-            ...gardenData,
-            savedKnowledgeSources: sources.map(item => item.id === source.id
-                ? updatedSource
-                : item),
-        });
-        setEditingSourceId(null);
-    }
-    function handleDeleteSource(source: SavedKnowledgeSource) {
-        const confirmed = window.confirm(`Delete "${source.title}" from Saved Tips & Sources?\n\nThis does not delete any Plant Reference or Garden Note that links to it.`);
-        if (!confirmed) {
-            return;
-        }
-        save({
-            ...gardenData,
-            savedKnowledgeSources: sources.filter(item => item.id !== source.id),
-        });
-        selectSource(null);
-    }
-    const filteredRelationshipOptions = relationshipOptions.filter(option => {
-        const query = normalise(relationshipSearch);
-        if (!query) {
-            return true;
-        }
-        return normalise(`${option.group} ${option.label}`).includes(query);
-    });
-    function renderKnowledgeNavigation() {
-        return (<nav className="sprig-knowledge-tabs" aria-label="Garden Knowledge">
-                {KNOWLEDGE_TABS.map(tab => (<button key={tab.view} type="button" className={tab.view === view
-                    ? 'sprig-knowledge-tab sprig-knowledge-tab--active'
-                    : 'sprig-knowledge-tab'} onClick={() => onNavigate(tab.page)}>
-                            <span aria-hidden="true">
-                                {tab.icon}
-                            </span>
 
-                            <span>
-                                {tab.label}
-                            </span>
-                        </button>))}
-            </nav>);
+        selectNote(
+            note.id,
+        );
+
+        resetNoteComposer();
+
+        setNoteComposerOpen(
+            false,
+        );
     }
-    function renderRelationshipEditor(note: GardenNote) {
-        return (<section className="sprig-knowledge-subsection">
+
+
+    function startEditNote(
+        note:
+            GardenNote,
+    ) {
+        setEditNoteTitle(
+            note.title ??
+            '',
+        );
+
+        setEditNoteBody(
+            note.body,
+        );
+
+        setEditNoteCategory(
+            note.category ??
+            '',
+        );
+
+        setEditNoteDate(
+            note.noteDate ??
+            note.createdAt.slice(
+                0,
+                10,
+            ),
+        );
+
+        setEditNotePhotoUrls(
+            note.photoUrls ??
+            [],
+        );
+
+        setEditingNoteId(
+            note.id,
+        );
+    }
+
+
+    function handleSaveEditedNote(
+        note:
+            GardenNote,
+    ) {
+        if (
+            !editNoteBody.trim()
+        ) {
+            return;
+        }
+
+        const updated:
+            GardenNote =
+            {
+                ...note,
+
+                title:
+                    editNoteTitle.trim() ||
+                    undefined,
+
+                body:
+                    note.origin ===
+                    'imported-text'
+                        ? editNoteBody
+                        : editNoteBody.trim(),
+
+                category:
+                    editNoteCategory.trim() ||
+                    undefined,
+
+                noteDate:
+                    editNoteDate ||
+                    undefined,
+
+                photoUrls:
+                    editNotePhotoUrls.length >
+                    0
+                        ? editNotePhotoUrls
+                        : undefined,
+
+                updatedAt:
+                    getNow(),
+            };
+
+        save({
+            ...gardenData,
+
+            gardenNotes:
+                notes.map(
+                    item =>
+                        item.id ===
+                        note.id
+                            ? updated
+                            : item,
+                ),
+        });
+
+        setEditingNoteId(
+            null,
+        );
+    }
+
+
+    function handleDeleteNote(
+        note:
+            GardenNote,
+    ) {
+        const confirmed =
+            window.confirm(
+                `Delete "${note.title || makeTitleFromBody(
+                    note.body,
+                )}"?\n\nReal Sprig records created or linked from this note will not be deleted.`,
+            );
+
+        if (
+            !confirmed
+        ) {
+            return;
+        }
+
+        save({
+            ...gardenData,
+
+            gardenNotes:
+                notes.filter(
+                    item =>
+                        item.id !==
+                        note.id,
+                ),
+        });
+
+        selectNote(
+            null,
+        );
+    }
+
+
+    function handleSaveSource() {
+        if (
+            !sourceTitle.trim()
+        ) {
+            return;
+        }
+
+        const source:
+            SavedKnowledgeSource =
+            {
+                id:
+                    crypto.randomUUID(),
+
+                title:
+                    sourceTitle.trim(),
+
+                kind:
+                    sourceKind,
+
+                customKindLabel:
+                    sourceKind ===
+                    'other'
+                        ? sourceCustomKind.trim() ||
+                          undefined
+                        : undefined,
+
+                sourceName:
+                    sourceName.trim() ||
+                    undefined,
+
+                url:
+                    sourceUrl.trim() ||
+                    undefined,
+
+                category:
+                    sourceCategory.trim() ||
+                    undefined,
+
+                excerpt:
+                    sourceExcerpt.trim() ||
+                    undefined,
+
+                notes:
+                    sourceNotes.trim() ||
+                    undefined,
+
+                savedDate:
+                    sourceSavedDate ||
+                    undefined,
+
+                relationships:
+                    [],
+
+                photoUrls:
+                    sourcePhotoUrls.length >
+                    0
+                        ? sourcePhotoUrls
+                        : undefined,
+
+                createdAt:
+                    getNow(),
+            };
+
+        save({
+            ...gardenData,
+
+            savedKnowledgeSources: [
+                ...sources,
+                source,
+            ],
+        });
+
+        selectSource(
+            source.id,
+        );
+
+        resetSourceComposer();
+
+        setSourceComposerOpen(
+            false,
+        );
+    }
+
+
+    function startEditSource(
+        source:
+            SavedKnowledgeSource,
+    ) {
+        setEditSourceTitle(
+            source.title,
+        );
+
+        setEditSourceKind(
+            source.kind,
+        );
+
+        setEditSourceCustomKind(
+            source.customKindLabel ??
+            '',
+        );
+
+        setEditSourceName(
+            source.sourceName ??
+            '',
+        );
+
+        setEditSourceUrl(
+            source.url ??
+            '',
+        );
+
+        setEditSourceCategory(
+            source.category ??
+            '',
+        );
+
+        setEditSourceExcerpt(
+            source.excerpt ??
+            '',
+        );
+
+        setEditSourceNotes(
+            source.notes ??
+            '',
+        );
+
+        setEditSourceSavedDate(
+            source.savedDate ??
+            source.createdAt.slice(
+                0,
+                10,
+            ),
+        );
+
+        setEditSourcePhotoUrls(
+            source.photoUrls ??
+            [],
+        );
+
+        setEditingSourceId(
+            source.id,
+        );
+    }
+
+
+    function handleSaveEditedSource(
+        source:
+            SavedKnowledgeSource,
+    ) {
+        if (
+            !editSourceTitle.trim()
+        ) {
+            return;
+        }
+
+        const updated:
+            SavedKnowledgeSource =
+            {
+                ...source,
+
+                title:
+                    editSourceTitle.trim(),
+
+                kind:
+                    editSourceKind,
+
+                customKindLabel:
+                    editSourceKind ===
+                    'other'
+                        ? editSourceCustomKind.trim() ||
+                          undefined
+                        : undefined,
+
+                sourceName:
+                    editSourceName.trim() ||
+                    undefined,
+
+                url:
+                    editSourceUrl.trim() ||
+                    undefined,
+
+                category:
+                    editSourceCategory.trim() ||
+                    undefined,
+
+                excerpt:
+                    editSourceExcerpt.trim() ||
+                    undefined,
+
+                notes:
+                    editSourceNotes.trim() ||
+                    undefined,
+
+                savedDate:
+                    editSourceSavedDate ||
+                    undefined,
+
+                photoUrls:
+                    editSourcePhotoUrls.length >
+                    0
+                        ? editSourcePhotoUrls
+                        : undefined,
+
+                updatedAt:
+                    getNow(),
+            };
+
+        save({
+            ...gardenData,
+
+            savedKnowledgeSources:
+                sources.map(
+                    item =>
+                        item.id ===
+                        source.id
+                            ? updated
+                            : item,
+                ),
+        });
+
+        setEditingSourceId(
+            null,
+        );
+    }
+
+
+    function handleDeleteSource(
+        source:
+            SavedKnowledgeSource,
+    ) {
+        const confirmed =
+            window.confirm(
+                `Delete "${source.title}" from Tips & Sources?\n\nThis does not delete other Sprig records linked to it.`,
+            );
+
+        if (
+            !confirmed
+        ) {
+            return;
+        }
+
+        save({
+            ...gardenData,
+
+            savedKnowledgeSources:
+                sources.filter(
+                    item =>
+                        item.id !==
+                        source.id,
+                ),
+        });
+
+        selectSource(
+            null,
+        );
+    }
+
+
+    function addRelationship(
+        target:
+            GardenNote |
+            SavedKnowledgeSource,
+
+        targetType:
+            'note' |
+            'source',
+    ) {
+        const option =
+            relationshipOptions.find(
+                candidate =>
+                    `${candidate.targetType}:${candidate.targetId}` ===
+                    selectedRelationshipKey,
+            );
+
+        if (
+            !option
+        ) {
+            return;
+        }
+
+        const existing =
+            target.relationships ??
+            [];
+
+        if (
+            existing.some(
+                relationship =>
+                    relationship.targetType ===
+                        option.targetType &&
+                    relationship.targetId ===
+                        option.targetId,
+            )
+        ) {
+            return;
+        }
+
+        const relationship:
+            KnowledgeRelationship =
+            {
+                targetType:
+                    option.targetType,
+
+                targetId:
+                    option.targetId,
+
+                label:
+                    option.label,
+
+                createdAt:
+                    getNow(),
+            };
+
+        if (
+            targetType ===
+            'note'
+        ) {
+            save({
+                ...gardenData,
+
+                gardenNotes:
+                    notes.map(
+                        note =>
+                            note.id ===
+                            target.id
+                                ? {
+                                      ...note,
+
+                                      relationships: [
+                                          ...existing,
+                                          relationship,
+                                      ],
+
+                                      updatedAt:
+                                          getNow(),
+                                  }
+                                : note,
+                    ),
+            });
+        }
+        else {
+            save({
+                ...gardenData,
+
+                savedKnowledgeSources:
+                    sources.map(
+                        source =>
+                            source.id ===
+                            target.id
+                                ? {
+                                      ...source,
+
+                                      relationships: [
+                                          ...existing,
+                                          relationship,
+                                      ],
+
+                                      updatedAt:
+                                          getNow(),
+                                  }
+                                : source,
+                    ),
+            });
+        }
+
+        setSelectedRelationshipKey(
+            '',
+        );
+
+        setRelationshipSearch(
+            '',
+        );
+    }
+
+
+    function removeRelationship(
+        target:
+            GardenNote |
+            SavedKnowledgeSource,
+
+        relationship:
+            KnowledgeRelationship,
+
+        targetType:
+            'note' |
+            'source',
+    ) {
+        const nextRelationships =
+            (
+                target.relationships ??
+                []
+            ).filter(
+                item =>
+                    !(
+                        item.targetType ===
+                            relationship.targetType &&
+                        item.targetId ===
+                            relationship.targetId
+                    ),
+            );
+
+        if (
+            targetType ===
+            'note'
+        ) {
+            save({
+                ...gardenData,
+
+                gardenNotes:
+                    notes.map(
+                        note =>
+                            note.id ===
+                            target.id
+                                ? {
+                                      ...note,
+
+                                      relationships:
+                                          nextRelationships,
+
+                                      updatedAt:
+                                          getNow(),
+                                  }
+                                : note,
+                    ),
+            });
+        }
+        else {
+            save({
+                ...gardenData,
+
+                savedKnowledgeSources:
+                    sources.map(
+                        source =>
+                            source.id ===
+                            target.id
+                                ? {
+                                      ...source,
+
+                                      relationships:
+                                          nextRelationships,
+
+                                      updatedAt:
+                                          getNow(),
+                                  }
+                                : source,
+                    ),
+            });
+        }
+    }
+
+
+    const filteredRelationshipOptions =
+        relationshipOptions.filter(
+            option => {
+                const query =
+                    normalise(
+                        relationshipSearch,
+                    );
+
+                if (
+                    !query
+                ) {
+                    return true;
+                }
+
+                return normalise(
+                    `${option.group} ${option.label}`,
+                ).includes(
+                    query,
+                );
+            },
+        );
+
+
+    function renderRelationshipEditor(
+        target:
+            GardenNote |
+            SavedKnowledgeSource,
+
+        targetType:
+            'note' |
+            'source',
+    ) {
+        return (
+            <section className="sprig-knowledge-subsection">
                 <div className="sprig-knowledge-subsection-heading">
                     <div>
                         <p className="section-label">
@@ -1728,89 +3275,803 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                         </p>
 
                         <h3>
-                            Where this thought touches Sprig
+                            Where this touches Sprig
                         </h3>
                     </div>
                 </div>
 
-                {(note.relationships ??
-                []).length > 0 && (<div className="sprig-knowledge-relationship-list">
-                        {(note.relationships ??
-                    []).map(relationship => (<div key={`${relationship.targetType}:${relationship.targetId}`} className="sprig-knowledge-relationship">
-                                    <button type="button" className="sprig-knowledge-relationship-open" onClick={() => onOpenRelationship(relationship.targetType, relationship.targetId)}>
-                                        {getRelationshipLabel(gardenData, relationship)}
+                {(
+                    target.relationships ??
+                    []
+                ).length >
+                    0 && (
+                    <div className="sprig-knowledge-relationship-list">
+                        {(
+                            target.relationships ??
+                            []
+                        ).map(
+                            relationship => (
+                                <div
+                                    key={`${relationship.targetType}:${relationship.targetId}`}
+                                    className="sprig-knowledge-relationship"
+                                >
+                                    <button
+                                        type="button"
+                                        className="sprig-knowledge-relationship-open"
+                                        onClick={() =>
+                                            onOpenRelationship(
+                                                relationship.targetType,
+                                                relationship.targetId,
+                                            )
+                                        }
+                                    >
+                                        {getRelationshipLabel(
+                                            gardenData,
+                                            relationship,
+                                        )}
 
                                         <span aria-hidden="true">
                                             ›
                                         </span>
                                     </button>
 
-                                    <button type="button" className="sprig-knowledge-icon-button" aria-label="Remove relationship" onClick={() => handleRemoveRelationshipFromNote(note, relationship)}>
+                                    <button
+                                        type="button"
+                                        className="sprig-knowledge-icon-button"
+                                        aria-label="Remove relationship"
+                                        onClick={() =>
+                                            removeRelationship(
+                                                target,
+                                                relationship,
+                                                targetType,
+                                            )
+                                        }
+                                    >
                                         ×
                                     </button>
-                                </div>))}
-                    </div>)}
+                                </div>
+                            ),
+                        )}
+                    </div>
+                )}
 
                 <div className="sprig-knowledge-linker">
-                    <input type="search" value={relationshipSearch} onChange={event => setRelationshipSearch(event.target.value)} placeholder="Find a Plant Story, place, recipe, plan..." aria-label="Find a Sprig record to link"/>
+                    <input
+                        type="search"
+                        value={
+                            relationshipSearch
+                        }
+                        onChange={event =>
+                            setRelationshipSearch(
+                                event.target.value,
+                            )
+                        }
+                        placeholder="Find a Plant Story, place, recipe, product, plan..."
+                    />
 
-                    <select value={selectedRelationshipKey} onChange={event => setSelectedRelationshipKey(event.target.value)}>
+                    <select
+                        value={
+                            selectedRelationshipKey
+                        }
+                        onChange={event =>
+                            setSelectedRelationshipKey(
+                                event.target.value,
+                            )
+                        }
+                    >
                         <option value="">
                             Choose a saved Sprig record
                         </option>
 
-                        {filteredRelationshipOptions.map(option => (<option key={`${option.targetType}:${option.targetId}`} value={`${option.targetType}:${option.targetId}`}>
+                        {filteredRelationshipOptions.map(
+                            option => (
+                                <option
+                                    key={`${option.targetType}:${option.targetId}`}
+                                    value={`${option.targetType}:${option.targetId}`}
+                                >
                                     {option.group}
                                     {' · '}
                                     {option.label}
-                                </option>))}
+                                </option>
+                            ),
+                        )}
                     </select>
 
-                    <button type="button" className="sprig-knowledge-secondary-button" onClick={() => handleAddRelationshipToNote(note)} disabled={!selectedRelationshipKey}>
-                        Link this
+                    <button
+                        type="button"
+                        className="sprig-knowledge-secondary-button"
+                        onClick={() =>
+                            addRelationship(
+                                target,
+                                targetType,
+                            )
+                        }
+                        disabled={
+                            !selectedRelationshipKey
+                        }
+                    >
+                        Add relationship
                     </button>
                 </div>
-            </section>);
+            </section>
+        );
     }
-    function renderPlacementHelper(note: GardenNote) {
-        const suggestions = getPlacementSuggestions({
-            ...note,
-            body: placementExcerpt ||
-                note.body,
+
+
+    function appendPlacement(
+        note:
+            GardenNote,
+
+        placement:
+            KnowledgePlacement,
+
+        partial:
+            Partial<GardenData>,
+    ) {
+        const updatedNote:
+            GardenNote =
+            {
+                ...note,
+
+                placements: [
+                    ...(
+                        note.placements ??
+                        []
+                    ),
+
+                    placement,
+                ],
+
+                updatedAt:
+                    getNow(),
+            };
+
+        save({
+            ...gardenData,
+            ...partial,
+
+            gardenNotes:
+                notes.map(
+                    item =>
+                        item.id ===
+                        note.id
+                            ? updatedNote
+                            : item,
+                ),
         });
-        return (<section className="sprig-knowledge-place-panel">
+    }
+
+
+    function handlePlaceAsReference(
+        note:
+            GardenNote,
+    ) {
+        const excerpt =
+            placementExcerpt.trim() ||
+            note.body;
+
+        const plantName =
+            window.prompt(
+                'Which plant or crop should this Garden Reference belong to?',
+                '',
+            );
+
+        if (
+            !plantName?.trim()
+        ) {
+            return;
+        }
+
+        const variety =
+            window.prompt(
+                'Variety, if this is variety-specific. Leave blank for crop-wide knowledge.',
+                '',
+            );
+
+        const now =
+            getNow();
+
+        const reference:
+            PlantReference =
+            {
+                id:
+                    crypto.randomUUID(),
+
+                subjectType:
+                    'plant-crop',
+
+                plantName:
+                    plantName.trim(),
+
+                variety:
+                    variety?.trim() ||
+                    undefined,
+
+                title:
+                    note.title ||
+                    makeTitleFromBody(
+                        excerpt,
+                    ),
+
+                knowledge:
+                    excerpt,
+
+                referenceDate:
+                    note.noteDate ??
+                    getToday(),
+
+                relationships: [
+                    {
+                        targetType:
+                            'garden-note',
+
+                        targetId:
+                            note.id,
+
+                        label:
+                            note.title ||
+                            makeTitleFromBody(
+                                note.body,
+                            ),
+
+                        createdAt:
+                            now,
+                    },
+                ],
+
+                createdAt:
+                    now,
+            };
+
+        appendPlacement(
+            note,
+
+            {
+                id:
+                    crypto.randomUUID(),
+
+                excerpt,
+
+                destinationType:
+                    'plant-reference',
+
+                destinationId:
+                    reference.id,
+
+                destinationLabel:
+                    getReferenceTitle(
+                        reference,
+                    ),
+
+                placedAt:
+                    now,
+            },
+
+            {
+                plantReferences: [
+                    ...references,
+                    reference,
+                ],
+            },
+        );
+    }
+
+
+    function handlePlaceAsSource(
+        note:
+            GardenNote,
+    ) {
+        const excerpt =
+            placementExcerpt.trim() ||
+            note.body;
+
+        const detectedUrl =
+            note.body.match(
+                /https?:\/\/\S+/i,
+            )?.[0];
+
+        const now =
+            getNow();
+
+        const source:
+            SavedKnowledgeSource =
+            {
+                id:
+                    crypto.randomUUID(),
+
+                title:
+                    note.title ||
+                    makeTitleFromBody(
+                        note.body,
+                    ),
+
+                category:
+                    note.category,
+
+                kind:
+                    note.sourceUrl ||
+                    detectedUrl
+                        ? 'website'
+                        : 'other',
+
+                sourceName:
+                    note.sourceLabel,
+
+                url:
+                    note.sourceUrl ||
+                    detectedUrl,
+
+                excerpt,
+
+                notes:
+                    'Placed from a Garden Note. The original note remains untouched.',
+
+                savedDate:
+                    note.noteDate,
+
+                relationships: [
+                    {
+                        targetType:
+                            'garden-note',
+
+                        targetId:
+                            note.id,
+
+                        label:
+                            note.title ||
+                            makeTitleFromBody(
+                                note.body,
+                            ),
+
+                        createdAt:
+                            now,
+                    },
+                ],
+
+                createdAt:
+                    now,
+            };
+
+        appendPlacement(
+            note,
+
+            {
+                id:
+                    crypto.randomUUID(),
+
+                excerpt,
+
+                destinationType:
+                    'saved-source',
+
+                destinationId:
+                    source.id,
+
+                destinationLabel:
+                    source.title,
+
+                placedAt:
+                    now,
+            },
+
+            {
+                savedKnowledgeSources: [
+                    ...sources,
+                    source,
+                ],
+            },
+        );
+    }
+
+
+    function handlePlaceAsJournal(
+        note:
+            GardenNote,
+    ) {
+        if (
+            !placementJournalDate
+        ) {
+            return;
+        }
+
+        const confirmed =
+            window.confirm(
+                'Create a real Garden Journal record from this note?\n\nThe Garden Note will remain here and keep the link.',
+            );
+
+        if (
+            !confirmed
+        ) {
+            return;
+        }
+
+        const excerpt =
+            placementExcerpt.trim() ||
+            note.body;
+
+        const linkedPlantIds =
+            (
+                note.relationships ??
+                []
+            )
+                .filter(
+                    relationship =>
+                        relationship.targetType ===
+                        'plant-story',
+                )
+                .map(
+                    relationship =>
+                        relationship.targetId,
+                );
+
+        const event:
+            GardenEvent =
+            {
+                id:
+                    crypto.randomUUID(),
+
+                date:
+                    placementJournalDate,
+
+                type:
+                    'note',
+
+                title:
+                    note.title ||
+                    makeTitleFromBody(
+                        excerpt,
+                    ),
+
+                notes:
+                    excerpt,
+
+                originatingKnowledgeNoteId:
+                    note.id,
+
+                plantStoryIds:
+                    linkedPlantIds,
+
+                photoUrls:
+                    note.photoUrls,
+
+            };
+
+        appendPlacement(
+            note,
+
+            {
+                id:
+                    crypto.randomUUID(),
+
+                excerpt,
+
+                destinationType:
+                    'garden-event',
+
+                destinationId:
+                    event.id,
+
+                destinationLabel:
+                    event.title,
+
+                placedAt:
+                    getNow(),
+            },
+
+            {
+                events: [
+                    ...(
+                        gardenData.events ??
+                        []
+                    ),
+                    event,
+                ],
+            },
+        );
+    }
+
+
+    function handlePlaceAsPlan(
+        note:
+            GardenNote,
+    ) {
+        if (
+            !placementPlanDate
+        ) {
+            return;
+        }
+
+        const plan:
+            GardenPlan =
+            {
+                id:
+                    crypto.randomUUID(),
+
+                title:
+                    note.title ||
+                    makeTitleFromBody(
+                        note.body,
+                    ),
+
+                kind:
+                    'garden-task',
+
+                notes:
+                    placementExcerpt.trim() ||
+                    note.body,
+
+                date:
+                    placementPlanDate,
+
+                status:
+                    'planned',
+
+                originatingKnowledgeNoteId:
+                    note.id,
+
+                createdAt:
+                    getNow(),
+            };
+
+        appendPlacement(
+            note,
+
+            {
+                id:
+                    crypto.randomUUID(),
+
+                excerpt:
+                    placementExcerpt.trim() ||
+                    note.body,
+
+                destinationType:
+                    'plan',
+
+                destinationId:
+                    plan.id,
+
+                destinationLabel:
+                    plan.title,
+
+                placedAt:
+                    getNow(),
+            },
+
+            {
+                plans: [
+                    ...(
+                        gardenData.plans ??
+                        []
+                    ),
+                    plan,
+                ],
+            },
+        );
+    }
+    function getNoteExportDocument(
+        note:
+            GardenNote,
+    ):
+        KnowledgeExportDocument {
+        const meta:
+            string[] =
+            [];
+
+        if (
+            note.category?.trim()
+        ) {
+            meta.push(
+                `Category: ${note.category.trim()}`,
+            );
+        }
+
+        if (
+            note.sourceLabel?.trim()
+        ) {
+            meta.push(
+                `Source: ${note.sourceLabel.trim()}`,
+            );
+        }
+
+        if (
+            note.sourceUrl?.trim()
+        ) {
+            meta.push(
+                note.sourceUrl.trim(),
+            );
+        }
+
+        const sections:
+            KnowledgeExportSection[] =
+            [
+                {
+                    heading:
+                        'Garden Note',
+
+                    body:
+                        note.body,
+                },
+            ];
+
+        if (
+            note.origin ===
+            'imported-text'
+        ) {
+            sections.push({
+                heading:
+                    'Original imported note · preserved snapshot',
+
+                body:
+                    note.originalBody ??
+                    note.body,
+            });
+        }
+
+        return {
+            eyebrow:
+                note.origin ===
+                'imported-text'
+                    ? 'Imported Garden Note'
+                    : 'Garden Note',
+
+            title:
+                note.title ||
+                makeTitleFromBody(
+                    note.body,
+                ),
+
+            dateLine:
+                `Note dated ${formatDate(
+                    note.noteDate ??
+                    note.createdAt,
+                )}`,
+
+            meta,
+
+            sections,
+
+            photoUrls:
+                note.photoUrls,
+        };
+    }
+
+
+    function getSourceExportDocument(
+        source:
+            SavedKnowledgeSource,
+    ):
+        KnowledgeExportDocument {
+        const meta:
+            string[] =
+            [
+                getSourceKindLabel(
+                    source,
+                ),
+            ];
+
+        if (
+            source.category?.trim()
+        ) {
+            meta.push(
+                `Category: ${source.category.trim()}`,
+            );
+        }
+
+        if (
+            source.sourceName?.trim()
+        ) {
+            meta.push(
+                `From: ${source.sourceName.trim()}`,
+            );
+        }
+
+        if (
+            source.url?.trim()
+        ) {
+            meta.push(
+                source.url.trim(),
+            );
+        }
+
+        const sections:
+            KnowledgeExportSection[] =
+            [];
+
+        if (
+            source.excerpt?.trim()
+        ) {
+            sections.push({
+                heading:
+                    'Saved words',
+
+                body:
+                    source.excerpt,
+            });
+        }
+
+        if (
+            source.notes?.trim()
+        ) {
+            sections.push({
+                heading:
+                    'My note about it',
+
+                body:
+                    source.notes,
+            });
+        }
+
+        return {
+            eyebrow:
+                'Saved Tip / Source',
+
+            title:
+                source.title,
+
+            dateLine:
+                `Saved ${formatDate(
+                    source.savedDate ??
+                    source.createdAt,
+                )}`,
+
+            meta,
+
+            sections,
+
+            photoUrls:
+                source.photoUrls,
+        };
+    }
+
+
+    function renderPlacementHelper(
+        note:
+            GardenNote,
+    ) {
+        const suggestions =
+            getPlacementSuggestions(
+                note,
+            );
+
+        return (
+            <section className="sprig-knowledge-subsection">
                 <p className="section-label">
-                    Help me place this
+                    Import & place
                 </p>
 
                 <h3>
-                    Sprig noticed a few possible homes
+                    Decide what this thought may become
                 </h3>
 
-                <p>
-                    These are suggestions, not decisions.
-                    The original Garden Note stays intact
-                    and nothing becomes garden history
-                    until you explicitly create it.
-                </p>
-
-                <label className="sprig-knowledge-field sprig-knowledge-placement-excerpt">
+                <label className="sprig-knowledge-field">
                     <span>
-                        Part of the note to place
+                        Working excerpt
                     </span>
 
-                    <textarea rows={7} value={placementExcerpt} onChange={event => setPlacementExcerpt(event.target.value)}/>
-
-                    <small>
-                        For a giant imported note, trim this
-                        working excerpt down to one idea or
-                        event. The preserved original above
-                        is never changed.
-                    </small>
+                    <textarea
+                        rows={
+                            7
+                        }
+                        value={
+                            placementExcerpt
+                        }
+                        onChange={event =>
+                            setPlacementExcerpt(
+                                event.target.value,
+                            )
+                        }
+                    />
                 </label>
 
                 <div className="sprig-knowledge-suggestion-list">
-                    {suggestions.map(suggestion => (<article key={suggestion.type} className="sprig-knowledge-suggestion">
+                    {suggestions.map(
+                        suggestion => (
+                            <article
+                                key={
+                                    suggestion.type
+                                }
+                                className="sprig-knowledge-suggestion"
+                            >
                                 <strong>
                                     {suggestion.label}
                                 </strong>
@@ -1819,126 +4080,306 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                     {suggestion.reason}
                                 </p>
 
-                                {suggestion.type === 'reference' && (<button type="button" className="sprig-knowledge-secondary-button" onClick={() => handlePlaceAsReference(note)}>
-                                        Place into Plant Reference
-                                    </button>)}
+                                {suggestion.type ===
+                                    'reference' && (
+                                    <button
+                                        type="button"
+                                        className="sprig-knowledge-secondary-button"
+                                        onClick={() =>
+                                            handlePlaceAsReference(
+                                                note,
+                                            )
+                                        }
+                                    >
+                                        Place into Garden Reference
+                                    </button>
+                                )}
 
-                                {suggestion.type === 'source' && (<button type="button" className="sprig-knowledge-secondary-button" onClick={() => handlePlaceAsSource(note)}>
+                                {suggestion.type ===
+                                    'source' && (
+                                    <button
+                                        type="button"
+                                        className="sprig-knowledge-secondary-button"
+                                        onClick={() =>
+                                            handlePlaceAsSource(
+                                                note,
+                                            )
+                                        }
+                                    >
                                         Save as Tip / Source
-                                    </button>)}
+                                    </button>
+                                )}
 
-                                {suggestion.type === 'journal' && (<div className="sprig-knowledge-placement-action">
+                                {suggestion.type ===
+                                    'journal' && (
+                                    <div className="sprig-knowledge-placement-action">
                                         <label>
                                             <span>
                                                 Date it actually happened
                                             </span>
 
-                                            <input type="date" value={placementJournalDate} onChange={event => setPlacementJournalDate(event.target.value)}/>
+                                            <input
+                                                type="date"
+                                                value={
+                                                    placementJournalDate
+                                                }
+                                                onChange={event =>
+                                                    setPlacementJournalDate(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                            />
                                         </label>
 
-                                        <button type="button" className="sprig-knowledge-secondary-button" onClick={() => handlePlaceAsJournal(note)}>
+                                        <button
+                                            type="button"
+                                            className="sprig-knowledge-secondary-button"
+                                            onClick={() =>
+                                                handlePlaceAsJournal(
+                                                    note,
+                                                )
+                                            }
+                                        >
                                             Record in Journal
                                         </button>
-                                    </div>)}
+                                    </div>
+                                )}
 
-                                {suggestion.type === 'plan' && (<div className="sprig-knowledge-placement-action">
+                                {suggestion.type ===
+                                    'plan' && (
+                                    <div className="sprig-knowledge-placement-action">
                                         <label>
                                             <span>
                                                 When do you intend to do it?
                                             </span>
 
-                                            <input type="date" value={placementPlanDate} onChange={event => setPlacementPlanDate(event.target.value)}/>
+                                            <input
+                                                type="date"
+                                                value={
+                                                    placementPlanDate
+                                                }
+                                                onChange={event =>
+                                                    setPlacementPlanDate(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                            />
                                         </label>
 
-                                        <button type="button" className="sprig-knowledge-secondary-button" onClick={() => handlePlaceAsPlan(note)}>
+                                        <button
+                                            type="button"
+                                            className="sprig-knowledge-secondary-button"
+                                            onClick={() =>
+                                                handlePlaceAsPlan(
+                                                    note,
+                                                )
+                                            }
+                                        >
                                             Make a Plan
                                         </button>
-                                    </div>)}
-                            </article>))}
+                                    </div>
+                                )}
+                            </article>
+                        ),
+                    )}
                 </div>
 
-                {(note.placements ??
-                []).length > 0 && (<div className="sprig-knowledge-placement-history">
+                {(
+                    note.placements ??
+                    []
+                ).length >
+                    0 && (
+                    <div className="sprig-knowledge-placement-history">
                         <h4>
                             Already placed from this note
                         </h4>
 
-                        {(note.placements ??
-                    []).map(placement => (<div key={placement.id}>
+                        {(
+                            note.placements ??
+                            []
+                        ).map(
+                            placement => (
+                                <div
+                                    key={
+                                        placement.id
+                                    }
+                                >
                                     <strong>
                                         {placement.destinationLabel ??
-                        placement.destinationType}
+                                            placement.destinationType}
                                     </strong>
 
                                     <span>
-                                        {formatDate(placement.placedAt)}
+                                        {formatDate(
+                                            placement.placedAt,
+                                        )}
                                     </span>
-                                </div>))}
-                    </div>)}
-            </section>);
+                                </div>
+                            ),
+                        )}
+                    </div>
+                )}
+            </section>
+        );
     }
+
+
     function renderNotesView() {
-        if (selectedNote) {
-            const noteExport = getNoteExportDocument(selectedNote, gardenData);
-            const isEditing = editingNoteId ===
+        if (
+            selectedNote
+        ) {
+            const isEditing =
+                editingNoteId ===
                 selectedNote.id;
-            return (<div className="sprig-knowledge-detail">
+
+            return (
+                <div className="sprig-knowledge-detail">
                     <div className="sprig-knowledge-detail-toolbar">
-                        <button type="button" className="sprig-knowledge-text-button" onClick={() => selectNote(null)}>
+                        <button
+                            type="button"
+                            className="sprig-knowledge-text-button"
+                            onClick={() =>
+                                selectNote(
+                                    null,
+                                )
+                            }
+                        >
                             ← Garden Notes
                         </button>
 
                         <div className="sprig-knowledge-detail-actions">
-                            <button type="button" className="sprig-knowledge-text-button" onClick={() => printKnowledgeDocuments(noteExport.title, [noteExport])}>
+                            <button
+                                type="button"
+                                className="sprig-knowledge-text-button"
+                                onClick={() =>
+                                    printDocuments(
+                                        'Garden Note',
+                                        [
+                                            getNoteExportDocument(
+                                                selectedNote,
+                                            ),
+                                        ],
+                                    )
+                                }
+                            >
                                 PDF
                             </button>
 
-                            <button type="button" className="sprig-knowledge-text-button" onClick={() => downloadTextFile(`${getExportFilePart(noteExport.title)}.rtf`, buildExportRtf(noteExport.title, [noteExport]), 'application/rtf;charset=utf-8')}>
+                            <button
+                                type="button"
+                                className="sprig-knowledge-text-button"
+                                onClick={() =>
+                                    downloadRtf(
+                                        'Sprig-Garden-Note.rtf',
+                                        'Garden Note',
+                                        [
+                                            getNoteExportDocument(
+                                                selectedNote,
+                                            ),
+                                        ],
+                                    )
+                                }
+                            >
                                 RTF
                             </button>
 
-                            {!isEditing && (<button type="button" className="sprig-knowledge-text-button" onClick={() => startEditNote(selectedNote)}>
+                            {!isEditing && (
+                                <button
+                                    type="button"
+                                    className="sprig-knowledge-text-button"
+                                    onClick={() =>
+                                        startEditNote(
+                                            selectedNote,
+                                        )
+                                    }
+                                >
                                     Edit
-                                </button>)}
+                                </button>
+                            )}
 
-                            <button type="button" className="sprig-knowledge-text-button sprig-knowledge-text-button--danger" onClick={() => handleDeleteNote(selectedNote)}>
+                            <button
+                                type="button"
+                                className="sprig-knowledge-text-button sprig-knowledge-text-button--danger"
+                                onClick={() =>
+                                    handleDeleteNote(
+                                        selectedNote,
+                                    )
+                                }
+                            >
                                 Delete
                             </button>
                         </div>
                     </div>
 
-                    {isEditing ? (<section className="sprig-knowledge-paper sprig-knowledge-capture">
+                    {isEditing ? (
+                        <section className="sprig-knowledge-paper sprig-knowledge-capture">
                             <p className="section-label">
                                 Edit Garden Note
                             </p>
-
-                            <h2>
-                                Change what Sprig keeps as the working note
-                            </h2>
 
                             <label className="sprig-knowledge-field">
                                 <span>
                                     Title
                                     <small>
+                                        {' '}
                                         optional
                                     </small>
                                 </span>
 
-                                <input type="text" value={editNoteTitle} onChange={event => setEditNoteTitle(event.target.value)}/>
+                                <input
+                                    type="text"
+                                    value={
+                                        editNoteTitle
+                                    }
+                                    onChange={event =>
+                                        setEditNoteTitle(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
                                 <span>
-                                    {selectedNote.origin === 'imported-text'
-                        ? 'Working copy'
-                        : 'Garden Note'}
+                                    Category
+                                    <small>
+                                        {' '}
+                                        optional · type your own or reuse one
+                                    </small>
                                 </span>
 
-                                <textarea rows={12} value={editNoteBody} onChange={event => setEditNoteBody(event.target.value)}/>
+                                <input
+                                    type="text"
+                                    list="sprig-knowledge-categories"
+                                    value={
+                                        editNoteCategory
+                                    }
+                                    onChange={event =>
+                                        setEditNoteCategory(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
+                            </label>
 
-                                {selectedNote.origin === 'imported-text' && (<small>
-                                        You can tidy this working copy. The exact imported snapshot below remains unchanged.
-                                    </small>)}
+                            <label className="sprig-knowledge-field">
+                                <span>
+                                    What do you want Sprig to remember?
+                                </span>
+
+                                <textarea
+                                    rows={
+                                        12
+                                    }
+                                    value={
+                                        editNoteBody
+                                    }
+                                    onChange={event =>
+                                        setEditNoteBody(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
@@ -1946,120 +4387,202 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                     Note date
                                 </span>
 
-                                <input type="date" value={editNoteDate} onChange={event => setEditNoteDate(event.target.value)}/>
+                                <input
+                                    type="date"
+                                    value={
+                                        editNoteDate
+                                    }
+                                    onChange={event =>
+                                        setEditNoteDate(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
-                            {selectedNote.origin === 'imported-text' && (<div className="sprig-knowledge-import-meta">
-                                    <label className="sprig-knowledge-field">
-                                        <span>
-                                            Where did this note come from?
-                                            <small>
-                                                optional
-                                            </small>
-                                        </span>
-
-                                        <input type="text" value={editNoteSourceLabel} onChange={event => setEditNoteSourceLabel(event.target.value)}/>
-                                    </label>
-
-                                    <label className="sprig-knowledge-field">
-                                        <span>
-                                            Source link
-                                            <small>
-                                                optional
-                                            </small>
-                                        </span>
-
-                                        <input type="url" value={editNoteSourceUrl} onChange={event => setEditNoteSourceUrl(event.target.value)} placeholder="https://..."/>
-                                    </label>
-
-                                    <details className="sprig-knowledge-original">
-                                        <summary>
-                                            Original imported note · read only
-                                        </summary>
-
-                                        <p>
-                                            This is the preserved provenance snapshot. Editing the working copy never changes it.
-                                        </p>
-
-                                        <pre>
-                                            {selectedNote.originalBody ?? selectedNote.body}
-                                        </pre>
-                                    </details>
-                                </div>)}
-
-                            <SprigPhotoPicker photoUrls={editNotePhotoUrls} onChange={setEditNotePhotoUrls} title="Photographs" helperText="Add or remove the photographs that belong to this Garden Note." addButtonText="Add photographs" photoAltPrefix="Garden Note photograph" multiple={true} maxPhotos={12}/>
+                            <SprigPhotoPicker
+                                photoUrls={
+                                    editNotePhotoUrls
+                                }
+                                onChange={
+                                    setEditNotePhotoUrls
+                                }
+                                title="Photographs"
+                                helperText="Add or remove photographs that belong to this thought."
+                                addButtonText="Add photographs"
+                                photoAltPrefix="Garden Note photograph"
+                                multiple={
+                                    true
+                                }
+                                maxPhotos={
+                                    12
+                                }
+                            />
 
                             <div className="sprig-knowledge-detail-actions">
-                                <button type="button" className="sprig-knowledge-primary-button" onClick={() => handleSaveEditedNote(selectedNote)} disabled={!editNoteBody.trim()}>
+                                <button
+                                    type="button"
+                                    className="sprig-knowledge-primary-button"
+                                    onClick={() =>
+                                        handleSaveEditedNote(
+                                            selectedNote,
+                                        )
+                                    }
+                                    disabled={
+                                        !editNoteBody.trim()
+                                    }
+                                >
                                     Save changes
                                 </button>
 
-                                <button type="button" className="sprig-knowledge-secondary-button" onClick={cancelEditNote}>
+                                <button
+                                    type="button"
+                                    className="sprig-knowledge-secondary-button"
+                                    onClick={() =>
+                                        setEditingNoteId(
+                                            null,
+                                        )
+                                    }
+                                >
                                     Cancel
                                 </button>
                             </div>
-                        </section>) : (<>
+                        </section>
+                    ) : (
+                        <>
                             <article className="sprig-knowledge-paper sprig-knowledge-note-detail">
                                 <p className="section-label">
-                                    {selectedNote.origin === 'imported-text'
-                        ? 'Imported Garden Note'
-                        : 'Garden Note'}
+                                    {selectedNote.origin ===
+                                    'imported-text'
+                                        ? 'Imported Garden Note'
+                                        : 'Garden Note'}
                                 </p>
 
                                 <h2>
                                     {selectedNote.title ||
-                        makeTitleFromBody(selectedNote.body)}
+                                        makeTitleFromBody(
+                                            selectedNote.body,
+                                        )}
                                 </h2>
 
+                                {selectedNote.category && (
+                                    <p className="sprig-knowledge-muted">
+                                        {selectedNote.category}
+                                    </p>
+                                )}
+
                                 <p className="sprig-knowledge-date">
-                                    {formatDate(selectedNote.noteDate ??
-                        selectedNote.createdAt)}
+                                    {formatDate(
+                                        selectedNote.noteDate ??
+                                            selectedNote.createdAt,
+                                    )}
                                 </p>
 
                                 <div className="sprig-knowledge-prose">
                                     {selectedNote.body
-                        .split(/\r?\n/)
-                        .map((line, index) => (<p key={`${selectedNote.id}-line-${index}`}>
-                                                    {line || '\u00A0'}
-                                                </p>))}
+                                        .split(
+                                            /\r?\n/,
+                                        )
+                                        .map(
+                                            (
+                                                line,
+                                                index,
+                                            ) => (
+                                                <p
+                                                    key={`${selectedNote.id}-line-${index}`}
+                                                >
+                                                    {line ||
+                                                        '\u00A0'}
+                                                </p>
+                                            ),
+                                        )}
                                 </div>
 
-                                {selectedNote.origin === 'imported-text' && (<details className="sprig-knowledge-original">
+                                {selectedNote.origin ===
+                                    'imported-text' && (
+                                    <details className="sprig-knowledge-original">
                                         <summary>
                                             Original imported note
                                         </summary>
 
                                         <p>
-                                            Sprig keeps this exact snapshot even if you later tidy the working copy.
+                                            Sprig keeps this preserved snapshot even if the working note changes later.
                                         </p>
 
-                                        {(selectedNote.sourceLabel ||
-                            selectedNote.sourceUrl) && (<div className="sprig-knowledge-source-meta">
-                                                {selectedNote.sourceLabel && (<span>
-                                                        {selectedNote.sourceLabel}
-                                                    </span>)}
-
-                                                {selectedNote.sourceUrl && (<a href={selectedNote.sourceUrl} target="_blank" rel="noreferrer">
-                                                        Open source
-                                                    </a>)}
-                                            </div>)}
-
                                         <pre>
-                                            {selectedNote.originalBody ?? selectedNote.body}
+                                            {selectedNote.originalBody ??
+                                                selectedNote.body}
                                         </pre>
-                                    </details>)}
+                                    </details>
+                                )}
                             </article>
 
-                            {(selectedNote.photoUrls ?? []).length > 0 && (<SprigPhotoGallery photoUrls={selectedNote.photoUrls ?? []} title="Note photographs" photoAltPrefix="Garden Note photograph"/>)}
-                        </>)}
+                            {(
+                                selectedNote.photoUrls ??
+                                []
+                            ).length >
+                                0 && (
+                                <SprigPhotoGallery
+                                    photoUrls={
+                                        selectedNote.photoUrls ??
+                                        []
+                                    }
+                                    title="Note photographs"
+                                    photoAltPrefix="Garden Note photograph"
+                                />
+                            )}
 
-                    {renderRelationshipEditor(selectedNote)}
+                            {renderRelationshipEditor(
+                                selectedNote,
+                                'note',
+                            )}
 
-                    {renderPlacementHelper(selectedNote)}
-                </div>);
+                            {renderPlacementHelper(
+                                selectedNote,
+                            )}
+                        </>
+                    )}
+                </div>
+            );
         }
-        return (<div className="sprig-knowledge-two-column">
-                <section className="sprig-knowledge-paper sprig-knowledge-capture">
+
+        return (
+            <div className="sprig-knowledge-two-column sprig-knowledge-browse-first">
+                <div className="sprig-knowledge-mobile-add">
+                    <button
+                        type="button"
+                        className="sprig-knowledge-mobile-add-button"
+                        aria-expanded={
+                            noteComposerOpen
+                        }
+                        aria-controls="sprig-garden-note-composer"
+                        onClick={() =>
+                            setNoteComposerOpen(
+                                current =>
+                                    !current,
+                            )
+                        }
+                    >
+                        <span>
+                            {noteComposerOpen
+                                ? '−'
+                                : '+'}
+                        </span>
+
+                        {noteComposerOpen
+                            ? 'Close Garden Note form'
+                            : 'Add Garden Note'}
+                    </button>
+                </div>
+
+                <section
+                    id="sprig-garden-note-composer"
+                    className={`sprig-knowledge-paper sprig-knowledge-capture sprig-knowledge-mobile-collapsible${
+                        noteComposerOpen
+                            ? ' sprig-knowledge-mobile-collapsible--open'
+                            : ''
+                    }`}
+                >
                     <p className="section-label">
                         Capture first
                     </p>
@@ -2070,21 +4593,40 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
 
                     <p>
                         It does not need a perfect category,
-                        relationship or structure yet. Sprig
-                        can help you place useful pieces
-                        afterwards.
+                        relationship or structure yet. Sprig can
+                        help you place useful pieces afterwards.
                     </p>
 
-                    <div className="sprig-knowledge-import-switch">
-                        <button type="button" className={!isImporting
-                ? 'sprig-knowledge-choice sprig-knowledge-choice--active'
-                : 'sprig-knowledge-choice'} onClick={() => setIsImporting(false)}>
+                    <div className="sprig-knowledge-detail-actions">
+                        <button
+                            type="button"
+                            className={
+                                !isImporting
+                                    ? 'sprig-knowledge-primary-button'
+                                    : 'sprig-knowledge-secondary-button'
+                            }
+                            onClick={() =>
+                                setIsImporting(
+                                    false,
+                                )
+                            }
+                        >
                             New note
                         </button>
 
-                        <button type="button" className={isImporting
-                ? 'sprig-knowledge-choice sprig-knowledge-choice--active'
-                : 'sprig-knowledge-choice'} onClick={() => setIsImporting(true)}>
+                        <button
+                            type="button"
+                            className={
+                                isImporting
+                                    ? 'sprig-knowledge-primary-button'
+                                    : 'sprig-knowledge-secondary-button'
+                            }
+                            onClick={() =>
+                                setIsImporting(
+                                    true,
+                                )
+                            }
+                        >
                             Import an old note
                         </button>
                     </div>
@@ -2093,25 +4635,66 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                         <span>
                             Title
                             <small>
+                                {' '}
                                 optional
                             </small>
                         </span>
 
-                        <input type="text" value={noteTitle} onChange={event => setNoteTitle(event.target.value)} placeholder="A useful little heading, if you want one"/>
+                        <input
+                            type="text"
+                            value={
+                                noteTitle
+                            }
+                            onChange={event =>
+                                setNoteTitle(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
                     <label className="sprig-knowledge-field">
                         <span>
-                            {isImporting
-                ? 'Paste the original note'
-                : 'What do you want Sprig to remember?'}
+                            Category
+                            <small>
+                                {' '}
+                                optional · type your own or reuse one
+                            </small>
                         </span>
 
-                        <textarea rows={isImporting
-                ? 14
-                : 9} value={noteBody} onChange={event => setNoteBody(event.target.value)} placeholder={isImporting
-                ? 'Paste it exactly as it exists. Messy dates, shorthand, URLs and all.'
-                : 'A thought, question, observation, reminder, theory, garden clue...'}/>
+                        <input
+                            type="text"
+                            list="sprig-knowledge-categories"
+                            value={
+                                noteCategory
+                            }
+                            onChange={event =>
+                                setNoteCategory(
+                                    event.target.value,
+                                )
+                            }
+                            placeholder="Potatoes, ideas, pests, greenhouse..."
+                        />
+                    </label>
+
+                    <label className="sprig-knowledge-field">
+                        <span>
+                            What do you want Sprig to remember?
+                        </span>
+
+                        <textarea
+                            rows={
+                                10
+                            }
+                            value={
+                                noteBody
+                            }
+                            onChange={event =>
+                                setNoteBody(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
                     <label className="sprig-knowledge-field">
@@ -2119,40 +4702,117 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                             Note date
                         </span>
 
-                        <input type="date" value={noteDate} onChange={event => setNoteDate(event.target.value)}/>
+                        <input
+                            type="date"
+                            value={
+                                noteDate
+                            }
+                            onChange={event =>
+                                setNoteDate(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
-                                          {isImporting && (<div className="sprig-knowledge-import-meta">
+                    {isImporting && (
+                        <>
                             <label className="sprig-knowledge-field">
                                 <span>
-                                    Where did this note come from?
+                                    Where did this old note come from?
                                     <small>
+                                        {' '}
                                         optional
                                     </small>
                                 </span>
 
-                                <input type="text" value={importSourceLabel} onChange={event => setImportSourceLabel(event.target.value)} placeholder="Google Keep, old phone notes, garden notebook..."/>
+                                <input
+                                    type="text"
+                                    value={
+                                        importSourceLabel
+                                    }
+                                    onChange={event =>
+                                        setImportSourceLabel(
+                                            event.target.value,
+                                        )
+                                    }
+                                    placeholder="Google Keep, old notebook..."
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
                                 <span>
-                                    Source link
+                                    Original link
                                     <small>
+                                        {' '}
                                         optional
                                     </small>
                                 </span>
 
-                                <input type="url" value={importSourceUrl} onChange={event => setImportSourceUrl(event.target.value)} placeholder="https://..."/>
+                                <input
+                                    type="url"
+                                    value={
+                                        importSourceUrl
+                                    }
+                                    onChange={event =>
+                                        setImportSourceUrl(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
-                        </div>)}
+                        </>
+                    )}
 
-                    <SprigPhotoPicker photoUrls={notePhotoUrls} onChange={setNotePhotoUrls} title="Photographs" helperText="Add any photographs that belong to this thought. You can keep more than one." addButtonText="Add photographs" photoAltPrefix="Garden Note photograph" multiple={true} maxPhotos={12}/>
+                    <SprigPhotoPicker
+                        photoUrls={
+                            notePhotoUrls
+                        }
+                        onChange={
+                            setNotePhotoUrls
+                        }
+                        title="Photographs"
+                        helperText="Add any photographs that belong to this thought."
+                        addButtonText="Add photographs"
+                        photoAltPrefix="Garden Note photograph"
+                        multiple={
+                            true
+                        }
+                        maxPhotos={
+                            12
+                        }
+                    />
 
-                    <button type="button" className="sprig-knowledge-primary-button" onClick={handleSaveNote} disabled={!noteBody.trim()}>
-                        {isImporting
-                ? 'Preserve this note'
-                : 'Save Garden Note'}
-                    </button>
+                    <div className="sprig-knowledge-composer-actions">
+                        <button
+                            type="button"
+                            className="sprig-knowledge-primary-button"
+                            onClick={
+                                handleSaveNote
+                            }
+                            disabled={
+                                !noteBody.trim()
+                            }
+                        >
+                            {isImporting
+                                ? 'Preserve this note'
+                                : 'Save Garden Note'}
+                        </button>
+
+                        <button
+                            type="button"
+                            className="sprig-knowledge-secondary-button sprig-knowledge-mobile-composer-cancel"
+                            onClick={() => {
+                                resetNoteComposer();
+
+                                setNoteComposerOpen(
+                                    false,
+                                );
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
                 </section>
 
                 <section className="sprig-knowledge-list-section">
@@ -2168,418 +4828,216 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                         </div>
 
                         <span className="sprig-knowledge-count">
-                            {notes.length}
+                            {notes.length}{' '}
+                            {notes.length ===
+                            1
+                                ? 'note'
+                                : 'notes'}
                         </span>
                     </div>
 
-                    {notes.length > 0 && (<div className="sprig-knowledge-detail-actions">
-                            <button type="button" className="sprig-knowledge-secondary-button" onClick={() => printKnowledgeDocuments('Garden Notes', [...notes]
-                    .sort((first, second) => (second.noteDate ?? second.createdAt).localeCompare(first.noteDate ?? first.createdAt))
-                    .map(note => getNoteExportDocument(note, gardenData)))}>
-                                Export Garden Notes PDF
-                            </button>
+                    <section className="sprig-knowledge-paper">
+                        <label className="sprig-knowledge-field">
+                            <span>
+                                Find a Garden Note
+                            </span>
 
-                            <button type="button" className="sprig-knowledge-secondary-button" onClick={() => {
-                    const exportDocuments = [...notes]
-                        .sort((first, second) => (second.noteDate ?? second.createdAt).localeCompare(first.noteDate ?? first.createdAt))
-                        .map(note => getNoteExportDocument(note, gardenData));
-                    downloadTextFile('Sprig-Garden-Notes.rtf', buildExportRtf('Garden Notes', exportDocuments), 'application/rtf;charset=utf-8');
-                }}>
-                                Export Garden Notes RTF
-                            </button>
-                        </div>)}
+                            <input
+                                type="search"
+                                value={
+                                    noteSearch
+                                }
+                                onChange={event =>
+                                    setNoteSearch(
+                                        event.target.value,
+                                    )
+                                }
+                                placeholder="Search title, words, category or date..."
+                            />
+                        </label>
+                    </section>
 
-                    {notes.length === 0 ? (<div className="sprig-knowledge-empty">
+                    {notes.length ===
+                    0 ? (
+                        <div className="sprig-knowledge-empty">
                             <strong>
                                 Nothing loose yet.
                             </strong>
 
                             <p>
-                                Garden Notes are allowed to
-                                be unfinished. That is their
-                                job.
+                                Garden Notes are allowed to be unfinished. That is their job.
                             </p>
-                        </div>) : (<div className="sprig-knowledge-card-list">
-                            {[...notes]
-                    .sort((first, second) => (second.noteDate ??
-                    second.createdAt).localeCompare(first.noteDate ??
-                    first.createdAt))
-                    .map(note => (<button key={note.id} type="button" className="sprig-knowledge-card" onClick={() => selectNote(note.id)}>
-                                            <div>
-                                                <span className="sprig-knowledge-card-kicker">
-                                                    {note.origin === 'imported-text'
-                        ? 'Imported'
-                        : 'Note'}
-                                                </span>
-
-                                                <strong>
-                                                    {note.title ||
-                        makeTitleFromBody(note.body)}
-                                                </strong>
-
-                                                <p>
-                                                    {note.body}
-                                                </p>
-                                            </div>
-
-                                            <div className="sprig-knowledge-card-meta">
-                                                <span>
-                                                    {formatDate(note.noteDate ??
-                        note.createdAt)}
-                                                </span>
-
-                                                {(note.relationships ?? []).length > 0 && (<span>
-                                                        {(note.relationships ?? []).length}{' '}
-                                                        linked
-                                                    </span>)}
-                                            </div>
-                                        </button>))}
-                        </div>)}
-                </section>
-            </div>);
-    }
-    function renderReferenceView() {
-        if (selectedReference) {
-            const referenceExport = getReferenceExportDocument(selectedReference, gardenData);
-            const isEditing = editingReferenceId ===
-                selectedReference.id;
-            return (<div className="sprig-knowledge-detail">
-                    <div className="sprig-knowledge-detail-toolbar">
-                        <button type="button" className="sprig-knowledge-text-button" onClick={() => selectReference(null)}>
-                            ← Plant Reference
-                        </button>
-
-                        <div className="sprig-knowledge-detail-actions">
-                            <button type="button" className="sprig-knowledge-text-button" onClick={() => printKnowledgeDocuments(referenceExport.title, [referenceExport])}>
-                                PDF
-                            </button>
-
-                            <button type="button" className="sprig-knowledge-text-button" onClick={() => downloadTextFile(`${getExportFilePart(referenceExport.title)}.rtf`, buildExportRtf(referenceExport.title, [referenceExport]), 'application/rtf;charset=utf-8')}>
-                                RTF
-                            </button>
-
-                            {!isEditing && (<button type="button" className="sprig-knowledge-text-button" onClick={() => startEditReference(selectedReference)}>
-                                    Edit
-                                </button>)}
-
-                            <button type="button" className="sprig-knowledge-text-button sprig-knowledge-text-button--danger" onClick={() => handleDeleteReference(selectedReference)}>
-                                Delete
-                            </button>
                         </div>
-                    </div>
-
-                    {isEditing ? (<section className="sprig-knowledge-paper sprig-knowledge-capture">
-                            <p className="section-label">
-                                Edit Plant Reference
-                            </p>
-
-                            <h2>
-                                Update this reusable plant knowledge
-                            </h2>
-
-                            <label className="sprig-knowledge-field">
-                                <span>
-                                    Plant or crop
-                                </span>
-
-                                <input type="text" value={editReferencePlantName} onChange={event => setEditReferencePlantName(event.target.value)}/>
-                            </label>
-
-                            <label className="sprig-knowledge-field">
-                                <span>
-                                    Variety
-                                    <small>
-                                        optional
-                                    </small>
-                                </span>
-
-                                <input type="text" value={editReferenceVariety} onChange={event => setEditReferenceVariety(event.target.value)}/>
-                            </label>
-
-                            <label className="sprig-knowledge-field">
-                                <span>
-                                    Other names
-                                    <small>
-                                        comma separated
-                                    </small>
-                                </span>
-
-                                <input type="text" value={editReferenceAliases} onChange={event => setEditReferenceAliases(event.target.value)}/>
-                            </label>
-
-                            <label className="sprig-knowledge-field">
-                                <span>
-                                    Reference date
-                                </span>
-
-                                <input type="date" value={editReferenceDate} onChange={event => setEditReferenceDate(event.target.value)}/>
-
-                                <small>
-                                    Keep the meaningful date of when this knowledge was saved, learned or recorded.
-                                </small>
-                            </label>
-
-                            <label className="sprig-knowledge-field">
-                                <span>
-                                    Reference notes
-                                </span>
-
-                                <textarea rows={12} value={editReferenceNotes} onChange={event => setEditReferenceNotes(event.target.value)}/>
-                            </label>
-
-                            <SprigPhotoPicker photoUrls={editReferencePhotoUrls} onChange={setEditReferencePhotoUrls} title="Photographs" helperText="Add or remove seed packets, labels, diagrams and other photographs that belong to this reference." addButtonText="Add photographs" photoAltPrefix="Plant Reference photograph" multiple={true} maxPhotos={12}/>
-
-                            <div className="sprig-knowledge-detail-actions">
-                                <button type="button" className="sprig-knowledge-primary-button" onClick={() => handleSaveEditedReference(selectedReference)} disabled={!editReferencePlantName.trim()}>
-                                    Save changes
-                                </button>
-
-                                <button type="button" className="sprig-knowledge-secondary-button" onClick={cancelEditReference}>
-                                    Cancel
-                                </button>
-                            </div>
-                        </section>) : (<>
-                            <article className="sprig-knowledge-paper">
-                                <p className="section-label">
-                                    Plant Reference
-                                </p>
-
-                                <h2>
-                                    {selectedReference.plantName}
-                                </h2>
-
-                                {selectedReference.variety && (<p className="sprig-knowledge-reference-variety">
-                                        {selectedReference.variety}
-                                    </p>)}
-
-                                <p className="sprig-knowledge-date">
-                                    Reference dated{' '}
-                                    {formatDate(selectedReference.referenceDate ??
-                        selectedReference.createdAt)}
-                                </p>
-
-                                {(selectedReference.aliases ?? []).length > 0 && (<p className="sprig-knowledge-muted">
-                                        Also known here as:{' '}
-                                        {(selectedReference.aliases ?? []).join(', ')}
-                                    </p>)}
-
-                                {selectedReference.notes ? (<div className="sprig-knowledge-prose">
-                                        {selectedReference.notes
-                            .split(/\r?\n/)
-                            .map((line, index) => (<p key={`${selectedReference.id}-reference-${index}`}>
-                                                        {line || '\u00A0'}
-                                                    </p>))}
-                                    </div>) : (<p className="sprig-knowledge-muted">
-                                        No reference notes have been added yet.
-                                    </p>)}
-
-                                {(selectedReference.relationships ?? []).length > 0 && (<div className="sprig-knowledge-related-block">
-                                        <h3>
-                                            Related Sprig records
-                                        </h3>
-
-                                        {(selectedReference.relationships ?? []).map(relationship => (<button key={`${relationship.targetType}:${relationship.targetId}`} type="button" className="sprig-knowledge-related-link" onClick={() => onOpenRelationship(relationship.targetType, relationship.targetId)}>
-                                                    {getRelationshipLabel(gardenData, relationship)}
-                                                    <span>
-                                                        ›
-                                                    </span>
-                                                </button>))}
-                                    </div>)}
-                            </article>
-
-                            {(selectedReference.photoUrls ?? []).length > 0 && (<SprigPhotoGallery photoUrls={selectedReference.photoUrls ?? []} title="Reference photographs" photoAltPrefix="Plant Reference photograph"/>)}
-                        </>)}
-                </div>);
-        }
-        return (<div className="sprig-knowledge-two-column">
-                <section className="sprig-knowledge-paper sprig-knowledge-capture">
-                    <p className="section-label">
-                        Plant Reference
-                    </p>
-
-                    <h2>
-                        Knowledge about the plant itself
-                    </h2>
-
-                    <p>
-                        Keep reusable crop and variety
-                        knowledge here. Individual Plant
-                        Stories still own what actually
-                        happened to your plants.
-                    </p>
-
-                    <label className="sprig-knowledge-field">
-                        <span>
-                            Plant or crop
-                        </span>
-
-                        <input type="text" value={referencePlantName} onChange={event => setReferencePlantName(event.target.value)} placeholder="Potato"/>
-                    </label>
-
-                    <label className="sprig-knowledge-field">
-                        <span>
-                            Variety
-                            <small>
-                                optional
-                            </small>
-                        </span>
-
-                        <input type="text" value={referenceVariety} onChange={event => setReferenceVariety(event.target.value)} placeholder="Royal Blue"/>
-                    </label>
-
-                    <label className="sprig-knowledge-field">
-                        <span>
-                            Other names
-                            <small>
-                                comma separated
-                            </small>
-                        </span>
-
-                        <input type="text" value={referenceAliases} onChange={event => setReferenceAliases(event.target.value)} placeholder="Local name, seed packet name..."/>
-                    </label>
-
-                    <label className="sprig-knowledge-field">
-    <span>
-        Reference date
-    </span>
-
-    <input type="date" value={referenceDate} onChange={event => setReferenceDate(event.target.value)}/>
-
-    <small>
-        When did you save, learn or record
-        this reference? Change the date when
-        bringing older knowledge into Sprig.
-    </small>
-        </label>
-
-                    <label className="sprig-knowledge-field">
-                        <span>
-                            Reference notes
-                        </span>
-
-                        <textarea rows={10} value={referenceNotes} onChange={event => setReferenceNotes(event.target.value)} placeholder="Timing, growth habit, spacing, harvest behaviour, useful reference knowledge..."/>
-                    </label>
-
-                    <SprigPhotoPicker photoUrls={referencePhotoUrls} onChange={setReferencePhotoUrls} title="Photographs" helperText="Add seed packets, labels, diagrams or other photographs that help describe this plant or variety." addButtonText="Add photographs" photoAltPrefix="Plant Reference photograph" multiple={true} maxPhotos={12}/>
-
-                    <button type="button" className="sprig-knowledge-primary-button" onClick={handleSaveReference} disabled={!referencePlantName.trim()}>
-                        Add Plant Reference
-                    </button>
-                </section>
-
-                <section className="sprig-knowledge-list-section">
-                    <div className="sprig-knowledge-section-heading">
-                        <div>
-                            <p className="section-label">
-                                Reference shelf
-                            </p>
-
-                            <h2>
-                                Plants & varieties
-                            </h2>
-                        </div>
-
-                        <span className="sprig-knowledge-count">
-                            {references.length}
-                        </span>
-                    </div>
-
-                    {references.length > 0 && (<div className="sprig-knowledge-detail-actions">
-                            <button type="button" className="sprig-knowledge-secondary-button" onClick={() => printKnowledgeDocuments('Plant Reference', [...references]
-                    .sort((first, second) => getReferenceLabel(first).localeCompare(getReferenceLabel(second)))
-                    .map(reference => getReferenceExportDocument(reference, gardenData)))}>
-                                Export Plant Reference PDF
-                            </button>
-
-                            <button type="button" className="sprig-knowledge-secondary-button" onClick={() => {
-                    const exportDocuments = [...references]
-                        .sort((first, second) => getReferenceLabel(first).localeCompare(getReferenceLabel(second)))
-                        .map(reference => getReferenceExportDocument(reference, gardenData));
-                    downloadTextFile('Sprig-Plant-Reference.rtf', buildExportRtf('Plant Reference', exportDocuments), 'application/rtf;charset=utf-8');
-                }}>
-                                Export Plant Reference RTF
-                            </button>
-                        </div>)}
-
-                    {references.length === 0 ? (<div className="sprig-knowledge-empty">
+                    ) : filteredNotes.length ===
+                      0 ? (
+                        <div className="sprig-knowledge-empty">
                             <strong>
-                                Your reference shelf is
-                                waiting.
+                                No Garden Notes match that search.
                             </strong>
-
-                            <p>
-                                Add knowledge you want to
-                                reuse across many Plant
-                                Stories.
-                            </p>
-                        </div>) : (<div className="sprig-knowledge-card-list">
-                            {[...references]
-                    .sort((first, second) => getReferenceLabel(first).localeCompare(getReferenceLabel(second)))
-                    .map(reference => (<button key={reference.id} type="button" className="sprig-knowledge-card" onClick={() => selectReference(reference.id)}>
-                                            <div>
+                        </div>
+                    ) : (
+                        <div className="sprig-knowledge-card-list">
+                            {filteredNotes.map(
+                                note => (
+                                    <button
+                                        key={
+                                            note.id
+                                        }
+                                        type="button"
+                                        className="sprig-knowledge-card"
+                                        onClick={() =>
+                                            selectNote(
+                                                note.id,
+                                            )
+                                        }
+                                    >
+                                        <div>
+                                            {note.category && (
                                                 <span className="sprig-knowledge-card-kicker">
-                                                    {reference.plantName}
+                                                    {note.category}
                                                 </span>
+                                            )}
 
-                                                <strong>
-                                                    {reference.variety ||
-                        reference.plantName}
-                                                </strong>
+                                            <strong>
+                                                {note.title ||
+                                                    makeTitleFromBody(
+                                                        note.body,
+                                                    )}
+                                            </strong>
 
-                                                {reference.notes && (<p>
-                                                        {reference.notes}
-                                                    </p>)}
-                                            </div>
-                                        </button>))}
-                        </div>)}
+                                            <p>
+                                                {note.body}
+                                            </p>
+                                        </div>
+
+                                        <div className="sprig-knowledge-card-meta">
+                                            <span>
+                                                {formatDate(
+                                                    note.noteDate ??
+                                                        note.createdAt,
+                                                )}
+                                            </span>
+                                        </div>
+                                    </button>
+                                ),
+                            )}
+                        </div>
+                    )}
                 </section>
-            </div>);
+            </div>
+        );
     }
+
+
     function renderSourcesView() {
-        if (selectedSource) {
-            const sourceExport = getSourceExportDocument(selectedSource, gardenData);
-            const isEditing = editingSourceId ===
+        if (
+            selectedSource
+        ) {
+            const isEditing =
+                editingSourceId ===
                 selectedSource.id;
-            return (<div className="sprig-knowledge-detail">
+
+            return (
+                <div className="sprig-knowledge-detail">
                     <div className="sprig-knowledge-detail-toolbar">
-                        <button type="button" className="sprig-knowledge-text-button" onClick={() => selectSource(null)}>
+                        <button
+                            type="button"
+                            className="sprig-knowledge-text-button"
+                            onClick={() =>
+                                selectSource(
+                                    null,
+                                )
+                            }
+                        >
                             ← Tips & Sources
                         </button>
 
                         <div className="sprig-knowledge-detail-actions">
-                            <button type="button" className="sprig-knowledge-text-button" onClick={() => printKnowledgeDocuments(sourceExport.title, [sourceExport])}>
+                            <button
+                                type="button"
+                                className="sprig-knowledge-text-button"
+                                onClick={() =>
+                                    printDocuments(
+                                        'Saved Tip / Source',
+                                        [
+                                            getSourceExportDocument(
+                                                selectedSource,
+                                            ),
+                                        ],
+                                    )
+                                }
+                            >
                                 PDF
                             </button>
 
-                            <button type="button" className="sprig-knowledge-text-button" onClick={() => downloadTextFile(`${getExportFilePart(sourceExport.title)}.rtf`, buildExportRtf(sourceExport.title, [sourceExport]), 'application/rtf;charset=utf-8')}>
+                            <button
+                                type="button"
+                                className="sprig-knowledge-text-button"
+                                onClick={() =>
+                                    downloadRtf(
+                                        'Sprig-Tip-Source.rtf',
+                                        'Saved Tip / Source',
+                                        [
+                                            getSourceExportDocument(
+                                                selectedSource,
+                                            ),
+                                        ],
+                                    )
+                                }
+                            >
                                 RTF
                             </button>
 
-                            {!isEditing && (<button type="button" className="sprig-knowledge-text-button" onClick={() => startEditSource(selectedSource)}>
+                            {!isEditing && (
+                                <button
+                                    type="button"
+                                    className="sprig-knowledge-text-button"
+                                    onClick={() =>
+                                        startEditSource(
+                                            selectedSource,
+                                        )
+                                    }
+                                >
                                     Edit
-                                </button>)}
+                                </button>
+                            )}
 
-                            <button type="button" className="sprig-knowledge-text-button sprig-knowledge-text-button--danger" onClick={() => handleDeleteSource(selectedSource)}>
+                            <button
+                                type="button"
+                                className="sprig-knowledge-text-button sprig-knowledge-text-button--danger"
+                                onClick={() =>
+                                    handleDeleteSource(
+                                        selectedSource,
+                                    )
+                                }
+                            >
                                 Delete
                             </button>
                         </div>
                     </div>
 
-                    {isEditing ? (<section className="sprig-knowledge-paper sprig-knowledge-capture">
+                    {isEditing ? (
+                        <section className="sprig-knowledge-paper sprig-knowledge-capture">
                             <p className="section-label">
                                 Edit Tip / Source
                             </p>
-
-                            <h2>
-                                Update the advice and keep its provenance attached
-                            </h2>
 
                             <label className="sprig-knowledge-field">
                                 <span>
                                     Title
                                 </span>
 
-                                <input type="text" value={editSourceTitle} onChange={event => setEditSourceTitle(event.target.value)}/>
+                                <input
+                                    type="text"
+                                    value={
+                                        editSourceTitle
+                                    }
+                                    onChange={event =>
+                                        setEditSourceTitle(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
@@ -2587,41 +5045,119 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                     Kind of source
                                 </span>
 
-                                <select value={editSourceKind} onChange={event => setEditSourceKind(event.target.value as SavedKnowledgeSourceKind)}>
-                                    {SOURCE_KIND_OPTIONS.map(option => (<option key={option.value} value={option.value}>
+                                <select
+                                    value={
+                                        editSourceKind
+                                    }
+                                    onChange={event =>
+                                        setEditSourceKind(
+                                            event.target.value as SavedKnowledgeSourceKind,
+                                        )
+                                    }
+                                >
+                                    {SOURCE_KIND_OPTIONS.map(
+                                        option => (
+                                            <option
+                                                key={
+                                                    option.value
+                                                }
+                                                value={
+                                                    option.value
+                                                }
+                                            >
                                                 {option.label}
-                                            </option>))}
+                                            </option>
+                                        ),
+                                    )}
                                 </select>
                             </label>
 
-                            {editSourceKind === 'other' && (<label className="sprig-knowledge-field">
+                            {editSourceKind ===
+                                'other' && (
+                                <label className="sprig-knowledge-field">
                                     <span>
-                                        What kind?
+                                        Your source kind
                                     </span>
 
-                                    <input type="text" value={editSourceCustomKind} onChange={event => setEditSourceCustomKind(event.target.value)}/>
-                                </label>)}
+                                    <input
+                                        type="text"
+                                        value={
+                                            editSourceCustomKind
+                                        }
+                                        onChange={event =>
+                                            setEditSourceCustomKind(
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </label>
+                            )}
+
+                            <label className="sprig-knowledge-field">
+                                <span>
+                                    Category
+                                    <small>
+                                        {' '}
+                                        optional · type your own or reuse one
+                                    </small>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    list="sprig-knowledge-categories"
+                                    value={
+                                        editSourceCategory
+                                    }
+                                    onChange={event =>
+                                        setEditSourceCategory(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
+                            </label>
 
                             <label className="sprig-knowledge-field">
                                 <span>
                                     Who or where?
                                     <small>
+                                        {' '}
                                         optional
                                     </small>
                                 </span>
 
-                                <input type="text" value={editSourceName} onChange={event => setEditSourceName(event.target.value)}/>
+                                <input
+                                    type="text"
+                                    value={
+                                        editSourceName
+                                    }
+                                    onChange={event =>
+                                        setEditSourceName(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
                                 <span>
                                     Link
                                     <small>
+                                        {' '}
                                         optional
                                     </small>
                                 </span>
 
-                                <input type="url" value={editSourceUrl} onChange={event => setEditSourceUrl(event.target.value)} placeholder="https://..."/>
+                                <input
+                                    type="url"
+                                    value={
+                                        editSourceUrl
+                                    }
+                                    onChange={event =>
+                                        setEditSourceUrl(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
@@ -2629,7 +5165,17 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                     Saved / noted date
                                 </span>
 
-                                <input type="date" value={editSourceSavedDate} onChange={event => setEditSourceSavedDate(event.target.value)}/>
+                                <input
+                                    type="date"
+                                    value={
+                                        editSourceSavedDate
+                                    }
+                                    onChange={event =>
+                                        setEditSourceSavedDate(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
@@ -2637,122 +5183,268 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                     What did you want to save?
                                 </span>
 
-                                <textarea rows={8} value={editSourceExcerpt} onChange={event => setEditSourceExcerpt(event.target.value)}/>
+                                <textarea
+                                    rows={
+                                        8
+                                    }
+                                    value={
+                                        editSourceExcerpt
+                                    }
+                                    onChange={event =>
+                                        setEditSourceExcerpt(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
                             <label className="sprig-knowledge-field">
                                 <span>
                                     My note about it
                                     <small>
+                                        {' '}
                                         optional
                                     </small>
                                 </span>
 
-                                <textarea rows={6} value={editSourceNotes} onChange={event => setEditSourceNotes(event.target.value)}/>
+                                <textarea
+                                    rows={
+                                        6
+                                    }
+                                    value={
+                                        editSourceNotes
+                                    }
+                                    onChange={event =>
+                                        setEditSourceNotes(
+                                            event.target.value,
+                                        )
+                                    }
+                                />
                             </label>
 
-                            <SprigPhotoPicker photoUrls={editSourcePhotoUrls} onChange={setEditSourcePhotoUrls} title="Photographs" helperText="Add or remove screenshots, pages, labels and other visual source material." addButtonText="Add photographs" photoAltPrefix="Saved source photograph" multiple={true} maxPhotos={12}/>
+                            <SprigPhotoPicker
+                                photoUrls={
+                                    editSourcePhotoUrls
+                                }
+                                onChange={
+                                    setEditSourcePhotoUrls
+                                }
+                                title="Photographs"
+                                helperText="Add or remove screenshots, pages or other photographs."
+                                addButtonText="Add photographs"
+                                photoAltPrefix="Saved source photograph"
+                                multiple={
+                                    true
+                                }
+                                maxPhotos={
+                                    12
+                                }
+                            />
 
                             <div className="sprig-knowledge-detail-actions">
-                                <button type="button" className="sprig-knowledge-primary-button" onClick={() => handleSaveEditedSource(selectedSource)} disabled={!editSourceTitle.trim()}>
+                                <button
+                                    type="button"
+                                    className="sprig-knowledge-primary-button"
+                                    onClick={() =>
+                                        handleSaveEditedSource(
+                                            selectedSource,
+                                        )
+                                    }
+                                    disabled={
+                                        !editSourceTitle.trim()
+                                    }
+                                >
                                     Save changes
                                 </button>
 
-                                <button type="button" className="sprig-knowledge-secondary-button" onClick={cancelEditSource}>
+                                <button
+                                    type="button"
+                                    className="sprig-knowledge-secondary-button"
+                                    onClick={() =>
+                                        setEditingSourceId(
+                                            null,
+                                        )
+                                    }
+                                >
                                     Cancel
                                 </button>
                             </div>
-                        </section>) : (<>
+                        </section>
+                    ) : (
+                        <>
                             <article className="sprig-knowledge-paper">
                                 <p className="section-label">
-                                    {getSourceKindLabel(selectedSource)}
+                                    {getSourceKindLabel(
+                                        selectedSource,
+                                    )}
                                 </p>
 
                                 <h2>
                                     {selectedSource.title}
                                 </h2>
 
-                                {selectedSource.sourceName && (<p className="sprig-knowledge-source-name">
+                                {selectedSource.category && (
+                                    <p className="sprig-knowledge-muted">
+                                        {selectedSource.category}
+                                    </p>
+                                )}
+
+                                {selectedSource.sourceName && (
+                                    <p className="sprig-knowledge-source-name">
                                         From{' '}
                                         {selectedSource.sourceName}
-                                    </p>)}
+                                    </p>
+                                )}
 
                                 <p className="sprig-knowledge-date">
-                                    Saved{' '}
-                                    {formatDate(selectedSource.savedDate ??
-                        selectedSource.createdAt)}
+                                    {formatDate(
+                                        selectedSource.savedDate ??
+                                            selectedSource.createdAt,
+                                    )}
                                 </p>
 
-                                {selectedSource.url && (<p>
-                                        <a href={selectedSource.url} target="_blank" rel="noreferrer" className="sprig-knowledge-source-link">
-                                            Open original source ↗
+                                {selectedSource.url && (
+                                    <p>
+                                        <a
+                                            href={
+                                                selectedSource.url
+                                            }
+                                            target="_blank"
+                                            rel="noreferrer"
+                                        >
+                                            Open source ↗
                                         </a>
-                                    </p>)}
+                                    </p>
+                                )}
 
-                                {selectedSource.excerpt && (<div className="sprig-knowledge-quote">
-                                        <p className="section-label">
-                                            Saved words
-                                        </p>
-
-                                        <div className="sprig-knowledge-prose">
-                                            {selectedSource.excerpt
-                            .split(/\r?\n/)
-                            .map((line, index) => (<p key={`${selectedSource.id}-excerpt-${index}`}>
-                                                            {line || '\u00A0'}
-                                                        </p>))}
-                                        </div>
-                                    </div>)}
-
-                                {selectedSource.notes && (<div className="sprig-knowledge-own-note">
-                                        <p className="section-label">
-                                            My note
-                                        </p>
-
-                                        <div className="sprig-knowledge-prose">
-                                            {selectedSource.notes
-                            .split(/\r?\n/)
-                            .map((line, index) => (<p key={`${selectedSource.id}-note-${index}`}>
-                                                            {line || '\u00A0'}
-                                                        </p>))}
-                                        </div>
-                                    </div>)}
-
-                                {(selectedSource.relationships ?? []).length > 0 && (<div className="sprig-knowledge-related-block">
+                                {selectedSource.excerpt && (
+                                    <div className="sprig-knowledge-prose">
                                         <h3>
-                                            Related Sprig records
+                                            Saved words
                                         </h3>
 
-                                        {(selectedSource.relationships ?? []).map(relationship => (<button key={`${relationship.targetType}:${relationship.targetId}`} type="button" className="sprig-knowledge-related-link" onClick={() => onOpenRelationship(relationship.targetType, relationship.targetId)}>
-                                                    {getRelationshipLabel(gardenData, relationship)}
+                                        {selectedSource.excerpt
+                                            .split(
+                                                /\r?\n/,
+                                            )
+                                            .map(
+                                                (
+                                                    line,
+                                                    index,
+                                                ) => (
+                                                    <p
+                                                        key={`${selectedSource.id}-excerpt-${index}`}
+                                                    >
+                                                        {line ||
+                                                            '\u00A0'}
+                                                    </p>
+                                                ),
+                                            )}
+                                    </div>
+                                )}
 
-                                                    <span>
-                                                        ›
-                                                    </span>
-                                                </button>))}
-                                    </div>)}
+                                {selectedSource.notes && (
+                                    <div className="sprig-knowledge-prose">
+                                        <h3>
+                                            My note about it
+                                        </h3>
+
+                                        {selectedSource.notes
+                                            .split(
+                                                /\r?\n/,
+                                            )
+                                            .map(
+                                                (
+                                                    line,
+                                                    index,
+                                                ) => (
+                                                    <p
+                                                        key={`${selectedSource.id}-note-${index}`}
+                                                    >
+                                                        {line ||
+                                                            '\u00A0'}
+                                                    </p>
+                                                ),
+                                            )}
+                                    </div>
+                                )}
                             </article>
 
-                            {(selectedSource.photoUrls ?? []).length > 0 && (<SprigPhotoGallery photoUrls={selectedSource.photoUrls ?? []} title="Source photographs" photoAltPrefix="Saved source photograph"/>)}
-                        </>)}
-                </div>);
+                            {(
+                                selectedSource.photoUrls ??
+                                []
+                            ).length >
+                                0 && (
+                                <SprigPhotoGallery
+                                    photoUrls={
+                                        selectedSource.photoUrls ??
+                                        []
+                                    }
+                                    title="Source photographs"
+                                    photoAltPrefix="Saved source photograph"
+                                />
+                            )}
+
+                            {renderRelationshipEditor(
+                                selectedSource,
+                                'source',
+                            )}
+                        </>
+                    )}
+                </div>
+            );
         }
-        return (<div className="sprig-knowledge-two-column">
-                <section className="sprig-knowledge-paper sprig-knowledge-capture">
+
+        return (
+            <div className="sprig-knowledge-two-column sprig-knowledge-browse-first">
+                <div className="sprig-knowledge-mobile-add">
+                    <button
+                        type="button"
+                        className="sprig-knowledge-mobile-add-button"
+                        aria-expanded={
+                            sourceComposerOpen
+                        }
+                        aria-controls="sprig-saved-source-composer"
+                        onClick={() =>
+                            setSourceComposerOpen(
+                                current =>
+                                    !current,
+                            )
+                        }
+                    >
+                        <span>
+                            {sourceComposerOpen
+                                ? '−'
+                                : '+'}
+                        </span>
+
+                        {sourceComposerOpen
+                            ? 'Close Tip / Source form'
+                            : 'Add Tip / Source'}
+                    </button>
+                </div>
+
+                <section
+                    id="sprig-saved-source-composer"
+                    className={`sprig-knowledge-paper sprig-knowledge-capture sprig-knowledge-mobile-collapsible${
+                        sourceComposerOpen
+                            ? ' sprig-knowledge-mobile-collapsible--open'
+                            : ''
+                    }`}
+                >
                     <p className="section-label">
                         Saved Tips & Sources
                     </p>
 
                     <h2>
                         Keep the advice with where it came
-                        from
                     </h2>
 
                     <p>
-                        Advice is not automatically truth.
-                        Sprig keeps the source attached so
-                        you can remember who said it, where
-                        you found it and what you thought
-                        about it.
+                        Advice is not automatically truth. Sprig
+                        keeps the source attached so you can
+                        remember who said it, where you found it
+                        and what you thought about it.
                     </p>
 
                     <label className="sprig-knowledge-field">
@@ -2760,7 +5452,17 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                             Title
                         </span>
 
-                        <input type="text" value={sourceTitle} onChange={event => setSourceTitle(event.target.value)} placeholder="Growing ginger in bags"/>
+                        <input
+                            type="text"
+                            value={
+                                sourceTitle
+                            }
+                            onChange={event =>
+                                setSourceTitle(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
                     <label className="sprig-knowledge-field">
@@ -2768,80 +5470,231 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                             Kind of source
                         </span>
 
-                        <select value={sourceKind} onChange={event => setSourceKind(event.target.value as SavedKnowledgeSourceKind)}>
-                            {SOURCE_KIND_OPTIONS.map(option => (<option key={option.value} value={option.value}>
+                        <select
+                            value={
+                                sourceKind
+                            }
+                            onChange={event =>
+                                setSourceKind(
+                                    event.target.value as SavedKnowledgeSourceKind,
+                                )
+                            }
+                        >
+                            {SOURCE_KIND_OPTIONS.map(
+                                option => (
+                                    <option
+                                        key={
+                                            option.value
+                                        }
+                                        value={
+                                            option.value
+                                        }
+                                    >
                                         {option.label}
-                                    </option>))}
+                                    </option>
+                                ),
+                            )}
                         </select>
                     </label>
 
-                    {sourceKind === 'other' && (<label className="sprig-knowledge-field">
+                    {sourceKind ===
+                        'other' && (
+                        <label className="sprig-knowledge-field">
                             <span>
-                                What kind?
+                                Your source kind
                             </span>
 
-                            <input type="text" value={sourceCustomKind} onChange={event => setSourceCustomKind(event.target.value)} placeholder="Podcast, seed packet, workshop..."/>
-                        </label>)}
+                            <input
+                                type="text"
+                                value={
+                                    sourceCustomKind
+                                }
+                                onChange={event =>
+                                    setSourceCustomKind(
+                                        event.target.value,
+                                    )
+                                }
+                            />
+                        </label>
+                    )}
+
+                    <label className="sprig-knowledge-field">
+                        <span>
+                            Category
+                            <small>
+                                {' '}
+                                optional · type your own or reuse one
+                            </small>
+                        </span>
+
+                        <input
+                            type="text"
+                            list="sprig-knowledge-categories"
+                            value={
+                                sourceCategory
+                            }
+                            onChange={event =>
+                                setSourceCategory(
+                                    event.target.value,
+                                )
+                            }
+                            placeholder="Potatoes, feeding, pests, ideas..."
+                        />
+                    </label>
 
                     <label className="sprig-knowledge-field">
                         <span>
                             Who or where?
                             <small>
+                                {' '}
                                 optional
                             </small>
                         </span>
 
-                        <input type="text" value={sourceName} onChange={event => setSourceName(event.target.value)} placeholder="Hunter Backyard Veggie Growers"/>
+                        <input
+                            type="text"
+                            value={
+                                sourceName
+                            }
+                            onChange={event =>
+                                setSourceName(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
                     <label className="sprig-knowledge-field">
                         <span>
                             Link
                             <small>
+                                {' '}
                                 optional
                             </small>
                         </span>
 
-                        <input type="url" value={sourceUrl} onChange={event => setSourceUrl(event.target.value)} placeholder="https://..."/>
+                        <input
+                            type="url"
+                            value={
+                                sourceUrl
+                            }
+                            onChange={event =>
+                                setSourceUrl(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
                     <label className="sprig-knowledge-field">
-    <span>
-        Saved / noted date
-    </span>
+                        <span>
+                            Saved / noted date
+                        </span>
 
-    <input type="date" value={sourceSavedDate} onChange={event => setSourceSavedDate(event.target.value)}/>
+                        <input
+                            type="date"
+                            value={
+                                sourceSavedDate
+                            }
+                            onChange={event =>
+                                setSourceSavedDate(
+                                    event.target.value,
+                                )
+                            }
+                        />
+                    </label>
 
-    <small>
-        Use the original date if this is
-        advice you saved before bringing it
-        into Sprig.
-    </small>
-        </label>
                     <label className="sprig-knowledge-field">
                         <span>
                             What did you want to save?
                         </span>
 
-                        <textarea rows={7} value={sourceExcerpt} onChange={event => setSourceExcerpt(event.target.value)} placeholder="The useful advice, quote, method or summary..."/>
+                        <textarea
+                            rows={
+                                8
+                            }
+                            value={
+                                sourceExcerpt
+                            }
+                            onChange={event =>
+                                setSourceExcerpt(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
                     <label className="sprig-knowledge-field">
                         <span>
                             My note about it
                             <small>
+                                {' '}
                                 optional
                             </small>
                         </span>
 
-                        <textarea rows={5} value={sourceNotes} onChange={event => setSourceNotes(event.target.value)} placeholder="Why it interested me, whether I tried it, what I am unsure about..."/>
+                        <textarea
+                            rows={
+                                6
+                            }
+                            value={
+                                sourceNotes
+                            }
+                            onChange={event =>
+                                setSourceNotes(
+                                    event.target.value,
+                                )
+                            }
+                        />
                     </label>
 
-                    <SprigPhotoPicker photoUrls={sourcePhotoUrls} onChange={setSourcePhotoUrls} title="Photographs" helperText="Add screenshots, book pages, seed packets or other photographs that belong with this source." addButtonText="Add photographs" photoAltPrefix="Saved source photograph" multiple={true} maxPhotos={12}/>
+                    <SprigPhotoPicker
+                        photoUrls={
+                            sourcePhotoUrls
+                        }
+                        onChange={
+                            setSourcePhotoUrls
+                        }
+                        title="Photographs"
+                        helperText="Add screenshots, labels, pages or other photographs that preserve the source."
+                        addButtonText="Add photographs"
+                        photoAltPrefix="Saved source photograph"
+                        multiple={
+                            true
+                        }
+                        maxPhotos={
+                            12
+                        }
+                    />
 
-                    <button type="button" className="sprig-knowledge-primary-button" onClick={handleSaveSource} disabled={!sourceTitle.trim()}>
-                        Save Tip / Source
-                    </button>
+                    <div className="sprig-knowledge-composer-actions">
+                        <button
+                            type="button"
+                            className="sprig-knowledge-primary-button"
+                            onClick={
+                                handleSaveSource
+                            }
+                            disabled={
+                                !sourceTitle.trim()
+                            }
+                        >
+                            Save Tip / Source
+                        </button>
+
+                        <button
+                            type="button"
+                            className="sprig-knowledge-secondary-button sprig-knowledge-mobile-composer-cancel"
+                            onClick={() => {
+                                resetSourceComposer();
+
+                                setSourceComposerOpen(
+                                    false,
+                                );
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
                 </section>
 
                 <section className="sprig-knowledge-list-section">
@@ -2857,95 +5710,228 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                         </div>
 
                         <span className="sprig-knowledge-count">
-                            {sources.length}
+                            {sources.length}{' '}
+                            {sources.length ===
+                            1
+                                ? 'source'
+                                : 'sources'}
                         </span>
                     </div>
 
-                    {sources.length > 0 && (<div className="sprig-knowledge-detail-actions">
-                            <button type="button" className="sprig-knowledge-secondary-button" onClick={() => printKnowledgeDocuments('Saved Tips & Sources', [...sources]
-                    .sort((first, second) => (second.savedDate ?? second.createdAt).localeCompare(first.savedDate ?? first.createdAt))
-                    .map(source => getSourceExportDocument(source, gardenData)))}>
-                                Export Tips & Sources PDF
-                            </button>
+                    <section className="sprig-knowledge-paper">
+                        <label className="sprig-knowledge-field">
+                            <span>
+                                Find a Tip or Source
+                            </span>
 
-                            <button type="button" className="sprig-knowledge-secondary-button" onClick={() => {
-                    const exportDocuments = [...sources]
-                        .sort((first, second) => (second.savedDate ?? second.createdAt).localeCompare(first.savedDate ?? first.createdAt))
-                        .map(source => getSourceExportDocument(source, gardenData));
-                    downloadTextFile('Sprig-Tips-and-Sources.rtf', buildExportRtf('Saved Tips & Sources', exportDocuments), 'application/rtf;charset=utf-8');
-                }}>
-                                Export Tips & Sources RTF
-                            </button>
-                        </div>)}
+                            <input
+                                type="search"
+                                value={
+                                    sourceSearch
+                                }
+                                onChange={event =>
+                                    setSourceSearch(
+                                        event.target.value,
+                                    )
+                                }
+                                placeholder="Search title, category, source, words or notes..."
+                            />
+                        </label>
+                    </section>
 
-                    {sources.length === 0 ? (<div className="sprig-knowledge-empty">
+                    {sources.length ===
+                    0 ? (
+                        <div className="sprig-knowledge-empty">
                             <strong>
                                 No saved sources yet.
                             </strong>
 
                             <p>
-                                Links, Facebook advice,
-                                ChatGPT guidance, books,
-                                people and screenshots can
-                                all live here.
+                                Links, Facebook advice, ChatGPT
+                                guidance, books, people and
+                                screenshots can all live here.
                             </p>
-                        </div>) : (<div className="sprig-knowledge-card-list">
-                            {[...sources]
-                    .sort((first, second) => (second.savedDate ??
-                    second.createdAt).localeCompare(first.savedDate ??
-                    first.createdAt))
-                    .map(source => (<button key={source.id} type="button" className="sprig-knowledge-card" onClick={() => selectSource(source.id)}>
-                                            <div>
-                                                <span className="sprig-knowledge-card-kicker">
-                                                    {getSourceKindLabel(source)}
-                                                </span>
+                        </div>
+                    ) : filteredSources.length ===
+                      0 ? (
+                        <div className="sprig-knowledge-empty">
+                            <strong>
+                                No Tips or Sources match that search.
+                            </strong>
+                        </div>
+                    ) : (
+                        <div className="sprig-knowledge-card-list">
+                            {filteredSources.map(
+                                source => (
+                                    <button
+                                        key={
+                                            source.id
+                                        }
+                                        type="button"
+                                        className="sprig-knowledge-card"
+                                        onClick={() =>
+                                            selectSource(
+                                                source.id,
+                                            )
+                                        }
+                                    >
+                                        <div>
+                                            <span className="sprig-knowledge-card-kicker">
+                                                {source.category
+                                                    ? `${source.category} · ${getSourceKindLabel(
+                                                          source,
+                                                      )}`
+                                                    : getSourceKindLabel(
+                                                          source,
+                                                      )}
+                                            </span>
 
-                                                <strong>
-                                                    {source.title}
-                                                </strong>
+                                            <strong>
+                                                {source.title}
+                                            </strong>
 
-                                                {source.excerpt && (<p>
-                                                        {source.excerpt}
-                                                    </p>)}
-                                            </div>
+                                            {source.excerpt && (
+                                                <p>
+                                                    {source.excerpt}
+                                                </p>
+                                            )}
+                                        </div>
 
-                                            <div className="sprig-knowledge-card-meta">
-                                                {source.sourceName && (<span>
-                                                        {source.sourceName}
-                                                    </span>)}
-
+                                        <div className="sprig-knowledge-card-meta">
+                                            {source.sourceName && (
                                                 <span>
-                                                    {formatDate(source.savedDate ??
-                        source.createdAt)}
+                                                    {source.sourceName}
                                                 </span>
-                                            </div>
-                                        </button>))}
-                        </div>)}
+                                            )}
+
+                                            <span>
+                                                {formatDate(
+                                                    source.savedDate ??
+                                                        source.createdAt,
+                                                )}
+                                            </span>
+                                        </div>
+                                    </button>
+                                ),
+                            )}
+                        </div>
+                    )}
                 </section>
-            </div>);
+            </div>
+        );
     }
+
+
     function renderAlmanacView() {
         const selectedThread =
             almanacThreads.find(
                 thread =>
                     thread.key ===
                     selectedAlmanacThreadKey,
-            ) ?? null;
-    
-        if (selectedThread) {
-            const material =
-                getAlmanacThreadMaterial(
-                    gardenData,
-                    selectedThread,
+            ) ??
+            null;
+
+        if (
+            selectedThread
+        ) {
+            const threadNeedle =
+                normalise(
+                    selectedThread.label,
                 );
-    
-            const totalPieces =
-                material.plantStories.length +
-                material.harvests.length +
-                material.notes.length +
-                material.references.length +
-                material.sources.length;
-    
+
+            const broadNeedle =
+                normalise(
+                    selectedThread.label.split(
+                        '·',
+                    )[0],
+                );
+
+            const plantStories =
+                (
+                    gardenData.plantStories ??
+                    []
+                ).filter(
+                    plant =>
+                        normalise(
+                            `${plant.plantName} ${plant.variety ?? ''}`,
+                        ).includes(
+                            broadNeedle,
+                        ),
+                );
+
+            const plantIds =
+                plantStories.map(
+                    plant =>
+                        plant.id,
+                );
+
+            const harvests =
+                (
+                    gardenData.harvests ??
+                    []
+                ).filter(
+                    harvest =>
+                        harvest.plantStoryIds.some(
+                            plantId =>
+                                plantIds.includes(
+                                    plantId,
+                                ),
+                        ),
+                );
+
+            const threadNotes =
+                notes.filter(
+                    note => {
+                        const text =
+                            normalise(
+                                `${note.title ?? ''} ${note.category ?? ''} ${note.body}`,
+                            );
+
+                        return (
+                            text.includes(
+                                threadNeedle,
+                            ) ||
+                            text.includes(
+                                broadNeedle,
+                            )
+                        );
+                    },
+                );
+
+            const threadReferences =
+                references.filter(
+                    reference =>
+                        (
+                            reference.subjectType ??
+                            'plant-crop'
+                        ) ===
+                            'plant-crop' &&
+                        normalise(
+                            `${reference.plantName} ${reference.variety ?? ''}`,
+                        ).includes(
+                            broadNeedle,
+                        ),
+                );
+
+            const threadSources =
+                sources.filter(
+                    source => {
+                        const text =
+                            normalise(
+                                `${source.title} ${source.category ?? ''} ${source.sourceName ?? ''} ${source.excerpt ?? ''} ${source.notes ?? ''}`,
+                            );
+
+                        return (
+                            text.includes(
+                                threadNeedle,
+                            ) ||
+                            text.includes(
+                                broadNeedle,
+                            )
+                        );
+                    },
+                );
+
             return (
                 <div className="sprig-knowledge-almanac">
                     <div className="sprig-knowledge-detail-toolbar">
@@ -2961,62 +5947,39 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                             ← Garden Almanac
                         </button>
                     </div>
-    
-                    <section className="sprig-knowledge-paper sprig-knowledge-almanac-intro">
+
+                    <section className="sprig-knowledge-paper">
                         <p className="section-label">
                             Garden thread
                         </p>
-    
+
                         <h2>
                             {selectedThread.label}
                         </h2>
-    
+
                         <p className="sprig-knowledge-almanac-phrase">
                             {getEvidencePhrase(
                                 selectedThread.evidenceCount,
                             )}
                         </p>
-    
+
                         <p>
-                            Sprig has gathered{' '}
-                            {totalPieces}{' '}
-                            {totalPieces === 1
-                                ? 'piece'
-                                : 'pieces'}{' '}
-                            of your garden story around this
-                            thread. They remain their own
-                            records. The Almanac is simply
-                            bringing them together so you can
-                            see what your garden has recorded,
-                            what you have learned, and what
-                            advice you have saved.
+                            Sprig is gathering related pieces
+                            here so you can see the story
+                            together. The original records
+                            remain where they belong.
                         </p>
                     </section>
-    
-                    {material.plantStories.length > 0 && (
-                        <section className="sprig-knowledge-list-section">
-                            <div className="sprig-knowledge-section-heading">
-                                <div>
-                                    <p className="section-label">
-                                        From your garden
-                                    </p>
-    
-                                    <h2>
-                                        Plant Stories
-                                    </h2>
-                                </div>
-    
-                                <span className="sprig-knowledge-count">
-                                    {
-                                        material
-                                            .plantStories
-                                            .length
-                                    }
-                                </span>
-                            </div>
-    
+
+                    {plantStories.length >
+                        0 && (
+                        <section className="sprig-knowledge-paper">
+                            <h3>
+                                Plant Stories
+                            </h3>
+
                             <div className="sprig-knowledge-card-list">
-                                {material.plantStories.map(
+                                {plantStories.map(
                                     plant => (
                                         <button
                                             key={
@@ -3031,171 +5994,104 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                                 )
                                             }
                                         >
-                                            <div>
-                                                <span className="sprig-knowledge-card-kicker">
-                                                    Plant Story
-                                                </span>
-    
-                                                <strong>
-                                                    {plant.displayName ||
-                                                        plant.variety ||
-                                                        plant.plantName}
-                                                </strong>
-    
-                                                {plant.variety &&
-                                                    plant.displayName && (
-                                                        <p>
-                                                            {
-                                                                plant.plantName
-                                                            }
-                                                            {' · '}
-                                                            {
-                                                                plant.variety
-                                                            }
-                                                        </p>
-                                                    )}
-                                            </div>
-    
-                                            <div className="sprig-knowledge-card-meta">
-                                                <span>
-                                                    Open story ›
-                                                </span>
-                                            </div>
+                                            <strong>
+                                                {plant.displayName ||
+                                                    plant.variety ||
+                                                    plant.plantName}
+                                            </strong>
                                         </button>
                                     ),
                                 )}
                             </div>
                         </section>
                     )}
-    
-                    {material.harvests.length > 0 && (
-                        <section className="sprig-knowledge-list-section">
-                            <div className="sprig-knowledge-section-heading">
-                                <div>
-                                    <p className="section-label">
-                                        What your garden
-                                        produced
-                                    </p>
-    
-                                    <h2>
-                                        Harvests
-                                    </h2>
-                                </div>
-    
-                                <span className="sprig-knowledge-count">
-                                    {
-                                        material
-                                            .harvests
-                                            .length
-                                    }
-                                </span>
-                            </div>
-    
+
+                    {harvests.length >
+                        0 && (
+                        <section className="sprig-knowledge-paper">
+                            <h3>
+                                Harvests
+                            </h3>
+
                             <div className="sprig-knowledge-card-list">
-                                {material.harvests.map(
-                                    harvest => {
-                                        const harvestPlants =
-                                            harvest.plantStoryIds
-                                                .map(
-                                                    plantId =>
-                                                        (
-                                                            gardenData.plantStories ??
-                                                            []
-                                                        ).find(
-                                                            plant =>
-                                                                plant.id ===
-                                                                plantId,
-                                                        ),
+                                {harvests.map(
+                                    harvest => (
+                                        <button
+                                            key={
+                                                harvest.id
+                                            }
+                                            type="button"
+                                            className="sprig-knowledge-card"
+                                            onClick={() =>
+                                                onOpenRelationship(
+                                                    'harvest',
+                                                    harvest.id,
                                                 )
-                                                .filter(
-                                                    Boolean,
-                                                )
-                                                .map(
-                                                    plant =>
-                                                        plant?.displayName ||
-                                                        plant?.variety ||
-                                                        plant?.plantName ||
-                                                        '',
-                                                )
-                                                .filter(
-                                                    Boolean,
-                                                );
-    
-                                        return (
-                                            <button
-                                                key={
-                                                    harvest.id
-                                                }
-                                                type="button"
-                                                className="sprig-knowledge-card"
-                                                onClick={() =>
-                                                    onOpenRelationship(
-                                                        'harvest',
-                                                        harvest.id,
-                                                    )
-                                                }
-                                            >
-                                                <div>
-                                                    <span className="sprig-knowledge-card-kicker">
-                                                        Harvest
-                                                    </span>
-    
-                                                    <strong>
-                                                        {harvestPlants.length >
-                                                        0
-                                                            ? harvestPlants.join(
-                                                                  ', ',
-                                                              )
-                                                            : 'Garden harvest'}
-                                                    </strong>
-    
-                                                    <p>
-                                                        {
-                                                            formatDate(
-                                                                harvest.date,
-                                                            )
-                                                        }
-                                                    </p>
-                                                </div>
-    
-                                                <div className="sprig-knowledge-card-meta">
-                                                    <span>
-                                                        Open harvest ›
-                                                    </span>
-                                                </div>
-                                            </button>
-                                        );
-                                    },
+                                            }
+                                        >
+                                            <strong>
+                                                Harvest ·{' '}
+                                                {formatDate(
+                                                    harvest.date,
+                                                )}
+                                            </strong>
+                                        </button>
+                                    ),
                                 )}
                             </div>
                         </section>
                     )}
-    
-                    {material.references.length > 0 && (
-                        <section className="sprig-knowledge-list-section">
-                            <div className="sprig-knowledge-section-heading">
-                                <div>
-                                    <p className="section-label">
-                                        What you keep
-                                        knowing
-                                    </p>
-    
-                                    <h2>
-                                        Plant Reference
-                                    </h2>
-                                </div>
-    
-                                <span className="sprig-knowledge-count">
-                                    {
-                                        material
-                                            .references
-                                            .length
-                                    }
-                                </span>
-                            </div>
-    
+
+                    {threadNotes.length >
+                        0 && (
+                        <section className="sprig-knowledge-paper">
+                            <h3>
+                                Garden Notes
+                            </h3>
+
                             <div className="sprig-knowledge-card-list">
-                                {material.references.map(
+                                {threadNotes.map(
+                                    note => (
+                                        <button
+                                            key={
+                                                note.id
+                                            }
+                                            type="button"
+                                            className="sprig-knowledge-card"
+                                            onClick={() =>
+                                                selectNote(
+                                                    note.id,
+                                                )
+                                            }
+                                        >
+                                            <strong>
+                                                {note.title ||
+                                                    makeTitleFromBody(
+                                                        note.body,
+                                                    )}
+                                            </strong>
+
+                                            {note.category && (
+                                                <span>
+                                                    {note.category}
+                                                </span>
+                                            )}
+                                        </button>
+                                    ),
+                                )}
+                            </div>
+                        </section>
+                    )}
+
+                    {threadReferences.length >
+                        0 && (
+                        <section className="sprig-knowledge-paper">
+                            <h3>
+                                Garden Reference
+                            </h3>
+
+                            <div className="sprig-knowledge-card-list">
+                                {threadReferences.map(
                                     reference => (
                                         <button
                                             key={
@@ -3210,70 +6106,33 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                                 )
                                             }
                                         >
-                                            <div>
-                                                <span className="sprig-knowledge-card-kicker">
-                                                    Plant Reference
-                                                </span>
-    
-                                                <strong>
-                                                    {getReferenceLabel(
-                                                        reference,
-                                                    )}
-                                                </strong>
-    
-                                                {reference.notes && (
-                                                    <p>
-                                                        {
-                                                            reference.notes
-                                                        }
-                                                    </p>
+                                            <strong>
+                                                {getReferenceTitle(
+                                                    reference,
                                                 )}
-                                            </div>
-    
-                                            <div className="sprig-knowledge-card-meta">
-                                                <span>
-                                                    {formatDate(
-                                                        reference.referenceDate ??
-                                                            reference.createdAt,
-                                                    )}
-                                                </span>
-    
-                                                <span>
-                                                    Open reference ›
-                                                </span>
-                                            </div>
+                                            </strong>
+
+                                            <span>
+                                                {getReferenceSubjectLabel(
+                                                    reference,
+                                                )}
+                                            </span>
                                         </button>
                                     ),
                                 )}
                             </div>
                         </section>
                     )}
-    
-                    {material.sources.length > 0 && (
-                        <section className="sprig-knowledge-list-section">
-                            <div className="sprig-knowledge-section-heading">
-                                <div>
-                                    <p className="section-label">
-                                        Advice you have
-                                        gathered
-                                    </p>
-    
-                                    <h2>
-                                        Tips & Sources
-                                    </h2>
-                                </div>
-    
-                                <span className="sprig-knowledge-count">
-                                    {
-                                        material
-                                            .sources
-                                            .length
-                                    }
-                                </span>
-                            </div>
-    
+
+                    {threadSources.length >
+                        0 && (
+                        <section className="sprig-knowledge-paper">
+                            <h3>
+                                Tips & Sources
+                            </h3>
+
                             <div className="sprig-knowledge-card-list">
-                                {material.sources.map(
+                                {threadSources.map(
                                     source => (
                                         <button
                                             key={
@@ -3282,209 +6141,51 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                             type="button"
                                             className="sprig-knowledge-card"
                                             onClick={() =>
-                                                onOpenRelationship(
-                                                    'saved-source',
+                                                selectSource(
                                                     source.id,
                                                 )
                                             }
                                         >
-                                            <div>
-                                                <span className="sprig-knowledge-card-kicker">
-                                                    {getSourceKindLabel(
-                                                        source,
-                                                    )}
-                                                </span>
-    
-                                                <strong>
-                                                    {
-                                                        source.title
-                                                    }
-                                                </strong>
-    
-                                                {source.excerpt && (
-                                                    <p>
-                                                        {
-                                                            source.excerpt
-                                                        }
-                                                    </p>
-                                                )}
-                                            </div>
-    
-                                            <div className="sprig-knowledge-card-meta">
-                                                {source.sourceName && (
-                                                    <span>
-                                                        {
-                                                            source.sourceName
-                                                        }
-                                                    </span>
-                                                )}
-    
+                                            <strong>
+                                                {source.title}
+                                            </strong>
+
+                                            {source.category && (
                                                 <span>
-                                                    {formatDate(
-                                                        source.savedDate ??
-                                                            source.createdAt,
-                                                    )}
+                                                    {source.category}
                                                 </span>
-                                            </div>
+                                            )}
                                         </button>
                                     ),
                                 )}
                             </div>
                         </section>
                     )}
-    
-                    {material.notes.length > 0 && (
-                        <section className="sprig-knowledge-list-section">
-                            <div className="sprig-knowledge-section-heading">
-                                <div>
-                                    <p className="section-label">
-                                        Thoughts & clues
-                                    </p>
-    
-                                    <h2>
-                                        Garden Notes
-                                    </h2>
-                                </div>
-    
-                                <span className="sprig-knowledge-count">
-                                    {
-                                        material.notes
-                                            .length
-                                    }
-                                </span>
-                            </div>
-    
-                            <div className="sprig-knowledge-card-list">
-                                {material.notes.map(
-                                    note => (
-                                        <button
-                                            key={
-                                                note.id
-                                            }
-                                            type="button"
-                                            className="sprig-knowledge-card"
-                                            onClick={() =>
-                                                onOpenRelationship(
-                                                    'garden-note',
-                                                    note.id,
-                                                )
-                                            }
-                                        >
-                                            <div>
-                                                <span className="sprig-knowledge-card-kicker">
-                                                    {note.origin ===
-                                                    'imported-text'
-                                                        ? 'Imported note'
-                                                        : 'Garden Note'}
-                                                </span>
-    
-                                                <strong>
-                                                    {note.title ||
-                                                        makeTitleFromBody(
-                                                            note.body,
-                                                        )}
-                                                </strong>
-    
-                                                <p>
-                                                    {
-                                                        note.body
-                                                    }
-                                                </p>
-                                            </div>
-    
-                                            <div className="sprig-knowledge-card-meta">
-                                                <span>
-                                                    {formatDate(
-                                                        note.noteDate ??
-                                                            note.createdAt,
-                                                    )}
-                                                </span>
-    
-                                                {(note.photoUrls ??
-                                                    [])
-                                                    .length >
-                                                    0 && (
-                                                    <span>
-                                                        {
-                                                            (
-                                                                note.photoUrls ??
-                                                                []
-                                                            )
-                                                                .length
-                                                        }{' '}
-                                                        {(
-                                                            note.photoUrls ??
-                                                            []
-                                                        )
-                                                            .length ===
-                                                        1
-                                                            ? 'photograph'
-                                                            : 'photographs'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </button>
-                                    ),
-                                )}
-                            </div>
-                        </section>
-                    )}
-    
-                    <section className="sprig-knowledge-paper">
-                        <p className="section-label">
-                            What Sprig knows
-                        </p>
-    
-                        <h3>
-                            A gathered thread, not a verdict
-                        </h3>
-    
-                        <p className="sprig-knowledge-muted">
-                            Garden history, your own notes,
-                            reference knowledge and outside
-                            advice have different authority.
-                            Sprig keeps those distinctions
-                            intact while letting you see them
-                            together. As this thread grows,
-                            this is where patterns can begin to
-                            emerge from the garden you actually
-                            grew.
-                        </p>
-                    </section>
                 </div>
             );
         }
-    
+
         return (
             <div className="sprig-knowledge-almanac">
                 <section className="sprig-knowledge-paper sprig-knowledge-almanac-intro">
                     <p className="section-label">
                         Garden Almanac
                     </p>
-    
+
                     <h2>
-                        Your garden, beginning to teach
-                        itself back to you
+                        Your garden, beginning to teach itself back to you
                     </h2>
-    
-                    <p>
-                        The Almanac is not another place to
-                        re-enter records. It gathers threads
-                        from Plant Stories, Harvests, Garden
-                        Notes, Plant Reference and Saved
-                        Sources so patterns can become
-                        visible without pretending every
-                        clue is a fact.
-                    </p>
-    
+
                     <label className="sprig-knowledge-field">
                         <span>
                             Find an Almanac thread
                         </span>
-    
+
                         <input
                             type="search"
-                            value={almanacQuery}
+                            value={
+                                almanacQuery
+                            }
                             onChange={event =>
                                 setAlmanacQuery(
                                     event.target.value,
@@ -3493,19 +6194,40 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                             placeholder="Potato, Royal Blue, tomato..."
                         />
                     </label>
+
+                    <details className="sprig-knowledge-paper">
+                        <summary>
+                            About the Garden Almanac
+                        </summary>
+
+                        <p>
+                            The Almanac is not another place to
+                            re-enter records. It gathers threads
+                            from Plant Stories, Harvests, Garden
+                            Notes, Garden Reference and Tips &
+                            Sources so patterns can become visible
+                            without pretending every clue is a
+                            proven gardening rule.
+                        </p>
+
+                        <p className="sprig-knowledge-muted">
+                            Your original records stay where they
+                            belong. The Almanac simply gathers the
+                            threads.
+                        </p>
+                    </details>
                 </section>
-    
-                {filteredAlmanacThreads.length === 0 ? (
+
+                {filteredAlmanacThreads.length ===
+                0 ? (
                     <div className="sprig-knowledge-empty">
                         <strong>
                             No matching garden thread yet.
                         </strong>
-    
+
                         <p>
-                            As Sprig gathers Plant Stories,
-                            notes, harvests and reference
-                            knowledge, the Almanac can begin
-                            assembling them here.
+                            As Sprig gathers your garden story,
+                            more threads can begin appearing here.
                         </p>
                     </div>
                 ) : (
@@ -3513,7 +6235,9 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                         {filteredAlmanacThreads.map(
                             thread => (
                                 <button
-                                    key={thread.key}
+                                    key={
+                                        thread.key
+                                    }
                                     type="button"
                                     className="sprig-knowledge-paper sprig-knowledge-almanac-card sprig-knowledge-almanac-card--button"
                                     onClick={() =>
@@ -3525,84 +6249,71 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                                     <p className="section-label">
                                         Garden thread
                                     </p>
-    
+
                                     <h3>
                                         {thread.label}
                                     </h3>
-    
+
                                     <p className="sprig-knowledge-almanac-phrase">
                                         {getEvidencePhrase(
                                             thread.evidenceCount,
                                         )}
                                     </p>
-    
+
                                     <dl className="sprig-knowledge-thread-counts">
                                         <div>
                                             <dt>
                                                 Plant Stories
                                             </dt>
-    
+
                                             <dd>
-                                                {
-                                                    thread.plantStoryCount
-                                                }
+                                                {thread.plantStoryCount}
                                             </dd>
                                         </div>
-    
+
                                         <div>
                                             <dt>
                                                 Harvests
                                             </dt>
-    
+
                                             <dd>
-                                                {
-                                                    thread.harvestCount
-                                                }
+                                                {thread.harvestCount}
                                             </dd>
                                         </div>
-    
+
                                         <div>
                                             <dt>
                                                 Garden Notes
                                             </dt>
-    
+
                                             <dd>
-                                                {
-                                                    thread.noteCount
-                                                }
+                                                {thread.noteCount}
                                             </dd>
                                         </div>
-    
+
                                         <div>
                                             <dt>
-                                                Plant Reference
+                                                Garden Reference
                                             </dt>
-    
+
                                             <dd>
-                                                {
-                                                    thread.referenceCount
-                                                }
+                                                {thread.referenceCount}
                                             </dd>
                                         </div>
-    
+
                                         <div>
                                             <dt>
                                                 Tips & Sources
                                             </dt>
-    
+
                                             <dd>
-                                                {
-                                                    thread.sourceCount
-                                                }
+                                                {thread.sourceCount}
                                             </dd>
                                         </div>
                                     </dl>
-    
+
                                     <p className="sprig-knowledge-muted">
-                                        Open this thread to
-                                        gather the records
-                                        Sprig currently knows
-                                        about it.
+                                        Open this garden thread ›
                                     </p>
                                 </button>
                             ),
@@ -3612,42 +6323,112 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
             </div>
         );
     }
-    
-    function getPageTitle(): string {
-        switch (view) {
+
+
+    function renderKnowledgeNavigation() {
+        return (
+            <nav
+                className="sprig-knowledge-tabs"
+                aria-label="Garden Knowledge"
+            >
+                {KNOWLEDGE_TABS.map(
+                    tab => (
+                        <button
+                            key={
+                                tab.view
+                            }
+                            type="button"
+                            className={
+                                tab.view ===
+                                view
+                                    ? 'sprig-knowledge-tab sprig-knowledge-tab--active'
+                                    : 'sprig-knowledge-tab'
+                            }
+                            onClick={() =>
+                                onNavigate(
+                                    tab.page,
+                                )
+                            }
+                        >
+                            <span aria-hidden="true">
+                                {tab.icon}
+                            </span>
+
+                            <span>
+                                {tab.label}
+                            </span>
+                        </button>
+                    ),
+                )}
+            </nav>
+        );
+    }
+
+
+    function getPageTitle():
+        string {
+        switch (
+            view
+        ) {
             case 'notes':
                 return 'Garden Notes';
+
             case 'almanac':
                 return 'Garden Almanac';
+
             case 'reference':
-                return 'Plant Reference';
+                return 'Garden Reference';
+
             case 'sources':
                 return 'Saved Tips & Sources';
+
             default:
                 return 'Garden Knowledge';
         }
     }
-    function getPageSubtitle(): string {
-        switch (view) {
+
+
+    function getPageSubtitle():
+        string {
+        switch (
+            view
+        ) {
             case 'notes':
                 return 'Catch the thought first. Decide what it means later.';
+
             case 'almanac':
                 return 'Patterns and threads gathered from your own garden story.';
+
             case 'reference':
-                return 'Reusable knowledge about crops and varieties.';
+                return 'Reusable knowledge about plants, products, pests, problems and the wider garden.';
+
             case 'sources':
                 return 'Advice kept together with where it came from.';
+
             default:
                 return '';
         }
     }
-    return (<GardenLayout activePage={view === 'notes'
-            ? 'garden-notes'
-            : view === 'almanac'
-                ? 'garden-almanac'
-                : view === 'reference'
-                    ? 'plant-reference'
-                    : 'saved-sources'} onNavigate={onNavigate}>
+
+
+    return (
+        <GardenLayout
+            activePage={
+                view ===
+                'notes'
+                    ? 'garden-notes'
+                    : view ===
+                        'almanac'
+                      ? 'garden-almanac'
+                      : view ===
+                          'reference'
+                        ? 'plant-reference'
+                        : 'saved-sources'
+            }
+            onNavigate={
+                onNavigate
+            }
+        >
             <div className="sprig-knowledge-page">
                 <header className="journal-header sprig-knowledge-header">
                     <div>
@@ -3666,24 +6447,81 @@ export default function GardenKnowledge({ view, gardenData, initialRecord, journ
                 </header>
 
                 {journeyBackLabel &&
-            onJourneyBack && (<button type="button" className="sprig-knowledge-journey-back" onClick={onJourneyBack}>
-                            ← Back to{' '}
-                            {journeyBackLabel}
-                        </button>)}
+                    onJourneyBack && (
+                    <button
+                        type="button"
+                        className="sprig-knowledge-text-button"
+                        onClick={
+                            onJourneyBack
+                        }
+                    >
+                        ← Back to{' '}
+                        {journeyBackLabel}
+                    </button>
+                )}
 
                 {renderKnowledgeNavigation()}
 
-                {view === 'notes' &&
-            renderNotesView()}
+                <datalist id="sprig-knowledge-categories">
+                    {knowledgeCategories.map(
+                        category => (
+                            <option
+                                key={
+                                    category
+                                }
+                                value={
+                                    category
+                                }
+                            />
+                        ),
+                    )}
+                </datalist>
 
-                {view === 'almanac' &&
-            renderAlmanacView()}
+                {view ===
+                    'notes' &&
+                    renderNotesView()}
 
-                {view === 'reference' &&
-            renderReferenceView()}
+                {view ===
+                    'almanac' &&
+                    renderAlmanacView()}
 
-                {view === 'sources' &&
-            renderSourcesView()}
+                {view ===
+                    'reference' && (
+                    <GardenReference
+                        gardenData={
+                            gardenData
+                        }
+                        initialRecordId={
+                            initialRecord?.sourceType ===
+                            'plant-reference'
+                                ? initialRecord.recordId
+                                : null
+                        }
+                        onGardenDataChange={
+                            onGardenDataChange
+                        }
+                        onRecordSelectionChange={recordId =>
+                            onRecordSelectionChange(
+                                recordId
+                                    ? {
+                                          sourceType:
+                                              'plant-reference',
+
+                                          recordId,
+                                      }
+                                    : null,
+                            )
+                        }
+                        onOpenRelationship={
+                            onOpenRelationship
+                        }
+                    />
+                )}
+
+                {view ===
+                    'sources' &&
+                    renderSourcesView()}
             </div>
-        </GardenLayout>);
+        </GardenLayout>
+    );
 }

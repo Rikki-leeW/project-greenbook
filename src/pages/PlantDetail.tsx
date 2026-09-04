@@ -2075,6 +2075,21 @@ const plantPhotoContexts =
             <button
               type="button"
               className="secondary-button"
+              onClick={() =>
+                onAddHarvest(
+                  [
+                    plant.id,
+                  ],
+                )
+              }
+            >
+              🧺 Add a harvest
+            </button>
+
+
+            <button
+              type="button"
+              className="secondary-button"
               onClick={
                 onAddEvent
               }

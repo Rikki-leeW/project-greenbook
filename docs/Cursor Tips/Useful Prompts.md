@@ -54,3 +54,11 @@ C:\Users\jonoa\Documents\Project Greenbook>git commit -m "Polish mobile Chronicl
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 C:\Users\jonoa\Documents\Project Greenbook>git push origin master
+
+FULL fill copy paste in flows and if the file is more than 2000 lines then give them over 2 or 3 flows without me having to say next. I cant use the actual files because the layout gets corrupted. it has to be code here I can copy and paste 
+I need the code in a chat here in flow 1 then code here in a chat flow 2 etc so that I can copy paste it here. The tsx files get corrupted.
+ 
+
+ when you return the code, please remember I need the code in a chat here in flow 1 then code here in a chat flow 2 etc so that I can copy paste it here. The tsx files get corrupted. the layout gets distorted and I cannot use them. and I dont need to say next each time.
+ 
+ Im very hesitant to do the multiple edits to this 10,000 file now. I would rather you do 1 pass for all the changes and give the code back to me completed. I need the FULL FILE NOT IN TSX though.... in a copy paste replace code in a chat here in flow 1 then code here in a chat flow 2 etc so that I can copy paste it here. The tsx files get corrupted. the layout gets distorted and I cannot use them. and I dont need to say next each time. i dont want to do a find and then copy replace I want to use our rule of you give me the first part of the files code in the first chat. then immediately after you then give me the following on code in the next chat. and so on. i continually paste the next code until I have all the code in the file.

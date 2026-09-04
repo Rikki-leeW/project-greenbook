@@ -216,25 +216,39 @@
   .sprig-knowledge-record-main {
     min-width: 0;
     display: grid;
-    gap: 3px;
+    gap: 4px;
+  }
+  
+  .sprig-knowledge-record-main > * {
+    min-width: 0;
+  }
+  
+  .sprig-knowledge-record-main strong,
+  .sprig-knowledge-record-main b {
+    display: block;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
   }
   
   .sprig-knowledge-record-meta {
+    display: block;
     color: #758071;
     font-size: 0.78rem;
     font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
   }
   
   .sprig-knowledge-record-preview {
     display: -webkit-box;
     overflow: hidden;
-    -webkit-line-clamp: 2;
     -webkit-line-clamp: 3;
-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     color: #6a7467;
     line-height: 1.35;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
   
   .sprig-knowledge-empty {
@@ -480,6 +494,400 @@ line-clamp: 3;
     line-height: 1.4;
   }
   
+  /* ---------------------------------------------------------
+     Knowledge shelf cards
+     --------------------------------------------------------- */
+  
+  .sprig-knowledge-card {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid rgba(60, 80, 55, 0.14);
+    border-radius: 12px;
+    background: #fffdf8;
+    color: #304a32;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(48, 74, 50, 0.045);
+    cursor: pointer;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-knowledge-card:hover {
+    border-color: rgba(60, 80, 55, 0.24);
+    box-shadow: 0 3px 10px rgba(48, 74, 50, 0.07);
+  }
+  
+  /*
+   * Notes and Tips & Sources place their content inside an
+   * inner div. Give those pieces an explicit vertical rhythm.
+   */
+  .sprig-knowledge-card > div:first-child {
+    min-width: 0;
+    display: grid;
+    gap: 6px;
+  }
+  
+  .sprig-knowledge-card > div:first-child > * {
+    min-width: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-knowledge-card-kicker {
+    display: block;
+    margin: 0 0 1px;
+    color: #667462;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  
+  .sprig-knowledge-card > div:first-child > strong,
+  .sprig-knowledge-card > div:first-child > b {
+    display: block;
+    line-height: 1.3;
+  }
+  
+  .sprig-knowledge-card > div:first-child > p {
+    display: block;
+    line-height: 1.42;
+  }
+  
+  .sprig-knowledge-card > strong,
+  .sprig-knowledge-card > b {
+    display: block;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  
+  .sprig-knowledge-card > small,
+  .sprig-knowledge-card > span,
+  .sprig-knowledge-card > p {
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-knowledge-card > p {
+    margin-top: 6px;
+    margin-bottom: 0;
+  }
+  
+  .sprig-knowledge-card > small {
+    display: block;
+    margin-top: 4px;
+  }
+  
+  .sprig-knowledge-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px 12px;
+    margin-top: 9px;
+    color: #758071;
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+  
+  .sprig-knowledge-card-meta > span {
+    display: block;
+  }
+  
+  .sprig-knowledge-almanac-card--button {
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .sprig-knowledge-almanac-card--button:hover {
+    border-color: rgba(60, 80, 55, 0.24);
+    box-shadow: 0 3px 10px rgba(48, 74, 50, 0.07);
+  }
+  
+  /* ---------------------------------------------------------
+     Almanac gathered-record rows
+     --------------------------------------------------------- */
+  
+  .sprig-knowledge-almanac-card {
+    min-width: 0;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-knowledge-almanac-card strong,
+  .sprig-knowledge-almanac-card b {
+    line-height: 1.3;
+  }
+  
+  .sprig-knowledge-almanac-card small {
+    line-height: 1.35;
+  }
+  
+  .sprig-knowledge-almanac-card button {
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-knowledge-almanac-card button:not(.sprig-knowledge-text-button) {
+    column-gap: 6px;
+    row-gap: 4px;
+  }
+  
+  .sprig-knowledge-almanac-card
+    button:not(.sprig-knowledge-text-button)
+    > strong,
+  .sprig-knowledge-almanac-card
+    button:not(.sprig-knowledge-text-button)
+    > b,
+  .sprig-knowledge-almanac-card
+    button:not(.sprig-knowledge-text-button)
+    > small,
+  .sprig-knowledge-almanac-card
+    button:not(.sprig-knowledge-text-button)
+    > span {
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-knowledge-almanac-card
+    button:not(.sprig-knowledge-text-button)
+    > strong,
+  .sprig-knowledge-almanac-card
+    button:not(.sprig-knowledge-text-button)
+    > b {
+    margin-right: 6px;
+  }
+  
+  /* ---------------------------------------------------------
+     Garden Reference secondary action buttons
+     --------------------------------------------------------- */
+  
+  .sprig-knowledge-text-button,
+  .sprig-knowledge-card .sprig-knowledge-text-button,
+  .sprig-knowledge-almanac-card .sprig-knowledge-text-button {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 12px;
+    border: 1px solid rgba(74, 104, 72, 0.18);
+    border-radius: 9px;
+    background: #eef4e9;
+    color: #38563d;
+    font: inherit;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(55, 72, 48, 0.05);
+    transition:
+      background 140ms ease,
+      border-color 140ms ease,
+      transform 140ms ease,
+      box-shadow 140ms ease;
+  }
+  
+  .sprig-knowledge-text-button:hover,
+  .sprig-knowledge-card .sprig-knowledge-text-button:hover,
+  .sprig-knowledge-almanac-card .sprig-knowledge-text-button:hover {
+    background: #e4eee0;
+    border-color: rgba(74, 104, 72, 0.3);
+    color: #2f4b34;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(55, 72, 48, 0.08);
+  }
+  
+  .sprig-knowledge-text-button:active,
+  .sprig-knowledge-card .sprig-knowledge-text-button:active,
+  .sprig-knowledge-almanac-card .sprig-knowledge-text-button:active {
+    transform: translateY(1px);
+    box-shadow: none;
+  }
+  
+  .sprig-knowledge-text-button:focus-visible {
+    outline: 2px solid rgba(63, 96, 66, 0.42);
+    outline-offset: 3px;
+  }
+  
+  /* ---------------------------------------------------------
+     Garden Reference shelf
+     --------------------------------------------------------- */
+  
+  .sprig-knowledge-almanac-card
+    > button.sprig-knowledge-almanac-card--button {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .sprig-knowledge-almanac-card
+    > button.sprig-knowledge-almanac-card--button:hover,
+  .sprig-knowledge-almanac-card
+    > button.sprig-knowledge-almanac-card--button:active,
+  .sprig-knowledge-almanac-card
+    > button.sprig-knowledge-almanac-card--button:focus {
+    background: transparent;
+    box-shadow: none;
+  }
+  
+  /* ---------------------------------------------------------
+     Garden Reference topic chooser
+  
+     The actual markup places the checkbox before its text.
+     Flex lets the label text use the available width while
+     order: 2 moves every checkbox into a calm right column.
+     --------------------------------------------------------- */
+  
+  .sprig-knowledge-almanac-card details label:has(input[type='checkbox']),
+  .sprig-knowledge-paper details label:has(input[type='checkbox']) {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 3px 0;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .sprig-knowledge-almanac-card
+    details
+    label:has(input[type='checkbox'])
+    input[type='checkbox'],
+  .sprig-knowledge-paper
+    details
+    label:has(input[type='checkbox'])
+    input[type='checkbox'] {
+    order: 2;
+    flex: 0 0 17px;
+    width: 17px;
+    height: 17px;
+    margin: 0 1px 0 auto;
+    padding: 0;
+  }
+  
+  /* ---------------------------------------------------------
+     Mobile Garden Knowledge disclosure
+     --------------------------------------------------------- */
+  
+  .sprig-knowledge-mobile-add {
+    display: none;
+  }
+  
+  .sprig-knowledge-mobile-composer-cancel {
+    display: none;
+  }
+  
+  .sprig-knowledge-composer-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  /* ---------------------------------------------------------
+     Garden Reference card index
+     --------------------------------------------------------- */
+  
+  .sprig-reference-card-summary {
+    display: grid;
+    gap: 3px;
+  }
+  
+  .sprig-reference-card-summary > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  
+  .sprig-reference-card-index {
+    margin-top: 12px;
+    padding-top: 11px;
+    border-top: 1px solid rgba(60, 80, 55, 0.11);
+  }
+  
+  .sprig-reference-card-index-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #667462;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  
+  .sprig-reference-card-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  
+  .sprig-reference-card-chip {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 6px 10px;
+    border: 1px solid rgba(74, 104, 72, 0.17);
+    border-radius: 999px;
+    background: #f1f5ed;
+    color: #3e5a41;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(55, 72, 48, 0.035);
+    transition:
+      background 140ms ease,
+      border-color 140ms ease,
+      transform 140ms ease;
+  }
+  
+  .sprig-reference-card-chip:hover {
+    background: #e7efe3;
+    border-color: rgba(74, 104, 72, 0.3);
+  }
+  
+  .sprig-reference-card-chip:active {
+    transform: translateY(1px);
+  }
+  
+  .sprig-reference-card-chip:focus-visible {
+    outline: 2px solid rgba(63, 96, 66, 0.4);
+    outline-offset: 2px;
+  }
+  
+  .sprig-knowledge-almanac-card
+    > .sprig-knowledge-detail-actions {
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  
+  /* ---------------------------------------------------------
+     Phone-first layout
+     --------------------------------------------------------- */
+  
   @media (max-width: 720px) {
     .sprig-knowledge-page {
       padding-inline: 10px;
@@ -513,38 +921,130 @@ line-clamp: 3;
     .sprig-knowledge-mode-button {
       width: 100%;
     }
-  }
-  /* ---------------------------------------------------------
-   Knowledge shelf cards
-   Keep saved records visually consistent with Almanac paper.
-   --------------------------------------------------------- */
-
-.sprig-knowledge-card {
-    width: 100%;
-    padding: 16px;
-    border: 1px solid rgba(60, 80, 55, 0.14);
-    border-radius: 12px;
-    background: #fffdf8;
-    color: #304a32;
-    text-align: left;
-    box-shadow: 0 2px 8px rgba(48, 74, 50, 0.045);
-    cursor: pointer;
-  }
   
-  .sprig-knowledge-card:hover {
-    border-color: rgba(60, 80, 55, 0.24);
-    box-shadow: 0 3px 10px rgba(48, 74, 50, 0.07);
-  }
+    .sprig-knowledge-browse-first {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
   
-  .sprig-knowledge-almanac-card--button {
-    width: 100%;
-    font: inherit;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
+    .sprig-knowledge-browse-first
+      > .sprig-knowledge-list-section {
+      order: 1;
+    }
   
-  .sprig-knowledge-almanac-card--button:hover {
-    border-color: rgba(60, 80, 55, 0.24);
-    box-shadow: 0 3px 10px rgba(48, 74, 50, 0.07);
+    .sprig-knowledge-browse-first
+      > .sprig-knowledge-mobile-add {
+      order: 2;
+    }
+  
+    .sprig-knowledge-browse-first
+      > .sprig-knowledge-mobile-collapsible {
+      order: 3;
+    }
+  
+    .sprig-knowledge-mobile-add {
+      display: block;
+      margin: 2px 0 4px;
+    }
+  
+    .sprig-knowledge-mobile-add-button {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid rgba(74, 104, 72, 0.2);
+      border-radius: 11px;
+      background: #eef4e9;
+      color: #38563d;
+      font: inherit;
+      font-weight: 750;
+      line-height: 1.25;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(55, 72, 48, 0.05);
+    }
+  
+    .sprig-knowledge-mobile-add-button > span {
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+  
+    .sprig-knowledge-mobile-add-button:active {
+      transform: translateY(1px);
+    }
+  
+    .sprig-knowledge-mobile-add-button:focus-visible {
+      outline: 2px solid rgba(63, 96, 66, 0.42);
+      outline-offset: 3px;
+    }
+  
+    .sprig-knowledge-mobile-collapsible {
+      display: none;
+    }
+  
+    .sprig-knowledge-mobile-collapsible--open {
+      display: block;
+    }
+  
+    .sprig-knowledge-mobile-composer-cancel {
+      display: inline-flex;
+    }
+  
+    .sprig-knowledge-composer-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+    }
+  
+    /*
+     * More separation between source kind/category and title
+     * on the narrow shelf cards.
+     */
+    .sprig-knowledge-card > div:first-child {
+      gap: 7px;
+    }
+  
+    .sprig-knowledge-card-kicker {
+      margin-bottom: 1px;
+    }
+  
+    /*
+     * Almanac/reference result context gets its own line.
+     */
+    .sprig-knowledge-almanac-card
+      button:not(.sprig-knowledge-text-button)
+      > strong,
+    .sprig-knowledge-almanac-card
+      button:not(.sprig-knowledge-text-button)
+      > b {
+      display: block;
+      margin: 0 0 3px;
+    }
+  
+    .sprig-knowledge-almanac-card
+      button:not(.sprig-knowledge-text-button)
+      > small,
+    .sprig-knowledge-almanac-card
+      button:not(.sprig-knowledge-text-button)
+      > span {
+      display: block;
+    }
+  
+    .sprig-knowledge-almanac-card
+      > .sprig-knowledge-detail-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  
+    .sprig-knowledge-almanac-card
+      > .sprig-knowledge-detail-actions
+      .sprig-knowledge-text-button {
+      width: 100%;
+    }
   }

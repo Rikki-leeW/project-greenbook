@@ -56,6 +56,15 @@ interface AddEventFormProps {
     event: GardenEvent,
   ) => void
 
+  /*
+   * Journal can hand off to the real Harvest
+   * workflow instead of pretending a Harvest
+   * is only a Journal activity.
+   */
+  onAddHarvest?: (
+    plantStoryIds: string[],
+  ) => void
+
   onClose: () => void
 }
 
@@ -291,6 +300,7 @@ export default function AddEventForm({
   planToRecord,
   onAddEvent,
   onUpdateEvent,
+  onAddHarvest,
   onClose,
 }: AddEventFormProps) {
   const today =
@@ -308,6 +318,26 @@ export default function AddEventForm({
       planToRecord,
     ) &&
     !isEditing
+
+
+  /*
+   * When Journal is opened from one Plant
+   * Story, Sprig already knows which story
+   * this moment belongs to.
+   *
+   * Keep that relationship fixed instead of
+   * asking the gardener to choose the same
+   * Plant Story again.
+   *
+   * Global Journal, Plan recording and editing
+   * keep their normal editable plant controls.
+   */
+  const isFixedPlantContext =
+    !isEditing &&
+    !isRecordingPlan &&
+    Boolean(
+      plantId,
+    )
 
 
   /*
@@ -1009,11 +1039,7 @@ export default function AddEventForm({
       label: 'Treated',
       icon: '🩹',
     },
-    {
-      value: 'harvest',
-      label: 'Harvested',
-      icon: '🧺',
-    },
+
     {
       value: 'moved',
       label: 'Moved',
@@ -1040,6 +1066,62 @@ export default function AddEventForm({
       icon: '📖',
     },
   ]
+
+  /*
+   * Older Journal records may already contain
+   * the legacy "harvest" activity.
+   *
+   * Keep it visible while editing those records
+   * so Sprig never hides or silently discards
+   * existing history. New Journal entries use
+   * the real Harvest workflow instead.
+   */
+  if (
+    eventActivityTypes
+      ?.includes(
+        'harvest',
+      )
+  ) {
+    activityOptions.push({
+      value:
+        'harvest',
+
+      label:
+        'Harvested',
+
+      icon:
+        '🧺',
+    })
+  }
+
+
+  /* =======================================
+     OPEN REAL HARVEST
+  ======================================= */
+
+  function handleOpenHarvestInstead() {
+    if (
+      !onAddHarvest
+    ) {
+      return
+    }
+
+
+    const harvestPlantIds =
+      isFixedPlantContext &&
+      startingPlant
+        ? [
+            startingPlant.id,
+          ]
+        : [
+            ...plantStoryIds,
+          ]
+
+
+    onAddHarvest(
+      harvestPlantIds,
+    )
+  }
 
 
   /* =======================================
@@ -1399,6 +1481,30 @@ export default function AddEventForm({
               }
             />
 
+{onAddHarvest &&
+              !isEditing &&
+              !isRecordingPlan && (
+                <section className="sprig-form-section">
+                  <p className="form-whisper">
+                    Gathered something from the garden?
+                    Harvests have their own record in
+                    Sprig, with amounts, quality,
+                    photographs and what happens to the
+                    Plant Story next.
+                  </p>
+
+
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={
+                      handleOpenHarvestInstead
+                    }
+                  >
+                    🧺 Record a Harvest instead
+                  </button>
+                </section>
+              )}
 
             <section className="journal-connection-section">
               <div className="journal-section-heading">
@@ -1529,168 +1635,170 @@ export default function AddEventForm({
             </section>
 
 
-            <section className="journal-connection-section">
-              <div className="journal-section-heading">
-                <h5>
-                  Which plants were involved?
-                </h5>
-              </div>
+            {!isFixedPlantContext && (
+              <section className="journal-connection-section">
+                <div className="journal-section-heading">
+                  <h5>
+                    Which plants were involved?
+                  </h5>
+                </div>
 
 
-              <div className="scope-card-grid plant-scope-grid">
-                <SelectionCard
-                  title="One Plant"
-                  icon="🌱"
-                  isSelected={
-                    plantScope ===
-                    'single'
-                  }
-                  onClick={() =>
-                    choosePlantScope(
-                      'single',
-                    )
-                  }
-                />
-
-
-                <SelectionCard
-                  title="Several Plants"
-                  icon="🌿"
-                  isSelected={
-                    plantScope ===
-                    'multiple'
-                  }
-                  onClick={() =>
-                    choosePlantScope(
-                      'multiple',
-                    )
-                  }
-                />
-
-
-                <SelectionCard
-                  title="All Plants"
-                  icon="🌳"
-                  isSelected={
-                    plantScope ===
-                    'all-plants'
-                  }
-                  onClick={() =>
-                    choosePlantScope(
-                      'all-plants',
-                    )
-                  }
-                />
-              </div>
-
-
-              {(
-                plantScope ===
-                  'single' ||
-                plantScope ===
-                  'multiple'
-              ) && (
-                <SprigPicker
-                  title="Choose Plant"
-                  variant="label"
-                  emptySummary="Choose a Plant"
-                  options={
-                    sortedAvailablePlants.map(
-                      plant => {
-                        const growingPlace =
-                          growingPlaces.find(
-                            place =>
-                              place.id ===
-                              plant.currentGrowingPlaceId,
-                          )
-
-
-                        return {
-                          value:
-                            plant.id,
-
-                          label:
-                            plant.displayName,
-
-                          subtitle:
-                            growingPlace
-                              ? growingPlace.name
-                              : 'No Growing Place',
-
-                          meta:
-                            plant.plantedDate
-                              ? `Planted ${new Date(
-                                  `${plant.plantedDate}T00:00:00`,
-                                ).toLocaleDateString(
-                                  'en-AU',
-                                  {
-                                    day:
-                                      'numeric',
-
-                                    month:
-                                      'short',
-
-                                    year:
-                                      'numeric',
-                                  },
-                                )}`
-                              : undefined,
-                        }
-                      },
-                    )
-                  }
-                  selectedValues={
-                    plantStoryIds
-                  }
-                  isOpen={
-                    isPlantPickerOpen
-                  }
-                  onToggleOpen={() =>
-                    setIsPlantPickerOpen(
-                      current =>
-                        !current,
-                    )
-                  }
-                  onToggleValue={(
-                    id,
-                  ) => {
-                    if (
+                <div className="scope-card-grid plant-scope-grid">
+                  <SelectionCard
+                    title="One Plant"
+                    icon="🌱"
+                    isSelected={
                       plantScope ===
                       'single'
-                    ) {
-                      setPlantStoryIds(
-                        [
-                          id,
-                        ],
-                      )
-
-                      setIsPlantPickerOpen(
-                        false,
-                      )
-
-                      return
                     }
+                    onClick={() =>
+                      choosePlantScope(
+                        'single',
+                      )
+                    }
+                  />
 
 
-                    setPlantStoryIds(
-                      current =>
-                        current.includes(
-                          id,
-                        )
-                          ? current.filter(
-                              item =>
-                                item !==
-                                id,
+                  <SelectionCard
+                    title="Several Plants"
+                    icon="🌿"
+                    isSelected={
+                      plantScope ===
+                      'multiple'
+                    }
+                    onClick={() =>
+                      choosePlantScope(
+                        'multiple',
+                      )
+                    }
+                  />
+
+
+                  <SelectionCard
+                    title="All Plants"
+                    icon="🌳"
+                    isSelected={
+                      plantScope ===
+                      'all-plants'
+                    }
+                    onClick={() =>
+                      choosePlantScope(
+                        'all-plants',
+                      )
+                    }
+                  />
+                </div>
+
+
+                {(
+                  plantScope ===
+                    'single' ||
+                  plantScope ===
+                    'multiple'
+                ) && (
+                  <SprigPicker
+                    title="Choose Plant"
+                    variant="label"
+                    emptySummary="Choose a Plant"
+                    options={
+                      sortedAvailablePlants.map(
+                        plant => {
+                          const growingPlace =
+                            growingPlaces.find(
+                              place =>
+                                place.id ===
+                                plant.currentGrowingPlaceId,
                             )
-                          : [
-                              ...current,
-                              id,
-                            ],
-                    )
-                  }}
-                />
-              )}
-            </section>
+
+
+                          return {
+                            value:
+                              plant.id,
+
+                            label:
+                              plant.displayName,
+
+                            subtitle:
+                              growingPlace
+                                ? growingPlace.name
+                                : 'No Growing Place',
+
+                            meta:
+                              plant.plantedDate
+                                ? `Planted ${new Date(
+                                    `${plant.plantedDate}T00:00:00`,
+                                  ).toLocaleDateString(
+                                    'en-AU',
+                                    {
+                                      day:
+                                        'numeric',
+
+                                      month:
+                                        'short',
+
+                                      year:
+                                        'numeric',
+                                    },
+                                  )}`
+                                : undefined,
+                          }
+                        },
+                      )
+                    }
+                    selectedValues={
+                      plantStoryIds
+                    }
+                    isOpen={
+                      isPlantPickerOpen
+                    }
+                    onToggleOpen={() =>
+                      setIsPlantPickerOpen(
+                        current =>
+                          !current,
+                      )
+                    }
+                    onToggleValue={(
+                      id,
+                    ) => {
+                      if (
+                        plantScope ===
+                        'single'
+                      ) {
+                        setPlantStoryIds(
+                          [
+                            id,
+                          ],
+                        )
+
+                        setIsPlantPickerOpen(
+                          false,
+                        )
+
+                        return
+                      }
+
+
+                      setPlantStoryIds(
+                        current =>
+                          current.includes(
+                            id,
+                          )
+                            ? current.filter(
+                                item =>
+                                  item !==
+                                  id,
+                              )
+                            : [
+                                ...current,
+                                id,
+                              ],
+                      )
+                    }}
+                  />
+                )}
+              </section>
+            )}
 
 
             <label>

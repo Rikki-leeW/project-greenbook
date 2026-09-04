@@ -236,3 +236,22 @@
       0 0 6px rgba(196, 160, 84, 0.25);
   }
 }
+/* =======================================
+   FORMS OPEN
+======================================= */
+
+/*
+ * Sprig forms are modal working pages.
+ *
+ * While one is open, hide the persistent
+ * bottom navigation so it cannot overlap
+ * the form, obscure save controls or allow
+ * accidental navigation away mid-entry.
+ */
+
+ body:has(.form-backdrop)
+ .bottom-navigation {
+   opacity: 0;
+   visibility: hidden;
+   pointer-events: none;
+ }

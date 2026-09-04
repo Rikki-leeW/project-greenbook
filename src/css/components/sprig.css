@@ -527,7 +527,44 @@
 ):not(
   .sprig-picker-option-label-tall
 ) .sprig-picker-option-text {
+  grid-column: 1;
+
   justify-content: center;
+
+  padding-left: 18px;
+}
+
+
+/*
+ * Tag-style picker options can contain an
+ * icon before their text.
+ *
+ * Keep that icon out of the option's content
+ * grid so it cannot steal the text column and
+ * squeeze words into the tiny check column.
+ */
+
+.sprig-picker-option:not(
+  .sprig-picker-option-label
+):not(
+  .sprig-picker-option-label-tall
+) .sprig-picker-option-icon {
+  position: absolute;
+
+  top: 50%;
+  left: 10px;
+
+  display: grid;
+  place-items: center;
+
+  width: 16px;
+
+  font-size: 0.86rem;
+  line-height: 1;
+
+  pointer-events: none;
+
+  transform: translateY(-50%);
 }
 
 .sprig-picker-option:not(
@@ -552,6 +589,7 @@
   .sprig-picker-option-label-tall
 ) .sprig-picker-option-check {
   position: static;
+  grid-column: 2;
 
   display: grid;
   place-items: center;

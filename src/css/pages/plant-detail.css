@@ -1,4 +1,6 @@
 
+
+
 /* PLANT STORY */
 
 .back-button {
@@ -225,3 +227,38 @@
     font-size: 2rem;
   }
   
+
+  /* =======================================
+   PLANT DETAIL
+   PHONE-FIRST INFORMATION CARDS
+======================================= */
+
+.story-info-card {
+  min-width: 0;
+}
+
+.story-info-card h2,
+.story-info-card p {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+@media (max-width: 700px) {
+  .story-information-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .story-info-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .story-info-card h2 {
+    max-width: 100%;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+}

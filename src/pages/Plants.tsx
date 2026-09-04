@@ -3,7 +3,6 @@ import {
 } from 'react'
 
 import PlantCard from '../components/cards/PlantCard'
-
 import GardenLayout from '../components/layout/GardenLayout'
 
 import type {
@@ -32,7 +31,7 @@ interface PlantsProps {
     plantIds: string[],
   ) => void
 
-  /*
+  /**
    * When editing an existing saved
    * comparison, App can send its current
    * Plant Story ids here.
@@ -49,6 +48,11 @@ const MAX_COMPARE_PLANTS =
   6
 
 
+type PlantStoryView =
+  | 'active'
+  | 'completed'
+
+
 export default function Plants({
   plants,
   onOpenPlant,
@@ -59,19 +63,66 @@ export default function Plants({
 }: PlantsProps) {
 
   /* =======================================
+     STORY VIEW
+  ======================================= */
+
+  const [
+    storyView,
+    setStoryView,
+  ] =
+    useState<PlantStoryView>(
+      initialComparePlantIds.some(
+        plantId =>
+          plants.some(
+            plant =>
+              plant.id ===
+                plantId &&
+              plant.status ===
+                'finished',
+          ),
+      )
+        ? 'completed'
+        : 'active',
+    )
+
+
+  /* =======================================
+     ACTIVE / COMPLETED STORIES
+  ======================================= */
+
+  const activePlants =
+    plants.filter(
+      plant =>
+        plant.status !==
+        'finished',
+    )
+
+
+  const completedPlants =
+    plants.filter(
+      plant =>
+        plant.status ===
+        'finished',
+    )
+
+
+  const visiblePlants =
+    storyView ===
+    'completed'
+      ? completedPlants
+      : activePlants
+
+
+  /* =======================================
      INITIAL COMPARISON STATE
   ======================================= */
 
   const initialSelectedPlantIds =
     initialComparePlantIds
       .filter(
-        (
-          plantId,
-        ) =>
+        plantId =>
           plants.some(
-            (
-              plant,
-            ) =>
+            plant =>
               plant.id ===
               plantId,
           ),
@@ -102,11 +153,32 @@ export default function Plants({
 
 
   /* =======================================
+     CHANGE STORY VIEW
+  ======================================= */
+
+  function changeStoryView(
+    nextView:
+      PlantStoryView,
+  ) {
+    setStoryView(
+      nextView,
+    )
+
+    setCompareMode(
+      false,
+    )
+
+    setSelectedPlantIds(
+      [],
+    )
+  }
+
+
+  /* =======================================
      ENTER / LEAVE COMPARE MODE
   ======================================= */
 
   function toggleCompareMode() {
-
     if (
       compareMode
     ) {
@@ -135,21 +207,15 @@ export default function Plants({
   function togglePlantForComparison(
     plantId: string,
   ) {
-
     setSelectedPlantIds(
-      (
-        currentIds,
-      ) => {
-
+      currentIds => {
         if (
           currentIds.includes(
             plantId,
           )
         ) {
           return currentIds.filter(
-            (
-              currentId,
-            ) =>
+            currentId =>
               currentId !==
               plantId,
           )
@@ -180,13 +246,9 @@ export default function Plants({
   const selectedPlants =
     selectedPlantIds
       .map(
-        (
-          plantId,
-        ) =>
+        plantId =>
           plants.find(
-            (
-              plant,
-            ) =>
+            plant =>
               plant.id ===
               plantId,
           ),
@@ -215,30 +277,32 @@ export default function Plants({
         ======================================= */}
 
         <header className="garden-header">
-
           <div>
-
             <p className="app-name">
               Sprig
             </p>
 
 
             <h1 className="garden-title">
-              Growing stories
+              {storyView ===
+              'completed'
+                ? 'Completed stories'
+                : 'Growing stories'}
             </h1>
 
 
             <p className="garden-subtitle">
               {compareMode
                 ? 'Choose two to six growing stories to look at together.'
-                : 'Every plant has its own chapter.'}
+                : storyView ===
+                  'completed'
+                  ? 'Finished chapters kept as part of the garden’s history.'
+                  : 'Every plant has its own chapter.'}
             </p>
-
           </div>
 
 
           <div className="plant-page-actions">
-
             <button
               type="button"
               className="secondary-button"
@@ -252,23 +316,100 @@ export default function Plants({
             </button>
 
 
-            {!compareMode && (
-
-              <button
-                type="button"
-                className="journal-add-button"
-                onClick={
-                  onAddPlant
-                }
-              >
-                🌱 Add a plant
-              </button>
-
-            )}
-
+            {!compareMode &&
+              storyView ===
+                'active' && (
+                <button
+                  type="button"
+                  className="journal-add-button"
+                  onClick={
+                    onAddPlant
+                  }
+                >
+                  🌱 Add a plant
+                </button>
+              )}
           </div>
-
         </header>
+
+
+        {/* =======================================
+            ACTIVE / COMPLETED NAVIGATION
+        ======================================= */}
+
+        {!compareMode && (
+          <nav
+            className="plant-story-view-navigation"
+            aria-label="Plant Story history"
+          >
+            <button
+              type="button"
+              className={
+                storyView ===
+                'active'
+                  ? 'plant-story-view-button active'
+                  : 'plant-story-view-button'
+              }
+              onClick={() =>
+                changeStoryView(
+                  'active',
+                )
+              }
+            >
+              <span>
+                🌱
+              </span>
+
+              <span>
+                <strong>
+                  Growing now
+                </strong>
+
+                <small>
+                  {activePlants.length}{' '}
+                  {activePlants.length ===
+                  1
+                    ? 'active story'
+                    : 'active stories'}
+                </small>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              className={
+                storyView ===
+                'completed'
+                  ? 'plant-story-view-button active'
+                  : 'plant-story-view-button'
+              }
+              onClick={() =>
+                changeStoryView(
+                  'completed',
+                )
+              }
+            >
+              <span>
+                🍂
+              </span>
+
+              <span>
+                <strong>
+                  Completed stories
+                </strong>
+
+                <small>
+                  {completedPlants.length}{' '}
+                  {completedPlants.length ===
+                  1
+                    ? 'finished story'
+                    : 'finished stories'}
+                </small>
+              </span>
+            </button>
+          </nav>
+        )}
 
 
         {/* =======================================
@@ -276,11 +417,8 @@ export default function Plants({
         ======================================= */}
 
         {compareMode && (
-
           <section className="plant-compare-guidance">
-
             <p>
-
               <strong>
                 {
                   selectedPlantIds.length
@@ -291,7 +429,6 @@ export default function Plants({
                 }{' '}
                 selected
               </strong>
-
             </p>
 
 
@@ -302,9 +439,7 @@ export default function Plants({
               histories you want Sprig
               to place side by side.
             </p>
-
           </section>
-
         )}
 
 
@@ -313,17 +448,11 @@ export default function Plants({
         ======================================= */}
 
         <section className="dashboard-section">
-
           <div className="plant-grid">
-
-            {plants.length >
+            {visiblePlants.length >
             0 ? (
-
-              plants.map(
-                (
-                  plant,
-                ) => (
-
+              visiblePlants.map(
+                plant => (
                   <PlantCard
                     key={
                       plant.id
@@ -351,29 +480,68 @@ export default function Plants({
                       togglePlantForComparison
                     }
                   />
-
                 ),
               )
-
-            ) : (
-
+            ) : storyView ===
+              'completed' ? (
               <div className="journal-empty">
+                <span>
+                  🍂
+                </span>
 
+                <h2>
+                  No completed stories yet
+                </h2>
+
+                <p>
+                  Finished Plant Stories
+                  will settle here without
+                  losing their photographs,
+                  harvests or garden history.
+                </p>
+
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() =>
+                    changeStoryView(
+                      'active',
+                    )
+                  }
+                >
+                  Return to growing stories
+                </button>
+              </div>
+            ) : (
+              <div className="journal-empty">
                 <span>
                   🌱
                 </span>
-
 
                 <h2>
                   The garden is waiting
                 </h2>
 
-
                 <p>
-                  No growing stories
-                  have begun yet.
+                  No active growing stories
+                  are underway.
                 </p>
 
+                {completedPlants.length >
+                  0 && (
+                  <p>
+                    You still have{' '}
+                    {
+                      completedPlants.length
+                    }{' '}
+                    completed{' '}
+                    {completedPlants.length ===
+                    1
+                      ? 'story'
+                      : 'stories'}{' '}
+                    safely kept in Sprig.
+                  </p>
+                )}
 
                 <button
                   type="button"
@@ -382,15 +550,11 @@ export default function Plants({
                     onAddPlant
                   }
                 >
-                  Begin the first story
+                  Begin a new story
                 </button>
-
               </div>
-
             )}
-
           </div>
-
         </section>
 
 
@@ -401,78 +565,63 @@ export default function Plants({
         {compareMode &&
           selectedPlantIds.length >
             0 && (
+            <aside
+              className="plant-compare-tray"
+              aria-label="Plants selected for comparison"
+            >
+              <div className="plant-compare-tray-copy">
+                <p className="section-label">
+                  Compare tray
+                </p>
 
-          <aside
-            className="plant-compare-tray"
-            aria-label="Plants selected for comparison"
-          >
+                <strong>
+                  {
+                    selectedPlantIds.length
+                  }{' '}
+                  {selectedPlantIds.length ===
+                  1
+                    ? 'story'
+                    : 'stories'}{' '}
+                  selected
+                </strong>
 
-            <div className="plant-compare-tray-copy">
+                <p className="form-whisper">
+                  {selectedPlants
+                    .map(
+                      plant =>
+                        plant.displayName,
+                    )
+                    .join(
+                      ' · ',
+                    )}
+                </p>
+              </div>
 
-              <p className="section-label">
-                Compare tray
-              </p>
 
-
-              <strong>
+              <button
+                type="button"
+                className="journal-add-button"
+                disabled={
+                  selectedPlantIds.length <
+                  2
+                }
+                onClick={() =>
+                  onComparePlants(
+                    selectedPlantIds,
+                  )
+                }
+              >
+                Compare{' '}
                 {
                   selectedPlantIds.length
                 }{' '}
                 {selectedPlantIds.length ===
                 1
                   ? 'story'
-                  : 'stories'}{' '}
-                selected
-              </strong>
-
-
-              <p className="form-whisper">
-
-                {selectedPlants
-                  .map(
-                    (
-                      plant,
-                    ) =>
-                      plant.displayName,
-                  )
-                  .join(
-                    ' · ',
-                  )}
-
-              </p>
-
-            </div>
-
-
-            <button
-              type="button"
-              className="journal-add-button"
-
-              disabled={
-                selectedPlantIds.length <
-                2
-              }
-
-              onClick={() =>
-                onComparePlants(
-                  selectedPlantIds,
-                )
-              }
-            >
-              Compare{' '}
-              {
-                selectedPlantIds.length
-              }{' '}
-              {selectedPlantIds.length ===
-              1
-                ? 'story'
-                : 'stories'}
-            </button>
-
-          </aside>
-
-        )}
-
+                  : 'stories'}
+              </button>
+            </aside>
+          )}
       </div>
     </GardenLayout>
   )
