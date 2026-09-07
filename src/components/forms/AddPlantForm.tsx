@@ -27,6 +27,7 @@ import type {
   PlantStory,
   SeedlingFloweringState,
   StartMethod,
+  SprigPhotoMetadata,
 } from '../../types'
 
 
@@ -1173,67 +1174,99 @@ export default function AddPlantForm({
           '',
     )
 
+/* =======================================
+   PHOTOGRAPHS
+======================================= */
 
-  /* =======================================
-     PHOTOGRAPHS
-  ======================================= */
-
-  const [
-    photoUrls,
-    setPhotoUrls,
-  ] =
-    useState<string[]>(
-      isVariation
-        ? []
-        : [
-            ...(
-              sourcePlant
-                ?.photoUrls ??
-              []
-            ),
-          ],
-    )
-
-  const [
-    photoDates,
-    setPhotoDates,
-  ] =
-    useState<
-      Array<
-        string |
-        undefined
-      >
-    >(
-      isVariation
-        ? []
-        : (
+const [
+  photoUrls,
+  setPhotoUrls,
+] =
+  useState<string[]>(
+    isVariation
+      ? []
+      : [
+          ...(
             sourcePlant
               ?.photoUrls ??
             []
-          ).map(
-            (
-              _photoUrl,
-              index,
-            ) =>
-              sourcePlant
-                ?.photoDates?.[
-                  index
-                ],
           ),
-    )
+        ],
+  )
+
+const [
+  photoDates,
+  setPhotoDates,
+] =
+  useState<
+    Array<
+      string |
+      undefined
+    >
+  >(
+    isVariation
+      ? []
+      : (
+          sourcePlant
+            ?.photoUrls ??
+          []
+        ).map(
+          (
+            _photoUrl,
+            index,
+          ) =>
+            sourcePlant
+              ?.photoDates?.[
+                index
+              ],
+        ),
+  )
+
+const [
+  photoMetadata,
+  setPhotoMetadata,
+] =
+  useState<
+    (
+      SprigPhotoMetadata |
+      undefined
+    )[]
+  >(
+    isVariation
+      ? []
+      : (
+          sourcePlant
+            ?.photoMetadata ??
+          sourcePlant
+            ?.photoUrls
+            ?.map(
+              (
+                _photoUrl,
+                index,
+              ) => ({
+                photoDate:
+                  sourcePlant
+                    .photoDates?.[
+                      index
+                    ],
+              }),
+            ) ??
+          []
+        ),
+  )
 
 
-  const beganFromSeed =
-    startMethod ===
-    'seed'
+const beganFromSeed =
+  startMethod ===
+  'seed'
 
 
-  const formRef =
-    useRef<HTMLFormElement>(
-      null,
-    )
+const formRef =
+  useRef<HTMLFormElement>(
+    null,
+  )
 
-
+  
   /* =======================================
      NOTEBOOK LOCK
   ======================================= */
@@ -2186,9 +2219,9 @@ export default function AddPlantForm({
           notes.trim() ||
           undefined,
 
-        photoUrls,
-
-        photoDates,
+          photoUrls,
+          photoDates,
+          photoMetadata,
 
         expectedHarvestDaysMin:
           minimumHarvestDays,
@@ -3758,75 +3791,17 @@ export default function AddPlantForm({
               maxPhotos={
                 20
               }
+              photoMetadata={
+                photoMetadata
+              }
+              
+              onPhotoMetadataChange={
+                setPhotoMetadata
+              }
+              
+              showPhotoContext
             />
 
-
-            {photoUrls.length >
-              0 && (
-              <section className="sprig-form-section growing-setup-details">
-                <p className="section-label">
-                  Photograph dates
-                </p>
-
-                <p className="form-whisper">
-                  Add a date when it helps future
-                  you understand where the plant
-                  was in its story.
-                </p>
-
-                {photoUrls.map(
-                  (
-                    _photoUrl,
-                    index,
-                  ) => (
-                    <label
-                      key={
-                        `${index}-${photoUrls[index]?.slice(
-                          0,
-                          20,
-                        )}`
-                      }
-                    >
-                      Photo {index + 1}
-
-                      <input
-                        type="date"
-                        value={
-                          photoDates[
-                            index
-                          ] ??
-                          ''
-                        }
-                        onChange={(
-                          event,
-                        ) =>
-                          setPhotoDates(
-                            current =>
-                              photoUrls.map(
-                                (
-                                  _url,
-                                  photoIndex,
-                                ) =>
-                                  photoIndex ===
-                                    index
-                                    ? (
-                                        event
-                                          .target
-                                          .value ||
-                                        undefined
-                                      )
-                                    : current[
-                                        photoIndex
-                                      ],
-                              ),
-                          )
-                        }
-                      />
-                    </label>
-                  ),
-                )}
-              </section>
-            )}
 
 
             {isRecordingPlan &&

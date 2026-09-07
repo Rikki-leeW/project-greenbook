@@ -10,6 +10,7 @@ import SprigPhotoGallery from '../components/photos/SprigPhotoGallery'
 import SprigPhotoPicker from '../components/photos/SprigPhotoPicker'
 
 import SprigQuickPeek from '../components/common/SprigQuickPeek'
+import PlantSmartComparisons from '../components/plants/PlantSmartComparisons'
 
 import type {
   GardenEvent,
@@ -20,6 +21,8 @@ import type {
   PlantOriginType,
   PlantStory,
   HarvestRecord,
+  SprigPhotoMetadata,
+  SprigPhotoPurpose,
 } from '../types'
 
 import type {
@@ -29,6 +32,15 @@ import type {
 
 interface PlantDetailProps {
   plant: PlantStory
+  plants: PlantStory[]
+
+  onOpenPlant: (
+    plantId: string,
+  ) => void
+
+  onComparePlants: (
+    plantIds: string[],
+  ) => void
 
   growingPlaces: GrowingPlace[]
 
@@ -43,15 +55,15 @@ interface PlantDetailProps {
   harvests: HarvestRecord[]
 
   journeyBackLabel:
-  string | null
+    string | null
 
-onBack: () => void
+  onBack: () => void
 
-onOpenPlants: () => void
+  onOpenPlants: () => void
 
-onNavigate: (
-  page: AppPage,
-) => void
+  onNavigate: (
+    page: AppPage,
+  ) => void
 
   onOpenGrowingPlace: (
     growingPlaceId: string,
@@ -106,6 +118,29 @@ onNavigate: (
 }
 
 
+type PlantPhotoSourceType =
+  | 'plant-story'
+  | 'garden-event'
+  | 'harvest'
+
+
+interface PlantPhotographicStoryItem {
+  key: string
+  photoUrl: string
+  photoDate?: string
+  photoTime?: string
+  title?: string
+  notes?: string
+  tags?: string[]
+  purpose?: SprigPhotoPurpose
+  sourceType: PlantPhotoSourceType
+  sourceId: string
+  sourceLabel: string
+  sourceDetail?: string
+  fallbackDate?: string
+}
+
+
 /* =======================================
    GENERAL LABEL
 ======================================= */
@@ -120,9 +155,7 @@ function formatLabel(
     )
     .replace(
       /\b\w/g,
-      (
-        letter,
-      ) =>
+      letter =>
         letter.toUpperCase(),
     )
 }
@@ -135,7 +168,9 @@ function formatLabel(
 function formatDate(
   date?: string,
 ): string {
-  if (!date) {
+  if (
+    !date
+  ) {
     return 'Not recorded'
   }
 
@@ -158,6 +193,37 @@ function formatDate(
 
 
 /* =======================================
+   SHORT DATE
+======================================= */
+
+function formatShortDate(
+  date?: string,
+): string {
+  if (
+    !date
+  ) {
+    return 'Date not recorded'
+  }
+
+  return new Date(
+    `${date}T00:00:00`,
+  ).toLocaleDateString(
+    'en-AU',
+    {
+      day:
+        'numeric',
+
+      month:
+        'short',
+
+      year:
+        'numeric',
+    },
+  )
+}
+
+
+/* =======================================
    PHOTO GROWING AGE
 ======================================= */
 
@@ -170,12 +236,10 @@ function getPhotoGrowingAge(
       `${photoDate}T00:00:00`,
     )
 
-
   const plantedDateObject =
     new Date(
       `${plantedDate}T00:00:00`,
     )
-
 
   const daysDifference =
     Math.round(
@@ -183,14 +247,13 @@ function getPhotoGrowingAge(
         photoDateObject.getTime() -
         plantedDateObject.getTime()
       ) /
-        (
-          1000 *
-          60 *
-          60 *
-          24
-        ),
+      (
+        1000 *
+        60 *
+        60 *
+        24
+      ),
     )
-
 
   if (
     daysDifference ===
@@ -199,14 +262,12 @@ function getPhotoGrowingAge(
     return 'the day this story began'
   }
 
-
   if (
     daysDifference ===
     1
   ) {
     return '1 day after planting'
   }
-
 
   if (
     daysDifference >
@@ -215,7 +276,6 @@ function getPhotoGrowingAge(
     return `${daysDifference} days after planting`
   }
 
-
   if (
     daysDifference ===
     -1
@@ -223,11 +283,89 @@ function getPhotoGrowingAge(
     return '1 day before planting'
   }
 
-
   return `${Math.abs(
     daysDifference,
   )} days before planting`
 }
+
+
+/* =======================================
+   PHOTO PURPOSE
+======================================= */
+
+function getPhotoPurposeLabel(
+  purpose:
+    SprigPhotoPurpose |
+    undefined,
+): string | undefined {
+  if (
+    !purpose
+  ) {
+    return undefined
+  }
+
+  switch (
+    purpose
+  ) {
+    case 'observation':
+      return 'Observation'
+
+    case 'progress':
+      return 'Progress'
+
+    case 'problem':
+      return 'Problem'
+
+    case 'harvest':
+      return 'Harvest'
+
+    case 'setup':
+      return 'Setup'
+
+    case 'reference':
+      return 'Reference'
+
+    case 'other':
+    default:
+      return 'Other'
+  }
+}
+
+
+/* =======================================
+   PHOTO METADATA LOOKUP
+======================================= */
+
+function getPhotoMetadata(
+  photoUrl: string,
+  index: number,
+  photoMetadata:
+    (
+      SprigPhotoMetadata |
+      undefined
+    )[] |
+    undefined,
+):
+  SprigPhotoMetadata |
+  undefined {
+  const urlMatch =
+    photoMetadata?.find(
+      metadata =>
+        metadata?.photoUrl ===
+        photoUrl,
+    )
+
+  if (
+    urlMatch
+  ) {
+    return urlMatch
+  }
+
+  return photoMetadata?.[
+    index
+  ]
+}
+
 
 /* =======================================
    GROWING RECIPE LABEL
@@ -285,7 +423,9 @@ function getStartMethodLabel(
 function getPlantOriginLabel(
   originType?: PlantOriginType,
 ): string {
-  if (!originType) {
+  if (
+    !originType
+  ) {
     return 'Not recorded'
   }
 
@@ -439,7 +579,6 @@ function getHarvestTimelineTitle(
     return harvest.customHarvestTypeLabel
   }
 
-
   switch (
     harvest.harvestType
   ) {
@@ -477,7 +616,6 @@ function getHarvestTimelineAmount(
   const pieces:
     string[] = []
 
-
   if (
     harvest.count !==
     undefined
@@ -487,59 +625,67 @@ function getHarvestTimelineAmount(
     )
   }
 
-
   if (
     harvest.measurementAmount !==
     undefined
   ) {
-    let unitLabel = ''
-
+    let unitLabel =
+      ''
 
     switch (
       harvest.measurementUnit
     ) {
       case 'gram':
-        unitLabel = 'g'
+        unitLabel =
+          'g'
         break
 
       case 'kilogram':
-        unitLabel = 'kg'
+        unitLabel =
+          'kg'
         break
 
       case 'millilitre':
-        unitLabel = 'mL'
+        unitLabel =
+          'mL'
         break
 
       case 'litre':
-        unitLabel = 'L'
+        unitLabel =
+          'L'
         break
 
       case 'bunch':
-        unitLabel = 'bunch'
+        unitLabel =
+          'bunch'
         break
 
       case 'handful':
-        unitLabel = 'handful'
+        unitLabel =
+          'handful'
         break
 
       case 'basket':
-        unitLabel = 'basket'
+        unitLabel =
+          'basket'
         break
 
       case 'container':
-        unitLabel = 'container'
+        unitLabel =
+          'container'
         break
 
       case 'other':
         unitLabel =
-          harvest.customMeasurementUnitLabel ??
+          harvest
+            .customMeasurementUnitLabel ??
           ''
         break
 
       default:
-        unitLabel = ''
+        unitLabel =
+          ''
     }
-
 
     pieces.push(
       unitLabel
@@ -547,7 +693,6 @@ function getHarvestTimelineAmount(
         : `${harvest.measurementAmount}`,
     )
   }
-
 
   return pieces.length >
     0
@@ -604,8 +749,10 @@ function createSafeFileName(
 /* =======================================
    PLANT DETAIL
 ======================================= */
+
 export default function PlantDetail({
   plant,
+  plants,
   growingPlaces,
   growingSetups,
   ingredients,
@@ -613,6 +760,8 @@ export default function PlantDetail({
   events,
   harvests,
   journeyBackLabel,
+  onOpenPlant,
+  onComparePlants,
   onBack,
   onOpenPlants,
   onNavigate,
@@ -639,14 +788,42 @@ export default function PlantDetail({
     isEditOpen,
     setIsEditOpen,
   ] =
-    useState(false)
-
+    useState(
+      false,
+    )
 
   const [
     isVariationOpen,
     setIsVariationOpen,
   ] =
-    useState(false)
+    useState(
+      false,
+    )
+
+
+  /* =======================================
+     VARIATION CREATED
+  ======================================= */
+
+  function handleVariationCreated(
+    newPlant: PlantStory,
+  ) {
+    onAddPlant(
+      newPlant,
+    )
+
+    setIsVariationOpen(
+      false,
+    )
+
+    onOpenPlant(
+      newPlant.id,
+    )
+
+    setIsEditOpen(
+      true,
+    )
+  }
 
 
   /* =======================================
@@ -657,57 +834,65 @@ export default function PlantDetail({
     isRecipeQuickPeekOpen,
     setIsRecipeQuickPeekOpen,
   ] =
-    useState(false)
-
+    useState(
+      false,
+    )
 
   const [
     isHarvestTimingQuickPeekOpen,
     setIsHarvestTimingQuickPeekOpen,
   ] =
-    useState(false)
-
+    useState(
+      false,
+    )
 
   const [
     customHarvestTimingDate,
     setCustomHarvestTimingDate,
   ] =
-    useState('')
-
+    useState(
+      '',
+    )
 
   const [
     customHarvestTimingLabel,
     setCustomHarvestTimingLabel,
   ] =
-    useState('')
+    useState(
+      '',
+    )
 
 
- /* =======================================
-   PHOTO ADDER
-======================================= */
+  /* =======================================
+     PHOTO ADDER
+  ======================================= */
 
-const [
-  isPhotoQuickAddOpen,
-  setIsPhotoQuickAddOpen,
-] =
-  useState(false)
+  const [
+    isPhotoQuickAddOpen,
+    setIsPhotoQuickAddOpen,
+  ] =
+    useState(
+      false,
+    )
 
-
-const [
-  photoDraft,
-  setPhotoDraft,
-] =
-  useState<string[]>(
-    plant.photoUrls ??
+  const [
+    photoDraft,
+    setPhotoDraft,
+  ] =
+    useState<string[]>(
+      plant.photoUrls ??
       [],
-  )
-
+    )
 
   const [
     photoDateDraft,
     setPhotoDateDraft,
   ] =
     useState<
-      (string | undefined)[]
+      (
+        string |
+        undefined
+      )[]
     >(
       (
         plant.photoUrls ??
@@ -717,9 +902,55 @@ const [
           _photoUrl,
           index,
         ) =>
+          plant
+            .photoMetadata?.[
+              index
+            ]
+            ?.photoDate ??
           plant.photoDates?.[
             index
           ],
+      ),
+    )
+
+  const [
+    photoMetadataDraft,
+    setPhotoMetadataDraft,
+  ] =
+    useState<
+      (
+        SprigPhotoMetadata |
+        undefined
+      )[]
+    >(
+      (
+        plant.photoUrls ??
+        []
+      ).map(
+        (
+          photoUrl,
+          index,
+        ) => {
+          const metadata =
+            getPhotoMetadata(
+              photoUrl,
+              index,
+              plant.photoMetadata,
+            )
+
+          return {
+            ...metadata,
+
+            photoUrl,
+
+            photoDate:
+              metadata
+                ?.photoDate ??
+              plant.photoDates?.[
+                index
+              ],
+          }
+        },
       ),
     )
 
@@ -745,11 +976,9 @@ const [
       document.documentElement.style.overflow =
         ''
 
-
       function goToTop() {
         const scrollingElement =
           document.scrollingElement
-
 
         if (
           scrollingElement
@@ -760,7 +989,6 @@ const [
           scrollingElement.scrollLeft =
             0
         }
-
 
         document.documentElement.scrollTop =
           0
@@ -774,9 +1002,7 @@ const [
         )
       }
 
-
       goToTop()
-
 
       const firstFrame =
         requestAnimationFrame(
@@ -788,7 +1014,6 @@ const [
             )
           },
         )
-
 
       return () => {
         cancelAnimationFrame(
@@ -809,9 +1034,7 @@ const [
   const currentGrowingPlace =
     plant.currentGrowingPlaceId
       ? growingPlaces.find(
-          (
-            place,
-          ) =>
+          place =>
             place.id ===
             plant.currentGrowingPlaceId,
         )
@@ -825,9 +1048,7 @@ const [
   const currentGrowingSetup =
     plant.currentGrowingSetupId
       ? growingSetups.find(
-          (
-            setup,
-          ) =>
+          setup =>
             setup.id ===
             plant.currentGrowingSetupId,
         )
@@ -842,13 +1063,9 @@ const [
     currentGrowingSetup
       ?.ingredientIds
       ?.map(
-        (
-          ingredientId,
-        ) =>
+        ingredientId =>
           ingredients.find(
-            (
-              ingredient,
-            ) =>
+            ingredient =>
               ingredient.id ===
               ingredientId,
           ),
@@ -864,64 +1081,54 @@ const [
     []
 
 
-      /* =======================================
+  /* =======================================
      GROWING JOURNEY
   ======================================= */
 
   const growingJourney =
-  (
-    plant.growingHistory ??
-    []
-  )
-    .map(
-      (
-        historyEntry,
-      ) => {
-        const growingPlace =
-          historyEntry.growingPlaceId
-            ? growingPlaces.find(
-                (
-                  place,
-                ) =>
-                  place.id ===
-                  historyEntry.growingPlaceId,
-              )
-            : undefined
-
-
-        const growingSetup =
-          historyEntry.growingSetupId
-            ? growingSetups.find(
-                (
-                  setup,
-                ) =>
-                  setup.id ===
-                  historyEntry.growingSetupId,
-              )
-            : undefined
-
-
-        return {
-          ...historyEntry,
-
-          growingPlace,
-
-          growingSetup,
-        }
-      },
+    (
+      plant.growingHistory ??
+      []
     )
-    .sort(
-      (
-        first,
-        second,
-      ) =>
-        new Date(
-          first.startedDate,
-        ).getTime() -
-        new Date(
-          second.startedDate,
-        ).getTime(),
-    )
+      .map(
+        historyEntry => {
+          const growingPlace =
+            historyEntry.growingPlaceId
+              ? growingPlaces.find(
+                  place =>
+                    place.id ===
+                    historyEntry.growingPlaceId,
+                )
+              : undefined
+
+          const growingSetup =
+            historyEntry.growingSetupId
+              ? growingSetups.find(
+                  setup =>
+                    setup.id ===
+                    historyEntry.growingSetupId,
+                )
+              : undefined
+
+          return {
+            ...historyEntry,
+            growingPlace,
+            growingSetup,
+          }
+        },
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          new Date(
+            first.startedDate,
+          ).getTime() -
+          new Date(
+            second.startedDate,
+          ).getTime(),
+      )
 
 
   /* =======================================
@@ -933,10 +1140,8 @@ const [
       `${plant.plantedDate}T00:00:00`,
     )
 
-
   const today =
     new Date()
-
 
   const daysGrowing =
     Math.max(
@@ -946,55 +1151,53 @@ const [
           today.getTime() -
           storyBeginningDate.getTime()
         ) /
-          (
-            1000 *
-            60 *
-            60 *
-            24
-          ),
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        ),
       ),
     )
 
-          
+
   /* =======================================
      HARVEST STORY
   ======================================= */
 
-  const plantHarvests = [
-    ...harvests,
-  ]
-    .filter(
-      (
-        harvest,
-      ) =>
-        harvest.plantStoryIds.includes(
-          plant.id,
-        ),
-    )
-    .sort(
-      (
-        first,
-        second,
-      ) =>
-        new Date(
-          first.date,
-        ).getTime() -
-        new Date(
-          second.date,
-        ).getTime(),
-    )
-
+  const plantHarvests =
+    [
+      ...harvests,
+    ]
+      .filter(
+        harvest =>
+          harvest.plantStoryIds.includes(
+            plant.id,
+          ),
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          new Date(
+            first.date,
+          ).getTime() -
+          new Date(
+            second.date,
+          ).getTime(),
+      )
 
   const firstPlantHarvest =
-    plantHarvests[0]
-
+    plantHarvests[
+      0
+    ]
 
   const latestPlantHarvest =
     plantHarvests[
       plantHarvests.length -
-        1
+      1
     ]
-
 
   const totalHarvestCount =
     plantHarvests.reduce(
@@ -1010,12 +1213,9 @@ const [
       0,
     )
 
-
   const harvestMeasurements =
     plantHarvests.filter(
-      (
-        harvest,
-      ) =>
+      harvest =>
         typeof harvest.measurementAmount ===
           'number' &&
         Boolean(
@@ -1023,26 +1223,21 @@ const [
         ),
     )
 
-
   const harvestUnits =
     Array.from(
       new Set(
         harvestMeasurements.map(
-          (
-            harvest,
-          ) =>
+          harvest =>
             harvest.measurementUnit,
         ),
       ),
     )
-
 
   const canCombineHarvestAmounts =
     harvestMeasurements.length >
       0 &&
     harvestUnits.length ===
       1
-
 
   const totalHarvestAmount =
     canCombineHarvestAmounts
@@ -1060,42 +1255,37 @@ const [
         )
       : undefined
 
-
   const totalHarvestUnit =
     canCombineHarvestAmounts
-      ? harvestUnits[0]
+      ? harvestUnits[
+          0
+        ]
       : undefined
 
 
-    /* =======================================
+  /* =======================================
      HARVEST TIMING REFERENCE
   ======================================= */
 
   const harvestTimingReference =
     plant.harvestTimingReference
 
-
   const harvestTimingEvent =
     harvestTimingReference?.sourceType ===
       'garden-event' &&
     harvestTimingReference.eventId
       ? events.find(
-          (
-            event,
-          ) =>
+          event =>
             event.id ===
             harvestTimingReference.eventId,
         )
       : undefined
 
-
   let harvestTimingReferenceDate =
     plant.plantedDate
 
-
   let harvestTimingReferenceLabel =
     'Planted'
-
 
   if (
     harvestTimingReference?.sourceType ===
@@ -1107,16 +1297,18 @@ const [
 
     harvestTimingReferenceLabel =
       'Sown'
-  } else if (
+  }
+  else if (
     harvestTimingReference?.sourceType ===
-    'planted'
+      'planted'
   ) {
     harvestTimingReferenceDate =
       plant.plantedDate
 
     harvestTimingReferenceLabel =
       'Planted'
-  } else if (
+  }
+  else if (
     harvestTimingReference?.sourceType ===
       'planted-out' &&
     plant.plantedOutDate
@@ -1126,7 +1318,8 @@ const [
 
     harvestTimingReferenceLabel =
       'Planted out'
-  } else if (
+  }
+  else if (
     harvestTimingReference?.sourceType ===
       'garden-event' &&
     harvestTimingEvent
@@ -1136,7 +1329,8 @@ const [
 
     harvestTimingReferenceLabel =
       harvestTimingEvent.title
-  } else if (
+  }
+  else if (
     harvestTimingReference?.sourceType ===
       'custom-date' &&
     harvestTimingReference.customDate
@@ -1148,7 +1342,6 @@ const [
       harvestTimingReference.customLabel ??
       'Another date'
   }
-
 
   const harvestTimingReferenceDateObject =
     new Date(
@@ -1168,7 +1361,6 @@ const [
         )
       : undefined
 
-
   const expectedHarvestEnd =
     plant.expectedHarvestDaysMax
       ? addDaysToDate(
@@ -1177,25 +1369,12 @@ const [
         )
       : undefined
 
-
-  /*
-   * The first real Harvest Record becomes
-   * the actual beginning of this plant's
-   * harvest story.
-   */
-
   const firstHarvestDate =
     firstPlantHarvest
       ? new Date(
           `${firstPlantHarvest.date}T00:00:00`,
         )
       : undefined
-
-
-  /*
-   * Number of days from the selected timing
-   * reference until the first real harvest.
-   */
 
   const actualDaysToFirstHarvest =
     firstHarvestDate
@@ -1206,32 +1385,25 @@ const [
               firstHarvestDate.getTime() -
               harvestTimingReferenceDateObject.getTime()
             ) /
-              (
-                1000 *
-                60 *
-                60 *
-                24
-              ),
+            (
+              1000 *
+              60 *
+              60 *
+              24
+            ),
           ),
         )
       : undefined
 
-
-  /*
-   * Compare the first real harvest with the
-   * expected harvest window.
-   */
-
   let harvestTimingDifference:
-    number | undefined
-
+    number |
+    undefined
 
   let harvestTimingStatus:
     | 'early'
     | 'expected'
     | 'late'
     | undefined
-
 
   if (
     firstHarvestDate &&
@@ -1248,14 +1420,15 @@ const [
           expectedHarvestStart.getTime() -
           firstHarvestDate.getTime()
         ) /
-          (
-            1000 *
-            60 *
-            60 *
-            24
-          ),
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        ),
       )
-  } else if (
+  }
+  else if (
     firstHarvestDate &&
     expectedHarvestEnd &&
     firstHarvestDate.getTime() >
@@ -1270,14 +1443,15 @@ const [
           firstHarvestDate.getTime() -
           expectedHarvestEnd.getTime()
         ) /
-          (
-            1000 *
-            60 *
-            60 *
-            24
-          ),
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        ),
       )
-  } else if (
+  }
+  else if (
     firstHarvestDate &&
     (
       expectedHarvestStart ||
@@ -1296,31 +1470,44 @@ const [
      PLANT EVENTS
   ======================================= */
 
-  const plantEvents = [
-    ...events,
-  ]
-    .filter(
-      (
-        event,
-      ) =>
-        event.plantStoryIds.length ===
-          0 ||
+  const plantEvents =
+    [
+      ...events,
+    ]
+      .filter(
+        event =>
+          event.plantStoryIds.length ===
+            0 ||
+          event.plantStoryIds.includes(
+            plant.id,
+          ),
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          new Date(
+            second.date,
+          ).getTime() -
+          new Date(
+            first.date,
+          ).getTime(),
+      )
+
+
+  /* =======================================
+     DIRECTLY LINKED EVENTS
+  ======================================= */
+
+  const directlyLinkedPlantEvents =
+    plantEvents.filter(
+      event =>
         event.plantStoryIds.includes(
           plant.id,
         ),
     )
-    .sort(
-      (
-        first,
-        second,
-      ) =>
-        new Date(
-          second.date,
-        ).getTime() -
-        new Date(
-          first.date,
-        ).getTime(),
-    )
+
 
   /* =======================================
      COMPLETE PLANT TIMELINE
@@ -1328,9 +1515,7 @@ const [
 
   const storyTimeline = [
     ...plantEvents.map(
-      (
-        event,
-      ) => ({
+      event => ({
         kind:
           'event' as const,
 
@@ -1342,9 +1527,7 @@ const [
     ),
 
     ...plantHarvests.map(
-      (
-        harvest,
-      ) => ({
+      harvest => ({
         kind:
           'harvest' as const,
 
@@ -1367,8 +1550,272 @@ const [
       ).getTime(),
   )
 
+
   /* =======================================
-     HARVEST TIMING REFERENCE
+     PHOTOGRAPHIC STORY
+  ======================================= */
+
+  const plantPhotographicStory:
+    PlantPhotographicStoryItem[] = [
+      ...(
+        plant.photoUrls ??
+        []
+      ).map(
+        (
+          photoUrl,
+          index,
+        ) => {
+          const metadata =
+            getPhotoMetadata(
+              photoUrl,
+              index,
+              plant.photoMetadata,
+            )
+
+          const photoDate =
+            metadata
+              ?.photoDate ??
+            plant.photoDates?.[
+              index
+            ]
+
+          return {
+            key:
+              metadata
+                ?.photoId ??
+              `plant-${plant.id}-${index}`,
+
+            photoUrl,
+
+            photoDate,
+
+            photoTime:
+              metadata
+                ?.photoTime,
+
+            title:
+              metadata
+                ?.title,
+
+            notes:
+              metadata
+                ?.notes,
+
+            tags:
+              metadata
+                ?.tags,
+
+            purpose:
+              metadata
+                ?.purpose,
+
+            sourceType:
+              'plant-story' as const,
+
+            sourceId:
+              plant.id,
+
+            sourceLabel:
+              'Plant Story',
+
+            sourceDetail:
+              'Added directly to this Plant Story',
+
+            fallbackDate:
+              plant.plantedDate,
+          }
+        },
+      ),
+
+      ...directlyLinkedPlantEvents.flatMap(
+        event =>
+          (
+            event.photoUrls ??
+            []
+          ).map(
+            (
+              photoUrl,
+              index,
+            ) => {
+              const metadata =
+                getPhotoMetadata(
+                  photoUrl,
+                  index,
+                  event.photoMetadata,
+                )
+
+              return {
+                key:
+                  metadata
+                    ?.photoId ??
+                  `event-${event.id}-${index}`,
+
+                photoUrl,
+
+                photoDate:
+                  metadata
+                    ?.photoDate ??
+                  event.date,
+
+                photoTime:
+                  metadata
+                    ?.photoTime,
+
+                title:
+                  metadata
+                    ?.title ??
+                  event.title,
+
+                notes:
+                  metadata
+                    ?.notes,
+
+                tags:
+                  metadata
+                    ?.tags,
+
+                purpose:
+                  metadata
+                    ?.purpose,
+
+                sourceType:
+                  'garden-event' as const,
+
+                sourceId:
+                  event.id,
+
+                sourceLabel:
+                  'Journal moment',
+
+                sourceDetail:
+                  event.title,
+
+                fallbackDate:
+                  event.date,
+              }
+            },
+          ),
+      ),
+
+      ...plantHarvests.flatMap(
+        harvest =>
+          (
+            harvest.photoUrls ??
+            []
+          ).map(
+            (
+              photoUrl,
+              index,
+            ) => {
+              const metadata =
+                getPhotoMetadata(
+                  photoUrl,
+                  index,
+                  harvest.photoMetadata,
+                )
+
+              return {
+                key:
+                  metadata
+                    ?.photoId ??
+                  `harvest-${harvest.id}-${index}`,
+
+                photoUrl,
+
+                photoDate:
+                  metadata
+                    ?.photoDate ??
+                  harvest.date,
+
+                photoTime:
+                  metadata
+                    ?.photoTime,
+
+                title:
+                  metadata
+                    ?.title ??
+                  getHarvestTimelineTitle(
+                    harvest,
+                  ),
+
+                notes:
+                  metadata
+                    ?.notes,
+
+                tags:
+                  metadata
+                    ?.tags,
+
+                purpose:
+                  metadata
+                    ?.purpose ??
+                  'harvest',
+
+                sourceType:
+                  'harvest' as const,
+
+                sourceId:
+                  harvest.id,
+
+                sourceLabel:
+                  'Harvest',
+
+                sourceDetail:
+                  getHarvestTimelineTitle(
+                    harvest,
+                  ),
+
+                fallbackDate:
+                  harvest.date,
+              }
+            },
+          ),
+      ),
+    ]
+      .sort(
+        (
+          first,
+          second,
+        ) => {
+          const firstDate =
+            first.photoDate ??
+            first.fallbackDate
+
+          const secondDate =
+            second.photoDate ??
+            second.fallbackDate
+
+          if (
+            !firstDate &&
+            !secondDate
+          ) {
+            return 0
+          }
+
+          if (
+            !firstDate
+          ) {
+            return 1
+          }
+
+          if (
+            !secondDate
+          ) {
+            return -1
+          }
+
+          return new Date(
+            `${secondDate}T00:00:00`,
+          ).getTime() -
+            new Date(
+              `${firstDate}T00:00:00`,
+            ).getTime()
+        },
+      )
+
+
+  /* =======================================
+     HARVEST TIMING REFERENCE SAVE
   ======================================= */
 
   function saveHarvestTimingReference(
@@ -1388,7 +1835,7 @@ const [
 
         eventId:
           sourceType ===
-          'garden-event'
+            'garden-event'
             ? eventId
             : undefined,
 
@@ -1413,16 +1860,13 @@ const [
           .toISOString(),
     })
 
-
     setIsHarvestTimingQuickPeekOpen(
       false,
     )
 
-
     setCustomHarvestTimingDate(
       '',
     )
-
 
     setCustomHarvestTimingLabel(
       '',
@@ -1432,9 +1876,7 @@ const [
 
   const harvestTimingMilestoneEvents =
     plantEvents.filter(
-      (
-        event,
-      ) =>
+      event =>
         event.plantStoryIds.includes(
           plant.id,
         ) &&
@@ -1477,13 +1919,11 @@ const [
         `Archive "${plant.displayName}"?\n\nSprig will keep the Plant Story, photographs and timeline.`,
       )
 
-
     if (
       !confirmed
     ) {
       return
     }
-
 
     onUpdatePlant({
       ...plant,
@@ -1537,13 +1977,11 @@ const [
         `Complete "${plant.displayName}"?\n\nThis keeps the entire Plant Story and marks its growing chapter as finished.`,
       )
 
-
     if (
       !confirmed
     ) {
       return
     }
-
 
     onUpdatePlant({
       ...plant,
@@ -1623,7 +2061,6 @@ const [
         plantHarvests,
     }
 
-
     const blob =
       new Blob(
         [
@@ -1639,22 +2076,18 @@ const [
         },
       )
 
-
     const url =
       URL.createObjectURL(
         blob,
       )
-
 
     const link =
       document.createElement(
         'a',
       )
 
-
     link.href =
       url
-
 
     link.download =
       `${
@@ -1664,16 +2097,13 @@ const [
         'plant-story'
       }-sprig.json`
 
-
     document.body.appendChild(
       link,
     )
 
-
     link.click()
 
     link.remove()
-
 
     URL.revokeObjectURL(
       url,
@@ -1690,7 +2120,6 @@ const [
       window.confirm(
         `Permanently delete "${plant.displayName}"?\n\nThis removes the Plant Story and its linked plant-specific Journal entries.\n\nThis cannot be undone.`,
       )
-
 
     if (
       confirmed
@@ -1714,139 +2143,225 @@ const [
           []
         ),
       ]
-  
-  
-    /*
-     * Reload both photographs and their
-     * dates every time the Quick Peek opens.
-     *
-     * This is important because the Plant
-     * Story may have changed since this page
-     * first rendered, for example after an
-     * edit through AddPlantForm.
-     */
+
+    const existingMetadata =
+      existingPhotoUrls.map(
+        (
+          photoUrl,
+          index,
+        ) => {
+          const metadata =
+            getPhotoMetadata(
+              photoUrl,
+              index,
+              plant.photoMetadata,
+            )
+
+          return {
+            ...metadata,
+
+            photoUrl,
+
+            photoDate:
+              metadata
+                ?.photoDate ??
+              plant.photoDates?.[
+                index
+              ],
+          }
+        },
+      )
+
     setPhotoDraft(
       existingPhotoUrls,
     )
-  
-  
+
+    setPhotoMetadataDraft(
+      existingMetadata,
+    )
+
     setPhotoDateDraft(
-      existingPhotoUrls.map(
-        (
-          _photoUrl,
-          index,
-        ) =>
-          plant.photoDates?.[
-            index
-          ],
+      existingMetadata.map(
+        metadata =>
+          metadata
+            .photoDate,
       ),
     )
-  
-  
+
     setIsPhotoQuickAddOpen(
       true,
     )
   }
 
-  
-/* =======================================
-   SAVE PHOTOGRAPHS
-======================================= */
 
-function savePhotos() {
-  /*
-   * Keep the photograph dates aligned
-   * with their photographs by index.
-   *
-   * A blank date is deliberately kept as
-   * undefined. Sprig should never invent
-   * when a photograph was taken.
-   */
-  const savedPhotoDates =
-    photoDraft.map(
-      (
-        _photoUrl,
-        index,
-      ) =>
-        photoDateDraft[
-          index
-        ] ||
-        undefined,
+  /* =======================================
+     SAVE PHOTOGRAPHS
+  ======================================= */
+
+  function savePhotos() {
+    const savedPhotoMetadata =
+      photoDraft.map(
+        (
+          photoUrl,
+          index,
+        ) => {
+          const existing =
+            getPhotoMetadata(
+              photoUrl,
+              index,
+              photoMetadataDraft,
+            )
+
+          return {
+            ...existing,
+
+            photoUrl,
+
+            photoDate:
+              existing
+                ?.photoDate ??
+              photoDateDraft[
+                index
+              ] ??
+              undefined,
+          } satisfies
+            SprigPhotoMetadata
+        },
+      )
+
+    const savedPhotoDates =
+      savedPhotoMetadata.map(
+        metadata =>
+          metadata.photoDate,
+      )
+
+    onUpdatePlant({
+      ...plant,
+
+      photoUrls:
+        [
+          ...photoDraft,
+        ],
+
+      photoDates:
+        savedPhotoDates,
+
+      photoMetadata:
+        savedPhotoMetadata,
+
+      updatedAt:
+        new Date()
+          .toISOString(),
+    })
+
+    setIsPhotoQuickAddOpen(
+      false,
+    )
+  }
+
+
+    /* =======================================
+     PHOTOGRAPHIC STORY ALBUM
+  ======================================= */
+
+  const plantPhotographicStoryPhotoUrls =
+    plantPhotographicStory.map(
+      item =>
+        item.photoUrl,
+    )
+
+  const plantPhotographicStoryContexts =
+    plantPhotographicStory.map(
+      item => {
+        const displayDate =
+          item.photoDate ??
+          item.fallbackDate
+
+        const purposeLabel =
+          getPhotoPurposeLabel(
+            item.purpose,
+          )
+
+        const heading =
+          item.title ??
+          purposeLabel ??
+          'Along the way'
+
+        const detailParts:
+          string[] = []
+
+        if (
+          displayDate
+        ) {
+          detailParts.push(
+            formatShortDate(
+              displayDate,
+            ),
+          )
+
+          if (
+            item.photoTime
+          ) {
+            detailParts.push(
+              item.photoTime,
+            )
+          }
+
+          detailParts.push(
+            getPhotoGrowingAge(
+              displayDate,
+              plant.plantedDate,
+            ),
+          )
+        }
+
+        if (
+          item.notes
+        ) {
+          detailParts.push(
+            item.notes,
+          )
+        }
+
+        if (
+          item.tags &&
+          item.tags.length >
+            0
+        ) {
+          detailParts.push(
+            item.tags
+              .map(
+                tag =>
+                  `#${tag.replace(
+                    /^#+/,
+                    '',
+                  )}`,
+              )
+              .join(
+                ' ',
+              ),
+          )
+        }
+
+        return {
+          heading,
+
+          detail:
+            detailParts.length >
+              0
+              ? detailParts.join(
+                  ' · ',
+                )
+              : undefined,
+        }
+      },
     )
 
 
-  onUpdatePlant({
-    ...plant,
-
-    photoUrls:
-      photoDraft,
-
-    photoDates:
-      savedPhotoDates,
-
-    updatedAt:
-      new Date()
-        .toISOString(),
-  })
 
 
-  setIsPhotoQuickAddOpen(
-    false,
-  )
-}
 
-
-/* =======================================
-   PLANT PHOTOGRAPH CONTEXT
-======================================= */
-
-const plantPhotoContexts =
-  (
-    plant.photoUrls ??
-    []
-  ).map(
-    (
-      _photoUrl,
-      index,
-    ) => {
-      const photoDate =
-        plant.photoDates?.[
-          index
-        ]
-
-
-      /*
-       * Older photographs may not have
-       * dates recorded.
-       *
-       * Leave those honestly without
-       * historical context rather than
-       * inventing a date for them.
-       */
-      if (
-        !photoDate
-      ) {
-        return undefined
-      }
-
-
-      return {
-        heading:
-          'Along the way',
-
-        detail:
-          `${formatDate(
-            photoDate,
-          )} · ${getPhotoGrowingAge(
-            photoDate,
-            plant.plantedDate,
-          )}`,
-      }
-    },
-  )
-
-
-   /* =======================================
+  /* =======================================
      NAVIGATION
   ======================================= */
 
@@ -1854,7 +2369,6 @@ const plantPhotoContexts =
     Boolean(
       journeyBackLabel,
     )
-
 
   const journeyAlreadyReturnsToPlants =
     journeyBackLabel ===
@@ -1880,11 +2394,9 @@ const plantPhotoContexts =
               {plant.plantName} story
             </p>
 
-
             <h1>
               {plant.displayName}
             </h1>
-
 
             {plant.variety ? (
               <p className="story-personality">
@@ -1899,7 +2411,6 @@ const plantPhotoContexts =
               </p>
             )}
 
-
             <div className="story-status-row">
               <span className="status-pill">
                 {formatLabel(
@@ -1907,19 +2418,16 @@ const plantPhotoContexts =
                 )}
               </span>
 
-
               <span>
                 {daysGrowing} days since this story began
               </span>
             </div>
-
 
             {plant.isFavourite && (
               <p className="section-label">
                 ★ Garden Favourite
               </p>
             )}
-
 
             {plant.isArchived && (
               <p className="section-label">
@@ -1938,33 +2446,29 @@ const plantPhotoContexts =
             aria-label="Plant Story actions"
           >
             {hasJourneyBack && (
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={
-              onBack
-            }
-          >
-            ← Back to{' '}
-            {
-              journeyBackLabel
-            }
-          </button>
-        )}
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={
+                  onBack
+                }
+              >
+                ← Back to{' '}
+                {journeyBackLabel}
+              </button>
+            )}
 
-
-        {!journeyAlreadyReturnsToPlants && (
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={
-              onOpenPlants
-            }
-          >
-            ← Plants
-          </button>
-        )}
-
+            {!journeyAlreadyReturnsToPlants && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={
+                  onOpenPlants
+                }
+              >
+                ← Plants
+              </button>
+            )}
 
             <button
               type="button"
@@ -1978,7 +2482,6 @@ const plantPhotoContexts =
               ✏ Edit
             </button>
 
-
             <button
               type="button"
               className="secondary-button"
@@ -1990,7 +2493,6 @@ const plantPhotoContexts =
             >
               🌱 Create a variation
             </button>
-
 
             <button
               type="button"
@@ -2004,7 +2506,6 @@ const plantPhotoContexts =
                 : '☆ Favourite'}
             </button>
 
-
             <button
               type="button"
               className="secondary-button"
@@ -2014,7 +2515,6 @@ const plantPhotoContexts =
             >
               📸 Add photographs
             </button>
-
 
             {plant.isArchived ? (
               <button
@@ -2038,7 +2538,6 @@ const plantPhotoContexts =
               </button>
             )}
 
-
             <button
               type="button"
               className="secondary-button"
@@ -2048,7 +2547,6 @@ const plantPhotoContexts =
             >
               🖨 Print
             </button>
-
 
             <button
               type="button"
@@ -2060,7 +2558,6 @@ const plantPhotoContexts =
               📤 Export
             </button>
 
-
             <button
               type="button"
               className="secondary-button"
@@ -2070,7 +2567,6 @@ const plantPhotoContexts =
             >
               🗑 Delete
             </button>
-
 
             <button
               type="button"
@@ -2086,7 +2582,6 @@ const plantPhotoContexts =
               🧺 Add a harvest
             </button>
 
-
             <button
               type="button"
               className="secondary-button"
@@ -2096,7 +2591,6 @@ const plantPhotoContexts =
             >
               📖 Add a moment
             </button>
-
 
             {plant.status ===
             'finished' ? (
@@ -2140,7 +2634,6 @@ const plantPhotoContexts =
               </div>
             </div>
 
-
             <section className="story-information-grid">
 
               <article className="story-info-card">
@@ -2162,7 +2655,6 @@ const plantPhotoContexts =
                 </p>
               </article>
 
-
               <article className="story-info-card">
                 <p className="section-label">
                   Started with
@@ -2180,7 +2672,6 @@ const plantPhotoContexts =
                     : 'Plants or starting pieces growing as one story'}
                 </p>
               </article>
-
 
               <article className="story-info-card">
                 <p className="section-label">
@@ -2227,7 +2718,6 @@ const plantPhotoContexts =
                 </div>
               </div>
 
-
               <section className="story-information-grid">
 
                 {plant.sownDate && (
@@ -2248,7 +2738,6 @@ const plantPhotoContexts =
                     </p>
                   </article>
                 )}
-
 
                 {plant.plantedOutDate && (
                   <article className="story-info-card">
@@ -2290,7 +2779,6 @@ const plantPhotoContexts =
                 </h2>
               </div>
             </div>
-
 
             <section className="story-information-grid">
 
@@ -2353,7 +2841,6 @@ const plantPhotoContexts =
                 </article>
               )}
 
-
               {currentGrowingSetup ? (
                 <button
                   type="button"
@@ -2412,77 +2899,75 @@ const plantPhotoContexts =
             </section>
           </section>
 
-        {/* =======================================
-            GROWING JOURNEY
-        ======================================= */}
 
-{growingJourney.length > 0 && (
-          <section className="story-section">
-            <p className="section-label">
-              Growing journey
-            </p>
+          {/* =======================================
+              GROWING JOURNEY
+          ======================================= */}
 
-            <h2>
-              Where this story has put down roots
-            </h2>
+          {growingJourney.length >
+            0 && (
+            <section className="story-section">
+              <p className="section-label">
+                Growing journey
+              </p>
 
-            <p className="journal-intro">
-              A little history of where this
-              plant has grown and what it was
-              growing in along the way.
-            </p>
+              <h2>
+                Where this story has put down roots
+              </h2>
 
-            <div className="timeline">
-              {growingJourney.map(
-                (
-                  historyEntry,
-                ) => (
-                  <article
-                    key={
-                      historyEntry.id
-                    }
-                    className="timeline-entry"
-                  >
-                    <div className="timeline-marker">
-                      🌱
-                    </div>
+              <p className="journal-intro">
+                A little history of where this
+                plant has grown and what it was
+                growing in along the way.
+              </p>
 
-                    <div className="timeline-entry-header">
-                      <div>
-                        <div className="timeline-entry-meta">
-                          <time>
-                            {formatDate(
-                              historyEntry.startedDate,
-                            )}
-
-                            {' → '}
-
-                            {historyEntry.endedDate
-                              ? formatDate(
-                                  historyEntry.endedDate,
-                                )
-                              : 'Now'}
-                          </time>
-                        </div>
-
-                        <h3>
-                          {historyEntry.growingPlace
-                            ?.name ??
-                            historyEntry.growingSetup
-                              ?.name ??
-                            'Growing arrangement'}
-                        </h3>
+              <div className="timeline">
+                {growingJourney.map(
+                  historyEntry => (
+                    <article
+                      key={
+                        historyEntry.id
+                      }
+                      className="timeline-entry"
+                    >
+                      <div className="timeline-marker">
+                        🌱
                       </div>
-                    </div>
 
+                      <div className="timeline-entry-header">
+                        <div>
+                          <div className="timeline-entry-meta">
+                            <time>
+                              {formatDate(
+                                historyEntry.startedDate,
+                              )}
 
-                    {historyEntry.growingPlace && (
-                      <p>
-                        <strong>
-                          Growing Place:
-                        </strong>{' '}
+                              {' → '}
 
-                        {onOpenGrowingPlace ? (
+                              {historyEntry.endedDate
+                                ? formatDate(
+                                    historyEntry.endedDate,
+                                  )
+                                : 'Now'}
+                            </time>
+                          </div>
+
+                          <h3>
+                            {historyEntry.growingPlace
+                              ?.name ??
+                              historyEntry.growingSetup
+                                ?.name ??
+                              'Growing arrangement'}
+                          </h3>
+                        </div>
+                      </div>
+
+                      {historyEntry.growingPlace && (
+                        <p>
+                          <strong>
+                            Growing Place:
+                          </strong>{' '}
+
                           <button
                             type="button"
                             className="garden-place-link"
@@ -2494,56 +2979,43 @@ const plantPhotoContexts =
                               )
                             }
                           >
-                            {
-                              historyEntry
-                                .growingPlace
-                                .name
-                            }
+                            {historyEntry
+                              .growingPlace
+                              .name}
                           </button>
-                        ) : (
-                          historyEntry
-                            .growingPlace
-                            .name
-                        )}
-                      </p>
-                    )}
+                        </p>
+                      )}
 
+                      {historyEntry.growingSetup && (
+                        <p>
+                          <strong>
+                            Growing Recipe:
+                          </strong>{' '}
 
-                    {historyEntry.growingSetup && (
-                      <p>
-                        <strong>
-                          Growing Recipe:
-                        </strong>{' '}
-
-                        {
-                          historyEntry
+                          {historyEntry
                             .growingSetup
-                            .name
-                        }
-                      </p>
-                    )}
+                            .name}
+                        </p>
+                      )}
+
+                      {historyEntry.notes && (
+                        <p>
+                          {historyEntry.notes}
+                        </p>
+                      )}
+                    </article>
+                  ),
+                )}
+              </div>
+            </section>
+          )}
 
 
-                    {historyEntry.notes && (
-                      <p>
-                        {
-                          historyEntry.notes
-                        }
-                      </p>
-                    )}
-                  </article>
-                ),
-              )}
-            </div>
-          </section>
-        )}
-
-        
           {/* =======================================
               HARVEST TIMING
           ======================================= */}
 
-{(plant.expectedHarvestDaysMin ||
+          {(plant.expectedHarvestDaysMin ||
             plant.expectedHarvestDaysMax) && (
             <section className="story-section">
               <div className="section-heading">
@@ -2559,7 +3031,7 @@ const plantPhotoContexts =
               </div>
 
               <section className="story-information-grid">
-                                <button
+                <button
                   type="button"
                   className="story-info-card"
                   onClick={() =>
@@ -2587,25 +3059,13 @@ const plantPhotoContexts =
                   </h2>
 
                   <p>
-                    {new Date(
-                      `${harvestTimingReferenceDate}T00:00:00`,
-                    ).toLocaleDateString(
-                      'en-AU',
-                      {
-                        day:
-                          'numeric',
-
-                        month:
-                          'long',
-
-                        year:
-                          'numeric',
-                      },
+                    {formatDate(
+                      harvestTimingReferenceDate,
                     )}
                   </p>
 
                   <p className="form-whisper">
-                  Choose where Sprig should start counting →
+                    Choose where Sprig should start counting →
                   </p>
                 </button>
 
@@ -2665,9 +3125,14 @@ const plantPhotoContexts =
                       {expectedHarvestStart.toLocaleDateString(
                         'en-AU',
                         {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
+                          day:
+                            'numeric',
+
+                          month:
+                            'long',
+
+                          year:
+                            'numeric',
                         },
                       )}
                     </h2>
@@ -2684,9 +3149,14 @@ const plantPhotoContexts =
                       {expectedHarvestEnd.toLocaleDateString(
                         'en-AU',
                         {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
+                          day:
+                            'numeric',
+
+                          month:
+                            'long',
+
+                          year:
+                            'numeric',
                         },
                       )}
                     </h2>
@@ -2695,7 +3165,8 @@ const plantPhotoContexts =
               </section>
 
               {firstPlantHarvest &&
-                actualDaysToFirstHarvest !== undefined && (
+                actualDaysToFirstHarvest !==
+                  undefined && (
                   <>
                     <div className="section-heading">
                       <div>
@@ -2729,7 +3200,8 @@ const plantPhotoContexts =
 
                         <h2>
                           {actualDaysToFirstHarvest}{' '}
-                          {actualDaysToFirstHarvest === 1
+                          {actualDaysToFirstHarvest ===
+                          1
                             ? 'day'
                             : 'days'}
                         </h2>
@@ -2742,9 +3214,7 @@ const plantPhotoContexts =
                           ).toFixed(
                             1,
                           )}{' '}
-                          {actualDaysToFirstHarvest === 7
-                            ? 'week'
-                            : 'weeks'}
+                          weeks
                         </p>
                       </article>
 
@@ -2759,22 +3229,12 @@ const plantPhotoContexts =
 
                             <h2>
                               {harvestTimingDifference}{' '}
-                              {harvestTimingDifference === 1
+                              {harvestTimingDifference ===
+                              1
                                 ? 'day'
                                 : 'days'}{' '}
                               early
                             </h2>
-
-                            <p>
-                              About{' '}
-                              {(
-                                harvestTimingDifference /
-                                7
-                              ).toFixed(
-                                1,
-                              )}{' '}
-                              weeks early
-                            </p>
                           </article>
                         )}
 
@@ -2802,22 +3262,12 @@ const plantPhotoContexts =
 
                             <h2>
                               {harvestTimingDifference}{' '}
-                              {harvestTimingDifference === 1
+                              {harvestTimingDifference ===
+                              1
                                 ? 'day'
                                 : 'days'}{' '}
                               later
                             </h2>
-
-                            <p>
-                              About{' '}
-                              {(
-                                harvestTimingDifference /
-                                7
-                              ).toFixed(
-                                1,
-                              )}{' '}
-                              weeks later
-                            </p>
                           </article>
                         )}
                     </section>
@@ -2825,11 +3275,13 @@ const plantPhotoContexts =
                 )}
             </section>
           )}
+
+
           {/* =======================================
               FIRST HARVEST
           ======================================= */}
 
-{plantHarvests.length ===
+          {plantHarvests.length ===
             0 && (
             <section className="story-section">
               <div className="section-heading">
@@ -2859,6 +3311,33 @@ const plantPhotoContexts =
               </button>
             </section>
           )}
+
+
+          {/* =======================================
+              SPRIG SMART
+          ======================================= */}
+
+          <PlantSmartComparisons
+            plant={
+              plant
+            }
+
+            plants={
+              plants
+            }
+
+            growingPlaces={
+              growingPlaces
+            }
+
+            onOpenPlant={
+              onOpenPlant
+            }
+
+            onComparePlants={
+              onComparePlants
+            }
+          />
 
 
           {/* =======================================
@@ -2907,10 +3386,13 @@ const plantPhotoContexts =
                 style={{
                   width:
                     '100%',
+
                   textAlign:
                     'left',
+
                   cursor:
                     'pointer',
+
                   font:
                     'inherit',
                 }}
@@ -2933,35 +3415,33 @@ const plantPhotoContexts =
                     <strong>
                       Total count:
                     </strong>{' '}
-                    {
-                      totalHarvestCount
-                    }
+                    {totalHarvestCount}
                   </p>
                 )}
 
-{totalHarvestAmount !==
-  undefined &&
-  totalHarvestUnit && (
-  <p>
-    <strong>
-      Total gathered:
-    </strong>{' '}
-    {
-      totalHarvestAmount
-    }{' '}
-    {
-      totalHarvestUnit === 'gram'
-        ? 'g'
-        : totalHarvestUnit === 'kilogram'
-          ? 'kg'
-          : totalHarvestUnit === 'millilitre'
-            ? 'mL'
-            : totalHarvestUnit === 'litre'
-              ? 'L'
-              : totalHarvestUnit
-    }
-  </p>
-)}
+                {totalHarvestAmount !==
+                  undefined &&
+                  totalHarvestUnit && (
+                  <p>
+                    <strong>
+                      Total gathered:
+                    </strong>{' '}
+                    {totalHarvestAmount}{' '}
+                    {totalHarvestUnit ===
+                    'gram'
+                      ? 'g'
+                      : totalHarvestUnit ===
+                          'kilogram'
+                        ? 'kg'
+                        : totalHarvestUnit ===
+                            'millilitre'
+                          ? 'mL'
+                          : totalHarvestUnit ===
+                              'litre'
+                            ? 'L'
+                            : totalHarvestUnit}
+                  </p>
+                )}
 
                 {firstPlantHarvest && (
                   <p>
@@ -2993,6 +3473,7 @@ const plantPhotoContexts =
             </section>
           )}
 
+
           {/* =======================================
               NOTES
           ======================================= */}
@@ -3010,7 +3491,6 @@ const plantPhotoContexts =
               </div>
             </div>
 
-
             <div className="story-note-card">
               <p>
                 {plant.notes ??
@@ -3021,40 +3501,80 @@ const plantPhotoContexts =
 
 
                     {/* =======================================
-              PHOTOGRAPHS
+              PHOTOGRAPHIC STORY
           ======================================= */}
 
 <section className="story-section">
             <div className="section-heading">
               <div>
                 <p className="section-label">
-                  Photographs
+                  Photographic Story
                 </p>
 
                 <h2>
                   This plant through the seasons
                 </h2>
+
+                <p className="journal-intro">
+                  Follow this plant through its
+                  photographs. Sprig quietly gathers
+                  its Plant Story, Journal and Harvest
+                  photographs here into one album.
+                </p>
               </div>
+
+              <button
+                type="button"
+                className="text-button"
+                onClick={
+                  openPhotoAdder
+                }
+              >
+                + Add a photograph
+              </button>
             </div>
 
+            {plantPhotographicStory.length >
+            0 ? (
+              <SprigPhotoGallery
+                photoUrls={
+                  plantPhotographicStoryPhotoUrls
+                }
 
-            <SprigPhotoGallery
-              photoUrls={
-                plant.photoUrls ??
-                []
-              }
+                photoContexts={
+                  plantPhotographicStoryContexts
+                }
 
-              photoContexts={
-                plantPhotoContexts
-              }
+                title={`${plant.displayName} photographic story`}
 
-              title="Plant photographs"
+                emptyMessage=""
 
-              emptyMessage="No photographs have been tucked into this Plant Story yet."
+                photoAltPrefix={`${plant.displayName} photograph`}
+              />
+            ) : (
+              <div className="empty-story">
+                <span>
+                  📷
+                </span>
 
-              photoAltPrefix={`${plant.displayName} photograph`}
-            />
+                <p>
+                  No photographs have been tucked
+                  into this plant&apos;s story yet.
+                </p>
+
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={
+                    openPhotoAdder
+                  }
+                >
+                  Add its first photograph
+                </button>
+              </div>
+            )}
           </section>
+
 
 
           {/* =======================================
@@ -3073,7 +3593,6 @@ const plantPhotoContexts =
                 </h2>
               </div>
 
-
               <button
                 type="button"
                 className="text-button"
@@ -3085,14 +3604,11 @@ const plantPhotoContexts =
               </button>
             </div>
 
-
             <div className="timeline">
               {storyTimeline.length >
               0 ? (
                 storyTimeline.map(
-                  (
-                    timelineItem,
-                  ) => {
+                  timelineItem => {
                     if (
                       timelineItem.kind ===
                       'harvest'
@@ -3100,19 +3616,19 @@ const plantPhotoContexts =
                       const timelineHarvest =
                         timelineItem.harvest
 
-
                       const harvestAmount =
                         getHarvestTimelineAmount(
                           timelineHarvest,
                         )
-
 
                       return (
                         <article
                           className="timeline-entry"
                           key={`harvest-${timelineHarvest.id}`}
                           role="button"
-                          tabIndex={0}
+                          tabIndex={
+                            0
+                          }
                           onClick={() =>
                             onOpenHarvest(
                               timelineHarvest.id,
@@ -3129,7 +3645,6 @@ const plantPhotoContexts =
                             ) {
                               keyboardEvent.preventDefault()
 
-
                               onOpenHarvest(
                                 timelineHarvest.id,
                               )
@@ -3140,7 +3655,6 @@ const plantPhotoContexts =
                             🧺
                           </div>
 
-
                           <div className="timeline-entry-header">
                             <div className="timeline-entry-meta">
                               <time>
@@ -3149,13 +3663,11 @@ const plantPhotoContexts =
                                 )}
                               </time>
 
-
                               <span className="entry-scope-label plant-entry-label">
                                 🧺 Harvest
                               </span>
                             </div>
                           </div>
-
 
                           <h3>
                             {getHarvestTimelineTitle(
@@ -3163,16 +3675,12 @@ const plantPhotoContexts =
                             )}
                           </h3>
 
-
                           {harvestAmount && (
                             <p className="event-product">
                               Gathered:{' '}
-                              {
-                                harvestAmount
-                              }
+                              {harvestAmount}
                             </p>
                           )}
-
 
                           {timelineHarvest.quality && (
                             <p>
@@ -3183,15 +3691,11 @@ const plantPhotoContexts =
                             </p>
                           )}
 
-
                           {timelineHarvest.notes && (
                             <p>
-                              {
-                                timelineHarvest.notes
-                              }
+                              {timelineHarvest.notes}
                             </p>
                           )}
-
 
                           {timelineHarvest.photoUrls &&
                             timelineHarvest.photoUrls.length >
@@ -3224,7 +3728,6 @@ const plantPhotoContexts =
                             </div>
                           )}
 
-
                           <p className="form-whisper">
                             Open Harvest Story →
                           </p>
@@ -3232,17 +3735,17 @@ const plantPhotoContexts =
                       )
                     }
 
-
                     const event =
                       timelineItem.event
-
 
                     return (
                       <article
                         className="timeline-entry"
                         key={`event-${event.id}`}
                         role="button"
-                        tabIndex={0}
+                        tabIndex={
+                          0
+                        }
                         onClick={() =>
                           onOpenJournalEntry(
                             event.id,
@@ -3259,7 +3762,6 @@ const plantPhotoContexts =
                           ) {
                             keyboardEvent.preventDefault()
 
-
                             onOpenJournalEntry(
                               event.id,
                             )
@@ -3272,7 +3774,6 @@ const plantPhotoContexts =
                           )}
                         </div>
 
-
                         <div className="timeline-entry-header">
                           <div className="timeline-entry-meta">
                             <time>
@@ -3280,7 +3781,6 @@ const plantPhotoContexts =
                                 event.date,
                               )}
                             </time>
-
 
                             <span
                               className={
@@ -3297,7 +3797,6 @@ const plantPhotoContexts =
                             </span>
                           </div>
 
-
                           <button
                             type="button"
                             className="timeline-delete-button"
@@ -3307,12 +3806,10 @@ const plantPhotoContexts =
                             ) => {
                               clickEvent.stopPropagation()
 
-
                               const confirmed =
                                 window.confirm(
                                   'Remove this entry from the garden journal?',
                                 )
-
 
                               if (
                                 confirmed
@@ -3327,32 +3824,22 @@ const plantPhotoContexts =
                           </button>
                         </div>
 
-
                         <h3>
-                          {
-                            event.title
-                          }
+                          {event.title}
                         </h3>
-
 
                         {event.productUsed && (
                           <p className="event-product">
                             Used:{' '}
-                            {
-                              event.productUsed
-                            }
+                            {event.productUsed}
                           </p>
                         )}
-
 
                         {event.notes && (
                           <p>
-                            {
-                              event.notes
-                            }
+                            {event.notes}
                           </p>
                         )}
-
 
                         {event.photoUrls &&
                           event.photoUrls.length >
@@ -3392,11 +3879,9 @@ const plantPhotoContexts =
                     🌿
                   </span>
 
-
                   <p>
                     This story has only just opened its notebook.
                   </p>
-
 
                   <button
                     type="button"
@@ -3416,7 +3901,7 @@ const plantPhotoContexts =
       </GardenLayout>
 
 
-     {/* =======================================
+      {/* =======================================
           EDIT PLANT STORY
       ======================================= */}
 
@@ -3475,44 +3960,56 @@ const plantPhotoContexts =
       )}
 
 
-                {/* =======================================
+      {/* =======================================
           CREATE VARIATION
       ======================================= */}
+
       {isVariationOpen && (
         <AddPlantForm
           GrowingPlaces={
             growingPlaces
           }
+
           GrowingSetups={
             growingSetups
           }
+
           Ingredients={
             ingredients
           }
+
           Products={
             products
           }
+
           variationFrom={
             plant
           }
+
           onAddPlant={
-            onAddPlant
+            handleVariationCreated
           }
+
           onUpdatePlant={
             onUpdatePlant
           }
+
           onAddGrowingPlace={
             onAddGrowingPlace
           }
+
           onAddRecipe={
             onAddRecipe
           }
+
           onAddIngredient={
             onAddIngredient
           }
+
           onAddProduct={
             onAddProduct
           }
+
           onClose={() =>
             setIsVariationOpen(
               false,
@@ -3546,43 +4043,50 @@ const plantPhotoContexts =
         }
       >
         <SprigPhotoPicker
-  photoUrls={
-    photoDraft
-  }
+          photoUrls={
+            photoDraft
+          }
 
-  onChange={
-    setPhotoDraft
-  }
+          onChange={
+            setPhotoDraft
+          }
 
-  photoDates={
-    photoDateDraft
-  }
+          photoDates={
+            photoDateDraft
+          }
 
-  onPhotoDatesChange={
-    setPhotoDateDraft
-  }
+          onPhotoDatesChange={
+            setPhotoDateDraft
+          }
 
-  title="Plant photographs"
+          photoMetadata={
+            photoMetadataDraft
+          }
 
-  helperText="Add photographs without leaving this Plant Story."
+          onPhotoMetadataChange={
+            setPhotoMetadataDraft
+          }
 
-  addButtonText="Add photographs"
+          showPhotoContext
 
-  photoAltPrefix={`${plant.displayName} photograph`}
+          title="Plant photographs"
 
-  photoDateLabel="When was this photograph taken?"
+          helperText="Add a photograph without creating another record. Sprig already knows which Plant Story this belongs to. The extra context is optional."
 
-  photoDateHelperText="Sprig uses this date to place the photograph at the right growing age and find useful side-by-side comparisons."
+          addButtonText="Add photographs"
 
-  defaultNewPhotosToToday={
-    true
-  }
+          photoAltPrefix={`${plant.displayName} photograph`}
 
-  maxPhotos={
-    12
-  }
-/>
+          photoDateLabel="When was this photograph taken?"
 
+          photoDateHelperText="Sprig uses this date to place the photograph at the right growing age and find useful comparisons."
+
+          defaultNewPhotosToToday
+
+          maxPhotos={
+            20
+          }
+        />
 
         <button
           type="button"
@@ -3596,193 +4100,206 @@ const plantPhotoContexts =
       </SprigQuickPeek>
 
 
-     {/* =======================================
+      {/* =======================================
           HARVEST TIMING QUICK PEEK
       ======================================= */}
 
-<SprigQuickPeek
-  isOpen={
-    isHarvestTimingQuickPeekOpen
-  }
-  onClose={() =>
-    setIsHarvestTimingQuickPeekOpen(
-      false,
-    )
-  }
-  eyebrow="Harvest timing"
-  title="When should Sprig start counting?"
-  subtitle="Tap a recorded date below to use it straight away, or enter another date of your own."
->
-  <div className="quick-peek-actions">
-    {plant.sownDate && (
-      <button
-        type="button"
-        className="secondary-button"
-        onClick={() =>
-          saveHarvestTimingReference(
-            'sown',
+      <SprigQuickPeek
+        isOpen={
+          isHarvestTimingQuickPeekOpen
+        }
+
+        onClose={() =>
+          setIsHarvestTimingQuickPeekOpen(
+            false,
           )
         }
+
+        eyebrow="Harvest timing"
+
+        title="When should Sprig start counting?"
+
+        subtitle="Tap a recorded date below to use it straight away, or enter another date of your own."
       >
-        {harvestTimingReference?.sourceType ===
-        'sown'
-          ? '✓ '
-          : '🌱 '}
-        Sown ·{' '}
-        {formatDate(
-          plant.sownDate,
-        )}
-        {harvestTimingReference?.sourceType ===
-          'sown' && ' · Current'}
-      </button>
-    )}
+        <div className="quick-peek-actions">
+          {plant.sownDate && (
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() =>
+                saveHarvestTimingReference(
+                  'sown',
+                )
+              }
+            >
+              {harvestTimingReference?.sourceType ===
+              'sown'
+                ? '✓ '
+                : '🌱 '}
 
-    <button
-      type="button"
-      className="secondary-button"
-      onClick={() =>
-        saveHarvestTimingReference(
-          'planted',
-        )
-      }
-    >
-      {(!harvestTimingReference ||
-        harvestTimingReference.sourceType ===
-          'planted')
-        ? '✓ '
-        : '🪴 '}
-      Planted ·{' '}
-      {formatDate(
-        plant.plantedDate,
-      )}
-      {(!harvestTimingReference ||
-        harvestTimingReference.sourceType ===
-          'planted') &&
-        ' · Current'}
-    </button>
+              Sown ·{' '}
+              {formatDate(
+                plant.sownDate,
+              )}
 
-    {plant.plantedOutDate && (
-      <button
-        type="button"
-        className="secondary-button"
-        onClick={() =>
-          saveHarvestTimingReference(
-            'planted-out',
-          )
-        }
-      >
-        {harvestTimingReference?.sourceType ===
-        'planted-out'
-          ? '✓ '
-          : '🌿 '}
-        Planted out ·{' '}
-        {formatDate(
-          plant.plantedOutDate,
-        )}
-        {harvestTimingReference?.sourceType ===
-          'planted-out' &&
-          ' · Current'}
-      </button>
-    )}
-
-    {harvestTimingMilestoneEvents.map(
-      (
-        event,
-      ) => (
-        <button
-          type="button"
-          className="secondary-button"
-          key={
-            event.id
-          }
-          onClick={() =>
-            saveHarvestTimingReference(
-              'garden-event',
-              event.id,
-            )
-          }
-        >
-          {harvestTimingReference?.sourceType ===
-            'garden-event' &&
-          harvestTimingReference.eventId ===
-            event.id
-            ? '✓ '
-            : '📖 '}
-          {event.title} ·{' '}
-          {formatDate(
-            event.date,
+              {harvestTimingReference?.sourceType ===
+                'sown' &&
+                ' · Current'}
+            </button>
           )}
-          {harvestTimingReference?.sourceType ===
-            'garden-event' &&
-            harvestTimingReference.eventId ===
-              event.id &&
-            ' · Current'}
-        </button>
-      ),
-    )}
-  </div>
 
-  <div className="form-section">
-  <p className="section-label">
-  Or use another date
-</p>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() =>
+              saveHarvestTimingReference(
+                'planted',
+              )
+            }
+          >
+            {(!harvestTimingReference ||
+              harvestTimingReference.sourceType ===
+                'planted')
+              ? '✓ '
+              : '🪴 '}
 
-<p className="form-whisper">
-  If the right moment isn't recorded above, enter
-  another date for Sprig to count from.
-</p>
+            Planted ·{' '}
+            {formatDate(
+              plant.plantedDate,
+            )}
 
-    <label>
-      Date
-      <input
-        type="date"
-        value={
-          customHarvestTimingDate
-        }
-        onChange={(
-          event,
-        ) =>
-          setCustomHarvestTimingDate(
-            event.target.value,
-          )
-        }
-      />
-    </label>
+            {(!harvestTimingReference ||
+              harvestTimingReference.sourceType ===
+                'planted') &&
+              ' · Current'}
+          </button>
 
-    <label>
-      What happened? Optional
-      <input
-        type="text"
-        value={
-          customHarvestTimingLabel
-        }
-        placeholder="Approximate transplant date"
-        onChange={(
-          event,
-        ) =>
-          setCustomHarvestTimingLabel(
-            event.target.value,
-          )
-        }
-      />
-    </label>
+          {plant.plantedOutDate && (
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() =>
+                saveHarvestTimingReference(
+                  'planted-out',
+                )
+              }
+            >
+              {harvestTimingReference?.sourceType ===
+              'planted-out'
+                ? '✓ '
+                : '🌿 '}
 
-    <button
-      type="button"
-      className="enter-button"
-      disabled={
-        !customHarvestTimingDate
-      }
-      onClick={() =>
-        saveHarvestTimingReference(
-          'custom-date',
-        )
-      }
-    >
-      Use this custom date
-    </button>
-  </div>
-</SprigQuickPeek>
+              Planted out ·{' '}
+              {formatDate(
+                plant.plantedOutDate,
+              )}
+
+              {harvestTimingReference?.sourceType ===
+                'planted-out' &&
+                ' · Current'}
+            </button>
+          )}
+
+          {harvestTimingMilestoneEvents.map(
+            event => (
+              <button
+                type="button"
+                className="secondary-button"
+                key={
+                  event.id
+                }
+                onClick={() =>
+                  saveHarvestTimingReference(
+                    'garden-event',
+                    event.id,
+                  )
+                }
+              >
+                {harvestTimingReference?.sourceType ===
+                  'garden-event' &&
+                harvestTimingReference.eventId ===
+                  event.id
+                  ? '✓ '
+                  : '📖 '}
+
+                {event.title} ·{' '}
+                {formatDate(
+                  event.date,
+                )}
+
+                {harvestTimingReference?.sourceType ===
+                  'garden-event' &&
+                  harvestTimingReference.eventId ===
+                    event.id &&
+                  ' · Current'}
+              </button>
+            ),
+          )}
+        </div>
+
+        <div className="form-section">
+          <p className="section-label">
+            Or use another date
+          </p>
+
+          <p className="form-whisper">
+            If the right moment isn&apos;t recorded above,
+            enter another date for Sprig to count from.
+          </p>
+
+          <label>
+            Date
+
+            <input
+              type="date"
+              value={
+                customHarvestTimingDate
+              }
+              onChange={(
+                event,
+              ) =>
+                setCustomHarvestTimingDate(
+                  event.target.value,
+                )
+              }
+            />
+          </label>
+
+          <label>
+            What happened? Optional
+
+            <input
+              type="text"
+              value={
+                customHarvestTimingLabel
+              }
+              placeholder="Approximate transplant date"
+              onChange={(
+                event,
+              ) =>
+                setCustomHarvestTimingLabel(
+                  event.target.value,
+                )
+              }
+            />
+          </label>
+
+          <button
+            type="button"
+            className="enter-button"
+            disabled={
+              !customHarvestTimingDate
+            }
+            onClick={() =>
+              saveHarvestTimingReference(
+                'custom-date',
+              )
+            }
+          >
+            Use this custom date
+          </button>
+        </div>
+      </SprigQuickPeek>
 
 
       {/* =======================================
@@ -3820,22 +4337,17 @@ const plantPhotoContexts =
                 What&apos;s in this mix
               </h3>
 
-
               {currentRecipeIngredients.length >
               0 ? (
                 <ul>
                   {currentRecipeIngredients.map(
-                    (
-                      ingredient,
-                    ) => (
+                    ingredient => (
                       <li
                         key={
                           ingredient.id
                         }
                       >
-                        {
-                          ingredient.name
-                        }
+                        {ingredient.name}
                       </li>
                     ),
                   )}
@@ -3848,7 +4360,6 @@ const plantPhotoContexts =
             </>
           )}
 
-
           {currentGrowingSetup.notes && (
             <>
               <h3>
@@ -3856,9 +4367,7 @@ const plantPhotoContexts =
               </h3>
 
               <p>
-                {
-                  currentGrowingSetup.notes
-                }
+                {currentGrowingSetup.notes}
               </p>
             </>
           )}

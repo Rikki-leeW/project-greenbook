@@ -1,4 +1,5 @@
 import {
+  useMemo,
   useState,
 } from 'react'
 
@@ -6,6 +7,12 @@ import PlantCard from '../components/cards/PlantCard'
 import GardenLayout from '../components/layout/GardenLayout'
 
 import type {
+  GardenEvent,
+  GardenProduct,
+  GrowingPlace,
+  GrowingSetup,
+  HarvestRecord,
+  Ingredient,
   PlantStory,
 } from '../types'
 
@@ -16,6 +23,18 @@ import type {
 
 interface PlantsProps {
   plants: PlantStory[]
+
+  growingPlaces: GrowingPlace[]
+
+  growingSetups: GrowingSetup[]
+
+  ingredients: Ingredient[]
+
+  products: GardenProduct[]
+
+  events: GardenEvent[]
+
+  harvests: HarvestRecord[]
 
   onOpenPlant: (
     plantId: string,
@@ -31,15 +50,6 @@ interface PlantsProps {
     plantIds: string[],
   ) => void
 
-  /**
-   * When editing an existing saved
-   * comparison, App can send its current
-   * Plant Story ids here.
-   *
-   * Plants will then open directly in
-   * comparison-selection mode with those
-   * stories already selected.
-   */
   initialComparePlantIds?: string[]
 }
 
@@ -53,8 +63,672 @@ type PlantStoryView =
   | 'completed'
 
 
+type PlantSort =
+  | 'recently-planted'
+  | 'oldest-planted'
+  | 'plant-az'
+  | 'variety-az'
+  | 'growing-place-az'
+  | 'newest-activity'
+
+
+type PlantFilterFamily =
+  | 'start-method'
+  | 'growing-place'
+  | 'growing-setup'
+
+
+interface PlantSearchDocument {
+  plant:
+    PlantStory
+
+  growingPlaceName:
+    string
+
+  growingSetupNames:
+    string[]
+
+  startMethodLabel:
+    string
+
+  latestActivityDate:
+    string
+
+  searchText:
+    string
+}
+
+
+/* =======================================
+   NORMALISE SEARCH TEXT
+======================================= */
+
+function normaliseSearchText(
+  value:
+    string | undefined,
+): string {
+  return (
+    value ??
+    ''
+  )
+    .trim()
+    .toLocaleLowerCase()
+}
+
+
+/* =======================================
+   START METHOD LABEL
+======================================= */
+
+function getStartMethodLabel(
+  plant: PlantStory,
+): string {
+  if (
+    plant.startMethod ===
+      'other' &&
+    plant.customStartMethodLabel
+  ) {
+    return plant.customStartMethodLabel
+  }
+
+  return plant.startMethod
+    .replaceAll(
+      '-',
+      ' ',
+    )
+}
+
+
+/* =======================================
+   UNIQUE TEXT
+======================================= */
+
+function uniqueText(
+  values: string[],
+): string[] {
+  return Array.from(
+    new Set(
+      values
+        .map(
+          value =>
+            value.trim(),
+        )
+        .filter(
+          Boolean,
+        ),
+    ),
+  )
+}
+
+
+/* =======================================
+   LATEST DATE
+======================================= */
+
+function getLatestDate(
+  dates:
+    Array<
+      string | undefined
+    >,
+  fallback:
+    string,
+): string {
+  const usableDates =
+    dates.filter(
+      (
+        date,
+      ): date is string =>
+        Boolean(
+          date,
+        ),
+    )
+
+  if (
+    usableDates.length ===
+    0
+  ) {
+    return fallback
+  }
+
+  return usableDates.reduce(
+    (
+      latest,
+      candidate,
+    ) =>
+      candidate >
+      latest
+        ? candidate
+        : latest,
+    usableDates[0],
+  )
+}
+
+
+/* =======================================
+   PLANT SETUP IDS
+======================================= */
+
+function getPlantGrowingSetupIds(
+  plant: PlantStory,
+): string[] {
+  return uniqueText([
+    plant.currentGrowingSetupId ??
+      '',
+
+    ...(
+      plant.currentGrowingSetupIds ??
+      []
+    ),
+
+    ...(
+      plant.previousGrowingSetupIds ??
+      []
+    ),
+
+    ...(
+      plant.previousGrowingSetupIdsV2 ??
+      []
+    ),
+
+    ...(
+      plant.growingHistory ??
+      []
+    ).flatMap(
+      historyEntry => [
+        historyEntry.growingSetupId ??
+          '',
+
+        ...(
+          historyEntry.growingSetupIds ??
+          []
+        ),
+      ],
+    ),
+  ])
+}
+
+
+/* =======================================
+   SETUP SEARCH WORDS
+======================================= */
+
+function getGrowingSetupSearchWords(
+  setup:
+    GrowingSetup,
+
+  growingSetups:
+    GrowingSetup[],
+
+  ingredients:
+    Ingredient[],
+
+  products:
+    GardenProduct[],
+): string[] {
+  const words: string[] = [
+    setup.name,
+    setup.category,
+    setup.brand ?? '',
+    setup.productName ?? '',
+    setup.groundType ?? '',
+    setup.growingSystemType ?? '',
+    setup.notes ?? '',
+  ]
+
+
+  for (
+    const ingredientId
+    of setup.ingredientIds ??
+      []
+  ) {
+    const ingredient =
+      ingredients.find(
+        item =>
+          item.id ===
+          ingredientId,
+      )
+
+    if (
+      ingredient
+    ) {
+      words.push(
+        ingredient.name,
+        ingredient.category ??
+          '',
+        ingredient.customCategoryLabel ??
+          '',
+        ingredient.manufacturer ??
+          '',
+        ingredient.source ??
+          '',
+        ingredient.notes ??
+          '',
+      )
+    }
+  }
+
+
+  for (
+    const component
+    of setup.recipeComponents ??
+      []
+  ) {
+    if (
+      component.sourceType ===
+      'ingredient'
+    ) {
+      const ingredient =
+        ingredients.find(
+          item =>
+            item.id ===
+            component.sourceId,
+        )
+
+      if (
+        ingredient
+      ) {
+        words.push(
+          ingredient.name,
+          ingredient.category ??
+            '',
+          ingredient.customCategoryLabel ??
+            '',
+          ingredient.manufacturer ??
+            '',
+          ingredient.source ??
+            '',
+          ingredient.notes ??
+            '',
+        )
+      }
+    }
+
+
+    if (
+      component.sourceType ===
+      'product'
+    ) {
+      const product =
+        products.find(
+          item =>
+            item.id ===
+            component.sourceId,
+        )
+
+      if (
+        product
+      ) {
+        words.push(
+          product.name,
+          product.brand ??
+            '',
+          product.productName ??
+            '',
+          product.category ??
+            '',
+          product.customCategoryLabel ??
+            '',
+          product.notes ??
+            '',
+        )
+      }
+    }
+
+
+    if (
+      component.sourceType ===
+      'growing-setup'
+    ) {
+      const linkedSetup =
+        growingSetups.find(
+          item =>
+            item.id ===
+            component.sourceId,
+        )
+
+      if (
+        linkedSetup
+      ) {
+        words.push(
+          linkedSetup.name,
+          linkedSetup.category,
+          linkedSetup.brand ??
+            '',
+          linkedSetup.productName ??
+            '',
+          linkedSetup.notes ??
+            '',
+        )
+      }
+    }
+  }
+
+
+  return words
+}
+
+
+/* =======================================
+   BUILD SEARCH DOCUMENT
+======================================= */
+
+function buildPlantSearchDocument(
+  plant:
+    PlantStory,
+
+  growingPlaces:
+    GrowingPlace[],
+
+  growingSetups:
+    GrowingSetup[],
+
+  ingredients:
+    Ingredient[],
+
+  products:
+    GardenProduct[],
+
+  events:
+    GardenEvent[],
+
+  harvests:
+    HarvestRecord[],
+): PlantSearchDocument {
+  const plantEvents =
+    events.filter(
+      event =>
+        event.plantStoryIds.includes(
+          plant.id,
+        ),
+    )
+
+
+  const plantHarvests =
+    harvests.filter(
+      harvest =>
+        harvest.plantStoryIds.includes(
+          plant.id,
+        ),
+    )
+
+
+  const growingPlace =
+    growingPlaces.find(
+      place =>
+        place.id ===
+        plant.currentGrowingPlaceId,
+    )
+
+
+  const growingSetupIds =
+    getPlantGrowingSetupIds(
+      plant,
+    )
+
+
+  const plantGrowingSetups =
+    growingSetupIds
+      .map(
+        setupId =>
+          growingSetups.find(
+            setup =>
+              setup.id ===
+              setupId,
+          ),
+      )
+      .filter(
+        (
+          setup,
+        ): setup is GrowingSetup =>
+          Boolean(
+            setup,
+          ),
+      )
+
+
+  const growingHistoryPlaceNames =
+    (
+      plant.growingHistory ??
+      []
+    )
+      .map(
+        historyEntry =>
+          growingPlaces.find(
+            place =>
+              place.id ===
+              historyEntry.growingPlaceId,
+          )?.name ??
+          '',
+      )
+
+
+  const setupWords =
+    plantGrowingSetups.flatMap(
+      setup =>
+        getGrowingSetupSearchWords(
+          setup,
+          growingSetups,
+          ingredients,
+          products,
+        ),
+    )
+
+
+  const eventWords =
+    plantEvents.flatMap(
+      event => [
+        event.title,
+        event.date,
+        event.type,
+        ...(
+          event.activityTypes ??
+          []
+        ),
+        event.notes ??
+          '',
+        event.productUsed ??
+          '',
+        ...(
+          event.growingPlaceIds ??
+          []
+        ).map(
+          placeId =>
+            growingPlaces.find(
+              place =>
+                place.id ===
+                placeId,
+            )?.name ??
+            '',
+        ),
+      ],
+    )
+
+
+  const harvestWords =
+    plantHarvests.flatMap(
+      harvest => [
+        harvest.date,
+        harvest.harvestType ??
+          '',
+        harvest.customHarvestTypeLabel ??
+          '',
+        harvest.plantOutcome ??
+          '',
+        harvest.customPlantOutcomeLabel ??
+          '',
+        harvest.quality ??
+          '',
+        harvest.notes ??
+          '',
+        harvest.measurementUnit ??
+          '',
+        harvest.customMeasurementUnitLabel ??
+          '',
+        harvest.measurementAmount !==
+          undefined
+          ? String(
+              harvest.measurementAmount,
+            )
+          : '',
+        harvest.count !==
+          undefined
+          ? String(
+              harvest.count,
+            )
+          : '',
+      ],
+    )
+
+
+  const latestActivityDate =
+    getLatestDate(
+      [
+        plant.plantedDate,
+        plant.sownDate,
+        plant.plantedOutDate,
+        plant.enteredDate,
+        plant.updatedAt,
+        plant.completedAt,
+
+        ...(
+          plant.photoDates ??
+          []
+        ),
+
+        ...plantEvents.map(
+          event =>
+            event.date,
+        ),
+
+        ...plantHarvests.map(
+          harvest =>
+            harvest.date,
+        ),
+
+        ...(
+          plant.growingHistory ??
+          []
+        ).flatMap(
+          historyEntry => [
+            historyEntry.startedDate,
+            historyEntry.endedDate,
+          ],
+        ),
+      ],
+      plant.plantedDate,
+    )
+
+
+  const searchWords = [
+    plant.plantName,
+    plant.variety ??
+      '',
+    plant.displayName,
+    plant.personality ??
+      '',
+    plant.source ??
+      '',
+    plant.originType ??
+      '',
+    plant.customOriginLabel ??
+      '',
+    getStartMethodLabel(
+      plant,
+    ),
+    plant.customStartMethodLabel ??
+      '',
+    plant.notes ??
+      '',
+    plant.plantedDate,
+    plant.sownDate ??
+      '',
+    plant.plantedOutDate ??
+      '',
+    plant.enteredDate,
+    plant.completedAt ??
+      '',
+    ...(
+      plant.tags ??
+      []
+    ),
+    ...(
+      plant.photoDates ??
+      []
+    ).filter(
+      (
+        date,
+      ): date is string =>
+        Boolean(
+          date,
+        ),
+    ),
+    growingPlace?.name ??
+      '',
+    growingPlace?.kind ??
+      '',
+    growingPlace?.customKindLabel ??
+      '',
+    growingPlace?.aspect ??
+      '',
+    growingPlace?.sunlight ??
+      '',
+    growingPlace?.shelter ??
+      '',
+    growingPlace?.notes ??
+      '',
+    ...growingHistoryPlaceNames,
+    ...plantGrowingSetups.map(
+      setup =>
+        setup.name,
+    ),
+    ...setupWords,
+    ...eventWords,
+    ...harvestWords,
+  ]
+
+
+  return {
+    plant,
+
+    growingPlaceName:
+      growingPlace?.name ??
+      '',
+
+    growingSetupNames:
+      plantGrowingSetups.map(
+        setup =>
+          setup.name,
+      ),
+
+    startMethodLabel:
+      getStartMethodLabel(
+        plant,
+      ),
+
+    latestActivityDate,
+
+    searchText:
+      normaliseSearchText(
+        searchWords.join(
+          ' ',
+        ),
+      ),
+  }
+}
+
+
+/* =======================================
+   PLANTS PAGE
+======================================= */
+
 export default function Plants({
   plants,
+  growingPlaces,
+  growingSetups,
+  ingredients,
+  products,
+  events,
+  harvests,
   onOpenPlant,
   onAddPlant,
   onNavigate,
@@ -87,7 +761,54 @@ export default function Plants({
 
 
   /* =======================================
-     ACTIVE / COMPLETED STORIES
+     SEARCH / SORT / FILTER
+  ======================================= */
+
+  const [
+    searchQuery,
+    setSearchQuery,
+  ] =
+    useState('')
+
+
+  const [
+    sortBy,
+    setSortBy,
+  ] =
+    useState<PlantSort>(
+      'newest-activity',
+    )
+
+
+  const [
+    selectedStartMethods,
+    setSelectedStartMethods,
+  ] =
+    useState<string[]>(
+      [],
+    )
+
+
+  const [
+    selectedGrowingPlaces,
+    setSelectedGrowingPlaces,
+  ] =
+    useState<string[]>(
+      [],
+    )
+
+
+  const [
+    selectedGrowingSetups,
+    setSelectedGrowingSetups,
+  ] =
+    useState<string[]>(
+      [],
+    )
+
+
+  /* =======================================
+     ACTIVE / COMPLETED
   ======================================= */
 
   const activePlants =
@@ -106,7 +827,7 @@ export default function Plants({
     )
 
 
-  const visiblePlants =
+  const storyViewPlants =
     storyView ===
     'completed'
       ? completedPlants
@@ -114,7 +835,454 @@ export default function Plants({
 
 
   /* =======================================
-     INITIAL COMPARISON STATE
+     SEARCH DOCUMENTS
+  ======================================= */
+
+  const searchDocuments =
+    useMemo(
+      () =>
+        plants.map(
+          plant =>
+            buildPlantSearchDocument(
+              plant,
+              growingPlaces,
+              growingSetups,
+              ingredients,
+              products,
+              events,
+              harvests,
+            ),
+        ),
+      [
+        plants,
+        growingPlaces,
+        growingSetups,
+        ingredients,
+        products,
+        events,
+        harvests,
+      ],
+    )
+
+
+  const searchDocumentByPlantId =
+    useMemo(
+      () =>
+        new Map(
+          searchDocuments.map(
+            document => [
+              document.plant.id,
+              document,
+            ],
+          ),
+        ),
+      [
+        searchDocuments,
+      ],
+    )
+
+
+  /* =======================================
+     FILTER OPTIONS
+  ======================================= */
+
+  const startMethodOptions =
+    useMemo(
+      () =>
+        uniqueText(
+          storyViewPlants.map(
+            plant =>
+              getStartMethodLabel(
+                plant,
+              ),
+          ),
+        ).sort(
+          (
+            first,
+            second,
+          ) =>
+            first.localeCompare(
+              second,
+            ),
+        ),
+      [
+        storyViewPlants,
+      ],
+    )
+
+
+  const growingPlaceOptions =
+    useMemo(
+      () =>
+        uniqueText(
+          storyViewPlants
+            .map(
+              plant =>
+                searchDocumentByPlantId.get(
+                  plant.id,
+                )?.growingPlaceName ??
+                '',
+            ),
+        ).sort(
+          (
+            first,
+            second,
+          ) =>
+            first.localeCompare(
+              second,
+            ),
+        ),
+      [
+        storyViewPlants,
+        searchDocumentByPlantId,
+      ],
+    )
+
+
+  const growingSetupOptions =
+    useMemo(
+      () =>
+        uniqueText(
+          storyViewPlants.flatMap(
+            plant =>
+              searchDocumentByPlantId.get(
+                plant.id,
+              )?.growingSetupNames ??
+              [],
+          ),
+        ).sort(
+          (
+            first,
+            second,
+          ) =>
+            first.localeCompare(
+              second,
+            ),
+        ),
+      [
+        storyViewPlants,
+        searchDocumentByPlantId,
+      ],
+    )
+
+
+  /* =======================================
+     FILTER TOGGLE
+  ======================================= */
+
+  function toggleFilter(
+    family:
+      PlantFilterFamily,
+
+    value:
+      string,
+  ) {
+    const toggleValue = (
+      current:
+        string[],
+    ) =>
+      current.includes(
+        value,
+      )
+        ? current.filter(
+            item =>
+              item !==
+              value,
+          )
+        : [
+            ...current,
+            value,
+          ]
+
+
+    if (
+      family ===
+      'start-method'
+    ) {
+      setSelectedStartMethods(
+        toggleValue,
+      )
+
+      return
+    }
+
+
+    if (
+      family ===
+      'growing-place'
+    ) {
+      setSelectedGrowingPlaces(
+        toggleValue,
+      )
+
+      return
+    }
+
+
+    setSelectedGrowingSetups(
+      toggleValue,
+    )
+  }
+
+
+  /* =======================================
+     CLEAR FILTERS
+  ======================================= */
+
+  function clearFilters() {
+    setSearchQuery(
+      '',
+    )
+
+    setSelectedStartMethods(
+      [],
+    )
+
+    setSelectedGrowingPlaces(
+      [],
+    )
+
+    setSelectedGrowingSetups(
+      [],
+    )
+  }
+
+
+  const activeFilterCount =
+    selectedStartMethods.length +
+    selectedGrowingPlaces.length +
+    selectedGrowingSetups.length
+
+
+  /* =======================================
+     FILTERED / SORTED STORIES
+  ======================================= */
+
+  const visiblePlants =
+    useMemo(
+      () => {
+        const normalisedQuery =
+        normaliseSearchText(
+          searchQuery,
+        )
+
+
+      /*
+       * Sprig searches plant identity first.
+       *
+       * If the gardener types something that
+       * matches a plant name, variety or
+       * display name, do not allow an
+       * incidental word buried in a recipe,
+       * Journal entry or other relationship
+       * to swamp those obvious plant results.
+       *
+       * When there is no identity match,
+       * Sprig falls back to the full
+       * relational Plant Story document.
+       */
+      const hasPlantIdentityMatch =
+        Boolean(
+          normalisedQuery,
+        ) &&
+        storyViewPlants.some(
+          plant => {
+            const identityText =
+              normaliseSearchText(
+                [
+                  plant.plantName,
+                  plant.variety ??
+                    '',
+                  plant.displayName,
+                ].join(
+                  ' ',
+                ),
+              )
+
+            return identityText.includes(
+              normalisedQuery,
+            )
+          },
+        )
+
+
+      const filtered =
+        storyViewPlants.filter(
+          plant => {
+              const document =
+                searchDocumentByPlantId.get(
+                  plant.id,
+                )
+
+
+              if (
+                !document
+              ) {
+                return false
+              }
+
+
+              if (
+                normalisedQuery
+              ) {
+                const identityText =
+                  normaliseSearchText(
+                    [
+                      plant.plantName,
+                      plant.variety ??
+                        '',
+                      plant.displayName,
+                    ].join(
+                      ' ',
+                    ),
+                  )
+
+
+                const matchesSearch =
+                  hasPlantIdentityMatch
+                    ? identityText.includes(
+                        normalisedQuery,
+                      )
+                    : document.searchText.includes(
+                        normalisedQuery,
+                      )
+
+
+                if (
+                  !matchesSearch
+                ) {
+                  return false
+                }
+              }
+
+
+              if (
+                selectedStartMethods.length >
+                  0 &&
+                !selectedStartMethods.includes(
+                  document.startMethodLabel,
+                )
+              ) {
+                return false
+              }
+
+
+              if (
+                selectedGrowingPlaces.length >
+                  0 &&
+                !selectedGrowingPlaces.includes(
+                  document.growingPlaceName,
+                )
+              ) {
+                return false
+              }
+
+
+              if (
+                selectedGrowingSetups.length >
+                  0 &&
+                !document.growingSetupNames.some(
+                  setupName =>
+                    selectedGrowingSetups.includes(
+                      setupName,
+                    ),
+                )
+              ) {
+                return false
+              }
+
+
+              return true
+            },
+          )
+
+
+        return [
+          ...filtered,
+        ].sort(
+          (
+            first,
+            second,
+          ) => {
+            const firstDocument =
+              searchDocumentByPlantId.get(
+                first.id,
+              )
+
+            const secondDocument =
+              searchDocumentByPlantId.get(
+                second.id,
+              )
+
+
+            switch (
+              sortBy
+            ) {
+              case 'oldest-planted':
+                return first.plantedDate.localeCompare(
+                  second.plantedDate,
+                )
+
+
+              case 'plant-az':
+                return first.plantName.localeCompare(
+                  second.plantName,
+                )
+
+
+              case 'variety-az':
+                return (
+                  first.variety ??
+                  first.displayName
+                ).localeCompare(
+                  second.variety ??
+                    second.displayName,
+                )
+
+
+              case 'growing-place-az':
+                return (
+                  firstDocument?.growingPlaceName ??
+                  ''
+                ).localeCompare(
+                  secondDocument?.growingPlaceName ??
+                    '',
+                )
+
+
+              case 'newest-activity':
+                return (
+                  secondDocument?.latestActivityDate ??
+                  second.plantedDate
+                ).localeCompare(
+                  firstDocument?.latestActivityDate ??
+                    first.plantedDate,
+                )
+
+
+              case 'recently-planted':
+              default:
+                return second.plantedDate.localeCompare(
+                  first.plantedDate,
+                )
+            }
+          },
+        )
+      },
+      [
+        storyViewPlants,
+        searchDocumentByPlantId,
+        searchQuery,
+        selectedStartMethods,
+        selectedGrowingPlaces,
+        selectedGrowingSetups,
+        sortBy,
+      ],
+    )
+
+
+  /* =======================================
+     INITIAL COMPARISON
   ======================================= */
 
   const initialSelectedPlantIds =
@@ -153,7 +1321,7 @@ export default function Plants({
 
 
   /* =======================================
-     CHANGE STORY VIEW
+     STORY VIEW
   ======================================= */
 
   function changeStoryView(
@@ -171,11 +1339,13 @@ export default function Plants({
     setSelectedPlantIds(
       [],
     )
+
+    clearFilters()
   }
 
 
   /* =======================================
-     ENTER / LEAVE COMPARE MODE
+     COMPARE MODE
   ======================================= */
 
   function toggleCompareMode() {
@@ -193,19 +1363,15 @@ export default function Plants({
       return
     }
 
-
     setCompareMode(
       true,
     )
   }
 
 
-  /* =======================================
-     SELECT PLANT
-  ======================================= */
-
   function togglePlantForComparison(
-    plantId: string,
+    plantId:
+      string,
   ) {
     setSelectedPlantIds(
       currentIds => {
@@ -239,10 +1405,6 @@ export default function Plants({
   }
 
 
-  /* =======================================
-     SELECTED PLANTS
-  ======================================= */
-
   const selectedPlants =
     selectedPlantIds
       .map(
@@ -263,6 +1425,85 @@ export default function Plants({
       )
 
 
+  /* =======================================
+     BACK TO TOP
+  ======================================= */
+
+  function backToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
+
+
+  /* =======================================
+     FILTER GROUP
+  ======================================= */
+
+  function renderFilterGroup(
+    title:
+      string,
+
+    family:
+      PlantFilterFamily,
+
+    options:
+      string[],
+
+    selected:
+      string[],
+  ) {
+    if (
+      options.length ===
+      0
+    ) {
+      return null
+    }
+
+
+    return (
+      <fieldset className="plant-filter-group">
+        <legend>
+          {title}
+        </legend>
+
+        <div className="plant-filter-options">
+          {options.map(
+            option => (
+              <label
+                className="plant-filter-option"
+                key={
+                  `${family}-${option}`
+                }
+              >
+                <input
+                  type="checkbox"
+                  checked={
+                    selected.includes(
+                      option,
+                    )
+                  }
+                  onChange={() =>
+                    toggleFilter(
+                      family,
+                      option,
+                    )
+                  }
+                />
+
+                <span>
+                  {option}
+                </span>
+              </label>
+            ),
+          )}
+        </div>
+      </fieldset>
+    )
+  }
+
+
   return (
     <GardenLayout
       activePage="plants"
@@ -272,16 +1513,11 @@ export default function Plants({
     >
       <div className="garden-page">
 
-        {/* =======================================
-            HEADER
-        ======================================= */}
-
         <header className="garden-header">
           <div>
             <p className="app-name">
               Sprig
             </p>
-
 
             <h1 className="garden-title">
               {storyView ===
@@ -289,7 +1525,6 @@ export default function Plants({
                 ? 'Completed stories'
                 : 'Growing stories'}
             </h1>
-
 
             <p className="garden-subtitle">
               {compareMode
@@ -315,7 +1550,6 @@ export default function Plants({
                 : '↔ Compare'}
             </button>
 
-
             {!compareMode &&
               storyView ===
                 'active' && (
@@ -332,10 +1566,6 @@ export default function Plants({
           </div>
         </header>
 
-
-        {/* =======================================
-            ACTIVE / COMPLETED NAVIGATION
-        ======================================= */}
 
         {!compareMode && (
           <nav
@@ -356,10 +1586,6 @@ export default function Plants({
                 )
               }
             >
-              <span>
-                🌱
-              </span>
-
               <span>
                 <strong>
                   Growing now
@@ -391,10 +1617,6 @@ export default function Plants({
               }
             >
               <span>
-                🍂
-              </span>
-
-              <span>
                 <strong>
                   Completed stories
                 </strong>
@@ -412,25 +1634,16 @@ export default function Plants({
         )}
 
 
-        {/* =======================================
-            COMPARE GUIDANCE
-        ======================================= */}
-
         {compareMode && (
           <section className="plant-compare-guidance">
             <p>
               <strong>
-                {
-                  selectedPlantIds.length
-                }{' '}
+                {selectedPlantIds.length}{' '}
                 of{' '}
-                {
-                  MAX_COMPARE_PLANTS
-                }{' '}
+                {MAX_COMPARE_PLANTS}{' '}
                 selected
               </strong>
             </p>
-
 
             <p className="form-whisper">
               Choose the plants whose
@@ -443,124 +1656,275 @@ export default function Plants({
         )}
 
 
-        {/* =======================================
-            PLANTS
-        ======================================= */}
+        {!compareMode && (
+          <div className="plant-browser-layout">
 
-        <section className="dashboard-section">
-          <div className="plant-grid">
-            {visiblePlants.length >
-            0 ? (
-              visiblePlants.map(
-                plant => (
-                  <PlantCard
-                    key={
-                      plant.id
-                    }
+            <aside className="plant-browser-tools">
+              <div className="plant-browser-tools-heading">
+                <div>
+                  <p className="section-label">
+                    Find a story
+                  </p>
 
-                    plant={
-                      plant
-                    }
+                  <h2>
+                    Search your plants
+                  </h2>
+                </div>
 
-                    onOpen={
-                      onOpenPlant
+                {(activeFilterCount >
+                  0 ||
+                  searchQuery) && (
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={
+                      clearFilters
                     }
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
 
-                    compareMode={
-                      compareMode
-                    }
 
-                    isSelectedForComparison={
-                      selectedPlantIds.includes(
-                        plant.id,
-                      )
-                    }
-
-                    onToggleComparison={
-                      togglePlantForComparison
-                    }
-                  />
-                ),
-              )
-            ) : storyView ===
-              'completed' ? (
-              <div className="journal-empty">
-                <span>
-                  🍂
+              <label className="plant-search-field">
+                <span className="plant-tool-label">
+                  Search
                 </span>
 
-                <h2>
-                  No completed stories yet
-                </h2>
+                <input
+                  type="search"
+                  value={
+                    searchQuery
+                  }
+                  onChange={
+                    event =>
+                      setSearchQuery(
+                        event.target.value,
+                      )
+                  }
+                  placeholder="Plant, place, recipe, harvest, note..."
+                />
+              </label>
 
-                <p>
-                  Finished Plant Stories
-                  will settle here without
-                  losing their photographs,
-                  harvests or garden history.
-                </p>
 
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() =>
-                    changeStoryView(
-                      'active',
-                    )
+              <label className="plant-sort-field">
+                <span className="plant-tool-label">
+                  Order by
+                </span>
+
+                <select
+                  value={
+                    sortBy
+                  }
+                  onChange={
+                    event =>
+                      setSortBy(
+                        event.target.value as PlantSort,
+                      )
                   }
                 >
-                  Return to growing stories
-                </button>
-              </div>
-            ) : (
-              <div className="journal-empty">
-                <span>
-                  🌱
-                </span>
+                  <option value="recently-planted">
+                    Recently planted
+                  </option>
 
-                <h2>
-                  The garden is waiting
-                </h2>
+                  <option value="oldest-planted">
+                    Oldest planted
+                  </option>
 
+                  <option value="plant-az">
+                    Plant A–Z
+                  </option>
+
+                  <option value="variety-az">
+                    Variety A–Z
+                  </option>
+
+                  <option value="growing-place-az">
+                    Growing Place A–Z
+                  </option>
+
+                  <option value="newest-activity">
+                    Newest activity
+                  </option>
+                </select>
+              </label>
+
+
+              {renderFilterGroup(
+                'Started as',
+                'start-method',
+                startMethodOptions,
+                selectedStartMethods,
+              )}
+
+
+              {renderFilterGroup(
+                'Growing Place',
+                'growing-place',
+                growingPlaceOptions,
+                selectedGrowingPlaces,
+              )}
+
+
+              {renderFilterGroup(
+                'Growing Recipe',
+                'growing-setup',
+                growingSetupOptions,
+                selectedGrowingSetups,
+              )}
+            </aside>
+
+
+            <main className="plant-browser-results">
+              <div className="plant-results-heading">
                 <p>
-                  No active growing stories
-                  are underway.
+                  <strong>
+                    {visiblePlants.length}
+                  </strong>{' '}
+                  {visiblePlants.length ===
+                  1
+                    ? 'story'
+                    : 'stories'}
                 </p>
 
-                {completedPlants.length >
+                {activeFilterCount >
                   0 && (
-                  <p>
-                    You still have{' '}
-                    {
-                      completedPlants.length
-                    }{' '}
-                    completed{' '}
-                    {completedPlants.length ===
+                  <p className="plant-active-filter-note">
+                    {activeFilterCount}{' '}
+                    {activeFilterCount ===
                     1
-                      ? 'story'
-                      : 'stories'}{' '}
-                    safely kept in Sprig.
+                      ? 'filter'
+                      : 'filters'}{' '}
+                    active
                   </p>
                 )}
-
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={
-                    onAddPlant
-                  }
-                >
-                  Begin a new story
-                </button>
               </div>
-            )}
+
+
+              <section className="dashboard-section">
+                <div className="plant-grid">
+                  {visiblePlants.length >
+                  0 ? (
+                    visiblePlants.map(
+                      plant => {
+                        const document =
+                          searchDocumentByPlantId.get(
+                            plant.id,
+                          )
+
+                        return (
+                          <PlantCard
+                            key={
+                              plant.id
+                            }
+                            plant={
+                              plant
+                            }
+                            growingPlaceName={
+                              document?.growingPlaceName
+                            }
+                            latestActivityDate={
+                              document?.latestActivityDate
+                            }
+                            onOpen={
+                              onOpenPlant
+                            }
+                          />
+                        )
+                      },
+                    )
+                  ) : (
+                    <div className="plant-browser-empty">
+                      <h2>
+                        No stories match
+                      </h2>
+
+                      <p>
+                        Try another word or
+                        loosen one of the
+                        filters.
+                      </p>
+
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={
+                          clearFilters
+                        }
+                      >
+                        Clear search and filters
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </section>
+            </main>
           </div>
-        </section>
+        )}
 
 
-        {/* =======================================
-            COMPARE TRAY
-        ======================================= */}
+        {compareMode && (
+          <section className="dashboard-section">
+            <div className="plant-grid">
+              {storyViewPlants.map(
+                plant => {
+                  const document =
+                    searchDocumentByPlantId.get(
+                      plant.id,
+                    )
+
+                  return (
+                    <PlantCard
+                      key={
+                        plant.id
+                      }
+                      plant={
+                        plant
+                      }
+                      growingPlaceName={
+                        document?.growingPlaceName
+                      }
+                      latestActivityDate={
+                        document?.latestActivityDate
+                      }
+                      onOpen={
+                        onOpenPlant
+                      }
+                      compareMode
+                      isSelectedForComparison={
+                        selectedPlantIds.includes(
+                          plant.id,
+                        )
+                      }
+                      onToggleComparison={
+                        togglePlantForComparison
+                      }
+                    />
+                  )
+                },
+              )}
+            </div>
+          </section>
+        )}
+
+
+        {!compareMode &&
+          visiblePlants.length >
+            8 && (
+            <div className="plant-back-to-top">
+              <button
+                type="button"
+                className="text-button"
+                onClick={
+                  backToTop
+                }
+              >
+                ↑ Back to the top
+              </button>
+            </div>
+          )}
+
 
         {compareMode &&
           selectedPlantIds.length >
@@ -575,9 +1939,7 @@ export default function Plants({
                 </p>
 
                 <strong>
-                  {
-                    selectedPlantIds.length
-                  }{' '}
+                  {selectedPlantIds.length}{' '}
                   {selectedPlantIds.length ===
                   1
                     ? 'story'
@@ -597,7 +1959,6 @@ export default function Plants({
                 </p>
               </div>
 
-
               <button
                 type="button"
                 className="journal-add-button"
@@ -612,9 +1973,7 @@ export default function Plants({
                 }
               >
                 Compare{' '}
-                {
-                  selectedPlantIds.length
-                }{' '}
+                {selectedPlantIds.length}{' '}
                 {selectedPlantIds.length ===
                 1
                   ? 'story'

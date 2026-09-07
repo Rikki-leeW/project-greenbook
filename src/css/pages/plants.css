@@ -1,473 +1,65 @@
-
-
-/* DASHBOARD */
-
-.quick-actions {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin-bottom: 26px;
-  }
-  
-  .quick-action {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-  
-    min-height: 52px;
-    padding: 8px 12px;
-  
-    border: 1px solid rgba(66, 91, 57, 0.13);
-    border-radius: 17px;
-  
-    background: rgba(255, 253, 247, 0.86);
-    color: #3d583f;
-  
-    font-size: 0.9rem;
-    font-weight: 700;
-  
-    cursor: pointer;
-    box-shadow: var(--shadow-soft);
-  
-    transition:
-      transform 160ms ease,
-      box-shadow 160ms ease,
-      border-color 160ms ease;
-  }
-  
-  .quick-action:nth-child(2) {
-    border-radius: 17px;
-  }
-  
-  .quick-action:hover {
-    transform: translateY(-2px);
-    border-color: rgba(66, 91, 57, 0.24);
-    box-shadow: 0 12px 28px rgba(55, 77, 48, 0.11);
-  }
-  
-  .quick-action span {
-    font-size: 1rem;
-  }
-  
-  .dashboard-section {
-    margin-bottom: 38px;
-  }
-  
-  .plant-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-  }
-  
-  .plant-card {
-    min-height: 260px;
-    padding: 22px;
-    border: 1px solid rgba(66, 91, 57, 0.13);
-    border-radius: 25px 19px 27px 21px;
-    background:
-      linear-gradient(145deg, rgba(255, 253, 247, 0.96), rgba(249, 243, 229, 0.92));
-    box-shadow: var(--shadow);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .plant-card::after {
-    content: "❧";
-    position: absolute;
-    right: 17px;
-    bottom: 11px;
-    color: rgba(82, 112, 71, 0.16);
-    font-size: 1.2rem;
-  }
-  
-  .plant-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  
-  .plant-emoji {
-    font-size: 2rem;
-  }
-  
-  .status-pill {
-    padding: 7px 11px;
-    border-radius: 999px;
-    background: #e2ecda;
-    color: #456148;
-    font-size: 0.72rem;
-    font-weight: 800;
-  }
-  
-  .status-pill.watch {
-    background: #f2e4c6;
-    color: #775f2d;
-  }
-  
-  .plant-type {
-    margin: 24px 0 5px;
-    color: #83907b;
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-  
-  .plant-card h3 {
-    margin: 0;
-    color: var(--ink);
-    font-size: 1.55rem;
-  }
-  
-  .plant-personality {
-    margin: 7px 0 22px;
-    color: #756d5e;
-    font-style: italic;
-  }
-  
-  .plant-details {
-    display: grid;
-    gap: 5px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(66, 91, 57, 0.1);
-    color: #6d776b;
-    font-size: 0.86rem;
-  }
-  
-  .plant-details strong {
-    color: #3e5941;
-  }
-  
-  .plant-card-button {
-    width: 100%;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition:
-      transform 160ms ease,
-      box-shadow 160ms ease,
-      border-color 160ms ease;
-  }
-  
-  .plant-card-button:hover {
-    transform: translateY(-4px) rotate(-0.12deg);
-    border-color: rgba(66, 91, 57, 0.26);
-    box-shadow: 0 22px 45px rgba(55, 77, 48, 0.14);
-  }
-  
-  .plant-card-button:focus-visible {
-    outline: 4px solid rgba(111, 138, 99, 0.25);
-    outline-offset: 4px;
-  }
-  
-  .open-story {
-    display: block;
-    margin-top: 18px;
-    color: var(--moss);
-    font-size: 0.82rem;
-    font-weight: 800;
-  }
-  
-  .keeper-card {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    padding: 28px;
-    border: 1px solid rgba(142, 105, 61, 0.13);
-    border-radius: 27px 20px 30px 22px;
-    background:
-      linear-gradient(145deg, #f4e8d5, #efe0c6);
-    box-shadow: var(--shadow-soft);
-  }
-  
-  .keeper-card p:last-child {
-    margin: 9px 0 0;
-    color: #766b5c;
-  }
-  
-  .keeper-icon {
-    display: grid;
-    flex: 0 0 auto;
-    width: 70px;
-    height: 70px;
-    place-items: center;
-    border-radius: 50%;
-    background: rgba(255, 253, 247, 0.72);
-    font-size: 2rem;
-  }
-  
-  /* RESPONSIVE */
-  
-  
-  @media (max-width: 900px) {
-    .plant-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .quick-actions {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  
-    .quick-action {
-      justify-content: flex-start;
-    }
-  
-    .plant-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .keeper-card {
-      align-items: flex-start;
-    }
-  
-    .journal-add-button {
-      width: fit-content;
-    }
-  
-    .nav-item {
-      min-width: auto;
-      padding: 8px;
-    }
-  
-    .nav-item span {
-      font-size: 1.1rem;
-    }
-  }
-  
-  @media (max-width: 700px) {
-    .story-information-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .timeline-entry {
-      padding: 72px 20px 22px;
-    }
-  
-    .timeline-marker {
-      top: 20px;
-      left: 20px;
-    }
-  
-    .timeline-entry-header {
-      gap: 10px;
-    }
-  
-    .journal-entry {
-      grid-template-columns: 1fr;
-      padding: 22px;
-    }
-  
-    .journal-entry-marker {
-      width: 44px;
-      height: 44px;
-    }
-  }
-  
-  @media (max-width: 560px) {
-    .form-backdrop {
-      align-items: end;
-      padding: 0;
-    }
-  
-    .add-plant-panel {
-      max-height: 92vh;
-      padding: 24px 20px 28px;
-      border-radius: 28px 28px 0 0;
-    }
-  
-    .form-row,
-    .form-actions {
-      grid-template-columns: 1fr;
-    }
-  
-    .journal-entry-top {
-      gap: 10px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .welcome-page {
-      padding: 14px;
-    }
-  
-    .welcome-card {
-      padding: 42px 24px 34px;
-      border-radius: 26px;
-    }
-  
-    .bottom-navigation {
-      bottom: 10px;
-      width: min(calc(100% - 16px), 620px);
-      padding: 8px 5px;
-    }
-  
-    .nav-item {
-      font-size: 0.64rem;
-    }
-  }
-  /* =======================================
-   PLANT COMPARISON
+/* =======================================
+   DASHBOARD / PLANTS
 ======================================= */
 
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 26px;
+}
 
-/* ---------- PAGE ACTIONS ---------- */
+.quick-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid rgba(66, 91, 57, 0.13);
+  border-radius: 17px;
+  background: rgba(255, 253, 247, 0.86);
+  color: #3d583f;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.quick-action:hover {
+  transform: translateY(-2px);
+  border-color: rgba(66, 91, 57, 0.24);
+  box-shadow: 0 12px 28px rgba(55, 77, 48, 0.11);
+}
+
+.quick-action span {
+  font-size: 1rem;
+}
+
+.dashboard-section {
+  margin-bottom: 30px;
+}
+
+
+/* =======================================
+   PLANT PAGE HEADER ACTIONS
+======================================= */
 
 .plant-page-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-
   gap: 10px;
 }
 
 
-/* ---------- COMPARE GUIDANCE ---------- */
-
-.plant-compare-guidance {
-  margin: 0 0 22px;
-  padding: 14px 18px;
-
-  border: 1px solid rgba(66, 91, 57, 0.12);
-  border-radius: 16px;
-
-  background: rgba(255, 253, 247, 0.72);
-
-  box-shadow: var(--shadow-soft);
-}
-
-
-.plant-compare-guidance p {
-  margin: 0;
-}
-
-
-.plant-compare-guidance .form-whisper {
-  margin-top: 5px;
-
-  text-align: left;
-}
-
-
-/* ---------- CARDS WHILE CHOOSING ---------- */
-
-.plant-card-compare-mode {
-  cursor: pointer;
-}
-
-
-.plant-card-compare-mode:hover {
-  transform: translateY(-2px);
-
-  border-color: rgba(82, 112, 71, 0.30);
-}
-
-
-/* ---------- SELECTED CARD ---------- */
-
-.plant-card-compare-selected {
-  border-color: rgba(82, 112, 71, 0.52);
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(248, 252, 240, 0.98),
-      rgba(235, 242, 222, 0.96)
-    );
-
-  box-shadow:
-    0 18px 38px rgba(55, 77, 48, 0.13),
-    inset 0 0 0 2px rgba(82, 112, 71, 0.08);
-}
-
-
-.plant-card-compare-selected
-.status-pill {
-  background: #dbe9d3;
-  color: #3f613f;
-}
-
-
-/* ---------- FLOATING COMPARE TRAY ---------- */
-
-.plant-compare-tray {
-  position: fixed;
-
-  left: 50%;
-  bottom: 92px;
-  z-index: 450;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 18px;
-
-  width: min(
-    calc(100% - 36px),
-    760px
-  );
-
-  padding: 13px 15px;
-
-  transform: translateX(-50%);
-
-  border: 1px solid rgba(73, 92, 64, 0.22);
-  border-radius: 18px;
-
-  background: rgba(255, 252, 239, 0.96);
-
-  box-shadow:
-    0 14px 35px rgba(38, 52, 35, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.68);
-
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-}
-
-
-.plant-compare-tray-copy {
-  min-width: 0;
-}
-
-
-.plant-compare-tray-copy
-.section-label {
-  margin: 0 0 3px;
-}
-
-
-.plant-compare-tray-copy
-.form-whisper {
-  margin: 3px 0 0;
-
-  max-width: 500px;
-
-  overflow: hidden;
-
-  text-align: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-
-.plant-compare-tray
-.journal-add-button {
-  flex: 0 0 auto;
-
-  margin: 0;
-}
-
-
-.plant-compare-tray
-.journal-add-button:disabled {
-  opacity: 0.48;
-  cursor: not-allowed;
-}
-
 /* =======================================
-   PLANT STORY ACTIVE / HISTORY VIEW
+   GROWING / COMPLETED STORY NAVIGATION
 ======================================= */
 
 .plant-story-view-navigation {
@@ -480,9 +72,8 @@
 .plant-story-view-button {
   display: flex;
   align-items: center;
-  gap: 10px;
   min-width: 0;
-  padding: 11px 15px;
+  padding: 10px 15px;
   border: 1px solid rgba(66, 91, 57, 0.13);
   border-radius: 16px;
   background: rgba(255, 253, 247, 0.72);
@@ -507,12 +98,7 @@
   background: rgba(231, 240, 221, 0.82);
 }
 
-.plant-story-view-button > span:first-child {
-  flex: 0 0 auto;
-  font-size: 1.1rem;
-}
-
-.plant-story-view-button > span:last-child {
+.plant-story-view-button > span {
   display: grid;
   min-width: 0;
   gap: 2px;
@@ -528,9 +114,908 @@
   font-size: 0.74rem;
 }
 
-/* Leave enough room to scroll past the tray */
 
-.plant-compare-guidance
-~ .dashboard-section {
+/* =======================================
+   PLANT BROWSER LAYOUT
+======================================= */
+
+.plant-browser-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 270px) minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+}
+
+.plant-browser-tools {
+  position: sticky;
+  top: 18px;
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid rgba(66, 91, 57, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 253, 247, 0.72);
+  box-shadow: var(--shadow-soft);
+}
+
+.plant-browser-tools-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plant-browser-tools-heading h2 {
+  margin: 3px 0 0;
+  color: var(--ink);
+  font-size: 1.04rem;
+}
+
+.plant-browser-tools-heading .section-label {
+  margin: 0;
+}
+
+.plant-search-field,
+.plant-sort-field {
+  display: grid;
+  gap: 6px;
+}
+
+.plant-tool-label {
+  color: #52604e;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+}
+
+.plant-search-field input,
+.plant-sort-field select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(66, 91, 57, 0.17);
+  border-radius: 12px;
+  background: rgba(255, 254, 249, 0.94);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.plant-search-field input:focus,
+.plant-sort-field select:focus {
+  outline: 3px solid rgba(111, 138, 99, 0.16);
+  border-color: rgba(82, 112, 71, 0.36);
+}
+
+.plant-search-field input::placeholder {
+  color: #8b9188;
+}
+
+
+/* =======================================
+   FILTERS
+======================================= */
+
+.plant-filter-group {
+  min-width: 0;
+  margin: 0;
+  padding: 16px 0 0;
+  border: 0;
+  border-top: 1px solid rgba(66, 91, 57, 0.1);
+}
+
+.plant-filter-group legend {
+  width: 100%;
+  margin: 0 0 9px;
+  padding: 0;
+  color: #52604e;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+}
+
+.plant-filter-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.plant-filter-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  min-width: 0;
+  padding: 2px 0;
+  color: #5e685b;
+  font-size: 0.81rem;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+.plant-filter-option input {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin: 1px 0 0;
+  accent-color: #68825c;
+}
+
+.plant-filter-option span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+
+/* =======================================
+   BROWSER RESULTS
+======================================= */
+
+.plant-browser-results {
+  min-width: 0;
+}
+
+.plant-results-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0 0 13px;
+  color: #6b7568;
+  font-size: 0.84rem;
+}
+
+.plant-results-heading p {
+  margin: 0;
+}
+
+.plant-results-heading strong {
+  color: #425844;
+}
+
+.plant-active-filter-note {
+  color: #667a61;
+  font-weight: 700;
+}
+
+.plant-browser-empty {
+  grid-column: 1 / -1;
+  padding: 32px 8px;
+  text-align: center;
+}
+
+.plant-browser-empty h2 {
+  margin: 0 0 7px;
+  color: var(--ink);
+  font-size: 1.15rem;
+}
+
+.plant-browser-empty p {
+  margin: 0 0 12px;
+  color: #737c70;
+}
+
+
+/* =======================================
+   COMPACT PLANT GRID
+======================================= */
+
+.plant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+
+/* =======================================
+   COMPACT PLANT CARD
+======================================= */
+
+.plant-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(66, 91, 57, 0.13);
+  border-radius: 17px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 253, 247, 0.97),
+      rgba(249, 245, 234, 0.91)
+    );
+  box-shadow: var(--shadow-soft);
+}
+
+.plant-card::after {
+  display: none;
+}
+
+.plant-card-compact {
+  min-height: 0;
+  padding: 15px 16px 14px;
+}
+
+.plant-card-button {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.plant-card-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(66, 91, 57, 0.25);
+  box-shadow: 0 13px 27px rgba(55, 77, 48, 0.1);
+}
+
+.plant-card-button:focus-visible {
+  outline: 4px solid rgba(111, 138, 99, 0.22);
+  outline-offset: 3px;
+}
+
+.plant-card-compact-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plant-card-compact-title {
+  min-width: 0;
+}
+
+.plant-card-compact h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.03rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.plant-card-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  margin: 5px 0 0;
+  color: #6f796b;
+  font-size: 0.79rem;
+  line-height: 1.3;
+}
+
+.plant-card-separator {
+  color: #adb2a7;
+}
+
+.status-pill {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #e2ecda;
+  color: #456148;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.status-pill.watch {
+  background: #f2e4c6;
+  color: #775f2d;
+}
+
+.status-pill.plant-status-finished {
+  background: rgba(225, 222, 208, 0.72);
+  color: #716d60;
+}
+
+.plant-card-compact-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(66, 91, 57, 0.09);
+  color: #737c70;
+  font-size: 0.77rem;
+}
+
+.plant-card-compact-meta strong {
+  color: #456047;
+  font-weight: 750;
+}
+
+.plant-card-latest-activity {
+  margin: 5px 0 0;
+  color: #7f877b;
+  font-size: 0.72rem;
+}
+
+.open-story {
+  display: block;
+  margin-top: 9px;
+  color: var(--moss);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+
+/* =======================================
+   COMPARE GUIDANCE
+======================================= */
+
+.plant-compare-guidance {
+  margin: 0 0 22px;
+  padding: 14px 18px;
+  border: 1px solid rgba(66, 91, 57, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 253, 247, 0.72);
+  box-shadow: var(--shadow-soft);
+}
+
+.plant-compare-guidance p {
+  margin: 0;
+}
+
+.plant-compare-guidance .form-whisper {
+  margin-top: 5px;
+  text-align: left;
+}
+
+
+/* =======================================
+   CARDS WHILE CHOOSING
+======================================= */
+
+.plant-card-compare-mode {
+  cursor: pointer;
+}
+
+.plant-card-compare-mode:hover {
+  transform: translateY(-2px);
+  border-color: rgba(82, 112, 71, 0.3);
+}
+
+.plant-card-compare-selected {
+  border-color: rgba(82, 112, 71, 0.52);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(248, 252, 240, 0.98),
+      rgba(235, 242, 222, 0.96)
+    );
+  box-shadow:
+    0 16px 32px rgba(55, 77, 48, 0.12),
+    inset 0 0 0 2px rgba(82, 112, 71, 0.07);
+}
+
+.plant-card-compare-selected .status-pill {
+  background: #dbe9d3;
+  color: #3f613f;
+}
+
+
+/* =======================================
+   FLOATING COMPARE TRAY
+======================================= */
+
+.plant-compare-tray {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  z-index: 450;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: min(calc(100% - 36px), 760px);
+  padding: 13px 15px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(73, 92, 64, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 252, 239, 0.96);
+  box-shadow:
+    0 14px 35px rgba(38, 52, 35, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+.plant-compare-tray-copy {
+  min-width: 0;
+}
+
+.plant-compare-tray-copy .section-label {
+  margin: 0 0 3px;
+}
+
+.plant-compare-tray-copy .form-whisper {
+  margin: 3px 0 0;
+  max-width: 500px;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plant-compare-tray .journal-add-button {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.plant-compare-tray .journal-add-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.plant-compare-guidance ~ .dashboard-section {
   padding-bottom: 100px;
+}
+
+
+/* =======================================
+   BACK TO TOP
+======================================= */
+
+.plant-back-to-top {
+  display: flex;
+  justify-content: center;
+  margin: 6px 0 30px;
+}
+
+.plant-back-to-top .text-button {
+  padding: 9px 12px;
+}
+
+
+/* =======================================
+   OTHER EXISTING PLANT STYLES
+======================================= */
+
+.keeper-card {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 28px;
+  border: 1px solid rgba(142, 105, 61, 0.13);
+  border-radius: 27px 20px 30px 22px;
+  background:
+    linear-gradient(145deg, #f4e8d5, #efe0c6);
+  box-shadow: var(--shadow-soft);
+}
+
+.keeper-card p:last-child {
+  margin: 9px 0 0;
+  color: #766b5c;
+}
+
+.keeper-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 70px;
+  height: 70px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.72);
+  font-size: 2rem;
+}
+
+
+/* =======================================
+   RESPONSIVE
+======================================= */
+
+@media (max-width: 1000px) {
+  .plant-browser-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+
+@media (max-width: 820px) {
+  .plant-browser-layout {
+    display: block;
+  }
+
+  .plant-browser-tools {
+    position: static;
+    margin-bottom: 20px;
+  }
+
+  .plant-filter-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 15px;
+  }
+
+  .plant-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .quick-action {
+    justify-content: flex-start;
+  }
+
+  .keeper-card {
+    align-items: flex-start;
+  }
+
+  .journal-add-button {
+    width: fit-content;
+  }
+
+  .nav-item {
+    min-width: auto;
+    padding: 8px;
+  }
+
+  .nav-item span {
+    font-size: 1.1rem;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .story-information-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-entry {
+    padding: 72px 20px 22px;
+  }
+
+  .timeline-marker {
+    top: 20px;
+    left: 20px;
+  }
+
+  .timeline-entry-header {
+    gap: 10px;
+  }
+
+  .journal-entry {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .journal-entry-marker {
+    width: 44px;
+    height: 44px;
+  }
+
+  .plant-page-actions {
+    justify-content: flex-start;
+  }
+}
+
+
+@media (max-width: 620px) {
+  .plant-browser-tools {
+    padding: 16px;
+    border-radius: 17px;
+  }
+
+  .plant-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .plant-card-compact {
+    padding: 13px 14px 12px;
+  }
+
+  .plant-card-compact h3 {
+    font-size: 1rem;
+  }
+
+  .plant-card-identity {
+    font-size: 0.77rem;
+  }
+
+  .plant-card-compact-meta {
+    margin-top: 9px;
+    padding-top: 8px;
+  }
+
+  .plant-story-view-navigation {
+    margin-bottom: 18px;
+  }
+
+  .plant-story-view-button {
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+    padding: 9px 11px;
+  }
+
+  .plant-story-view-button > span {
+    text-align: center;
+  }
+
+  .plant-compare-tray {
+    align-items: stretch;
+    gap: 10px;
+    width: calc(100% - 20px);
+    bottom: 82px;
+    padding: 11px;
+  }
+
+  .plant-compare-tray .journal-add-button {
+    align-self: center;
+  }
+}
+
+
+@media (max-width: 560px) {
+  .form-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .add-plant-panel {
+    max-height: 92vh;
+    padding: 24px 20px 28px;
+    border-radius: 28px 28px 0 0;
+  }
+
+  .form-row,
+  .form-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .journal-entry-top {
+    gap: 10px;
+  }
+
+  .plant-filter-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 12px;
+  }
+
+  .plant-filter-option {
+    font-size: 0.78rem;
+  }
+
+  .plant-browser-tools {
+    gap: 15px;
+  }
+
+  .plant-filter-group {
+    padding-top: 13px;
+  }
+
+  .plant-filter-group legend {
+    margin-bottom: 7px;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .welcome-page {
+    padding: 14px;
+  }
+
+  .welcome-card {
+    padding: 42px 24px 34px;
+    border-radius: 26px;
+  }
+
+  .bottom-navigation {
+    bottom: 10px;
+    width: min(calc(100% - 16px), 620px);
+    padding: 8px 5px;
+  }
+
+  .nav-item {
+    font-size: 0.64rem;
+  }
+
+  .plant-page-actions {
+    width: 100%;
+  }
+
+  .plant-page-actions > button {
+    flex: 1 1 auto;
+  }
+
+  .plant-browser-tools-heading {
+    align-items: center;
+  }
+
+  .plant-search-field input,
+  .plant-sort-field select {
+    padding: 9px 10px;
+    font-size: 0.84rem;
+  }
+
+  .plant-card-compact-heading {
+    gap: 9px;
+  }
+
+  .status-pill {
+    padding: 5px 7px;
+    font-size: 0.62rem;
+  }
+
+  .plant-compare-tray {
+    flex-direction: column;
+  }
+
+  .plant-compare-tray .journal-add-button {
+    width: 100%;
+  }
+}
+/* =======================================
+   SPRIG SMART · PLANT COMPARISONS
+======================================= */
+
+.sprig-smart-comparisons {
+  position: relative;
+  overflow: hidden;
+  padding: 20px 22px;
+  border: 1px solid rgba(82, 112, 71, 0.13);
+  border-radius: 22px 17px 24px 19px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(250, 252, 242, 0.96),
+      rgba(247, 242, 225, 0.91)
+    );
+  box-shadow:
+    0 8px 22px rgba(55, 77, 48, 0.055);
+}
+
+
+
+.sprig-smart-comparisons .section-heading {
+  margin-bottom: 8px;
+}
+
+.sprig-smart-intro {
+  max-width: 720px;
+  margin-top: 0;
+}
+
+.sprig-smart-comparison-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.sprig-smart-comparison-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 15px 16px;
+  border-top: 1px solid rgba(66, 91, 57, 0.11);
+}
+
+.sprig-smart-comparison-card:first-child {
+  border-top: 0;
+}
+
+.sprig-smart-comparison-main {
+  display: grid;
+  min-width: 0;
+  gap: 9px;
+}
+
+.sprig-smart-comparison-crop {
+  margin: 0 0 3px;
+  color: #758070;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.sprig-smart-comparison-card h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.sprig-smart-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 7px;
+}
+
+.sprig-smart-reasons span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border: 1px solid rgba(82, 112, 71, 0.12);
+  border-radius: 999px;
+  background: rgba(235, 242, 222, 0.66);
+  color: #53684f;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sprig-smart-comparison-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.sprig-smart-comparison-actions button {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.sprig-smart-compare-all {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(66, 91, 57, 0.11);
+}
+
+.sprig-smart-compare-all .journal-add-button {
+  margin: 0;
+}
+
+
+/* =======================================
+   SPRIG SMART · PHONE
+======================================= */
+
+@media (max-width: 700px) {
+  .sprig-smart-comparison-card {
+    grid-template-columns: 1fr;
+    gap: 11px;
+    padding: 14px 2px;
+  }
+
+  .sprig-smart-comparison-actions {
+    justify-content: flex-start;
+  }
+
+  .sprig-smart-comparison-actions .secondary-button {
+    width: auto;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .sprig-smart-reasons {
+    gap: 4px 5px;
+  }
+
+  .sprig-smart-reasons span {
+    min-height: 22px;
+    padding: 3px 7px;
+    font-size: 0.67rem;
+  }
+
+  .sprig-smart-comparison-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .sprig-smart-comparison-actions button {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .sprig-smart-compare-all .journal-add-button {
+    width: 100%;
+  }
 }

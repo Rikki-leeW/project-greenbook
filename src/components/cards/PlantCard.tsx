@@ -6,6 +6,10 @@ import type {
 interface PlantCardProps {
   plant: PlantStory
 
+  growingPlaceName?: string
+
+  latestActivityDate?: string
+
   onOpen: (
     plantId: string,
   ) => void
@@ -20,65 +24,91 @@ interface PlantCardProps {
 }
 
 
+/* =======================================
+   DATE
+======================================= */
+
+function formatShortDate(
+  date: string,
+): string {
+  return new Date(
+    `${date}T00:00:00`,
+  ).toLocaleDateString(
+    'en-AU',
+    {
+      day: 'numeric',
+      month: 'short',
+    },
+  )
+}
+
+
+/* =======================================
+   GROWING AGE
+======================================= */
+
+function getDaysGrowing(
+  plantedDate: string,
+): number {
+  const planted =
+    new Date(
+      `${plantedDate}T00:00:00`,
+    )
+
+  const today =
+    new Date()
+
+  const todayAtMidnight =
+    new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    )
+
+  return Math.max(
+    0,
+    Math.floor(
+      (
+        todayAtMidnight.getTime() -
+        planted.getTime()
+      ) /
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        ),
+    ),
+  )
+}
+
+
+/* =======================================
+   CARD
+======================================= */
+
 export default function PlantCard({
   plant,
+  growingPlaceName,
+  latestActivityDate,
   onOpen,
   compareMode = false,
   isSelectedForComparison = false,
   onToggleComparison,
 }: PlantCardProps) {
-
-  const plantedDate =
-    new Date(
-      `${plant.plantedDate}T00:00:00`,
-    )
-
-
-  const today =
-    new Date()
-
-
   const daysGrowing =
-    Math.max(
-      0,
-      Math.floor(
-        (
-          today.getTime() -
-          plantedDate.getTime()
-        ) /
-          (
-            1000 *
-            60 *
-            60 *
-            24
-          ),
-      ),
+    getDaysGrowing(
+      plant.plantedDate,
     )
 
 
-  const emoji =
-    plant.plantName
-      .toLowerCase() ===
-    'potato'
-      ? '🥔'
-      : plant.plantName
-            .toLowerCase() ===
-          'broccoli'
-        ? '🥦'
-        : plant.plantName
-              .toLowerCase() ===
-            'tomato'
-          ? '🍅'
-          : plant.plantName
-                .toLowerCase() ===
-              'cauliflower'
-            ? '🥬'
-            : '🌱'
+  const cropLabel =
+    plant.plantName.trim()
 
 
-  /* =======================================
-     CARD ACTION
-  ======================================= */
+  const locationLabel =
+    growingPlaceName?.trim()
+
 
   function handleCardClick() {
     if (
@@ -90,7 +120,6 @@ export default function PlantCard({
 
       return
     }
-
 
     onOpen(
       plant.id,
@@ -104,11 +133,10 @@ export default function PlantCard({
       className={[
         'plant-card',
         'plant-card-button',
-
+        'plant-card-compact',
         compareMode
           ? 'plant-card-compare-mode'
           : '',
-
         isSelectedForComparison
           ? 'plant-card-compare-selected'
           : '',
@@ -141,64 +169,95 @@ export default function PlantCard({
           : undefined
       }
     >
-      <div className="plant-card-top">
-        <span className="plant-emoji">
-          {emoji}
-        </span>
+      <div className="plant-card-compact-heading">
+        <div className="plant-card-compact-title">
+          <h3>
+            {plant.displayName}
+          </h3>
+
+          <p className="plant-card-identity">
+            <span>
+              {cropLabel}
+            </span>
+
+            {locationLabel && (
+              <>
+                <span
+                  className="plant-card-separator"
+                  aria-hidden="true"
+                >
+                  ·
+                </span>
+
+                <span>
+                  {locationLabel}
+                </span>
+              </>
+            )}
+          </p>
+        </div>
 
 
-        {compareMode ? (
-          <span className="status-pill">
-            {isSelectedForComparison
+        <span
+          className={[
+            'status-pill',
+            plant.status ===
+              'finished'
+              ? 'plant-status-finished'
+              : '',
+          ]
+            .filter(
+              Boolean,
+            )
+            .join(
+              ' ',
+            )}
+        >
+          {compareMode
+            ? isSelectedForComparison
               ? '✓ Selected'
-              : 'Select'}
-          </span>
-        ) : (
-          <span className="status-pill">
-            {plant.status}
-          </span>
-        )}
+              : 'Select'
+            : plant.status}
+        </span>
       </div>
 
 
-      <p className="plant-type">
-        {plant.plantName} story
-      </p>
-
-
-      <h3>
-        {plant.displayName}
-      </h3>
-
-
-      <p className="plant-personality">
-        {plant.personality ??
-          'A story still unfolding'}
-      </p>
-
-
-      <div className="plant-details">
+      <div className="plant-card-compact-meta">
         <span>
           Planted{' '}
-          {plantedDate
-            .toLocaleDateString(
-              'en-AU',
-              {
-                day:
-                  'numeric',
-
-                month:
-                  'long',
-              },
-            )}
+          {formatShortDate(
+            plant.plantedDate,
+          )}
         </span>
 
+        <span
+          className="plant-card-separator"
+          aria-hidden="true"
+        >
+          ·
+        </span>
 
         <strong>
           {daysGrowing}{' '}
-          days growing
+          {daysGrowing ===
+          1
+            ? 'day'
+            : 'days'}{' '}
+          growing
         </strong>
       </div>
+
+
+      {latestActivityDate &&
+        latestActivityDate !==
+          plant.plantedDate && (
+          <p className="plant-card-latest-activity">
+            Latest activity{' '}
+            {formatShortDate(
+              latestActivityDate,
+            )}
+          </p>
+        )}
 
 
       <span className="open-story">

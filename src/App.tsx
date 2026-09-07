@@ -5372,6 +5372,10 @@ function App() {
             selectedPlant
           }
 
+          plants={
+            gardenData.plantStories
+          }
+
           growingPlaces={
             gardenData.growingPlaces
           }
@@ -5402,7 +5406,33 @@ function App() {
           journeyBackLabel={
             journeyBackLabel
           }
+          onOpenPlant={
+            handleOpenPlantRecord
+          }
 
+          onComparePlants={
+            plantIds => {
+              rememberCurrentJourneyState();
+
+              setComparisonPlantIds(
+                plantIds,
+              );
+
+              setActiveSavedComparisonId(
+                null,
+              );
+
+              setSelectedPlantId(
+                null,
+              );
+
+              setActivePage(
+                'comparison',
+              );
+            }
+          }
+
+          
           onNavigate={
             handleNavigate
           }
@@ -5802,9 +5832,36 @@ function App() {
   ) {
     return (
       <>
-        <Plants
+                <Plants
           plants={
             gardenData.plantStories
+          }
+
+          growingPlaces={
+            gardenData.growingPlaces
+          }
+
+          growingSetups={
+            gardenData.growingSetups ??
+            []
+          }
+
+          ingredients={
+            gardenData.ingredients ??
+            []
+          }
+
+          products={
+            gardenData.products ??
+            []
+          }
+
+          events={
+            gardenData.events
+          }
+
+          harvests={
+            gardenData.harvests
           }
 
           onOpenPlant={

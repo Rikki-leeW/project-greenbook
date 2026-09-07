@@ -15,6 +15,8 @@ import {
     GardenData,
     KnowledgeRelationship,
     KnowledgeRelationshipTargetType,
+    SprigPhotoMetadata,
+    SprigPhotoPurpose,
   } from '../types'
   
   import '../css/garden-gallery.css'
@@ -44,64 +46,43 @@ import {
   
   interface GalleryItem {
     key: string
-  
     photoUrl: string
-  
     photoDate?: string
-  
+    photoTime?: string
     addedAt?: string
-  
     title: string
-  
     subtitle?: string
-  
     notes?: string
-  
     tags: string[]
-  
+    purpose?: SprigPhotoPurpose
     category: GalleryCategory
-  
     categoryLabel: string
-  
-    sourceType?:
-      KnowledgeRelationshipTargetType
-  
+    sourceType?: KnowledgeRelationshipTargetType
     sourceId?: string
-  
     galleryPhotoId?: string
-  
     searchableText: string
   }
   
   
   interface RelationshipOption {
     key: string
-  
-    targetType:
-      KnowledgeRelationshipTargetType
-  
+    targetType: KnowledgeRelationshipTargetType
     targetId: string
-  
     label: string
-  
     group: string
-  
     searchText: string
   }
   
   
   interface GardenGalleryProps {
-    gardenData:
-      GardenData
+    gardenData: GardenData
   
     onGardenDataChange: (
-      gardenData:
-        GardenData,
+      gardenData: GardenData,
     ) => void
   
     onNavigate: (
-      page:
-        AppPage,
+      page: AppPage,
     ) => void
   
     onOpenRelationship: (
@@ -116,151 +97,87 @@ import {
   
   const CATEGORY_OPTIONS:
     Array<{
-      value:
-        GalleryCategory
-  
-      label:
-        string
+      value: GalleryCategory
+      label: string
     }> = [
       {
-        value:
-          'all',
-  
-        label:
-          'All photographs',
+        value: 'all',
+        label: 'All photographs',
       },
-  
       {
-        value:
-          'gallery',
-  
-        label:
-          'Gallery Photos',
+        value: 'gallery',
+        label: 'Gallery Photos',
       },
-  
       {
-        value:
-          'plants',
-  
-        label:
-          'Plants',
+        value: 'plants',
+        label: 'Plants',
       },
-  
       {
-        value:
-          'journal',
-  
-        label:
-          'Journal',
+        value: 'journal',
+        label: 'Journal',
       },
-  
       {
-        value:
-          'harvests',
-  
-        label:
-          'Harvests',
+        value: 'harvests',
+        label: 'Harvests',
       },
-  
       {
-        value:
-          'places',
-  
-        label:
-          'Growing Places',
+        value: 'places',
+        label: 'Growing Places',
       },
-  
       {
-        value:
-          'recipes',
-  
-        label:
-          'Growing Recipes',
+        value: 'recipes',
+        label: 'Growing Recipes',
       },
-  
       {
-        value:
-          'ingredients',
-  
-        label:
-          'Ingredients',
+        value: 'ingredients',
+        label: 'Ingredients',
       },
-  
       {
-        value:
-          'products',
-  
-        label:
-          'Products',
+        value: 'products',
+        label: 'Products',
       },
-  
       {
-        value:
-          'purchases',
-  
-        label:
-          'Purchases',
+        value: 'purchases',
+        label: 'Purchases',
       },
-  
       {
-        value:
-          'knowledge',
-  
-        label:
-          'Garden Knowledge',
+        value: 'knowledge',
+        label: 'Garden Knowledge',
       },
-  
       {
-        value:
-          'trials',
-  
-        label:
-          'Garden Trials',
+        value: 'trials',
+        label: 'Garden Trials',
       },
     ]
   
   
   const SORT_OPTIONS:
     Array<{
-      value:
-        GallerySort
-  
-      label:
-        string
+      value: GallerySort
+      label: string
     }> = [
       {
-        value:
-          'newest-photo',
-  
-        label:
-          'Newest photo date first',
+        value: 'newest-photo',
+        label: 'Newest photo date first',
       },
-  
       {
-        value:
-          'oldest-photo',
-  
-        label:
-          'Oldest photo date first',
+        value: 'oldest-photo',
+        label: 'Oldest photo date first',
       },
-  
       {
-        value:
-          'recently-added',
-  
-        label:
-          'Recently added to Sprig',
+        value: 'recently-added',
+        label: 'Recently added to Sprig',
       },
-  
       {
-        value:
-          'category',
-  
-        label:
-          'Category',
+        value: 'category',
+        label: 'Category',
       },
     ]
   
+  
+  /* =======================================
+     DATE
+  ======================================= */
   
   function getToday():
     string {
@@ -281,8 +198,7 @@ import {
   
   
   function formatDate(
-    date?:
-      string,
+    date?: string,
   ):
     string {
     if (
@@ -291,19 +207,16 @@ import {
       return 'Date not recorded'
     }
   
-  
     const safeDate =
       date.slice(
         0,
         10,
       )
   
-  
     const parsed =
       new Date(
         `${safeDate}T00:00:00`,
       )
-  
   
     if (
       Number.isNaN(
@@ -313,26 +226,23 @@ import {
       return date
     }
   
-  
     return parsed.toLocaleDateString(
       'en-AU',
       {
-        day:
-          'numeric',
-  
-        month:
-          'short',
-  
-        year:
-          'numeric',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
       },
     )
   }
   
   
+  /* =======================================
+     TEXT
+  ======================================= */
+  
   function normalise(
-    value:
-      string,
+    value: string,
   ):
     string {
     return value
@@ -363,22 +273,29 @@ import {
   }
   
   
+  /* =======================================
+     TAGS
+  ======================================= */
+  
   function parseTags(
-    value:
-      string,
+    value: string,
   ):
     string[] {
     const seen =
       new Set<string>()
   
-  
     return value
       .split(
-        ',',
+        /[\s,]+/,
       )
       .map(
         tag =>
-          tag.trim(),
+          tag
+            .trim()
+            .replace(
+              /^#+/,
+              '',
+            ),
       )
       .filter(
         Boolean,
@@ -390,7 +307,6 @@ import {
               tag,
             )
   
-  
           if (
             seen.has(
               key,
@@ -399,11 +315,9 @@ import {
             return false
           }
   
-  
           seen.add(
             key,
           )
-  
   
           return true
         },
@@ -411,327 +325,370 @@ import {
   }
   
   
+  /* =======================================
+     PHOTO PURPOSE
+  ======================================= */
+  
+  function getPhotoPurposeLabel(
+    purpose:
+      SprigPhotoPurpose |
+      undefined,
+  ):
+    string |
+    undefined {
+    if (
+      !purpose
+    ) {
+      return undefined
+    }
+  
+    switch (
+      purpose
+    ) {
+      case 'observation':
+        return 'Observation'
+  
+      case 'progress':
+        return 'Progress'
+  
+      case 'problem':
+        return 'Problem'
+  
+      case 'harvest':
+        return 'Harvest'
+  
+      case 'setup':
+        return 'Setup'
+  
+      case 'reference':
+        return 'Reference'
+  
+      case 'other':
+      default:
+        return 'Other'
+    }
+  }
+  
+  
+  /* =======================================
+     PHOTO METADATA
+  ======================================= */
+  
+  function getPhotoMetadata(
+    photoUrl: string,
+    index: number,
+    metadata:
+      (
+        SprigPhotoMetadata |
+        undefined
+      )[] |
+      undefined,
+  ):
+    SprigPhotoMetadata |
+    undefined {
+    const urlMatch =
+      metadata?.find(
+        item =>
+          item?.photoUrl ===
+          photoUrl,
+      )
+  
+    if (
+      urlMatch
+    ) {
+      return urlMatch
+    }
+  
+    return metadata?.[
+      index
+    ]
+  }
+  
+  
+  /* =======================================
+     RELATIONSHIP OPTIONS
+  ======================================= */
+  
   function buildRelationshipOptions(
-    gardenData:
-      GardenData,
+    gardenData: GardenData,
   ):
     RelationshipOption[] {
     const options:
-      RelationshipOption[] =
-      []
+      RelationshipOption[] = []
   
   
-    gardenData
-      .plantStories
-      .forEach(
-        plant => {
-          const label =
-            plant.displayName ||
-            plant.variety ||
-            plant.plantName
+    gardenData.plantStories.forEach(
+      plant => {
+        const label =
+          plant.displayName ||
+          plant.variety ||
+          plant.plantName
+  
+        options.push({
+          key:
+            `plant-story:${plant.id}`,
+  
+          targetType:
+            'plant-story',
+  
+          targetId:
+            plant.id,
+  
+          label,
+  
+          group:
+            'Plant Stories',
+  
+          searchText:
+            makeSearchText([
+              label,
+              plant.plantName,
+              plant.variety,
+              plant.notes,
+            ]),
+        })
+      },
+    )
   
   
-          options.push({
-            key:
-              `plant-story:${plant.id}`,
+    gardenData.events.forEach(
+      event => {
+        options.push({
+          key:
+            `garden-event:${event.id}`,
   
-            targetType:
-              'plant-story',
+          targetType:
+            'garden-event',
   
-            targetId:
-              plant.id,
+          targetId:
+            event.id,
   
-            label,
+          label:
+            `${event.title} · ${formatDate(
+              event.date,
+            )}`,
   
-            group:
-              'Plant Stories',
+          group:
+            'Journal',
   
-            searchText:
-              makeSearchText([
-                label,
-  
-                plant.plantName,
-  
-                plant.variety,
-  
-                plant.notes,
-              ]),
-          })
-        },
-      )
-  
-  
-    gardenData
-      .events
-      .forEach(
-        event => {
-          options.push({
-            key:
-              `garden-event:${event.id}`,
-  
-            targetType:
-              'garden-event',
-  
-            targetId:
-              event.id,
-  
-            label:
-              `${event.title} · ${formatDate(
-                event.date,
-              )}`,
-  
-            group:
-              'Journal',
-  
-            searchText:
-              makeSearchText([
-                event.title,
-  
-                event.notes,
-  
-                event.date,
-              ]),
-          })
-        },
-      )
+          searchText:
+            makeSearchText([
+              event.title,
+              event.notes,
+              event.date,
+            ]),
+        })
+      },
+    )
   
   
-    gardenData
-      .harvests
-      .forEach(
-        harvest => {
-          const plantNames =
-            harvest
-              .plantStoryIds
-              .map(
-                plantId =>
-                  gardenData
-                    .plantStories
-                    .find(
-                      plant =>
-                        plant.id ===
-                        plantId,
-                    ),
-              )
-              .filter(
-                Boolean,
-              )
-              .map(
-                plant =>
-                  plant?.displayName ||
-                  plant?.variety ||
-                  plant?.plantName ||
-                  '',
-              )
-              .filter(
-                Boolean,
-              )
+    gardenData.harvests.forEach(
+      harvest => {
+        const plantNames =
+          harvest.plantStoryIds
+            .map(
+              plantId =>
+                gardenData
+                  .plantStories
+                  .find(
+                    plant =>
+                      plant.id ===
+                      plantId,
+                  ),
+            )
+            .filter(
+              Boolean,
+            )
+            .map(
+              plant =>
+                plant?.displayName ||
+                plant?.variety ||
+                plant?.plantName ||
+                '',
+            )
+            .filter(
+              Boolean,
+            )
+  
+        options.push({
+          key:
+            `harvest:${harvest.id}`,
+  
+          targetType:
+            'harvest',
+  
+          targetId:
+            harvest.id,
+  
+          label:
+            `${plantNames.join(
+              ', ',
+            ) || 'Harvest'} · ${formatDate(
+              harvest.date,
+            )}`,
+  
+          group:
+            'Harvests',
+  
+          searchText:
+            makeSearchText([
+              ...plantNames,
+              harvest.notes,
+              harvest.date,
+            ]),
+        })
+      },
+    )
   
   
-          options.push({
-            key:
-              `harvest:${harvest.id}`,
+    gardenData.growingPlaces.forEach(
+      place => {
+        options.push({
+          key:
+            `growing-place:${place.id}`,
   
-            targetType:
-              'harvest',
+          targetType:
+            'growing-place',
   
-            targetId:
-              harvest.id,
+          targetId:
+            place.id,
   
-            label:
-              `${plantNames.join(
-                ', ',
-              ) || 'Harvest'} · ${formatDate(
-                harvest.date,
-              )}`,
+          label:
+            place.name,
   
-            group:
-              'Harvests',
+          group:
+            'Growing Places',
   
-            searchText:
-              makeSearchText([
-                ...plantNames,
-  
-                harvest.notes,
-  
-                harvest.date,
-              ]),
-          })
-        },
-      )
-  
-  
-    gardenData
-      .growingPlaces
-      .forEach(
-        place => {
-          options.push({
-            key:
-              `growing-place:${place.id}`,
-  
-            targetType:
-              'growing-place',
-  
-            targetId:
-              place.id,
-  
-            label:
+          searchText:
+            makeSearchText([
               place.name,
-  
-            group:
-              'Growing Places',
-  
-            searchText:
-              makeSearchText([
-                place.name,
-  
-                place.notes,
-  
-                place.kind,
-              ]),
-          })
-        },
-      )
+              place.notes,
+              place.kind,
+            ]),
+        })
+      },
+    )
   
   
-    gardenData
-      .growingSetups
-      .forEach(
-        setup => {
-          options.push({
-            key:
-              `growing-setup:${setup.id}`,
+    gardenData.growingSetups.forEach(
+      setup => {
+        options.push({
+          key:
+            `growing-setup:${setup.id}`,
   
-            targetType:
-              'growing-setup',
+          targetType:
+            'growing-setup',
   
-            targetId:
-              setup.id,
+          targetId:
+            setup.id,
   
-            label:
+          label:
+            setup.name,
+  
+          group:
+            'Growing Recipes',
+  
+          searchText:
+            makeSearchText([
               setup.name,
-  
-            group:
-              'Growing Recipes',
-  
-            searchText:
-              makeSearchText([
-                setup.name,
-  
-                setup.notes,
-  
-                setup.brand,
-  
-                setup.productName,
-              ]),
-          })
-        },
-      )
+              setup.notes,
+              setup.brand,
+              setup.productName,
+            ]),
+        })
+      },
+    )
   
   
-    gardenData
-      .ingredients
-      .forEach(
-        ingredient => {
-          options.push({
-            key:
-              `ingredient:${ingredient.id}`,
+    gardenData.ingredients.forEach(
+      ingredient => {
+        options.push({
+          key:
+            `ingredient:${ingredient.id}`,
   
-            targetType:
-              'ingredient',
+          targetType:
+            'ingredient',
   
-            targetId:
-              ingredient.id,
+          targetId:
+            ingredient.id,
   
-            label:
+          label:
+            ingredient.name,
+  
+          group:
+            'Ingredients',
+  
+          searchText:
+            makeSearchText([
               ingredient.name,
-  
-            group:
-              'Ingredients',
-  
-            searchText:
-              makeSearchText([
-                ingredient.name,
-  
-                ingredient.notes,
-  
-                ingredient.source,
-              ]),
-          })
-        },
-      )
+              ingredient.notes,
+              ingredient.source,
+            ]),
+        })
+      },
+    )
   
   
-    gardenData
-      .products
-      .forEach(
-        product => {
-          options.push({
-            key:
-              `product:${product.id}`,
+    gardenData.products.forEach(
+      product => {
+        options.push({
+          key:
+            `product:${product.id}`,
   
-            targetType:
-              'product',
+          targetType:
+            'product',
   
-            targetId:
-              product.id,
+          targetId:
+            product.id,
   
-            label:
+          label:
+            product.name,
+  
+          group:
+            'Products',
+  
+          searchText:
+            makeSearchText([
               product.name,
-  
-            group:
-              'Products',
-  
-            searchText:
-              makeSearchText([
-                product.name,
-  
-                product.brand,
-  
-                product.productName,
-  
-                product.notes,
-              ]),
-          })
-        },
-      )
+              product.brand,
+              product.productName,
+              product.notes,
+            ]),
+        })
+      },
+    )
   
   
-    gardenData
-      .purchases
-      .forEach(
-        purchase => {
-          options.push({
-            key:
-              `purchase:${purchase.id}`,
+    gardenData.purchases.forEach(
+      purchase => {
+        options.push({
+          key:
+            `purchase:${purchase.id}`,
   
-            targetType:
-              'purchase',
+          targetType:
+            'purchase',
   
-            targetId:
-              purchase.id,
+          targetId:
+            purchase.id,
   
-            label:
-              `${purchase.itemName} · ${formatDate(
-                purchase.date,
-              )}`,
+          label:
+            `${purchase.itemName} · ${formatDate(
+              purchase.date,
+            )}`,
   
-            group:
-              'Purchases',
+          group:
+            'Purchases',
   
-            searchText:
-              makeSearchText([
-                purchase.itemName,
-  
-                purchase.supplier,
-  
-                purchase.brand,
-  
-                purchase.notes,
-              ]),
-          })
-        },
-      )
+          searchText:
+            makeSearchText([
+              purchase.itemName,
+              purchase.supplier,
+              purchase.brand,
+              purchase.notes,
+            ]),
+        })
+      },
+    )
   
   
     ;(
@@ -749,7 +706,6 @@ import {
               Boolean,
             ) ||
           'Garden Note'
-  
   
         options.push({
           key:
@@ -769,9 +725,7 @@ import {
           searchText:
             makeSearchText([
               label,
-  
               note.body,
-  
               note.sourceLabel,
             ]),
         })
@@ -785,9 +739,9 @@ import {
     ).forEach(
       reference => {
         const label =
+          reference.title?.trim() ||
           [
             reference.plantName,
-  
             reference.variety,
           ]
             .filter(
@@ -795,8 +749,8 @@ import {
             )
             .join(
               ' · ',
-            )
-  
+            ) ||
+          'Garden Reference'
   
         options.push({
           key:
@@ -811,14 +765,15 @@ import {
           label,
   
           group:
-            'Plant Reference',
+            'Garden Reference',
   
           searchText:
             makeSearchText([
               label,
-  
+              reference.plantName,
+              reference.variety,
+              reference.knowledge,
               reference.notes,
-  
               ...(
                 reference.aliases ??
                 []
@@ -853,11 +808,8 @@ import {
           searchText:
             makeSearchText([
               source.title,
-  
               source.sourceName,
-  
               source.excerpt,
-  
               source.notes,
             ]),
         })
@@ -889,11 +841,8 @@ import {
           searchText:
             makeSearchText([
               trial.title,
-  
               trial.purpose,
-  
               trial.question,
-  
               trial.conclusion,
             ]),
         })
@@ -911,14 +860,12 @@ import {
             second.group,
           )
   
-  
         if (
           groupDifference !==
           0
         ) {
           return groupDifference
         }
-  
   
         return first.label.localeCompare(
           second.label,
@@ -928,10 +875,12 @@ import {
   }
   
   
-  function getRelationshipLabel(
-    gardenData:
-      GardenData,
+  /* =======================================
+     RELATIONSHIP LABEL
+  ======================================= */
   
+  function getRelationshipLabel(
+    gardenData: GardenData,
     relationship:
       KnowledgeRelationship,
   ):
@@ -952,19 +901,22 @@ import {
   }
   
   
+  /* =======================================
+     BUILD GALLERY
+  ======================================= */
+  
   function buildGalleryItems(
-    gardenData:
-      GardenData,
+    gardenData: GardenData,
   ):
     GalleryItem[] {
     const items:
-      GalleryItem[] =
-      []
+      GalleryItem[] = []
   
   
     function pushPhotos({
       photoUrls,
       photoDates,
+      photoMetadata,
       fallbackDate,
       addedAt,
       title,
@@ -975,45 +927,32 @@ import {
       categoryLabel,
       sourceType,
       sourceId,
+      defaultPurpose,
     }: {
-      photoUrls?:
-        string[]
-  
+      photoUrls?: string[]
       photoDates?:
         Array<
           string |
           undefined
         >
-  
-      fallbackDate?:
-        string
-  
-      addedAt?:
-        string
-  
-      title:
-        string
-  
-      subtitle?:
-        string
-  
-      notes?:
-        string
-  
-      tags?:
-        string[]
-  
-      category:
-        GalleryCategory
-  
-      categoryLabel:
-        string
-  
+      photoMetadata?:
+        Array<
+          SprigPhotoMetadata |
+          undefined
+        >
+      fallbackDate?: string
+      addedAt?: string
+      title: string
+      subtitle?: string
+      notes?: string
+      tags?: string[]
+      category: GalleryCategory
+      categoryLabel: string
       sourceType:
         KnowledgeRelationshipTargetType
-  
-      sourceId:
-        string
+      sourceId: string
+      defaultPurpose?:
+        SprigPhotoPurpose
     }) {
       ;(
         photoUrls ??
@@ -1023,30 +962,79 @@ import {
           photoUrl,
           index,
         ) => {
+          const metadata =
+            getPhotoMetadata(
+              photoUrl,
+              index,
+              photoMetadata,
+            )
+  
           const photoDate =
+            metadata
+              ?.photoDate ??
             photoDates?.[
               index
             ] ??
             fallbackDate
   
+          const photoTitle =
+            metadata
+              ?.title
+              ?.trim() ||
+            title
+  
+          const photoNotes =
+            metadata
+              ?.notes
+              ?.trim() ||
+            notes
+  
+          const photoTags =
+            metadata
+              ?.tags ??
+            tags
+  
+          const purpose =
+            metadata
+              ?.purpose ??
+            defaultPurpose
+  
+          const purposeLabel =
+            getPhotoPurposeLabel(
+              purpose,
+            )
   
           items.push({
             key:
+              metadata
+                ?.photoId ??
               `${sourceType}:${sourceId}:${index}`,
   
             photoUrl,
   
             photoDate,
   
-            addedAt,
+            photoTime:
+              metadata
+                ?.photoTime,
   
-            title,
+            addedAt:
+              metadata
+                ?.addedAt ??
+              addedAt,
+  
+            title:
+              photoTitle,
   
             subtitle,
   
-            notes,
+            notes:
+              photoNotes,
   
-            tags,
+            tags:
+              photoTags,
+  
+            purpose,
   
             category,
   
@@ -1058,17 +1046,15 @@ import {
   
             searchableText:
               makeSearchText([
-                title,
-  
+                photoTitle,
                 subtitle,
-  
-                notes,
-  
+                photoNotes,
                 categoryLabel,
-  
                 photoDate,
-  
-                ...tags,
+                metadata
+                  ?.originalFileName,
+                purposeLabel,
+                ...photoTags,
               ]),
           })
         },
@@ -1076,361 +1062,365 @@ import {
     }
   
   
-    gardenData
-      .plantStories
-      .forEach(
-        plant => {
-          const title =
-            plant.displayName ||
-            plant.variety ||
-            plant.plantName
+    gardenData.plantStories.forEach(
+      plant => {
+        const title =
+          plant.displayName ||
+          plant.variety ||
+          plant.plantName
   
+        pushPhotos({
+          photoUrls:
+            plant.photoUrls,
   
-          pushPhotos({
-            photoUrls:
-              plant.photoUrls,
+          photoDates:
+            plant.photoDates,
   
-            photoDates:
-              plant.photoDates,
+          photoMetadata:
+            plant.photoMetadata,
   
-            addedAt:
-              plant.updatedAt ??
-              plant.enteredDate,
+          addedAt:
+            plant.updatedAt ??
+            plant.enteredDate,
   
-            title,
+          title,
   
-            subtitle:
-              [
-                plant.plantName,
-  
-                plant.variety,
-              ]
-                .filter(
-                  Boolean,
-                )
-                .join(
-                  ' · ',
-                ),
-  
-            notes:
-              plant.notes,
-  
-            tags:
-              plant.tags,
-  
-            category:
-              'plants',
-  
-            categoryLabel:
-              'Plants',
-  
-            sourceType:
-              'plant-story',
-  
-            sourceId:
-              plant.id,
-          })
-        },
-      )
-  
-  
-    gardenData
-      .events
-      .forEach(
-        event => {
-          pushPhotos({
-            photoUrls:
-              event.photoUrls,
-  
-            fallbackDate:
-              event.date,
-  
-            addedAt:
-              event.date,
-  
-            title:
-              event.title,
-  
-            subtitle:
-              'Garden Journal',
-  
-            notes:
-              event.notes,
-  
-            category:
-              'journal',
-  
-            categoryLabel:
-              'Journal',
-  
-            sourceType:
-              'garden-event',
-  
-            sourceId:
-              event.id,
-          })
-        },
-      )
-  
-  
-    gardenData
-      .harvests
-      .forEach(
-        harvest => {
-          const plantNames =
-            harvest
-              .plantStoryIds
-              .map(
-                plantId =>
-                  gardenData
-                    .plantStories
-                    .find(
-                      plant =>
-                        plant.id ===
-                        plantId,
-                    ),
-              )
+          subtitle:
+            [
+              plant.plantName,
+              plant.variety,
+            ]
               .filter(
                 Boolean,
               )
-              .map(
-                plant =>
-                  plant?.displayName ||
-                  plant?.variety ||
-                  plant?.plantName ||
-                  '',
-              )
-              .filter(
-                Boolean,
-              )
+              .join(
+                ' · ',
+              ),
+  
+          notes:
+            plant.notes,
+  
+          tags:
+            plant.tags,
+  
+          category:
+            'plants',
+  
+          categoryLabel:
+            'Plants',
+  
+          sourceType:
+            'plant-story',
+  
+          sourceId:
+            plant.id,
+        })
+      },
+    )
   
   
-          pushPhotos({
-            photoUrls:
-              harvest.photoUrls,
+    gardenData.events.forEach(
+      event => {
+        pushPhotos({
+          photoUrls:
+            event.photoUrls,
   
-            fallbackDate:
-              harvest.date,
+          photoMetadata:
+            event.photoMetadata,
   
-            addedAt:
-              harvest.updatedAt ??
-              harvest.createdAt,
+          fallbackDate:
+            event.date,
   
-            title:
-              plantNames.join(
-                ', ',
-              ) ||
-              'Harvest',
+          addedAt:
+            event.date,
   
-            subtitle:
-              'Harvest',
+          title:
+            event.title,
   
-            notes:
-              harvest.notes,
+          subtitle:
+            'Garden Journal',
   
-            category:
-              'harvests',
+          notes:
+            event.notes,
   
-            categoryLabel:
-              'Harvests',
+          category:
+            'journal',
   
-            sourceType:
-              'harvest',
+          categoryLabel:
+            'Journal',
   
-            sourceId:
-              harvest.id,
-          })
-        },
-      )
+          sourceType:
+            'garden-event',
   
+          sourceId:
+            event.id,
   
-    gardenData
-      .growingPlaces
-      .forEach(
-        place => {
-          pushPhotos({
-            photoUrls:
-              place.photoUrls,
-  
-            addedAt:
-              place.updatedAt ??
-              place.createdAt,
-  
-            title:
-              place.name,
-  
-            subtitle:
-              'Growing Place',
-  
-            notes:
-              place.notes,
-  
-            category:
-              'places',
-  
-            categoryLabel:
-              'Growing Places',
-  
-            sourceType:
-              'growing-place',
-  
-            sourceId:
-              place.id,
-          })
-        },
-      )
+          defaultPurpose:
+            event.type ===
+              'observation'
+              ? 'observation'
+              : undefined,
+        })
+      },
+    )
   
   
-    gardenData
-      .growingSetups
-      .forEach(
-        setup => {
-          pushPhotos({
-            photoUrls:
-              setup.photoUrls,
+    gardenData.harvests.forEach(
+      harvest => {
+        const plantNames =
+          harvest.plantStoryIds
+            .map(
+              plantId =>
+                gardenData
+                  .plantStories
+                  .find(
+                    plant =>
+                      plant.id ===
+                      plantId,
+                  ),
+            )
+            .filter(
+              Boolean,
+            )
+            .map(
+              plant =>
+                plant?.displayName ||
+                plant?.variety ||
+                plant?.plantName ||
+                '',
+            )
+            .filter(
+              Boolean,
+            )
   
-            addedAt:
-              setup.updatedAt ??
-              setup.createdAt,
+        pushPhotos({
+          photoUrls:
+            harvest.photoUrls,
   
-            title:
-              setup.name,
+          photoMetadata:
+            harvest.photoMetadata,
   
-            subtitle:
-              'Growing Recipe',
+          fallbackDate:
+            harvest.date,
   
-            notes:
-              setup.notes,
+          addedAt:
+            harvest.updatedAt ??
+            harvest.createdAt,
   
-            category:
-              'recipes',
+          title:
+            plantNames.join(
+              ', ',
+            ) ||
+            'Harvest',
   
-            categoryLabel:
-              'Growing Recipes',
+          subtitle:
+            'Harvest',
   
-            sourceType:
-              'growing-setup',
+          notes:
+            harvest.notes,
   
-            sourceId:
-              setup.id,
-          })
-        },
-      )
+          category:
+            'harvests',
   
+          categoryLabel:
+            'Harvests',
   
-    gardenData
-      .ingredients
-      .forEach(
-        ingredient => {
-          pushPhotos({
-            photoUrls:
-              ingredient.photoUrls,
+          sourceType:
+            'harvest',
   
-            addedAt:
-              ingredient.updatedAt ??
-              ingredient.createdAt,
+          sourceId:
+            harvest.id,
   
-            title:
-              ingredient.name,
-  
-            subtitle:
-              'Ingredient',
-  
-            notes:
-              ingredient.notes,
-  
-            category:
-              'ingredients',
-  
-            categoryLabel:
-              'Ingredients',
-  
-            sourceType:
-              'ingredient',
-  
-            sourceId:
-              ingredient.id,
-          })
-        },
-      )
-  
-  
-    gardenData
-      .products
-      .forEach(
-        product => {
-          pushPhotos({
-            photoUrls:
-              product.photoUrls,
-  
-            addedAt:
-              product.updatedAt ??
-              product.createdAt,
-  
-            title:
-              product.name,
-  
-            subtitle:
-              product.brand ||
-              'Product',
-  
-            notes:
-              product.notes,
-  
-            category:
-              'products',
-  
-            categoryLabel:
-              'Products',
-  
-            sourceType:
-              'product',
-  
-            sourceId:
-              product.id,
-          })
-        },
-      )
+          defaultPurpose:
+            'harvest',
+        })
+      },
+    )
   
   
-    gardenData
-      .purchases
-      .forEach(
-        purchase => {
-          pushPhotos({
-            photoUrls:
-              purchase.photoUrls,
+    gardenData.growingPlaces.forEach(
+      place => {
+        pushPhotos({
+          photoUrls:
+            place.photoUrls,
   
-            fallbackDate:
-              purchase.date,
+          addedAt:
+            place.updatedAt ??
+            place.createdAt,
   
-            addedAt:
-              purchase.updatedAt ??
-              purchase.createdAt,
+          title:
+            place.name,
   
-            title:
-              purchase.itemName,
+          subtitle:
+            'Growing Place',
   
-            subtitle:
-              'Purchase',
+          notes:
+            place.notes,
   
-            notes:
-              purchase.notes,
+          category:
+            'places',
   
-            category:
-              'purchases',
+          categoryLabel:
+            'Growing Places',
   
-            categoryLabel:
-              'Purchases',
+          sourceType:
+            'growing-place',
   
-            sourceType:
-              'purchase',
+          sourceId:
+            place.id,
+        })
+      },
+    )
   
-            sourceId:
-              purchase.id,
-          })
-        },
-      )
+  
+    gardenData.growingSetups.forEach(
+      setup => {
+        pushPhotos({
+          photoUrls:
+            setup.photoUrls,
+  
+          addedAt:
+            setup.updatedAt ??
+            setup.createdAt,
+  
+          title:
+            setup.name,
+  
+          subtitle:
+            'Growing Recipe',
+  
+          notes:
+            setup.notes,
+  
+          category:
+            'recipes',
+  
+          categoryLabel:
+            'Growing Recipes',
+  
+          sourceType:
+            'growing-setup',
+  
+          sourceId:
+            setup.id,
+  
+          defaultPurpose:
+            'setup',
+        })
+      },
+    )
+  
+  
+    gardenData.ingredients.forEach(
+      ingredient => {
+        pushPhotos({
+          photoUrls:
+            ingredient.photoUrls,
+  
+          addedAt:
+            ingredient.updatedAt ??
+            ingredient.createdAt,
+  
+          title:
+            ingredient.name,
+  
+          subtitle:
+            'Ingredient',
+  
+          notes:
+            ingredient.notes,
+  
+          category:
+            'ingredients',
+  
+          categoryLabel:
+            'Ingredients',
+  
+          sourceType:
+            'ingredient',
+  
+          sourceId:
+            ingredient.id,
+        })
+      },
+    )
+  
+  
+    gardenData.products.forEach(
+      product => {
+        pushPhotos({
+          photoUrls:
+            product.photoUrls,
+  
+          addedAt:
+            product.updatedAt ??
+            product.createdAt,
+  
+          title:
+            product.name,
+  
+          subtitle:
+            product.brand ||
+            'Product',
+  
+          notes:
+            product.notes,
+  
+          category:
+            'products',
+  
+          categoryLabel:
+            'Products',
+  
+          sourceType:
+            'product',
+  
+          sourceId:
+            product.id,
+  
+          defaultPurpose:
+            'reference',
+        })
+      },
+    )
+  
+  
+    gardenData.purchases.forEach(
+      purchase => {
+        pushPhotos({
+          photoUrls:
+            purchase.photoUrls,
+  
+          fallbackDate:
+            purchase.date,
+  
+          addedAt:
+            purchase.updatedAt ??
+            purchase.createdAt,
+  
+          title:
+            purchase.itemName,
+  
+          subtitle:
+            'Purchase',
+  
+          notes:
+            purchase.notes,
+  
+          category:
+            'purchases',
+  
+          categoryLabel:
+            'Purchases',
+  
+          sourceType:
+            'purchase',
+  
+          sourceId:
+            purchase.id,
+        })
+      },
+    )
   
   
     ;(
@@ -1448,7 +1438,6 @@ import {
               Boolean,
             ) ||
           'Garden Note'
-  
   
         pushPhotos({
           photoUrls:
@@ -1480,6 +1469,9 @@ import {
   
           sourceId:
             note.id,
+  
+          defaultPurpose:
+            'reference',
         })
       },
     )
@@ -1491,9 +1483,9 @@ import {
     ).forEach(
       reference => {
         const title =
+          reference.title?.trim() ||
           [
             reference.plantName,
-  
             reference.variety,
           ]
             .filter(
@@ -1501,8 +1493,8 @@ import {
             )
             .join(
               ' · ',
-            )
-  
+            ) ||
+          'Garden Reference'
   
         pushPhotos({
           photoUrls:
@@ -1518,9 +1510,10 @@ import {
           title,
   
           subtitle:
-            'Plant Reference',
+            'Garden Reference',
   
           notes:
+            reference.knowledge ??
             reference.notes,
   
           tags:
@@ -1537,6 +1530,9 @@ import {
   
           sourceId:
             reference.id,
+  
+          defaultPurpose:
+            'reference',
         })
       },
     )
@@ -1567,7 +1563,6 @@ import {
           notes:
             [
               source.excerpt,
-  
               source.notes,
             ]
               .filter(
@@ -1588,6 +1583,9 @@ import {
   
           sourceId:
             source.id,
+  
+          defaultPurpose:
+            'reference',
         })
       },
     )
@@ -1621,7 +1619,6 @@ import {
           notes:
             [
               trial.question,
-  
               trial.conclusion,
             ]
               .filter(
@@ -1642,6 +1639,9 @@ import {
   
           sourceId:
             trial.id,
+  
+          defaultPurpose:
+            'observation',
         })
   
   
@@ -1686,6 +1686,9 @@ import {
   
               sourceId:
                 trial.id,
+  
+              defaultPurpose:
+                'observation',
             })
           },
         )
@@ -1706,11 +1709,9 @@ import {
             relationship =>
               getRelationshipLabel(
                 gardenData,
-  
                 relationship,
               ),
           )
-  
   
         items.push({
           key:
@@ -1757,15 +1758,10 @@ import {
           searchableText:
             makeSearchText([
               photo.title,
-  
               photo.notes,
-  
               photo.photoDate,
-  
               'Gallery Photo',
-  
               ...relationshipLabels,
-  
               ...(
                 photo.tags ??
                 []
@@ -1779,6 +1775,10 @@ import {
     return items
   }
   
+  
+  /* =======================================
+     GARDEN GALLERY
+  ======================================= */
   
   export default function GardenGallery({
     gardenData,
@@ -1794,7 +1794,6 @@ import {
         'all',
       )
   
-  
     const [
       sort,
       setSort,
@@ -1803,27 +1802,29 @@ import {
         'newest-photo',
       )
   
-  
     const [
       search,
       setSearch,
     ] =
-      useState('')
-  
+      useState(
+        '',
+      )
   
     const [
       fromDate,
       setFromDate,
     ] =
-      useState('')
-  
+      useState(
+        '',
+      )
   
     const [
       toDate,
       setToDate,
     ] =
-      useState('')
-  
+      useState(
+        '',
+      )
   
     const [
       viewerKey,
@@ -1836,7 +1837,6 @@ import {
         null,
       )
   
-  
     const [
       compareKeys,
       setCompareKeys,
@@ -1847,7 +1847,6 @@ import {
         [],
       )
   
-  
     const [
       isAdding,
       setIsAdding,
@@ -1855,7 +1854,6 @@ import {
       useState(
         false,
       )
-  
   
     const [
       editingGalleryPhotoId,
@@ -1868,7 +1866,6 @@ import {
         null,
       )
   
-  
     const [
       draftPhotoUrls,
       setDraftPhotoUrls,
@@ -1878,7 +1875,6 @@ import {
       >(
         [],
       )
-  
   
     const [
       draftPhotoDates,
@@ -1893,34 +1889,37 @@ import {
         [],
       )
   
-  
     const [
       draftTitle,
       setDraftTitle,
     ] =
-      useState('')
-  
+      useState(
+        '',
+      )
   
     const [
       draftNotes,
       setDraftNotes,
     ] =
-      useState('')
-  
+      useState(
+        '',
+      )
   
     const [
       draftTags,
       setDraftTags,
     ] =
-      useState('')
-  
+      useState(
+        '',
+      )
   
     const [
       relationshipSearch,
       setRelationshipSearch,
     ] =
-      useState('')
-  
+      useState(
+        '',
+      )
   
     const [
       draftRelationships,
@@ -1932,12 +1931,13 @@ import {
         [],
       )
   
-  
     const [
       relationshipKey,
       setRelationshipKey,
     ] =
-      useState('')
+      useState(
+        '',
+      )
   
   
     const allItems =
@@ -1946,7 +1946,6 @@ import {
           buildGalleryItems(
             gardenData,
           ),
-  
         [
           gardenData,
         ],
@@ -1959,7 +1958,6 @@ import {
           buildRelationshipOptions(
             gardenData,
           ),
-  
         [
           gardenData,
         ],
@@ -1974,7 +1972,6 @@ import {
               relationshipSearch,
             )
   
-  
           const linked =
             new Set(
               draftRelationships.map(
@@ -1983,16 +1980,13 @@ import {
               ),
             )
   
-  
           return relationshipOptions
             .filter(
               option =>
                 !query ||
                 makeSearchText([
                   option.group,
-  
                   option.label,
-  
                   option.searchText,
                 ]).includes(
                   query,
@@ -2013,12 +2007,9 @@ import {
               80,
             )
         },
-  
         [
           relationshipOptions,
-  
           relationshipSearch,
-  
           draftRelationships,
         ],
       )
@@ -2033,31 +2024,24 @@ import {
               number
             >()
   
-  
-          CATEGORY_OPTIONS
-            .forEach(
-              option => {
-                counts.set(
-                  option.value,
-  
-                  0,
-                )
-              },
-            )
-  
+          CATEGORY_OPTIONS.forEach(
+            option => {
+              counts.set(
+                option.value,
+                0,
+              )
+            },
+          )
   
           counts.set(
             'all',
-  
             allItems.length,
           )
-  
   
           allItems.forEach(
             item => {
               counts.set(
                 item.category,
-  
                 (
                   counts.get(
                     item.category,
@@ -2069,10 +2053,8 @@ import {
             },
           )
   
-  
           return counts
         },
-  
         [
           allItems,
         ],
@@ -2087,7 +2069,6 @@ import {
               search,
             )
   
-  
           const filtered =
             allItems.filter(
               item => {
@@ -2100,47 +2081,42 @@ import {
                   return false
                 }
   
-  
                 if (
                   query &&
-                  !item.searchableText.includes(
-                    query,
+                  !item
+                    .searchableText
+                    .includes(
+                      query,
+                    )
+                ) {
+                  return false
+                }
+  
+                if (
+                  fromDate &&
+                  (
+                    !item.photoDate ||
+                    item.photoDate <
+                      fromDate
                   )
                 ) {
                   return false
                 }
   
-  
                 if (
-                  fromDate
-                ) {
-                  if (
-                    !item.photoDate ||
-                    item.photoDate <
-                      fromDate
-                  ) {
-                    return false
-                  }
-                }
-  
-  
-                if (
-                  toDate
-                ) {
-                  if (
+                  toDate &&
+                  (
                     !item.photoDate ||
                     item.photoDate >
                       toDate
-                  ) {
-                    return false
-                  }
+                  )
+                ) {
+                  return false
                 }
-  
   
                 return true
               },
             )
-  
   
           return [
             ...filtered,
@@ -2162,13 +2138,11 @@ import {
                   )
                 }
   
-  
                 if (
                   !first.photoDate
                 ) {
                   return 1
                 }
-  
   
                 if (
                   !second.photoDate
@@ -2176,12 +2150,10 @@ import {
                   return -1
                 }
   
-  
                 return second.photoDate.localeCompare(
                   first.photoDate,
                 )
               }
-  
   
               if (
                 sort ===
@@ -2196,13 +2168,11 @@ import {
                   )
                 }
   
-  
                 if (
                   !first.photoDate
                 ) {
                   return 1
                 }
-  
   
                 if (
                   !second.photoDate
@@ -2210,12 +2180,10 @@ import {
                   return -1
                 }
   
-  
                 return first.photoDate.localeCompare(
                   second.photoDate,
                 )
               }
-  
   
               if (
                 sort ===
@@ -2230,12 +2198,10 @@ import {
                 )
               }
   
-  
               const categoryDifference =
                 first.categoryLabel.localeCompare(
                   second.categoryLabel,
                 )
-  
   
               if (
                 categoryDifference !==
@@ -2244,25 +2210,18 @@ import {
                 return categoryDifference
               }
   
-  
               return first.title.localeCompare(
                 second.title,
               )
             },
           )
         },
-  
         [
           allItems,
-  
           category,
-  
           search,
-  
           fromDate,
-  
           toDate,
-  
           sort,
         ],
       )
@@ -2296,6 +2255,17 @@ import {
             ),
         )
   
+  
+    const editorOpen =
+      isAdding ||
+      Boolean(
+        editingGalleryPhotoId,
+      )
+  
+  
+    /* =======================================
+       EDITOR
+    ======================================= */
   
     function resetEditor() {
       setIsAdding(
@@ -2354,8 +2324,7 @@ import {
   
   
     function startEditPhoto(
-      photo:
-        GalleryPhoto,
+      photo: GalleryPhoto,
     ) {
       setIsAdding(
         false,
@@ -2419,13 +2388,11 @@ import {
             relationshipKey,
         )
   
-  
       if (
         !option
       ) {
         return
       }
-  
   
       const alreadyLinked =
         draftRelationships.some(
@@ -2436,13 +2403,11 @@ import {
               option.targetId,
         )
   
-  
       if (
         alreadyLinked
       ) {
         return
       }
-  
   
       setDraftRelationships(
         current => [
@@ -2464,7 +2429,6 @@ import {
         ],
       )
   
-  
       setRelationshipKey(
         '',
       )
@@ -2481,76 +2445,67 @@ import {
           0
         ]
   
-  
       if (
         !photoUrl
       ) {
         return
       }
   
-  
       const now =
         getNow()
-  
   
       if (
         editingGalleryPhotoId
       ) {
-        const updatedGalleryPhotos =
-          (
-            gardenData.galleryPhotos ??
-            []
-          ).map(
-            photo =>
-              photo.id ===
-              editingGalleryPhotoId
-                ? {
-                    ...photo,
-  
-                    photoUrl,
-  
-                    photoDate:
-                      draftPhotoDates[
-                        0
-                      ] ||
-                      undefined,
-  
-                    title:
-                      draftTitle.trim() ||
-                      undefined,
-  
-                    notes:
-                      draftNotes.trim() ||
-                      undefined,
-  
-                    tags:
-                      parseTags(
-                        draftTags,
-                      ),
-  
-                    relationships:
-                      draftRelationships,
-  
-                    updatedAt:
-                      now,
-                  }
-                : photo,
-          )
-  
-  
         onGardenDataChange({
           ...gardenData,
   
           galleryPhotos:
-            updatedGalleryPhotos,
-        })
+            (
+              gardenData.galleryPhotos ??
+              []
+            ).map(
+              photo =>
+                photo.id ===
+                editingGalleryPhotoId
+                  ? {
+                      ...photo,
   
+                      photoUrl,
+  
+                      photoDate:
+                        draftPhotoDates[
+                          0
+                        ] ||
+                        undefined,
+  
+                      title:
+                        draftTitle.trim() ||
+                        undefined,
+  
+                      notes:
+                        draftNotes.trim() ||
+                        undefined,
+  
+                      tags:
+                        parseTags(
+                          draftTags,
+                        ),
+  
+                      relationships:
+                        draftRelationships,
+  
+                      updatedAt:
+                        now,
+                    }
+                  : photo,
+            ),
+        })
   
         resetEditor()
   
         return
       }
-  
   
       const newPhoto:
         GalleryPhoto = {
@@ -2585,7 +2540,6 @@ import {
             now,
         }
   
-  
       onGardenDataChange({
         ...gardenData,
   
@@ -2594,32 +2548,27 @@ import {
             gardenData.galleryPhotos ??
             []
           ),
-  
           newPhoto,
         ],
       })
-  
   
       resetEditor()
     }
   
   
     function handleDeleteGalleryPhoto(
-      photoId:
-        string,
+      photoId: string,
     ) {
       const confirmed =
         window.confirm(
           'Delete this Gallery photograph? This only removes the photograph owned by Garden Gallery. Photographs belonging to other Sprig records are not affected.',
         )
   
-  
       if (
         !confirmed
       ) {
         return
       }
-  
   
       onGardenDataChange({
         ...gardenData,
@@ -2635,11 +2584,9 @@ import {
           ),
       })
   
-  
       setViewerKey(
         null,
       )
-  
   
       setCompareKeys(
         current =>
@@ -2652,9 +2599,12 @@ import {
     }
   
   
+    /* =======================================
+       COMPARE
+    ======================================= */
+  
     function toggleCompare(
-      itemKey:
-        string,
+      itemKey: string,
     ) {
       setCompareKeys(
         current => {
@@ -2670,7 +2620,6 @@ import {
             )
           }
   
-  
           if (
             current.length >=
             2
@@ -2679,15 +2628,12 @@ import {
               current[
                 1
               ],
-  
               itemKey,
             ]
           }
   
-  
           return [
             ...current,
-  
             itemKey,
           ]
         },
@@ -2695,24 +2641,13 @@ import {
     }
   
   
+    /* =======================================
+       SOURCE
+    ======================================= */
+  
     function openSource(
-      item:
-        GalleryItem,
+      item: GalleryItem,
     ) {
-      if (
-        item.sourceType &&
-        item.sourceId
-      ) {
-        onOpenRelationship(
-          item.sourceType,
-  
-          item.sourceId,
-        )
-  
-        return
-      }
-  
-  
       if (
         item.galleryPhotoId
       ) {
@@ -2726,7 +2661,6 @@ import {
               item.galleryPhotoId,
           )
   
-  
         if (
           photo
         ) {
@@ -2734,28 +2668,35 @@ import {
             photo,
           )
         }
+  
+        return
+      }
+  
+      if (
+        item.sourceType &&
+        item.sourceId
+      ) {
+        setViewerKey(
+          null,
+        )
+  
+        onOpenRelationship(
+          item.sourceType,
+          item.sourceId,
+        )
       }
     }
-  
-  
-    const editorOpen =
-      isAdding ||
-      Boolean(
-        editingGalleryPhotoId,
-      )
   
   
     return (
       <GardenLayout
         activePage="garden-gallery"
-  
         onNavigate={
           onNavigate
         }
       >
-        <main className="journal-page sprig-gallery-page">
-  
-          <header className="journal-header sprig-gallery-header">
+        <main className="sprig-gallery-page">
+          <section className="sprig-gallery-header">
             <div>
               <p className="section-label">
                 Photographs
@@ -2765,32 +2706,19 @@ import {
                 Garden Gallery
               </h1>
   
-              <p className="journal-intro">
-                One visual doorway into the photographs tucked throughout Sprig,
-                plus photographs that live here in the Gallery itself.
+              <p>
+                {allItems.length}{' '}
+                {allItems.length ===
+                1
+                  ? 'photograph'
+                  : 'photographs'}{' '}
+                gathered across Sprig.
               </p>
-            </div>
-          </header>
-  
-  
-          <section className="sprig-gallery-summary-card">
-            <div>
-              <strong>
-                {
-                  allItems.length
-                }
-              </strong>
-  
-              <span>
-                photographs gathered across Sprig
-              </span>
             </div>
   
             <button
               type="button"
-  
               className="sprig-gallery-primary-button"
-  
               onClick={
                 startAddPhoto
               }
@@ -2800,423 +2728,353 @@ import {
           </section>
   
   
-          {
-            editorOpen && (
-              <section className="sprig-gallery-paper sprig-gallery-editor">
+          {editorOpen && (
+            <section className="sprig-gallery-paper sprig-gallery-editor">
+              <div className="sprig-gallery-section-heading">
+                <div>
+                  <p className="section-label">
+                    Gallery Photo
+                  </p>
   
-                <div className="sprig-gallery-section-heading">
-                  <div>
-                    <p className="section-label">
-                      Gallery Photo
-                    </p>
-  
-                    <h2>
-                      {
-                        editingGalleryPhotoId
-                          ? 'Edit photograph'
-                          : 'Add a photograph straight to the Gallery'
-                      }
-                    </h2>
-                  </div>
-  
-                  <button
-                    type="button"
-  
-                    className="sprig-gallery-text-button"
-  
-                    onClick={
-                      resetEditor
-                    }
-                  >
-                    Close
-                  </button>
+                  <h2>
+                    {editingGalleryPhotoId
+                      ? 'Edit photograph'
+                      : 'Add a photograph straight to the Gallery'}
+                  </h2>
                 </div>
   
-  
-                <SprigPhotoPicker
-                  photoUrls={
-                    draftPhotoUrls
+                <button
+                  type="button"
+                  className="sprig-gallery-text-button"
+                  onClick={
+                    resetEditor
                   }
+                >
+                  Close
+                </button>
+              </div>
   
-                  onChange={
-                    photoUrls => {
-                      setDraftPhotoUrls(
-                        photoUrls.slice(
-                          0,
-                          1,
+  
+              <SprigPhotoPicker
+                photoUrls={
+                  draftPhotoUrls
+                }
+  
+                onChange={
+                  photoUrls => {
+                    const nextUrls =
+                      photoUrls.slice(
+                        0,
+                        1,
+                      )
+  
+                    setDraftPhotoUrls(
+                      nextUrls,
+                    )
+  
+                    setDraftPhotoDates(
+                      current =>
+                        nextUrls.map(
+                          (
+                            _photoUrl,
+                            index,
+                          ) =>
+                            current[
+                              index
+                            ] ??
+                            getToday(),
                         ),
-                      )
-  
-                      setDraftPhotoDates(
-                        current =>
-                          photoUrls
-                            .slice(
-                              0,
-                              1,
-                            )
-                            .map(
-                              (
-                                _photoUrl,
-                                index,
-                              ) =>
-                                current[
-                                  index
-                                ] ??
-                                getToday(),
-                            ),
-                      )
-                    }
-                  }
-  
-                  photoDates={
-                    draftPhotoDates
-                  }
-  
-                  onPhotoDatesChange={
-                    setDraftPhotoDates
-                  }
-  
-                  title="Photograph"
-  
-                  helperText="This photograph will belong directly to Garden Gallery. You can connect it to other Sprig records below without moving or duplicating it."
-  
-                  addButtonText="Choose photograph"
-  
-                  photoAltPrefix="Garden Gallery photograph"
-  
-                  multiple={
-                    false
-                  }
-  
-                  maxPhotos={
-                    1
-                  }
-  
-                  defaultNewPhotosToToday={
-                    true
-                  }
-  
-                  photoDateLabel="When was this photograph taken?"
-  
-                  photoDateHelperText="Optional and editable. Leave it blank if you genuinely do not know."
-                />
-  
-  
-                <div className="sprig-gallery-editor-grid">
-  
-                  <label className="sprig-gallery-field sprig-gallery-field--wide">
-                    <span>
-                      Title or caption
-                      <small>
-                        optional
-                      </small>
-                    </span>
-  
-                    <input
-                      type="text"
-  
-                      value={
-                        draftTitle
-                      }
-  
-                      onChange={
-                        event =>
-                          setDraftTitle(
-                            event
-                              .target
-                              .value,
-                          )
-                      }
-  
-                      placeholder="New growth on Royal Blue"
-                    />
-                  </label>
-  
-  
-                  <label className="sprig-gallery-field sprig-gallery-field--wide">
-                    <span>
-                      Notes
-                      <small>
-                        optional
-                      </small>
-                    </span>
-  
-                    <textarea
-                      rows={
-                        4
-                      }
-  
-                      value={
-                        draftNotes
-                      }
-  
-                      onChange={
-                        event =>
-                          setDraftNotes(
-                            event
-                              .target
-                              .value,
-                          )
-                      }
-  
-                      placeholder="What caught your eye, what changed, what you want to remember..."
-                    />
-                  </label>
-  
-  
-                  <label className="sprig-gallery-field sprig-gallery-field--wide">
-                    <span>
-                      Photo tags
-                      <small>
-                        comma separated · optional
-                      </small>
-                    </span>
-  
-                    <input
-                      type="text"
-  
-                      value={
-                        draftTags
-                      }
-  
-                      onChange={
-                        event =>
-                          setDraftTags(
-                            event
-                              .target
-                              .value,
-                          )
-                      }
-  
-                      placeholder="potato, Royal Blue, new growth, winter"
-                    />
-                  </label>
-                </div>
-  
-  
-                <section className="sprig-gallery-relationships">
-  
-                  <div>
-                    <p className="section-label">
-                      Related Sprig records
-                    </p>
-  
-                    <p className="sprig-gallery-muted">
-                      A Gallery photograph can point to the stories, Trials, places
-                      or other records it helps explain while remaining owned by
-                      the Gallery.
-                    </p>
-                  </div>
-  
-  
-                  {
-                    draftRelationships.length >
-                    0 && (
-                      <div className="sprig-gallery-related-list">
-                        {
-                          draftRelationships.map(
-                            relationship => (
-                              <div
-                                key={`${relationship.targetType}:${relationship.targetId}`}
-  
-                                className="sprig-gallery-related-chip"
-                              >
-                                <span>
-                                  {
-                                    getRelationshipLabel(
-                                      gardenData,
-  
-                                      relationship,
-                                    )
-                                  }
-                                </span>
-  
-                                <button
-                                  type="button"
-  
-                                  aria-label="Remove relationship"
-  
-                                  onClick={() =>
-                                    setDraftRelationships(
-                                      current =>
-                                        current.filter(
-                                          item =>
-                                            !(
-                                              item.targetType ===
-                                                relationship.targetType &&
-                                              item.targetId ===
-                                                relationship.targetId
-                                            ),
-                                        ),
-                                    )
-                                  }
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            ),
-                          )
-                        }
-                      </div>
                     )
                   }
+                }
+  
+                photoDates={
+                  draftPhotoDates
+                }
+  
+                onPhotoDatesChange={
+                  setDraftPhotoDates
+                }
+  
+                title="Photograph"
+  
+                helperText="This photograph belongs directly to Garden Gallery. You can connect it to other Sprig records below without moving or duplicating it."
+  
+                addButtonText="Choose photograph"
+  
+                photoAltPrefix="Garden Gallery photograph"
+  
+                multiple={
+                  false
+                }
+  
+                maxPhotos={
+                  1
+                }
+  
+                defaultNewPhotosToToday
+  
+                photoDateLabel="When was this photograph taken?"
+  
+                photoDateHelperText="Optional and editable. Leave it blank if you genuinely do not know."
+              />
   
   
+              <div className="sprig-gallery-editor-grid">
+                <label className="sprig-gallery-field sprig-gallery-field--wide">
+                  <span>
+                    Title or caption
+                    <small>
+                      optional
+                    </small>
+                  </span>
+  
+                  <input
+                    type="text"
+                    value={
+                      draftTitle
+                    }
+                    onChange={
+                      event =>
+                        setDraftTitle(
+                          event.target.value,
+                        )
+                    }
+                    placeholder="New growth on Royal Blue"
+                  />
+                </label>
+  
+  
+                <label className="sprig-gallery-field sprig-gallery-field--wide">
+                  <span>
+                    Notes
+                    <small>
+                      optional
+                    </small>
+                  </span>
+  
+                  <textarea
+                    rows={
+                      4
+                    }
+                    value={
+                      draftNotes
+                    }
+                    onChange={
+                      event =>
+                        setDraftNotes(
+                          event.target.value,
+                        )
+                    }
+                    placeholder="Anything worth remembering about what is visible here..."
+                  />
+                </label>
+  
+  
+                <label className="sprig-gallery-field sprig-gallery-field--wide">
+                  <span>
+                    Tags
+                    <small>
+                      optional
+                    </small>
+                  </span>
+  
+                  <input
+                    type="text"
+                    value={
+                      draftTags
+                    }
+                    onChange={
+                      event =>
+                        setDraftTags(
+                          event.target.value,
+                        )
+                    }
+                    placeholder="#sprouting #yellow-leaves #harvest"
+                  />
+                </label>
+              </div>
+  
+  
+              <section className="sprig-gallery-relationships">
+                <p className="section-label">
+                  Relationships
+                </p>
+  
+                <h3>
+                  Connect this photograph
+                </h3>
+  
+                <p>
+                  A Gallery-owned photograph can point
+                  to saved Sprig records without
+                  becoming a duplicate photograph.
+                </p>
+  
+  
+                {draftRelationships.length >
+                  0 && (
+                  <div className="sprig-gallery-linked-list">
+                    {draftRelationships.map(
+                      relationship => (
+                        <div
+                          key={`${relationship.targetType}:${relationship.targetId}`}
+                          className="sprig-gallery-linked-row"
+                        >
+                          <span>
+                            {getRelationshipLabel(
+                              gardenData,
+                              relationship,
+                            )}
+                          </span>
+  
+                          <button
+                            type="button"
+                            className="sprig-gallery-text-button"
+                            onClick={() =>
+                              setDraftRelationships(
+                                current =>
+                                  current.filter(
+                                    item =>
+                                      !(
+                                        item.targetType ===
+                                          relationship.targetType &&
+                                        item.targetId ===
+                                          relationship.targetId
+                                      ),
+                                  ),
+                              )
+                            }
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+  
+  
+                <label className="sprig-gallery-field">
+                  <span>
+                    Find a Sprig record
+                  </span>
+  
+                  <input
+                    type="search"
+                    value={
+                      relationshipSearch
+                    }
+                    onChange={
+                      event => {
+                        setRelationshipSearch(
+                          event.target.value,
+                        )
+  
+                        setRelationshipKey(
+                          '',
+                        )
+                      }
+                    }
+                    placeholder="Royal Blue, west wall, harvest, Trial..."
+                  />
+                </label>
+  
+  
+                <div className="sprig-gallery-relationship-row">
                   <label className="sprig-gallery-field">
                     <span>
-                      Find a Sprig record
+                      Matching records
                     </span>
   
-                    <input
-                      type="search"
-  
+                    <select
                       value={
-                        relationshipSearch
+                        relationshipKey
                       }
-  
                       onChange={
-                        event => {
-                          setRelationshipSearch(
-                            event
-                              .target
-                              .value,
-                          )
-  
+                        event =>
                           setRelationshipKey(
-                            '',
+                            event.target.value,
                           )
-                        }
-                      }
-  
-                      placeholder="Royal Blue, west wall, harvest, Trial..."
-                    />
-                  </label>
-  
-  
-                  <div className="sprig-gallery-relationship-row">
-  
-                    <label className="sprig-gallery-field">
-                      <span>
-                        Matching records
-                      </span>
-  
-                      <select
-                        value={
-                          relationshipKey
-                        }
-  
-                        onChange={
-                          event =>
-                            setRelationshipKey(
-                              event
-                                .target
-                                .value,
-                            )
-                        }
-                      >
-                        <option value="">
-                          Choose a saved Sprig record
-                        </option>
-  
-                        {
-                          filteredRelationshipOptions.map(
-                            option => (
-                              <option
-                                key={
-                                  option.key
-                                }
-  
-                                value={
-                                  option.key
-                                }
-  
-                                disabled={
-                                  option.alreadyLinked
-                                }
-                              >
-                                {
-                                  option.group
-                                } · {
-                                  option.label
-                                }
-                                {
-                                  option.alreadyLinked
-                                    ? ' · Already linked'
-                                    : ''
-                                }
-                              </option>
-                            ),
-                          )
-                        }
-                      </select>
-                    </label>
-  
-  
-                    <button
-                      type="button"
-  
-                      className="sprig-gallery-secondary-button"
-  
-                      disabled={
-                        !relationshipKey
-                      }
-  
-                      onClick={
-                        handleAddRelationship
                       }
                     >
-                      Link record
-                    </button>
-                  </div>
-                </section>
+                      <option value="">
+                        Choose a saved Sprig record
+                      </option>
   
-  
-                <div className="sprig-gallery-editor-actions">
+                      {filteredRelationshipOptions.map(
+                        option => (
+                          <option
+                            key={
+                              option.key
+                            }
+                            value={
+                              option.key
+                            }
+                            disabled={
+                              option.alreadyLinked
+                            }
+                          >
+                            {option.group} · {option.label}
+                            {option.alreadyLinked
+                              ? ' · Already linked'
+                              : ''}
+                          </option>
+                        ),
+                      )}
+                    </select>
+                  </label>
   
                   <button
                     type="button"
-  
                     className="sprig-gallery-secondary-button"
-  
-                    onClick={
-                      resetEditor
-                    }
-                  >
-                    Leave it for now
-                  </button>
-  
-  
-                  <button
-                    type="button"
-  
-                    className="sprig-gallery-primary-button"
-  
                     disabled={
-                      !draftPhotoUrls[
-                        0
-                      ]
+                      !relationshipKey
                     }
-  
                     onClick={
-                      handleSaveGalleryPhoto
+                      handleAddRelationship
                     }
                   >
-                    {
-                      editingGalleryPhotoId
-                        ? 'Save photograph'
-                        : 'Add to Garden Gallery'
-                    }
+                    Link record
                   </button>
                 </div>
               </section>
-            )
-          }
+  
+  
+              <div className="sprig-gallery-editor-actions">
+                <button
+                  type="button"
+                  className="sprig-gallery-secondary-button"
+                  onClick={
+                    resetEditor
+                  }
+                >
+                  Leave it for now
+                </button>
+  
+                <button
+                  type="button"
+                  className="sprig-gallery-primary-button"
+                  disabled={
+                    !draftPhotoUrls[
+                      0
+                    ]
+                  }
+                  onClick={
+                    handleSaveGalleryPhoto
+                  }
+                >
+                  {editingGalleryPhotoId
+                    ? 'Save photograph'
+                    : 'Add to Garden Gallery'}
+                </button>
+              </div>
+            </section>
+          )}
   
   
           <section className="sprig-gallery-controls sprig-gallery-paper">
-  
             <div className="sprig-gallery-search-row">
-  
               <label className="sprig-gallery-field sprig-gallery-field--search">
                 <span>
                   Search photographs
@@ -3224,24 +3082,18 @@ import {
   
                 <input
                   type="search"
-  
                   value={
                     search
                   }
-  
                   onChange={
                     event =>
                       setSearch(
-                        event
-                          .target
-                          .value,
+                        event.target.value,
                       )
                   }
-  
-                  placeholder="Potato, Royal Blue, yellow leaves, harvest..."
+                  placeholder="Potato, Royal Blue, yellow leaves, flowering, harvest..."
                 />
               </label>
-  
   
               <label className="sprig-gallery-field">
                 <span>
@@ -3252,560 +3104,407 @@ import {
                   value={
                     sort
                   }
-  
                   onChange={
                     event =>
                       setSort(
-                        event
-                          .target
-                          .value as GallerySort,
+                        event.target.value as
+                          GallerySort,
                       )
                   }
                 >
-                  {
-                    SORT_OPTIONS.map(
-                      option => (
-                        <option
-                          key={
-                            option.value
-                          }
-  
-                          value={
-                            option.value
-                          }
-                        >
-                          {
-                            option.label
-                          }
-                        </option>
-                      ),
-                    )
-                  }
+                  {SORT_OPTIONS.map(
+                    option => (
+                      <option
+                        key={
+                          option.value
+                        }
+                        value={
+                          option.value
+                        }
+                      >
+                        {option.label}
+                      </option>
+                    ),
+                  )}
                 </select>
               </label>
             </div>
   
   
             <div className="sprig-gallery-date-row">
-  
               <label className="sprig-gallery-field">
                 <span>
-                  From date
+                  From
                 </span>
   
                 <input
                   type="date"
-  
                   value={
                     fromDate
                   }
-  
                   onChange={
                     event =>
                       setFromDate(
-                        event
-                          .target
-                          .value,
+                        event.target.value,
                       )
                   }
                 />
               </label>
   
-  
               <label className="sprig-gallery-field">
                 <span>
-                  To date
+                  To
                 </span>
   
                 <input
                   type="date"
-  
                   value={
                     toDate
                   }
-  
                   onChange={
                     event =>
                       setToDate(
-                        event
-                          .target
-                          .value,
+                        event.target.value,
                       )
                   }
                 />
               </label>
-  
-  
-              {
-                (
-                  fromDate ||
-                  toDate
-                ) && (
-                  <button
-                    type="button"
-  
-                    className="sprig-gallery-text-button"
-  
-                    onClick={() => {
-                      setFromDate(
-                        '',
-                      )
-  
-                      setToDate(
-                        '',
-                      )
-                    }}
-                  >
-                    Clear dates
-                  </button>
-                )
-              }
             </div>
   
   
-            <div className="sprig-gallery-category-strip">
-              {
-                CATEGORY_OPTIONS.map(
-                  option => (
-                    <button
-                      key={
-                        option.value
-                      }
+            <div className="sprig-gallery-category-row">
+              {CATEGORY_OPTIONS.map(
+                option => (
+                  <button
+                    type="button"
+                    key={
+                      option.value
+                    }
+                    className={
+                      category ===
+                      option.value
+                        ? 'sprig-gallery-category-button sprig-gallery-category-button--active'
+                        : 'sprig-gallery-category-button'
+                    }
+                    onClick={() =>
+                      setCategory(
+                        option.value,
+                      )
+                    }
+                  >
+                    <span>
+                      {option.label}
+                    </span>
   
-                      type="button"
-  
-                      className={
-                        category ===
-                        option.value
-                          ? 'sprig-gallery-category sprig-gallery-category--active'
-                          : 'sprig-gallery-category'
-                      }
-  
-                      onClick={() =>
-                        setCategory(
-                          option.value,
-                        )
-                      }
-                    >
-                      <span>
-                        {
-                          option.label
-                        }
-                      </span>
-  
-                      <small>
-                        {
-                          categoryCounts.get(
-                            option.value,
-                          ) ??
-                          0
-                        }
-                      </small>
-                    </button>
-                  ),
-                )
-              }
+                    <small>
+                      {categoryCounts.get(
+                        option.value,
+                      ) ??
+                      0}
+                    </small>
+                  </button>
+                ),
+              )}
             </div>
           </section>
-  
-  
-          {
-            compareKeys.length >
-            0 && (
-              <section className="sprig-gallery-compare-tray">
-                <div>
-                  <strong>
-                    Compare photographs
-                  </strong>
-  
-                  <span>
-                    {
-                      compareKeys.length
-                    }/2 selected
-                  </span>
-                </div>
-  
-                <div>
-                  <button
-                    type="button"
-  
-                    className="sprig-gallery-text-button"
-  
-                    onClick={() =>
-                      setCompareKeys(
-                        [],
-                      )
-                    }
-                  >
-                    Clear
-                  </button>
-  
-                  <a
-                    href="#sprig-photo-comparison"
-  
-                    className={
-                      compareKeys.length ===
-                      2
-                        ? 'sprig-gallery-primary-link'
-                        : 'sprig-gallery-primary-link sprig-gallery-primary-link--disabled'
-                    }
-  
-                    aria-disabled={
-                      compareKeys.length !==
-                      2
-                    }
-  
-                    onClick={
-                      event => {
-                        if (
-                          compareKeys.length !==
-                          2
-                        ) {
-                          event.preventDefault()
-                        }
-                      }
-                    }
-                  >
-                    Compare 2 photos
-                  </a>
-                </div>
-              </section>
-            )
-          }
   
   
           <section className="sprig-gallery-results-heading">
             <div>
               <p className="section-label">
-                Gallery
+                Garden photographs
               </p>
   
               <h2>
-                {
-                  visibleItems.length
-                }{' '}
-                {
-                  visibleItems.length ===
-                  1
-                    ? 'photograph'
-                    : 'photographs'
-                }
+                {visibleItems.length}{' '}
+                {visibleItems.length ===
+                1
+                  ? 'photograph'
+                  : 'photographs'}
               </h2>
             </div>
+  
+            {compareKeys.length >
+              0 && (
+              <p>
+                {compareKeys.length} of 2 selected for comparison
+              </p>
+            )}
           </section>
   
   
-          {
-            visibleItems.length ===
-            0 ? (
-              <section className="sprig-gallery-empty">
-                <strong>
-                  No photographs match this view.
-                </strong>
+          {visibleItems.length ===
+          0 ? (
+            <section className="sprig-gallery-paper sprig-gallery-empty">
+              <h2>
+                No photographs match this view
+              </h2>
   
-                <p>
-                  Try another category, clear the date range or add a photograph
-                  directly to Garden Gallery.
-                </p>
-              </section>
-            ) : (
-              <section className="sprig-gallery-grid">
-                {
-                  visibleItems.map(
-                    item => {
-                      const selectedForCompare =
-                        compareKeys.includes(
-                          item.key,
-                        )
+              <p>
+                Change the search, dates or category
+                to widen the garden again.
+              </p>
+            </section>
+          ) : (
+            <section className="sprig-gallery-grid">
+              {visibleItems.map(
+                item => {
+                  const selectedForCompare =
+                    compareKeys.includes(
+                      item.key,
+                    )
   
+                  const purposeLabel =
+                    getPhotoPurposeLabel(
+                      item.purpose,
+                    )
   
-                      return (
-                        <article
-                          key={
-                            item.key
+                  return (
+                    <article
+                      key={
+                        item.key
+                      }
+                      className="sprig-gallery-card"
+                    >
+                      <button
+                        type="button"
+                        className="sprig-gallery-card-image"
+                        onClick={() =>
+                          setViewerKey(
+                            item.key,
+                          )
+                        }
+                        aria-label={`Open ${item.title}`}
+                      >
+                        <img
+                          src={
+                            item.photoUrl
                           }
+                          alt={
+                            item.title
+                          }
+                        />
+                      </button>
   
-                          className="sprig-gallery-card"
-                        >
+                      <div className="sprig-gallery-card-copy">
+                        <div className="sprig-gallery-card-kickers">
+                          <span className="sprig-gallery-card-category">
+                            {item.categoryLabel}
+                          </span>
+  
+                          {purposeLabel && (
+                            <span className="sprig-gallery-purpose">
+                              {purposeLabel}
+                            </span>
+                          )}
+                        </div>
+  
+                        <strong>
+                          {item.title}
+                        </strong>
+  
+                        <span className="sprig-gallery-card-date">
+                          {formatDate(
+                            item.photoDate,
+                          )}
+  
+                          {item.photoTime
+                            ? ` · ${item.photoTime}`
+                            : ''}
+                        </span>
+  
+                        {item.subtitle && (
+                          <small>
+                            {item.subtitle}
+                          </small>
+                        )}
+  
+                        {item.notes && (
+                          <p className="sprig-gallery-card-notes">
+                            {item.notes}
+                          </p>
+                        )}
+  
+                        {item.tags.length >
+                          0 && (
+                          <div className="sprig-gallery-tag-row">
+                            {item.tags
+                              .slice(
+                                0,
+                                4,
+                              )
+                              .map(
+                                tag => (
+                                  <span
+                                    key={`${item.key}-${tag}`}
+                                  >
+                                    #
+                                    {tag.replace(
+                                      /^#+/,
+                                      '',
+                                    )}
+                                  </span>
+                                ),
+                              )}
+                          </div>
+                        )}
+  
+  
+                        <div className="sprig-gallery-card-actions">
                           <button
                             type="button"
-  
-                            className="sprig-gallery-card-photo"
-  
+                            className={
+                              selectedForCompare
+                                ? 'sprig-gallery-compare-button sprig-gallery-compare-button--selected'
+                                : 'sprig-gallery-compare-button'
+                            }
                             onClick={() =>
-                              setViewerKey(
+                              toggleCompare(
                                 item.key,
                               )
                             }
                           >
-                            <img
-                              src={
-                                item.photoUrl
-                              }
-  
-                              alt={
-                                item.title
-                              }
-  
-                              loading="lazy"
-                            />
+                            {selectedForCompare
+                              ? '✓ Selected'
+                              : 'Compare'}
                           </button>
   
-  
-                          <div className="sprig-gallery-card-body">
-  
-                            <span className="sprig-gallery-card-category">
-                              {
-                                item.categoryLabel
-                              }
-                            </span>
-  
-                            <strong>
-                              {
-                                item.title
-                              }
-                            </strong>
-  
-                            <span className="sprig-gallery-card-date">
-                              {
-                                formatDate(
-                                  item.photoDate,
-                                )
-                              }
-                            </span>
-  
-                            {
-                              item.subtitle && (
-                                <small>
-                                  {
-                                    item.subtitle
-                                  }
-                                </small>
+                          <button
+                            type="button"
+                            className="sprig-gallery-source-button"
+                            onClick={() =>
+                              openSource(
+                                item,
                               )
                             }
-  
-                            {
-                              item.tags.length >
-                              0 && (
-                                <div className="sprig-gallery-tag-row">
-                                  {
-                                    item.tags
-                                      .slice(
-                                        0,
-                                        4,
-                                      )
-                                      .map(
-                                        tag => (
-                                          <span
-                                            key={
-                                              tag
-                                            }
-                                          >
-                                            #
-                                            {
-                                              tag
-                                            }
-                                          </span>
-                                        ),
-                                      )
-                                  }
-                                </div>
-                              )
-                            }
-  
-  
-                            <div className="sprig-gallery-card-actions">
-  
-                              <button
-                                type="button"
-  
-                                className={
-                                  selectedForCompare
-                                    ? 'sprig-gallery-compare-button sprig-gallery-compare-button--selected'
-                                    : 'sprig-gallery-compare-button'
-                                }
-  
-                                onClick={() =>
-                                  toggleCompare(
-                                    item.key,
-                                  )
-                                }
-                              >
-                                {
-                                  selectedForCompare
-                                    ? '✓ Selected'
-                                    : 'Compare'
-                                }
-                              </button>
-  
-  
-                              <button
-                                type="button"
-  
-                                className="sprig-gallery-source-button"
-  
-                                onClick={() =>
-                                  openSource(
-                                    item,
-                                  )
-                                }
-                              >
-                                {
-                                  item.galleryPhotoId
-                                    ? 'Edit photo'
-                                    : 'Open source ›'
-                                }
-                              </button>
-                            </div>
-                          </div>
-                        </article>
-                      )
-                    },
+                          >
+                            {item.galleryPhotoId
+                              ? 'Edit photo'
+                              : 'Open source ›'}
+                          </button>
+                        </div>
+                      </div>
+                    </article>
                   )
-                }
-              </section>
-            )
-          }
+                },
+              )}
+            </section>
+          )}
   
   
-          {
-            compareItems.length ===
+          {compareItems.length ===
             2 && (
-              <section
-                id="sprig-photo-comparison"
+            <section
+              id="sprig-photo-comparison"
+              className="sprig-gallery-paper sprig-gallery-comparison"
+            >
+              <div className="sprig-gallery-section-heading">
+                <div>
+                  <p className="section-label">
+                    Photo comparison
+                  </p>
   
-                className="sprig-gallery-paper sprig-gallery-comparison"
-              >
-                <div className="sprig-gallery-section-heading">
-                  <div>
-                    <p className="section-label">
-                      Photo comparison
-                    </p>
-  
-                    <h2>
-                      Look at two moments together
-                    </h2>
-                  </div>
-  
-                  <button
-                    type="button"
-  
-                    className="sprig-gallery-text-button"
-  
-                    onClick={() =>
-                      setCompareKeys(
-                        [],
-                      )
-                    }
-                  >
-                    Close comparison
-                  </button>
+                  <h2>
+                    Look at two moments together
+                  </h2>
                 </div>
   
-  
-                <div className="sprig-gallery-comparison-grid">
-  
-                  {
-                    compareItems.map(
-                      (
-                        item,
-                        index,
-                      ) => (
-                        <article
-                          key={
-                            item.key
-                          }
-  
-                          className="sprig-gallery-comparison-card"
-                        >
-                          <span className="sprig-gallery-comparison-label">
-                            {
-                              index ===
-                              0
-                                ? 'Photo A'
-                                : 'Photo B'
-                            }
-                          </span>
-  
-                          <img
-                            src={
-                              item.photoUrl
-                            }
-  
-                            alt={
-                              item.title
-                            }
-                          />
-  
-                          <div>
-                            <strong>
-                              {
-                                item.title
-                              }
-                            </strong>
-  
-                            <p>
-                              {
-                                formatDate(
-                                  item.photoDate,
-                                )
-                              }
-                            </p>
-  
-                            <small>
-                              {
-                                item.categoryLabel
-                              }
-  
-                              {
-                                item.subtitle
-                                  ? ` · ${item.subtitle}`
-                                  : ''
-                              }
-                            </small>
-                          </div>
-                        </article>
-                      ),
+                <button
+                  type="button"
+                  className="sprig-gallery-text-button"
+                  onClick={() =>
+                    setCompareKeys(
+                      [],
                     )
                   }
-                </div>
-              </section>
-            )
-          }
+                >
+                  Close comparison
+                </button>
+              </div>
+  
+              <div className="sprig-gallery-comparison-grid">
+                {compareItems.map(
+                  (
+                    item,
+                    index,
+                  ) => (
+                    <article
+                      key={
+                        item.key
+                      }
+                      className="sprig-gallery-comparison-card"
+                    >
+                      <span className="sprig-gallery-comparison-label">
+                        {index ===
+                        0
+                          ? 'Photo A'
+                          : 'Photo B'}
+                      </span>
+  
+                      <img
+                        src={
+                          item.photoUrl
+                        }
+                        alt={
+                          item.title
+                        }
+                      />
+  
+                      <div>
+                        <strong>
+                          {item.title}
+                        </strong>
+  
+                        <p>
+                          {formatDate(
+                            item.photoDate,
+                          )}
+                        </p>
+  
+                        <small>
+                          {item.categoryLabel}
+  
+                          {item.subtitle
+                            ? ` · ${item.subtitle}`
+                            : ''}
+                        </small>
+                      </div>
+                    </article>
+                  ),
+                )}
+              </div>
+            </section>
+          )}
   
   
-          {
-            viewerItem && (
-              <div
-                className="sprig-gallery-viewer-backdrop"
-  
-                role="dialog"
-  
-                aria-modal="true"
-  
-                aria-label="Photograph viewer"
-  
-                onClick={() =>
-                  setViewerKey(
-                    null,
-                  )
+          {viewerItem && (
+            <div
+              className="sprig-gallery-viewer-backdrop"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Photograph viewer"
+              onClick={() =>
+                setViewerKey(
+                  null,
+                )
+              }
+            >
+              <article
+                className="sprig-gallery-viewer"
+                onClick={
+                  event =>
+                    event.stopPropagation()
                 }
               >
-                <article
-                  className="sprig-gallery-viewer"
+                <div className="sprig-gallery-viewer-sticky-bar">
+                  <span>
+                    Photograph
+                  </span>
   
-                  onClick={
-                    event =>
-                      event.stopPropagation()
-                  }
-                >
                   <button
                     type="button"
-  
                     className="sprig-gallery-viewer-close"
-  
                     aria-label="Close photograph"
-  
                     onClick={() =>
                       setViewerKey(
                         null,
@@ -3814,14 +3513,15 @@ import {
                   >
                     ×
                   </button>
+                </div>
   
   
+                <div className="sprig-gallery-viewer-scroll">
                   <div className="sprig-gallery-viewer-image-shell">
                     <img
                       src={
                         viewerItem.photoUrl
                       }
-  
                       alt={
                         viewerItem.title
                       }
@@ -3830,137 +3530,118 @@ import {
   
   
                   <div className="sprig-gallery-viewer-details">
+                    <div className="sprig-gallery-card-kickers">
+                      <span className="sprig-gallery-card-category">
+                        {viewerItem.categoryLabel}
+                      </span>
   
-                    <span className="sprig-gallery-card-category">
-                      {
-                        viewerItem.categoryLabel
-                      }
-                    </span>
+                      {getPhotoPurposeLabel(
+                        viewerItem.purpose,
+                      ) && (
+                        <span className="sprig-gallery-purpose">
+                          {getPhotoPurposeLabel(
+                            viewerItem.purpose,
+                          )}
+                        </span>
+                      )}
+                    </div>
   
                     <h2>
-                      {
-                        viewerItem.title
-                      }
+                      {viewerItem.title}
                     </h2>
   
                     <p className="sprig-gallery-viewer-date">
-                      {
-                        formatDate(
-                          viewerItem.photoDate,
-                        )
-                      }
+                      {formatDate(
+                        viewerItem.photoDate,
+                      )}
+  
+                      {viewerItem.photoTime
+                        ? ` · ${viewerItem.photoTime}`
+                        : ''}
                     </p>
   
-                    {
-                      viewerItem.subtitle && (
-                        <p>
-                          {
-                            viewerItem.subtitle
-                          }
-                        </p>
-                      )
-                    }
+                    {viewerItem.subtitle && (
+                      <p>
+                        {viewerItem.subtitle}
+                      </p>
+                    )}
   
-                    {
-                      viewerItem.notes && (
-                        <p className="sprig-gallery-viewer-notes">
-                          {
-                            viewerItem.notes
-                          }
-                        </p>
-                      )
-                    }
+                    {viewerItem.notes && (
+                      <p className="sprig-gallery-viewer-notes">
+                        {viewerItem.notes}
+                      </p>
+                    )}
   
-                    {
-                      viewerItem.tags.length >
+                    {viewerItem.tags.length >
                       0 && (
-                        <div className="sprig-gallery-tag-row">
-                          {
-                            viewerItem.tags.map(
-                              tag => (
-                                <span
-                                  key={
-                                    tag
-                                  }
-                                >
-                                  #
-                                  {
-                                    tag
-                                  }
-                                </span>
-                              ),
-                            )
-                          }
-                        </div>
-                      )
-                    }
+                      <div className="sprig-gallery-tag-row">
+                        {viewerItem.tags.map(
+                          tag => (
+                            <span
+                              key={`${viewerItem.key}-${tag}`}
+                            >
+                              #
+                              {tag.replace(
+                                /^#+/,
+                                '',
+                              )}
+                            </span>
+                          ),
+                        )}
+                      </div>
+                    )}
   
   
                     <div className="sprig-gallery-viewer-actions">
-  
                       <button
                         type="button"
-  
                         className="sprig-gallery-secondary-button"
-  
                         onClick={() =>
                           toggleCompare(
                             viewerItem.key,
                           )
                         }
                       >
-                        {
-                          compareKeys.includes(
-                            viewerItem.key,
-                          )
-                            ? 'Remove from comparison'
-                            : 'Select for comparison'
-                        }
+                        {compareKeys.includes(
+                          viewerItem.key,
+                        )
+                          ? 'Remove from comparison'
+                          : 'Select for comparison'}
                       </button>
-  
   
                       <button
                         type="button"
-  
                         className="sprig-gallery-primary-button"
-  
                         onClick={() =>
                           openSource(
                             viewerItem,
                           )
                         }
                       >
-                        {
-                          viewerItem.galleryPhotoId
-                            ? 'Edit photograph'
-                            : 'Open original record'
-                        }
+                        {viewerItem.galleryPhotoId
+                          ? 'Edit photograph'
+                          : 'Open original record'}
                       </button>
   
-  
-                      {
-                        viewerItem.galleryPhotoId && (
-                          <button
-                            type="button"
-  
-                            className="sprig-gallery-danger-button"
-  
-                            onClick={() =>
-                              handleDeleteGalleryPhoto(
-                                viewerItem.galleryPhotoId!,
-                              )
-                            }
-                          >
-                            Delete photograph
-                          </button>
-                        )
-                      }
+                      {viewerItem.galleryPhotoId && (
+                        <button
+                          type="button"
+                          className="sprig-gallery-danger-button"
+                          onClick={() =>
+                            handleDeleteGalleryPhoto(
+                              viewerItem.galleryPhotoId!,
+                            )
+                          }
+                        >
+                          Delete photograph
+                        </button>
+                      )}
                     </div>
                   </div>
-                </article>
-              </div>
-            )
-          }
+                </div>
+              </article>
+            </div>
+          )}
         </main>
       </GardenLayout>
     )

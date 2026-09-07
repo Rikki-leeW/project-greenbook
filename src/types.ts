@@ -368,6 +368,82 @@ export interface PlantGrowingHistoryEntry {
   notes?: string;
 }
 
+/* =======================================
+   SPRIG PHOTOGRAPH CONTEXT
+======================================= */
+
+export type SprigPhotoPurpose =
+  | 'observation'
+  | 'progress'
+  | 'problem'
+  | 'harvest'
+  | 'setup'
+  | 'reference'
+  | 'other';
+
+  export interface SprigPhotoMetadata {
+    /*
+     * Stable photograph identity.
+     *
+     * New photographs receive an id when they
+     * enter Sprig. Older photographs do not
+     * need to be migrated immediately because
+     * photoUrl provides a compatibility bridge.
+     */
+    photoId?: string;
+  
+    /*
+     * The actual stored photograph this
+     * metadata belongs to.
+     *
+     * Keeping this alongside photoId means
+     * older Plant Stories can safely gain rich
+     * metadata without rewriting their existing
+     * photograph storage.
+     */
+    photoUrl?: string;
+  
+    /*
+     * The date the photograph was actually
+     * taken.
+     */
+    photoDate?: string;
+  
+    /*
+     * Time is optional because many older
+     * photographs will never have it.
+     */
+    photoTime?: string;
+  
+    /*
+     * Gardener-written photograph context.
+     */
+    title?: string;
+  
+    notes?: string;
+  
+    tags?: string[];
+  
+    /*
+     * Optional human classification.
+     *
+     * Sprig should never require this merely
+     * to save a photograph.
+     */
+    purpose?: SprigPhotoPurpose;
+  
+    /*
+     * Provenance retained when available.
+     */
+    originalFileName?: string;
+  
+    /*
+     * When this photograph entered Sprig,
+     * separate from when it was taken.
+     */
+    addedAt?: string;
+  }
+
 export interface PlantStory {
   id: string;
   plantName: string;
@@ -406,7 +482,20 @@ export interface PlantStory {
   growingHistory?: PlantGrowingHistoryEntry[];
   notes?: string;
   photoUrls?: string[];
-  photoDates?: Array<string | undefined>;
+
+/*
+ * Legacy date array retained for backwards
+ * compatibility with existing Plant Stories.
+ *
+ * New richer metadata is stored in
+ * photoMetadata using the same photograph
+ * index.
+ */
+photoDates?: Array<string | undefined>;
+
+photoMetadata?: Array<
+  SprigPhotoMetadata | undefined
+>;
   expectedHarvestDaysMin?: number;
   expectedHarvestDaysMax?: number;
   harvestTimingInputUnit?: PlantHarvestTimingUnit;
@@ -465,6 +554,10 @@ export interface GardenEvent {
   notes?: string;
   productUsed?: string;
   photoUrls?: string[];
+
+photoMetadata?: Array<
+  SprigPhotoMetadata | undefined
+>;
   originatingKnowledgeNoteId?: string;
   growingPlaceScope?: GrowingPlaceScope;
   growingPlaceIds?: string[];
@@ -524,9 +617,13 @@ export interface HarvestRecord {
   quality?: HarvestQuality;
   notes?: string;
   photoUrls?: string[];
+  photoMetadata?: Array<
+  SprigPhotoMetadata | undefined
+>;
   createdAt: string;
   updatedAt?: string;
 }
+
 
 export type GardenPlanKind =
   | 'sow'

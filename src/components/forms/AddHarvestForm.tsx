@@ -1,4 +1,5 @@
 import {
+  useRef,
   useState,
   type FormEvent,
 } from 'react'
@@ -17,6 +18,7 @@ import type {
   HarvestRecord,
   HarvestType,
   PlantStory,
+  SprigPhotoMetadata,
 } from '../../types'
 
 
@@ -49,12 +51,30 @@ interface AddHarvestFormProps {
 ======================================= */
 
 function getTodayDate(): string {
-  return new Date()
-    .toISOString()
-    .slice(
-      0,
-      10,
+  const now =
+    new Date()
+
+  const year =
+    now.getFullYear()
+
+  const month =
+    String(
+      now.getMonth() +
+        1,
+    ).padStart(
+      2,
+      '0',
     )
+
+  const day =
+    String(
+      now.getDate(),
+    ).padStart(
+      2,
+      '0',
+    )
+
+  return `${year}-${month}-${day}`
 }
 
 
@@ -64,38 +84,62 @@ function getTodayDate(): string {
 
 const HARVEST_TYPE_OPTIONS = [
   {
-    value: 'first',
-    label: 'First harvest',
+    value:
+      'first',
+
+    label:
+      'First harvest',
+
     subtitle:
       'The first picking from this growing story',
   },
   {
-    value: 'regular',
-    label: 'Regular harvest',
+    value:
+      'regular',
+
+    label:
+      'Regular harvest',
+
     subtitle:
       'One of several pickings along the way',
   },
   {
-    value: 'main',
-    label: 'Main harvest',
+    value:
+      'main',
+
+    label:
+      'Main harvest',
+
     subtitle:
       'The main crop or primary harvest',
   },
   {
-    value: 'secondary',
-    label: 'Secondary harvest',
+    value:
+      'secondary',
+
+    label:
+      'Secondary harvest',
+
     subtitle:
       'More gathered after the main harvest',
   },
   {
-    value: 'final',
-    label: 'Final harvest',
+    value:
+      'final',
+
+    label:
+      'Final harvest',
+
     subtitle:
       'The last harvest from this growing story',
   },
   {
-    value: 'other',
-    label: 'Something else',
+    value:
+      'other',
+
+    label:
+      'Something else',
+
     subtitle:
       'Give this kind of harvest your own wording',
   },
@@ -108,48 +152,81 @@ const HARVEST_TYPE_OPTIONS = [
 
 const MEASUREMENT_UNIT_OPTIONS = [
   {
-    value: 'gram',
-    label: 'Grams',
+    value:
+      'gram',
+
+    label:
+      'Grams',
   },
   {
-    value: 'kilogram',
-    label: 'Kilograms',
+    value:
+      'kilogram',
+
+    label:
+      'Kilograms',
   },
   {
-    value: 'millilitre',
-    label: 'Millilitres',
+    value:
+      'millilitre',
+
+    label:
+      'Millilitres',
   },
   {
-    value: 'litre',
-    label: 'Litres',
+    value:
+      'litre',
+
+    label:
+      'Litres',
   },
   {
-    value: 'centimetre',
-    label: 'Centimetres',
+    value:
+      'centimetre',
+
+    label:
+      'Centimetres',
   },
   {
-    value: 'inch',
-    label: 'Inches',
+    value:
+      'inch',
+
+    label:
+      'Inches',
   },
   {
-    value: 'bunch',
-    label: 'Bunches',
+    value:
+      'bunch',
+
+    label:
+      'Bunches',
   },
   {
-    value: 'handful',
-    label: 'Handfuls',
+    value:
+      'handful',
+
+    label:
+      'Handfuls',
   },
   {
-    value: 'basket',
-    label: 'Baskets',
+    value:
+      'basket',
+
+    label:
+      'Baskets',
   },
   {
-    value: 'container',
-    label: 'Containers',
+    value:
+      'container',
+
+    label:
+      'Containers',
   },
   {
-    value: 'other',
-    label: 'Something else',
+    value:
+      'other',
+
+    label:
+      'Something else',
   },
 ]
 
@@ -160,44 +237,72 @@ const MEASUREMENT_UNIT_OPTIONS = [
 
 const PLANT_OUTCOME_OPTIONS = [
   {
-    value: 'still-producing',
-    label: 'Still producing',
+    value:
+      'still-producing',
+
+    label:
+      'Still producing',
+
     subtitle:
       'More harvests are likely to come',
   },
   {
-    value: 'more-expected',
-    label: 'More expected',
+    value:
+      'more-expected',
+
+    label:
+      'More expected',
+
     subtitle:
       'This harvest is only part of the story',
   },
   {
-    value: 'main-harvest-complete',
-    label: 'Main harvest complete',
+    value:
+      'main-harvest-complete',
+
+    label:
+      'Main harvest complete',
+
     subtitle:
       'The main crop is gathered, but there may still be more',
   },
   {
-    value: 'finished',
-    label: 'Finished',
+    value:
+      'finished',
+
+    label:
+      'Finished',
+
     subtitle:
       'This growing story has finished producing',
   },
   {
-    value: 'no-change',
-    label: 'No change',
+    value:
+      'no-change',
+
+    label:
+      'No change',
+
     subtitle:
       'Leave the plant story as it is',
   },
   {
-    value: 'not-sure',
-    label: 'Not sure yet',
+    value:
+      'not-sure',
+
+    label:
+      'Not sure yet',
+
     subtitle:
       'Let the garden show us what happens next',
   },
   {
-    value: 'other',
-    label: 'Something else',
+    value:
+      'other',
+
+    label:
+      'Something else',
+
     subtitle:
       'Describe what happens next in your own words',
   },
@@ -210,23 +315,98 @@ const PLANT_OUTCOME_OPTIONS = [
 
 const QUALITY_OPTIONS = [
   {
-    value: 'poor',
-    label: 'Poor',
+    value:
+      'poor',
+
+    label:
+      'Poor',
   },
   {
-    value: 'fair',
-    label: 'Fair',
+    value:
+      'fair',
+
+    label:
+      'Fair',
   },
   {
-    value: 'good',
-    label: 'Good',
+    value:
+      'good',
+
+    label:
+      'Good',
   },
   {
-    value: 'excellent',
-    label: 'Excellent',
+    value:
+      'excellent',
+
+    label:
+      'Excellent',
   },
 ]
 
+
+/* =======================================
+   PHOTO METADATA
+======================================= */
+
+function getStartingPhotoMetadata(
+  harvest:
+    HarvestRecord |
+    null,
+): (
+  SprigPhotoMetadata |
+  undefined
+)[] {
+  const photoUrls =
+    harvest?.photoUrls ??
+    []
+
+
+  return photoUrls.map(
+    (
+      photoUrl,
+      index,
+    ) => {
+      const existing =
+        harvest
+          ?.photoMetadata?.[
+            index
+          ]
+
+
+      return {
+        ...existing,
+
+        photoUrl:
+          existing
+            ?.photoUrl ??
+          photoUrl,
+
+        /*
+         * Harvest photographs are strongly
+         * contextualised by the Harvest date.
+         *
+         * Older photographs use that as their
+         * starting photo date.
+         */
+        photoDate:
+          existing
+            ?.photoDate ??
+          harvest?.date,
+
+        purpose:
+          existing
+            ?.purpose ??
+          'harvest',
+      }
+    },
+  )
+}
+
+
+/* =======================================
+   HARVEST FORM
+======================================= */
 
 export default function AddHarvestForm({
   plants,
@@ -254,21 +434,26 @@ export default function AddHarvestForm({
 
 
   /*
-   * When a new Harvest is opened directly from
-   * one Plant Story, Sprig already knows exactly
-   * which plant owns this gathering.
-   *
-   * In that context there is no useful reason to
-   * make the gardener choose the plant again.
-   *
-   * This deliberately does NOT apply to:
-   *
-   * - a global Harvest
-   * - a Harvest being recorded from a Plan
-   * - editing an existing Harvest
-   * - a new Harvest prefilled with several plants
-   *
-   * Those contexts still need an editable picker.
+   * Hard submission gate protects phone
+   * users from accidental double records.
+   */
+  const isSubmittingRef =
+    useRef(false)
+
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] =
+    useState(
+      false,
+    )
+
+
+  /*
+   * When a new Harvest is opened directly
+   * from one Plant Story, Sprig already knows
+   * the relationship.
    */
   const isFixedPlantContext =
     !isEditing &&
@@ -507,8 +692,28 @@ export default function AddHarvestForm({
     setPhotoUrls,
   ] =
     useState<string[]>(
-      harvest?.photoUrls ??
-      [],
+      [
+        ...(
+          harvest?.photoUrls ??
+          []
+        ),
+      ],
+    )
+
+
+  const [
+    photoMetadata,
+    setPhotoMetadata,
+  ] =
+    useState<
+      (
+        SprigPhotoMetadata |
+        undefined
+      )[]
+    >(
+      getStartingPhotoMetadata(
+        harvest,
+      ),
     )
 
 
@@ -516,17 +721,18 @@ export default function AddHarvestForm({
      PLANT OPTIONS
   ======================================= */
 
-  const sortedPlants = [
-    ...plants,
-  ].sort(
-    (
-      first,
-      second,
-    ) =>
-      first.displayName.localeCompare(
-        second.displayName,
-      ),
-  )
+  const sortedPlants =
+    [
+      ...plants,
+    ].sort(
+      (
+        first,
+        second,
+      ) =>
+        first.displayName.localeCompare(
+          second.displayName,
+        ),
+    )
 
 
   const plantOptions =
@@ -575,16 +781,14 @@ export default function AddHarvestForm({
     )
 
 
-  /*
-   * The Plant Story displayed when Harvest was
-   * opened from one known plant.
-   */
   const fixedPlant =
     isFixedPlantContext
       ? plants.find(
           plant =>
             plant.id ===
-            initialPlantStoryIds[0],
+            initialPlantStoryIds[
+              0
+            ],
         )
       : undefined
 
@@ -594,13 +798,19 @@ export default function AddHarvestForm({
       ? growingPlaces.find(
           place =>
             place.id ===
-            fixedPlant.currentGrowingPlaceId,
+            fixedPlant
+              .currentGrowingPlaceId,
         )
       : undefined
 
 
+  /* =======================================
+     TOGGLES
+  ======================================= */
+
   function togglePlant(
-    plantId: string,
+    plantId:
+      string,
   ) {
     setPlantStoryIds(
       current =>
@@ -621,10 +831,12 @@ export default function AddHarvestForm({
 
 
   function toggleHarvestType(
-    value: string,
+    value:
+      string,
   ) {
     const nextType =
-      value as HarvestType
+      value as
+        HarvestType
 
 
     setHarvestType(
@@ -653,10 +865,12 @@ export default function AddHarvestForm({
 
 
   function toggleMeasurementUnit(
-    value: string,
+    value:
+      string,
   ) {
     const nextUnit =
-      value as HarvestMeasurementUnit
+      value as
+        HarvestMeasurementUnit
 
 
     setMeasurementUnit(
@@ -685,10 +899,12 @@ export default function AddHarvestForm({
 
 
   function togglePlantOutcome(
-    value: string,
+    value:
+      string,
   ) {
     const nextOutcome =
-      value as HarvestPlantOutcome
+      value as
+        HarvestPlantOutcome
 
 
     setPlantOutcome(
@@ -717,10 +933,12 @@ export default function AddHarvestForm({
 
 
   function toggleQuality(
-    value: string,
+    value:
+      string,
   ) {
     const nextQuality =
-      value as HarvestQuality
+      value as
+        HarvestQuality
 
 
     setQuality(
@@ -750,6 +968,13 @@ export default function AddHarvestForm({
 
 
     if (
+      isSubmittingRef.current
+    ) {
+      return
+    }
+
+
+    if (
       plantStoryIds.length ===
       0
     ) {
@@ -759,6 +984,14 @@ export default function AddHarvestForm({
 
       return
     }
+
+
+    isSubmittingRef.current =
+      true
+
+    setIsSubmitting(
+      true,
+    )
 
 
     const numericCount =
@@ -777,13 +1010,50 @@ export default function AddHarvestForm({
         : undefined
 
 
+    const savedPhotoMetadata =
+      photoUrls.map(
+        (
+          photoUrl,
+          index,
+        ) => {
+          const metadata =
+            photoMetadata[
+              index
+            ]
+
+
+          return {
+            ...metadata,
+
+            photoUrl:
+              metadata
+                ?.photoUrl ??
+              photoUrl,
+
+            photoDate:
+              metadata
+                ?.photoDate ??
+              date,
+
+            purpose:
+              metadata
+                ?.purpose ??
+              'harvest',
+          } satisfies SprigPhotoMetadata
+        },
+      )
+
+
     const savedHarvest:
       HarvestRecord = {
         id:
           harvest?.id ??
           crypto.randomUUID(),
 
-        plantStoryIds,
+        plantStoryIds:
+          [
+            ...plantStoryIds,
+          ],
 
         date,
 
@@ -847,7 +1117,13 @@ export default function AddHarvestForm({
           notes.trim() ||
           undefined,
 
-        photoUrls,
+        photoUrls:
+          [
+            ...photoUrls,
+          ],
+
+        photoMetadata:
+          savedPhotoMetadata,
 
         createdAt:
           harvest?.createdAt ??
@@ -855,14 +1131,33 @@ export default function AddHarvestForm({
 
         updatedAt:
           isEditing
-            ? today
+            ? new Date()
+                .toISOString()
             : undefined,
       }
 
 
-    onSaveHarvest(
-      savedHarvest,
-    )
+    try {
+      onSaveHarvest(
+        savedHarvest,
+      )
+    }
+    catch (
+      error
+    ) {
+      console.error(
+        'Unable to save Harvest:',
+        error,
+      )
+
+
+      isSubmittingRef.current =
+        false
+
+      setIsSubmitting(
+        false,
+      )
+    }
   }
 
 
@@ -927,15 +1222,16 @@ export default function AddHarvestForm({
                   </h3>
 
                   <p className="form-whisper">
-                    Sprig has carried across the Plant
-                    Stories, planned date and notes.
-                    Change anything that happened
-                    differently before saving.
+                    Sprig has carried across the
+                    Plant Stories, planned date and
+                    notes.
                   </p>
 
                   <p className="form-whisper">
-                    The Plan stays as the intention.
-                    This Harvest Record becomes reality.
+                    Change anything that happened
+                    differently. The Plan stays as
+                    intention; this Harvest becomes
+                    reality.
                   </p>
                 </section>
               )}
@@ -962,7 +1258,8 @@ export default function AddHarvestForm({
                 </p>
 
                 <h3>
-                  {fixedPlant?.displayName ??
+                  {fixedPlant
+                    ?.displayName ??
                     'This Plant Story'}
                 </h3>
 
@@ -1006,10 +1303,10 @@ export default function AddHarvestForm({
                 />
 
                 <p className="form-whisper">
-                  Choose several plants when
-                  the harvest was gathered
-                  together and cannot sensibly
-                  be divided between them.
+                  Choose several plants when the
+                  harvest was gathered together and
+                  cannot sensibly be divided between
+                  them.
                 </p>
               </section>
             )}
@@ -1084,7 +1381,7 @@ export default function AddHarvestForm({
               {harvestType ===
                 'other' && (
                 <label>
-                  What would you call this harvest?
+                  What would you call it?
 
                   <input
                     type="text"
@@ -1106,7 +1403,7 @@ export default function AddHarvestForm({
 
 
             {/* =======================================
-                HARVEST AMOUNT
+                AMOUNT
             ======================================= */}
 
             <section className="sprig-form-section growing-setup-details">
@@ -1114,62 +1411,62 @@ export default function AddHarvestForm({
                 How much came in?
               </p>
 
-
-              <label>
-                How many?
-
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={
-                    count
-                  }
-                  onChange={(
-                    event,
-                  ) =>
-                    setCount(
-                      event.target.value,
-                    )
-                  }
-                  placeholder="4"
-                />
-              </label>
-
-
               <p className="form-whisper">
-                Useful for things you naturally
-                count, such as tomatoes,
-                cucumbers, broccoli heads or
-                potatoes.
+                Use a count, a measurement, or both.
+                Four tomatoes weighing 820 g can keep
+                both pieces of information.
               </p>
 
 
-              <label>
-                Measured amount
+              <div className="form-row">
+                <label>
+                  Count
 
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={
-                    measurementAmount
-                  }
-                  onChange={(
-                    event,
-                  ) =>
-                    setMeasurementAmount(
-                      event.target.value,
-                    )
-                  }
-                  placeholder="820"
-                />
-              </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={
+                      count
+                    }
+                    onChange={(
+                      event,
+                    ) =>
+                      setCount(
+                        event.target.value,
+                      )
+                    }
+                    placeholder="Optional"
+                  />
+                </label>
+
+
+                <label>
+                  Measurement
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={
+                      measurementAmount
+                    }
+                    onChange={(
+                      event,
+                    ) =>
+                      setMeasurementAmount(
+                        event.target.value,
+                      )
+                    }
+                    placeholder="Optional"
+                  />
+                </label>
+              </div>
 
 
               <SprigPicker
-                title="How was that amount measured?"
-                emptySummary="Choose a measure"
+                title="Measurement unit"
+                emptySummary="Choose a unit if you measured it"
                 options={
                   MEASUREMENT_UNIT_OPTIONS
                 }
@@ -1198,7 +1495,7 @@ export default function AddHarvestForm({
               {measurementUnit ===
                 'other' && (
                 <label>
-                  Your measure
+                  Your measurement unit
 
                   <input
                     type="text"
@@ -1212,32 +1509,21 @@ export default function AddHarvestForm({
                         event.target.value,
                       )
                     }
-                    placeholder="Punnet, bowl, handful of sprigs..."
+                    placeholder="Tray, bowl, punnet..."
                   />
                 </label>
               )}
-
-
-              <p className="form-whisper">
-                You can record both. For
-                example: 4 tomatoes weighing
-                820 grams. For crops such as
-                broccoli or cauliflower, the
-                measured amount can instead
-                record a head size in
-                centimetres or inches.
-              </p>
             </section>
 
 
             {/* =======================================
-                PLANT OUTCOME
+                OUTCOME
             ======================================= */}
 
             <section className="sprig-form-section">
               <SprigPicker
-                title="What happens from here?"
-                emptySummary="Choose what this means for the plant"
+                title="What happens to the plant now?"
+                emptySummary="Choose only if it helps tell the story"
                 options={
                   PLANT_OUTCOME_OPTIONS
                 }
@@ -1280,18 +1566,10 @@ export default function AddHarvestForm({
                         event.target.value,
                       )
                     }
-                    placeholder="Waiting for side shoots, leaving roots in place..."
+                    placeholder="Describe it in your own words"
                   />
                 </label>
               )}
-
-
-              <p className="form-whisper">
-                This records what this harvest
-                means without automatically
-                ending or changing the Plant
-                Story.
-              </p>
             </section>
 
 
@@ -1370,13 +1648,31 @@ export default function AddHarvestForm({
                 setPhotoUrls
               }
 
+              photoMetadata={
+                photoMetadata
+              }
+
+              onPhotoMetadataChange={
+                setPhotoMetadata
+              }
+
+              showPhotoContext
+
+              defaultNewPhotosToToday={
+                true
+              }
+
               title="Harvest photographs"
 
-              helperText="Tuck photographs of what came in from the garden into this harvest."
+              helperText="Add photographs naturally. Sprig already knows the Harvest, its Plant Stories and its date. Any extra photograph details are optional."
 
               addButtonText="Add harvest photographs"
 
               photoAltPrefix="Harvest photograph"
+
+              photoDateLabel="When was this photograph taken?"
+
+              photoDateHelperText="This begins with today for new photographs. Change it if the photograph was taken on another day."
 
               maxPhotos={
                 12
@@ -1384,25 +1680,17 @@ export default function AddHarvestForm({
             />
 
 
-            {isRecordingPlan && (
-              <section className="sprig-form-section growing-setup-details">
-                <p className="section-label">
-                  Plan and reality
-                </p>
-
-                <p className="form-whisper">
-                  Saving creates a separate Harvest
-                  Record. Sprig will link it back to
-                  the Plan after the Harvest saves.
-                </p>
-              </section>
-            )}
-
+            {/* =======================================
+                ACTIONS
+            ======================================= */}
 
             <div className="form-actions">
               <button
                 type="button"
                 className="secondary-button"
+                disabled={
+                  isSubmitting
+                }
                 onClick={
                   onClose
                 }
@@ -1414,11 +1702,14 @@ export default function AddHarvestForm({
               <button
                 type="submit"
                 className="enter-button"
+                disabled={
+                  isSubmitting
+                }
               >
-                {isEditing
-                  ? 'Save harvest changes'
-                  : isRecordingPlan
-                    ? 'Record this harvest'
+                {isSubmitting
+                  ? 'Saving…'
+                  : isEditing
+                    ? 'Save harvest changes'
                     : 'Gather this harvest'}
               </button>
             </div>

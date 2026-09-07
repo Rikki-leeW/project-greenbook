@@ -4,8 +4,8 @@ import type {
     GardenTrial,
     HarvestRecord,
     PlantStory,
+    SprigPhotoMetadata,
   } from '../types'
-  
   
   /* =======================================
      SPRIG INTELLIGENCE
@@ -14,25 +14,17 @@ import type {
   /*
    * Sprig Intelligence is DERIVED.
    *
-   * It does not own garden truth.
+   * It does not own garden truth. Plant Stories,
+   * Journal, Harvests, Trials and photographs keep
+   * ownership of their own records. This engine
+   * reads those records and notices relationships.
    *
-   * Plant Stories own plants.
-   * Journal owns events.
-   * Harvests own harvests.
-   * Trials own deliberate questions.
-   * Gallery records own Gallery photographs.
+   * A core rule here is the same rule used by the
+   * Plant Story UI:
    *
-   * This engine reads those records and notices
-   * useful relationships between them.
-   *
-   * If the source records change, Sprig's
-   * understanding changes with them.
+   * Records own photographs. Relationships gather
+   * the story.
    */
-  
-  
-  /* =======================================
-     INSIGHT FAMILIES
-  ======================================= */
   
   export type SprigInsightFamily =
     | 'garden-maths'
@@ -44,81 +36,40 @@ import type {
     | 'photographs'
     | 'trial'
   
-  
-  /* =======================================
-     EVIDENCE STRENGTH
-  ======================================= */
-  
   export type SprigEvidenceStrength =
     | 'individual'
     | 'worth-watching'
     | 'emerging'
     | 'repeated'
   
-  
   export interface SprigEvidenceStrengthInfo {
-    id:
-      SprigEvidenceStrength
-  
-    label:
-      string
-  
-    description:
-      string
+    id: SprigEvidenceStrength
+    label: string
+    description: string
   }
   
-  
-  export const SPRIG_EVIDENCE_STRENGTHS:
-    SprigEvidenceStrengthInfo[] = [
-      {
-        id:
-          'individual',
-  
-        label:
-          'Just noticed',
-  
-        description:
-          'This is based on one story, one event, or very limited evidence.',
-      },
-  
-      {
-        id:
-          'worth-watching',
-  
-        label:
-          'Worth watching',
-  
-        description:
-          'There is something interesting here, but not enough repetition to call it a pattern.',
-      },
-  
-      {
-        id:
-          'emerging',
-  
-        label:
-          'Emerging pattern',
-  
-        description:
-          'Several related records are beginning to point in the same direction.',
-      },
-  
-      {
-        id:
-          'repeated',
-  
-        label:
-          'Repeated in your garden',
-  
-        description:
-          'Sprig has several independent examples showing a similar pattern in this garden.',
-      },
-    ]
-  
-  
-  /* =======================================
-     EVIDENCE REFERENCES
-  ======================================= */
+  export const SPRIG_EVIDENCE_STRENGTHS: SprigEvidenceStrengthInfo[] = [
+    {
+      id: 'individual',
+      label: 'Just noticed',
+      description: 'This is based on one story, one event, or very limited evidence.',
+    },
+    {
+      id: 'worth-watching',
+      label: 'Worth watching',
+      description: 'There is something interesting here, but not enough repetition to call it a pattern.',
+    },
+    {
+      id: 'emerging',
+      label: 'Emerging pattern',
+      description: 'Several related records are beginning to point in the same direction.',
+    },
+    {
+      id: 'repeated',
+      label: 'Repeated in your garden',
+      description: 'Sprig has several independent examples showing a similar pattern in this garden.',
+    },
+  ]
   
   export type SprigEvidenceRecordType =
     | 'plant-story'
@@ -130,25 +81,12 @@ import type {
     | 'gallery-photo'
     | 'plant-reference'
   
-  
   export interface SprigInsightEvidence {
-    recordType:
-      SprigEvidenceRecordType
-  
-    recordId:
-      string
-  
-    label:
-      string
-  
-    detail?:
-      string
+    recordType: SprigEvidenceRecordType
+    recordId: string
+    label: string
+    detail?: string
   }
-  
-  
-  /* =======================================
-     SUGGESTED ACTIONS
-  ======================================= */
   
   export type SprigInsightActionType =
     | 'open-plant'
@@ -160,228 +98,82 @@ import type {
     | 'open-journal'
     | 'none'
   
-  
   export interface SprigInsightAction {
-    type:
-      SprigInsightActionType
-  
-    label:
-      string
-  
-    plantStoryId?:
-      string
-  
-    plantStoryIds?:
-      string[]
-  
-    gardenTrialId?:
-      string
+    type: SprigInsightActionType
+    label: string
+    plantStoryId?: string
+    plantStoryIds?: string[]
+    gardenTrialId?: string
   }
-  
-  
-  /* =======================================
-     INSIGHT
-  ======================================= */
   
   export interface SprigInsight {
-    id:
-      string
-  
-    family:
-      SprigInsightFamily
-  
-    eyebrow:
-      string
-  
-    title:
-      string
-  
-    message:
-      string
-  
-    strength:
-      SprigEvidenceStrength
-  
-    /*
-     * Higher values appear first.
-     *
-     * This is not a scientific probability.
-     * It is only Sprig's display priority.
-     */
-  
-    priority:
-      number
-  
-    /*
-     * Short explanation shown when the gardener
-     * asks "Why did Sprig notice this?"
-     */
-  
-    reasoning:
-      string
-  
-    evidence:
-      SprigInsightEvidence[]
-  
-    actions?:
-      SprigInsightAction[]
-  
-    /*
-     * Used to avoid filling Today with several
-     * versions of essentially the same thought.
-     */
-  
-    subjectKey?:
-      string
-  
-    /*
-     * Useful when a finding belongs primarily
-     * to a particular Plant Story.
-     */
-  
-    plantStoryIds?:
-      string[]
-  
-    /*
-     * Date connected to the observation where
-     * one naturally exists.
-     */
-  
-    relevantDate?:
-      string
+    id: string
+    family: SprigInsightFamily
+    eyebrow: string
+    title: string
+    message: string
+    strength: SprigEvidenceStrength
+    priority: number
+    reasoning: string
+    evidence: SprigInsightEvidence[]
+    actions?: SprigInsightAction[]
+    subjectKey?: string
+    plantStoryIds?: string[]
+    relevantDate?: string
   }
-  
-  
-  /* =======================================
-     BASELINE
-  ======================================= */
   
   export interface SprigPlantBaseline {
-    key:
-      string
-  
-    plantName:
-      string
-  
-    variety?:
-      string
-  
-    storyCount:
-      number
-  
-    harvestedStoryCount:
-      number
-  
-    completedStoryCount:
-      number
-  
-    firstHarvestDays:
-      number[]
-  
-    medianFirstHarvestDays?:
-      number
-  
-    firstHarvestRangeMin?:
-      number
-  
-    firstHarvestRangeMax?:
-      number
-  
-    completedDurationDays:
-      number[]
-  
-    medianCompletedDurationDays?:
-      number
+    key: string
+    plantName: string
+    variety?: string
+    storyCount: number
+    harvestedStoryCount: number
+    completedStoryCount: number
+    firstHarvestDays: number[]
+    medianFirstHarvestDays?: number
+    firstHarvestRangeMin?: number
+    firstHarvestRangeMax?: number
+    completedDurationDays: number[]
+    medianCompletedDurationDays?: number
   }
-  
-  
-  /* =======================================
-     ENGINE RESULT
-  ======================================= */
   
   export interface SprigInsightResult {
-    generatedAt:
-      string
-  
-    insights:
-      SprigInsight[]
-  
-    baselines:
-      SprigPlantBaseline[]
-  
+    generatedAt: string
+    insights: SprigInsight[]
+    baselines: SprigPlantBaseline[]
     summary: {
-      totalInsights:
-        number
-  
-      happeningNow:
-        number
-  
-      fromYourGarden:
-        number
-  
-      worthWatching:
-        number
-  
-      milestones:
-        number
+      totalInsights: number
+      happeningNow: number
+      fromYourGarden: number
+      worthWatching: number
+      milestones: number
     }
   }
   
-  
   /* =======================================
-     DATE HELPERS
+     DATE + NUMBER HELPERS
   ======================================= */
   
-  const DAY_MS =
-    1000 *
-    60 *
-    60 *
-    24
+  const DAY_MS = 1000 * 60 * 60 * 24
   
-  
-  function parseDate(
-    value:
-      string | undefined,
-  ):
-    Date | null {
-    if (
-      !value
-    ) {
-      return null
-    }
-  
-  
-    const safe =
-      value.slice(
-        0,
-        10,
-      )
-  
+  function parseDate(value: string | undefined): Date | null {
+    if (!value) return null
   
     const parsed =
       new Date(
-        `${safe}T00:00:00`,
+        `${value.slice(0, 10)}T00:00:00`,
       )
   
-  
-    if (
-      Number.isNaN(
-        parsed.getTime(),
-      )
-    ) {
-      return null
-    }
-  
-  
-    return parsed
+    return Number.isNaN(
+      parsed.getTime(),
+    )
+      ? null
+      : parsed
   }
   
-  
-  function getToday():
-    Date {
+  function getToday(): Date {
     const now =
       new Date()
-  
   
     return new Date(
       now.getFullYear(),
@@ -390,15 +182,10 @@ import type {
     )
   }
   
-  
   function differenceInDays(
-    later:
-      Date,
-  
-    earlier:
-      Date,
-  ):
-    number {
+    later: Date,
+    earlier: Date,
+  ): number {
     return Math.round(
       (
         later.getTime() -
@@ -408,26 +195,19 @@ import type {
     )
   }
   
-  
   function daysBetween(
-    earlierValue:
-      string | undefined,
-  
-    laterValue:
-      string | undefined,
-  ):
-    number | undefined {
+    earlierValue: string | undefined,
+    laterValue: string | undefined,
+  ): number | undefined {
     const earlier =
       parseDate(
         earlierValue,
       )
   
-  
     const later =
       parseDate(
         laterValue,
       )
-  
   
     if (
       !earlier ||
@@ -436,94 +216,63 @@ import type {
       return undefined
     }
   
-  
     const days =
       differenceInDays(
         later,
         earlier,
       )
   
-  
-    if (
-      days <
-      0
-    ) {
-      return undefined
-    }
-  
-  
-    return days
+    return days < 0
+      ? undefined
+      : days
   }
-  
   
   function formatDate(
-    value:
-      string | undefined,
-  ):
-    string {
+    value: string | undefined,
+  ): string {
     const parsed =
       parseDate(
         value,
       )
-  
   
     if (
       !parsed
     ) {
-      return (
-        value ??
-        ''
-      )
+      return value ?? ''
     }
   
-  
-    return parsed
-      .toLocaleDateString(
-        'en-AU',
-        {
-          day:
-            'numeric',
-  
-          month:
-            'short',
-  
-          year:
-            'numeric',
-        },
-      )
+    return parsed.toLocaleDateString(
+      'en-AU',
+      {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      },
+    )
   }
   
-  
   function addDays(
-    value:
-      string,
-  
-    days:
-      number,
-  ):
-    string | undefined {
+    value: string,
+    days: number,
+  ): string | undefined {
     const parsed =
       parseDate(
         value,
       )
-  
   
     if (
       !parsed
     ) {
       return undefined
     }
-  
   
     parsed.setDate(
       parsed.getDate() +
       days,
     )
   
-  
     const year =
       parsed.getFullYear()
-  
   
     const month =
       String(
@@ -534,7 +283,6 @@ import type {
         '0',
       )
   
-  
     const day =
       String(
         parsed.getDate(),
@@ -543,20 +291,12 @@ import type {
         '0',
       )
   
-  
     return `${year}-${month}-${day}`
   }
   
-  
-  /* =======================================
-     NUMBER HELPERS
-  ======================================= */
-  
   function median(
-    values:
-      number[],
-  ):
-    number | undefined {
+    values: number[],
+  ): number | undefined {
     if (
       values.length ===
       0
@@ -564,18 +304,17 @@ import type {
       return undefined
     }
   
-  
-    const sorted = [
-      ...values,
-    ].sort(
-      (
-        left,
-        right,
-      ) =>
-        left -
-        right,
-    )
-  
+    const sorted =
+      [
+        ...values,
+      ].sort(
+        (
+          left,
+          right,
+        ) =>
+          left -
+          right,
+      )
   
     const middle =
       Math.floor(
@@ -583,10 +322,9 @@ import type {
         2,
       )
   
-  
     if (
       sorted.length %
-        2 ===
+      2 ===
       0
     ) {
       return Math.round(
@@ -594,37 +332,32 @@ import type {
           sorted[
             middle -
             1
-          ] +
+          ]! +
           sorted[
             middle
-          ]
+          ]!
         ) /
         2,
       )
     }
-  
   
     return sorted[
       middle
     ]
   }
   
-  
   function range(
-    values:
-      number[],
-  ):
-    {
-      min?: number
-      max?: number
-    } {
+    values: number[],
+  ): {
+    min?: number
+    max?: number
+  } {
     if (
       values.length ===
       0
     ) {
       return {}
     }
-  
   
     return {
       min:
@@ -639,28 +372,108 @@ import type {
     }
   }
   
+  export function formatSprigDuration(
+    days: number,
+  ): string {
+    if (
+      days <
+      14
+    ) {
+      return `${days} ${
+        days === 1
+          ? 'day'
+          : 'days'
+      }`
+    }
+  
+    if (
+      days <
+      70
+    ) {
+      const weeks =
+        Math.round(
+          days /
+          7,
+        )
+  
+      return `${weeks} ${
+        weeks === 1
+          ? 'week'
+          : 'weeks'
+      }`
+    }
+  
+    if (
+      days <
+      365
+    ) {
+      const months =
+        Math.round(
+          days /
+          30.4375,
+        )
+  
+      return `${months} ${
+        months === 1
+          ? 'month'
+          : 'months'
+      }`
+    }
+  
+    const years =
+      Math.floor(
+        days /
+        365,
+      )
+  
+    const remainingMonths =
+      Math.round(
+        (
+          days -
+          years *
+          365
+        ) /
+        30.4375,
+      )
+  
+    if (
+      remainingMonths <=
+      0
+    ) {
+      return `${years} ${
+        years === 1
+          ? 'year'
+          : 'years'
+      }`
+    }
+  
+    return `${years} ${
+      years === 1
+        ? 'year'
+        : 'years'
+    }, ${remainingMonths} ${
+      remainingMonths === 1
+        ? 'month'
+        : 'months'
+    }`
+  }
   
   /* =======================================
-     TEXT HELPERS
+     PLANT HELPERS
   ======================================= */
   
   function cleanText(
-    value:
-      string | undefined,
-  ):
-    string {
+    value: string | undefined,
+  ): string {
     return (
       value ??
       ''
     ).trim()
   }
   
-  
   function normalise(
-    value:
-      string | undefined,
-  ):
-    string {
+    value: string | undefined,
+  ): string {
     return cleanText(
       value,
     )
@@ -671,12 +484,9 @@ import type {
       )
   }
   
-  
   function getPlantLabel(
-    plant:
-      PlantStory,
-  ):
-    string {
+    plant: PlantStory,
+  ): string {
     return (
       cleanText(
         plant.displayName,
@@ -685,7 +495,6 @@ import type {
         cleanText(
           plant.plantName,
         ),
-  
         cleanText(
           plant.variety,
         ),
@@ -700,45 +509,31 @@ import type {
     )
   }
   
-  
   function getPlantGroupKey(
-    plant:
-      PlantStory,
-  ):
-    string {
+    plant: PlantStory,
+  ): string {
     const crop =
       normalise(
         plant.plantName,
       )
-  
   
     const variety =
       normalise(
         plant.variety,
       )
   
-  
-    if (
-      variety
-    ) {
-      return `${crop}::${variety}`
-    }
-  
-  
-    return crop
+    return variety
+      ? `${crop}::${variety}`
+      : crop
   }
   
-  
   function getPlantGroupLabel(
-    plant:
-      PlantStory,
-  ):
-    string {
+    plant: PlantStory,
+  ): string {
     return [
       cleanText(
         plant.plantName,
       ),
-  
       cleanText(
         plant.variety,
       ),
@@ -751,158 +546,113 @@ import type {
       )
   }
   
-  
-  /* =======================================
-     PLANT TIMING REFERENCE
-  ======================================= */
-  
   function getPlantTimingReferenceDate(
-    plant:
-      PlantStory,
-  
-    gardenData:
-      GardenData,
-  ):
-    string | undefined {
+    plant: PlantStory,
+    gardenData: GardenData,
+  ): string | undefined {
     const reference =
-      plant
-        .harvestTimingReference
-  
+      plant.harvestTimingReference
   
     if (
-      reference
+      !reference
     ) {
-      switch (
-        reference.sourceType
-      ) {
-        case 'sown':
-          return (
-            plant.sownDate ||
-            plant.plantedDate
-          )
-  
-  
-        case 'planted':
-          return (
-            plant.plantedDate
-          )
-  
-  
-        case 'planted-out':
-          return (
-            plant.plantedOutDate ||
-            plant.plantedDate
-          )
-  
-  
-        case 'purchased': {
-          if (
-            plant.originPurchaseId
-          ) {
-            const purchase =
-              (
-                gardenData
-                  .purchases ??
-                []
-              ).find(
-                item =>
-                  item.id ===
-                  plant.originPurchaseId,
-              )
-  
-  
-            if (
-              purchase?.date
-            ) {
-              return purchase.date
-            }
-          }
-  
-  
-          return (
-            plant.plantedDate
-          )
-        }
-  
-  
-        case 'garden-event': {
-          if (
-            reference.eventId
-          ) {
-            const event =
-              gardenData
-                .events
-                .find(
-                  item =>
-                    item.id ===
-                    reference.eventId,
-                )
-  
-  
-            if (
-              event?.date
-            ) {
-              return event.date
-            }
-          }
-  
-  
-          return (
-            plant.plantedDate
-          )
-        }
-  
-  
-        case 'custom-date':
-          return (
-            reference.customDate ||
-            plant.plantedDate
-          )
-  
-  
-        default:
-          return (
-            plant.plantedDate
-          )
-      }
+      return (
+        plant.sownDate ||
+        plant.plantedDate
+      )
     }
   
+    switch (
+      reference.sourceType
+    ) {
+      case 'sown':
+        return (
+          plant.sownDate ||
+          plant.plantedDate
+        )
   
-    return (
-      plant.sownDate ||
-      plant.plantedDate
-    )
+      case 'planted':
+        return plant.plantedDate
+  
+      case 'planted-out':
+        return (
+          plant.plantedOutDate ||
+          plant.plantedDate
+        )
+  
+      case 'purchased': {
+        if (
+          plant.originPurchaseId
+        ) {
+          const purchase =
+            (
+              gardenData.purchases ??
+              []
+            ).find(
+              item =>
+                item.id ===
+                plant.originPurchaseId,
+            )
+  
+          if (
+            purchase?.date
+          ) {
+            return purchase.date
+          }
+        }
+  
+        return plant.plantedDate
+      }
+  
+      case 'garden-event': {
+        if (
+          reference.eventId
+        ) {
+          const event =
+            gardenData.events.find(
+              item =>
+                item.id ===
+                reference.eventId,
+            )
+  
+          if (
+            event?.date
+          ) {
+            return event.date
+          }
+        }
+  
+        return plant.plantedDate
+      }
+  
+      case 'custom-date':
+        return (
+          reference.customDate ||
+          plant.plantedDate
+        )
+  
+      default:
+        return plant.plantedDate
+    }
   }
   
-  
-  /* =======================================
-     PLANT COMPLETION DATE
-  ======================================= */
-  
   function getPlantCompletionDate(
-    plant:
-      PlantStory,
-  
-    harvests:
-      HarvestRecord[],
-  ):
-    string | undefined {
+    plant: PlantStory,
+    harvests: HarvestRecord[],
+  ): string | undefined {
     if (
       plant.completedAt
     ) {
       return plant.completedAt
     }
   
-  
     const plantHarvests =
       harvests
         .filter(
           harvest =>
-            harvest
-              .plantStoryIds
-              .includes(
-                plant.id,
-              ),
+            harvest.plantStoryIds.includes(
+              plant.id,
+            ),
         )
         .sort(
           (
@@ -914,24 +664,20 @@ import type {
             ),
         )
   
-  
     const finishingHarvest =
       plantHarvests.find(
         harvest =>
           harvest.harvestType ===
             'final' ||
-          harvest
-            .plantOutcome ===
+          harvest.plantOutcome ===
             'finished',
       )
-  
   
     if (
       finishingHarvest
     ) {
       return finishingHarvest.date
     }
-  
   
     if (
       plant.status ===
@@ -948,42 +694,26 @@ import type {
       )
     }
   
-  
     return undefined
   }
   
-  
-  /* =======================================
-     PLANT AGE
-  ======================================= */
-  
   function getPlantAgeDays(
-    plant:
-      PlantStory,
-  
-    gardenData:
-      GardenData,
-  ):
-    number | undefined {
-    const start =
-      getPlantTimingReferenceDate(
-        plant,
-        gardenData,
-      )
-  
-  
+    plant: PlantStory,
+    gardenData: GardenData,
+  ): number | undefined {
     const startDate =
       parseDate(
-        start,
+        getPlantTimingReferenceDate(
+          plant,
+          gardenData,
+        ),
       )
-  
   
     if (
       !startDate
     ) {
       return undefined
     }
-  
   
     const completion =
       getPlantCompletionDate(
@@ -992,7 +722,6 @@ import type {
         [],
       )
   
-  
     const endDate =
       completion
         ? parseDate(
@@ -1000,13 +729,11 @@ import type {
           )
         : getToday()
   
-  
     if (
       !endDate
     ) {
       return undefined
     }
-  
   
     const days =
       differenceInDays(
@@ -1014,146 +741,21 @@ import type {
         startDate,
       )
   
-  
-    if (
-      days <
-      0
-    ) {
-      return undefined
-    }
-  
-  
-    return days
+    return days < 0
+      ? undefined
+      : days
   }
-  
-  
-  /* =======================================
-     FRIENDLY DURATION
-  ======================================= */
-  
-  export function formatSprigDuration(
-    days:
-      number,
-  ):
-    string {
-    if (
-      days <
-      14
-    ) {
-      return `${days} ${
-        days ===
-        1
-          ? 'day'
-          : 'days'
-      }`
-    }
-  
-  
-    if (
-      days <
-      70
-    ) {
-      const weeks =
-        Math.round(
-          days /
-          7,
-        )
-  
-  
-      return `${weeks} ${
-        weeks ===
-        1
-          ? 'week'
-          : 'weeks'
-      }`
-    }
-  
-  
-    if (
-      days <
-      365
-    ) {
-      const months =
-        Math.round(
-          days /
-          30.4375,
-        )
-  
-  
-      return `${months} ${
-        months ===
-        1
-          ? 'month'
-          : 'months'
-      }`
-    }
-  
-  
-    const years =
-      Math.floor(
-        days /
-        365,
-      )
-  
-  
-    const remainingMonths =
-      Math.round(
-        (
-          days -
-          years *
-            365
-        ) /
-        30.4375,
-      )
-  
-  
-    if (
-      remainingMonths <=
-      0
-    ) {
-      return `${years} ${
-        years ===
-        1
-          ? 'year'
-          : 'years'
-      }`
-    }
-  
-  
-    return `${years} ${
-      years ===
-      1
-        ? 'year'
-        : 'years'
-    }, ${remainingMonths} ${
-      remainingMonths ===
-      1
-        ? 'month'
-        : 'months'
-    }`
-  }
-  
-  
-  /* =======================================
-     FIRST HARVEST
-  ======================================= */
   
   function getFirstHarvest(
-    plantId:
-      string,
-  
-    harvests:
-      HarvestRecord[],
-  ):
-    HarvestRecord | undefined {
+    plantId: string,
+    harvests: HarvestRecord[],
+  ): HarvestRecord | undefined {
     return harvests
       .filter(
         harvest =>
-          harvest
-            .plantStoryIds
-            .includes(
-              plantId,
-            ),
+          harvest.plantStoryIds.includes(
+            plantId,
+          ),
       )
       .sort(
         (
@@ -1166,27 +768,16 @@ import type {
       )[0]
   }
   
-  
-  /* =======================================
-     LAST JOURNAL EVENT
-  ======================================= */
-  
   function getLastPlantEvent(
-    plantId:
-      string,
-  
-    events:
-      GardenEvent[],
-  ):
-    GardenEvent | undefined {
+    plantId: string,
+    events: GardenEvent[],
+  ): GardenEvent | undefined {
     return events
       .filter(
         event =>
-          event
-            .plantStoryIds
-            .includes(
-              plantId,
-            ),
+          event.plantStoryIds.includes(
+            plantId,
+          ),
       )
       .sort(
         (
@@ -1199,27 +790,26 @@ import type {
       )[0]
   }
   
-  
-  /* =======================================
-     PHOTO DATES
-  ======================================= */
-  
-  function getDatedPlantPhotos(
-    plant:
-      PlantStory,
-  ):
-    string[] {
-    return (
-      plant.photoDates ??
-      []
-    )
+  function getLastPlantHarvestDate(
+    plantId: string,
+    harvests: HarvestRecord[],
+  ): string | undefined {
+    return harvests
       .filter(
-        (
-          value,
-        ): value is string =>
+        harvest =>
+          harvest.plantStoryIds.includes(
+            plantId,
+          ),
+      )
+      .map(
+        harvest =>
+          harvest.date,
+      )
+      .filter(
+        date =>
           Boolean(
             parseDate(
-              value,
+              date,
             ),
           ),
       )
@@ -1228,29 +818,231 @@ import type {
           left,
           right,
         ) =>
-          left.localeCompare(
-            right,
+          right.localeCompare(
+            left,
           ),
-      )
+      )[0]
   }
   
+  /* =======================================
+     PHOTO EVIDENCE
+  ======================================= */
+  
+  interface SprigPlantPhotoEvidence {
+    photoCount: number
+    datedPhotoDates: string[]
+  }
+  
+  function getPhotoDateAtIndex(
+    legacyDates:
+      Array<string | undefined> |
+      undefined,
+  
+    metadata:
+      Array<
+        SprigPhotoMetadata |
+        undefined
+      > |
+      undefined,
+  
+    index: number,
+  
+    fallbackDate?: string,
+  ): string | undefined {
+    const metadataDate =
+      metadata?.[
+        index
+      ]?.photoDate
+  
+    if (
+      metadataDate &&
+      parseDate(
+        metadataDate,
+      )
+    ) {
+      return metadataDate
+    }
+  
+    const legacyDate =
+      legacyDates?.[
+        index
+      ]
+  
+    if (
+      legacyDate &&
+      parseDate(
+        legacyDate,
+      )
+    ) {
+      return legacyDate
+    }
+  
+    if (
+      fallbackDate &&
+      parseDate(
+        fallbackDate,
+      )
+    ) {
+      return fallbackDate
+    }
+  
+    return undefined
+  }
+  
+  function buildPlantPhotoEvidence(
+    plant: PlantStory,
+    gardenData: GardenData,
+  ): SprigPlantPhotoEvidence {
+    const datedPhotoDates:
+      string[] =
+      []
+  
+    let photoCount =
+      0
+  
+    ;(
+      plant.photoUrls ??
+      []
+    ).forEach(
+      (
+        _photoUrl,
+        index,
+      ) => {
+        photoCount +=
+          1
+  
+        const date =
+          getPhotoDateAtIndex(
+            plant.photoDates,
+            plant.photoMetadata,
+            index,
+          )
+  
+        if (
+          date
+        ) {
+          datedPhotoDates.push(
+            date,
+          )
+        }
+      },
+    )
+  
+    for (
+      const event of
+      gardenData.events ??
+      []
+    ) {
+      if (
+        !event.plantStoryIds.includes(
+          plant.id,
+        )
+      ) {
+        continue
+      }
+  
+      ;(
+        event.photoUrls ??
+        []
+      ).forEach(
+        (
+          _photoUrl,
+          index,
+        ) => {
+          photoCount +=
+            1
+  
+          const date =
+            getPhotoDateAtIndex(
+              undefined,
+              event.photoMetadata,
+              index,
+              event.date,
+            )
+  
+          if (
+            date
+          ) {
+            datedPhotoDates.push(
+              date,
+            )
+          }
+        },
+      )
+    }
+  
+    for (
+      const harvest of
+      gardenData.harvests ??
+      []
+    ) {
+      if (
+        !harvest.plantStoryIds.includes(
+          plant.id,
+        )
+      ) {
+        continue
+      }
+  
+      ;(
+        harvest.photoUrls ??
+        []
+      ).forEach(
+        (
+          _photoUrl,
+          index,
+        ) => {
+          photoCount +=
+            1
+  
+          const date =
+            getPhotoDateAtIndex(
+              undefined,
+              harvest.photoMetadata,
+              index,
+              harvest.date,
+            )
+  
+          if (
+            date
+          ) {
+            datedPhotoDates.push(
+              date,
+            )
+          }
+        },
+      )
+    }
+  
+    datedPhotoDates.sort(
+      (
+        left,
+        right,
+      ) =>
+        left.localeCompare(
+          right,
+        ),
+    )
+  
+    return {
+      photoCount,
+      datedPhotoDates,
+    }
+  }
   
   /* =======================================
-     EVIDENCE STRENGTH
+     EVIDENCE STRENGTH + BASELINES
   ======================================= */
   
   function strengthFromCount(
-    count:
-      number,
-  ):
-    SprigEvidenceStrength {
+    count: number,
+  ): SprigEvidenceStrength {
     if (
       count >=
       7
     ) {
       return 'repeated'
     }
-  
   
     if (
       count >=
@@ -1259,7 +1051,6 @@ import type {
       return 'emerging'
     }
   
-  
     if (
       count >=
       2
@@ -1267,37 +1058,26 @@ import type {
       return 'worth-watching'
     }
   
-  
     return 'individual'
   }
   
-  
-  /* =======================================
-     BASELINES
-  ======================================= */
-  
   export function buildSprigPlantBaselines(
-    gardenData:
-      GardenData,
-  ):
-    SprigPlantBaseline[] {
+    gardenData: GardenData,
+  ): SprigPlantBaseline[] {
     const groups =
       new Map<
         string,
         PlantStory[]
       >()
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
       const key =
         getPlantGroupKey(
           plant,
         )
-  
   
       if (
         !key
@@ -1305,30 +1085,23 @@ import type {
         continue
       }
   
-  
-      const existing =
-        groups.get(
-          key,
-        ) ??
-        []
-  
-  
-      existing.push(
-        plant,
-      )
-  
-  
       groups.set(
         key,
-        existing,
+        [
+          ...(
+            groups.get(
+              key,
+            ) ??
+            []
+          ),
+          plant,
+        ],
       )
     }
-  
   
     const baselines:
       SprigPlantBaseline[] =
       []
-  
   
     for (
       const [
@@ -1337,8 +1110,9 @@ import type {
       ] of groups
     ) {
       const example =
-        plants[0]
-  
+        plants[
+          0
+        ]
   
       if (
         !example
@@ -1346,24 +1120,19 @@ import type {
         continue
       }
   
-  
       const firstHarvestDays:
         number[] =
         []
-  
   
       const completedDurationDays:
         number[] =
         []
   
-  
       let harvestedStoryCount =
         0
   
-  
       let completedStoryCount =
         0
-  
   
       for (
         const plant of
@@ -1375,14 +1144,12 @@ import type {
             gardenData,
           )
   
-  
         const firstHarvest =
           getFirstHarvest(
             plant.id,
             gardenData.harvests ??
             [],
           )
-  
   
         if (
           startDate &&
@@ -1393,7 +1160,6 @@ import type {
               startDate,
               firstHarvest.date,
             )
-  
   
           if (
             days !==
@@ -1408,14 +1174,12 @@ import type {
           }
         }
   
-  
         const completionDate =
           getPlantCompletionDate(
             plant,
             gardenData.harvests ??
             [],
           )
-  
   
         if (
           startDate &&
@@ -1426,7 +1190,6 @@ import type {
               startDate,
               completionDate,
             )
-  
   
           if (
             days !==
@@ -1442,12 +1205,10 @@ import type {
         }
       }
   
-  
       const harvestRange =
         range(
           firstHarvestDays,
         )
-  
   
       baselines.push({
         key,
@@ -1487,7 +1248,6 @@ import type {
       })
     }
   
-  
     return baselines.sort(
       (
         left,
@@ -1498,25 +1258,20 @@ import type {
     )
   }
   
-  
   /* =======================================
-     INSIGHT BUILDERS
+     CURRENT PLANT MATHS
   ======================================= */
   
   function buildCurrentPlantMathInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsight[] {
+    gardenData: GardenData,
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
       if (
         plant.status !==
@@ -1527,13 +1282,11 @@ import type {
         continue
       }
   
-  
       const ageDays =
         getPlantAgeDays(
           plant,
           gardenData,
         )
-  
   
       if (
         ageDays ===
@@ -1542,12 +1295,16 @@ import type {
         continue
       }
   
-  
       const label =
         getPlantLabel(
           plant,
         )
   
+      const referenceDate =
+        getPlantTimingReferenceDate(
+          plant,
+          gardenData,
+        )
   
       insights.push({
         id:
@@ -1565,7 +1322,7 @@ import type {
           )} into its story`,
   
         message:
-          `Sprig is counting from the timing reference saved on this Plant Story.`,
+          'Sprig is counting from the timing reference saved on this Plant Story.',
   
         strength:
           'individual',
@@ -1575,10 +1332,7 @@ import type {
   
         reasoning:
           `The saved timing reference for ${label} is ${formatDate(
-            getPlantTimingReferenceDate(
-              plant,
-              gardenData,
-            ),
+            referenceDate,
           )}. From that date to today is ${ageDays} days.`,
   
         evidence: [
@@ -1618,33 +1372,26 @@ import type {
       })
     }
   
-  
     return insights
   }
-  
   
   /* =======================================
      HARVEST WINDOW
   ======================================= */
   
   function buildHarvestWindowInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsight[] {
+    gardenData: GardenData,
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
   
-  
     const today =
       getToday()
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
       if (
         plant.status !==
@@ -1655,18 +1402,14 @@ import type {
         continue
       }
   
-  
       if (
-        plant
-          .expectedHarvestDaysMin ===
+        plant.expectedHarvestDaysMin ===
           undefined &&
-        plant
-          .expectedHarvestDaysMax ===
+        plant.expectedHarvestDaysMax ===
           undefined
       ) {
         continue
       }
-  
   
       const referenceDate =
         getPlantTimingReferenceDate(
@@ -1674,27 +1417,19 @@ import type {
           gardenData,
         )
   
-  
       if (
         !referenceDate
       ) {
         continue
       }
   
-  
       const minDays =
-        plant
-          .expectedHarvestDaysMin ??
-        plant
-          .expectedHarvestDaysMax
-  
+        plant.expectedHarvestDaysMin ??
+        plant.expectedHarvestDaysMax
   
       const maxDays =
-        plant
-          .expectedHarvestDaysMax ??
-        plant
-          .expectedHarvestDaysMin
-  
+        plant.expectedHarvestDaysMax ??
+        plant.expectedHarvestDaysMin
   
       if (
         minDays ===
@@ -1705,20 +1440,17 @@ import type {
         continue
       }
   
-  
       const earliest =
         addDays(
           referenceDate,
           minDays,
         )
   
-  
       const latest =
         addDays(
           referenceDate,
           maxDays,
         )
-  
   
       if (
         !earliest ||
@@ -1727,18 +1459,15 @@ import type {
         continue
       }
   
-  
       const earliestDate =
         parseDate(
           earliest,
         )
   
-  
       const latestDate =
         parseDate(
           latest,
         )
-  
   
       if (
         !earliestDate ||
@@ -1747,27 +1476,20 @@ import type {
         continue
       }
   
-  
-      const firstHarvest =
+      if (
         getFirstHarvest(
           plant.id,
           gardenData.harvests ??
           [],
         )
-  
+      ) {
+        continue
+      }
   
       const label =
         getPlantLabel(
           plant,
         )
-  
-  
-      if (
-        firstHarvest
-      ) {
-        continue
-      }
-  
   
       if (
         today >=
@@ -1789,7 +1511,7 @@ import type {
             `${label} has reached its expected harvest window`,
   
           message:
-            `Based on the timing you gave Sprig, this story is now inside its expected first-harvest window.`,
+            'Based on the timing you gave Sprig, this story is now inside its expected first-harvest window.',
   
           strength:
             'individual',
@@ -1857,10 +1579,8 @@ import type {
             earliest,
         })
   
-  
         continue
       }
-  
   
       if (
         today >
@@ -1871,7 +1591,6 @@ import type {
             today,
             latestDate,
           )
-  
   
         insights.push({
           id:
@@ -1889,8 +1608,8 @@ import type {
           message:
             overdueDays <=
             7
-              ? `It has only just moved beyond the expected window, so this may simply be normal variation.`
-              : `There is no harvest recorded yet. That does not mean something is wrong, but the timing is now worth noticing.`,
+              ? 'It has only just moved beyond the expected window, so this may simply be normal variation.'
+              : 'There is no harvest recorded yet. That does not mean something is wrong, but the timing is now worth noticing.',
   
           strength:
             'individual',
@@ -1955,37 +1674,31 @@ import type {
       }
     }
   
-  
     return insights
   }
   
-  
   /* =======================================
-     HISTORY BASELINE INSIGHTS
+     HISTORICAL BASELINES
   ======================================= */
   
   function buildHistoricalBaselineInsights(
     baselines:
       SprigPlantBaseline[],
-  ):
-    SprigInsight[] {
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
-  
   
     for (
       const baseline of
       baselines
     ) {
       if (
-        baseline
-          .harvestedStoryCount <
+        baseline.harvestedStoryCount <
         1
       ) {
         continue
       }
-  
   
       const cropLabel =
         [
@@ -1999,16 +1712,14 @@ import type {
             ' · ',
           )
   
-  
       if (
-        baseline
-          .harvestedStoryCount ===
+        baseline.harvestedStoryCount ===
         1
       ) {
         const first =
-          baseline
-            .firstHarvestDays[0]
-  
+          baseline.firstHarvestDays[
+            0
+          ]
   
         if (
           first ===
@@ -2016,7 +1727,6 @@ import type {
         ) {
           continue
         }
-  
   
         insights.push({
           id:
@@ -2052,25 +1762,17 @@ import type {
             `baseline:${baseline.key}`,
         })
   
-  
         continue
       }
   
-  
       const minimum =
-        baseline
-          .firstHarvestRangeMin
-  
+        baseline.firstHarvestRangeMin
   
       const maximum =
-        baseline
-          .firstHarvestRangeMax
-  
+        baseline.firstHarvestRangeMax
   
       const middle =
-        baseline
-          .medianFirstHarvestDays
-  
+        baseline.medianFirstHarvestDays
   
       if (
         minimum ===
@@ -2082,7 +1784,6 @@ import type {
       ) {
         continue
       }
-  
   
       insights.push({
         id:
@@ -2113,16 +1814,14 @@ import type {
   
         strength:
           strengthFromCount(
-            baseline
-              .harvestedStoryCount,
+            baseline.harvestedStoryCount,
           ),
   
         priority:
-          baseline
-            .harvestedStoryCount >=
-            4
-              ? 72
-              : 55,
+          baseline.harvestedStoryCount >=
+          4
+            ? 72
+            : 55,
   
         reasoning:
           `Sprig compared ${baseline.harvestedStoryCount} ${cropLabel} stories that contain both a usable starting date and a Harvest record. It is describing those records, not a general horticultural rule.`,
@@ -2135,10 +1834,8 @@ import type {
       })
     }
   
-  
     return insights
   }
-  
   
   /* =======================================
      CURRENT VS HISTORY
@@ -2150,12 +1847,10 @@ import type {
   
     baselines:
       SprigPlantBaseline[],
-  ):
-    SprigInsight[] {
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
-  
   
     const baselineMap =
       new Map(
@@ -2167,11 +1862,9 @@ import type {
         ),
       )
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
       if (
         plant.status !==
@@ -2182,21 +1875,15 @@ import type {
         continue
       }
   
-  
-      const firstHarvest =
+      if (
         getFirstHarvest(
           plant.id,
           gardenData.harvests ??
           [],
         )
-  
-  
-      if (
-        firstHarvest
       ) {
         continue
       }
-  
   
       const baseline =
         baselineMap.get(
@@ -2205,26 +1892,21 @@ import type {
           ),
         )
   
-  
       if (
         !baseline ||
-        baseline
-          .harvestedStoryCount <
+        baseline.harvestedStoryCount <
           2 ||
-        baseline
-          .firstHarvestRangeMax ===
+        baseline.firstHarvestRangeMax ===
           undefined
       ) {
         continue
       }
-  
   
       const ageDays =
         getPlantAgeDays(
           plant,
           gardenData,
         )
-  
   
       if (
         ageDays ===
@@ -2233,11 +1915,8 @@ import type {
         continue
       }
   
-  
       const historyMaximum =
-        baseline
-          .firstHarvestRangeMax
-  
+        baseline.firstHarvestRangeMax
   
       if (
         ageDays <=
@@ -2246,11 +1925,9 @@ import type {
         continue
       }
   
-  
       const difference =
         ageDays -
         historyMaximum
-  
   
       if (
         difference <
@@ -2259,18 +1936,15 @@ import type {
         continue
       }
   
-  
       const label =
         getPlantLabel(
           plant,
         )
   
-  
       const cropLabel =
         getPlantGroupLabel(
           plant,
         )
-  
   
       insights.push({
         id:
@@ -2294,8 +1968,7 @@ import type {
   
         strength:
           strengthFromCount(
-            baseline
-              .harvestedStoryCount,
+            baseline.harvestedStoryCount,
           ),
   
         priority:
@@ -2341,24 +2014,19 @@ import type {
       })
     }
   
-  
     return insights
   }
   
-  
   /* =======================================
-     USEFUL COMPARISONS
+     MEANINGFUL COMPARISONS
   ======================================= */
   
   function buildComparisonInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsight[] {
+    gardenData: GardenData,
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
-  
   
     const groups =
       new Map<
@@ -2366,17 +2034,14 @@ import type {
         PlantStory[]
       >()
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
       const key =
         getPlantGroupKey(
           plant,
         )
-  
   
       if (
         !key
@@ -2384,25 +2049,19 @@ import type {
         continue
       }
   
-  
-      const existing =
-        groups.get(
-          key,
-        ) ??
-        []
-  
-  
-      existing.push(
-        plant,
-      )
-  
-  
       groups.set(
         key,
-        existing,
+        [
+          ...(
+            groups.get(
+              key,
+            ) ??
+            []
+          ),
+          plant,
+        ],
       )
     }
-  
   
     for (
       const [
@@ -2416,7 +2075,6 @@ import type {
       ) {
         continue
       }
-  
   
       const candidates =
         plants
@@ -2435,16 +2093,12 @@ import type {
             (
               item,
             ): item is {
-              plant:
-                PlantStory
-  
-              age:
-                number
+              plant: PlantStory
+              age: number
             } =>
               item.age !==
               undefined,
           )
-  
   
       if (
         candidates.length <
@@ -2453,24 +2107,22 @@ import type {
         continue
       }
   
-  
       let bestPair:
         [
           typeof candidates[number],
           typeof candidates[number],
-        ] | null =
+        ] |
+        null =
         null
-  
   
       let smallestDifference =
         Number.POSITIVE_INFINITY
-  
   
       for (
         let outer =
           0;
         outer <
-        candidates.length;
+          candidates.length;
         outer +=
           1
       ) {
@@ -2479,17 +2131,19 @@ import type {
             outer +
             1;
           inner <
-          candidates.length;
+            candidates.length;
           inner +=
             1
         ) {
           const left =
-            candidates[outer]
-  
+            candidates[
+              outer
+            ]
   
           const right =
-            candidates[inner]
-  
+            candidates[
+              inner
+            ]
   
           if (
             !left ||
@@ -2498,13 +2152,11 @@ import type {
             continue
           }
   
-  
           const difference =
             Math.abs(
               left.age -
               right.age,
             )
-  
   
           if (
             difference <
@@ -2521,7 +2173,6 @@ import type {
         }
       }
   
-  
       if (
         !bestPair ||
         smallestDifference >
@@ -2530,73 +2181,63 @@ import type {
         continue
       }
   
-  
       const [
         left,
         right,
       ] =
         bestPair
   
-  
       const leftPlace =
-        left
-          .plant
-          .currentGrowingPlaceId
-  
+        left.plant.currentGrowingPlaceId
   
       const rightPlace =
-        right
-          .plant
-          .currentGrowingPlaceId
-  
+        right.plant.currentGrowingPlaceId
   
       const leftSetup =
-        left
-          .plant
-          .currentGrowingSetupId
-  
+        left.plant.currentGrowingSetupId
   
       const rightSetup =
-        right
-          .plant
-          .currentGrowingSetupId
+        right.plant.currentGrowingSetupId
   
-  
-      const hasMeaningfulDifference =
-        (
+      const placeDiffers =
+        Boolean(
           leftPlace &&
           rightPlace &&
           leftPlace !==
-            rightPlace
-        ) ||
-        (
+          rightPlace,
+        )
+  
+      const setupDiffers =
+        Boolean(
           leftSetup &&
           rightSetup &&
           leftSetup !==
-            rightSetup
-        ) ||
-        left
-          .plant
-          .status !==
-          right
-            .plant
-            .status
+          rightSetup,
+        )
   
+      const statusDiffers =
+        left.plant.status !==
+        right.plant.status
   
+      /*
+       * Similar age alone is not an insight.
+       *
+       * Sprig only interrupts the gardener when it
+       * can name a concrete reason the comparison
+       * may reveal something useful.
+       */
       if (
-        !hasMeaningfulDifference &&
-        plants.length <
-        3
+        !placeDiffers &&
+        !setupDiffers &&
+        !statusDiffers
       ) {
         continue
       }
-  
   
       const cropLabel =
         getPlantGroupLabel(
           left.plant,
         )
-  
   
       const ageText =
         smallestDifference ===
@@ -2606,6 +2247,27 @@ import type {
               smallestDifference,
             )} of one another`
   
+      const differenceReasons =
+        [
+          placeDiffers
+            ? 'different Growing Places'
+            : undefined,
+  
+          setupDiffers
+            ? 'different Growing Recipes'
+            : undefined,
+  
+          statusDiffers
+            ? 'different story stages'
+            : undefined,
+        ].filter(
+          (
+            value,
+          ): value is string =>
+            Boolean(
+              value,
+            ),
+        )
   
       insights.push({
         id:
@@ -2618,14 +2280,16 @@ import type {
           'A useful comparison',
   
         title:
-          `Two ${cropLabel} stories are close enough in age to compare`,
+          `Two ${cropLabel} stories may be worth looking at together`,
   
         message:
           `${getPlantLabel(
             left.plant,
           )} and ${getPlantLabel(
             right.plant,
-          )} are ${ageText}. Looking at them together may make differences in their growing stories easier to see.`,
+          )} are ${ageText}, but they have ${differenceReasons.join(
+            ', ',
+          )}. Looking at them together may make meaningful differences easier to see.`,
   
         strength:
           strengthFromCount(
@@ -2636,7 +2300,9 @@ import type {
           64,
   
         reasoning:
-          `Sprig found ${plants.length} ${cropLabel} Plant Stories and selected two with similar recorded ages. This is a suggestion to compare the records, not a claim that one growing condition caused their differences.`,
+          `Sprig found two similarly aged ${cropLabel} Plant Stories with ${differenceReasons.join(
+            ', ',
+          )}. This is a suggestion to compare evidence, not a claim that those conditions caused an outcome.`,
   
         evidence: [
           {
@@ -2644,9 +2310,7 @@ import type {
               'plant-story',
   
             recordId:
-              left
-                .plant
-                .id,
+              left.plant.id,
   
             label:
               getPlantLabel(
@@ -2664,9 +2328,7 @@ import type {
               'plant-story',
   
             recordId:
-              right
-                .plant
-                .id,
+              right.plant.id,
   
             label:
               getPlantLabel(
@@ -2689,13 +2351,8 @@ import type {
               'Compare these stories',
   
             plantStoryIds: [
-              left
-                .plant
-                .id,
-  
-              right
-                .plant
-                .id,
+              left.plant.id,
+              right.plant.id,
             ],
           },
         ],
@@ -2704,59 +2361,45 @@ import type {
           `comparison:${key}`,
   
         plantStoryIds: [
-          left
-            .plant
-            .id,
-  
-          right
-            .plant
-            .id,
+          left.plant.id,
+          right.plant.id,
         ],
       })
     }
   
-  
     return insights
   }
   
-  
   /* =======================================
-     PHOTO HISTORY
+     PHOTOGRAPHIC HISTORY
   ======================================= */
   
   function buildPhotoHistoryInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsight[] {
+    gardenData: GardenData,
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
-      const photos =
-        plant.photoUrls ??
-        []
-  
+      const photoEvidence =
+        buildPlantPhotoEvidence(
+          plant,
+          gardenData,
+        )
   
       if (
-        photos.length <
+        photoEvidence.photoCount <
         3
       ) {
         continue
       }
   
-  
       const datedPhotos =
-        getDatedPlantPhotos(
-          plant,
-        )
-  
+        photoEvidence.datedPhotoDates
   
       if (
         datedPhotos.length <
@@ -2765,24 +2408,21 @@ import type {
         continue
       }
   
-  
       const firstDate =
-        datedPhotos[0]
-  
-  
-      const lastDate =
         datedPhotos[
-          datedPhotos.length -
-          1
+          0
         ]
   
+      const lastDate =
+        datedPhotos.at(
+          -1,
+        )
   
       const span =
         daysBetween(
           firstDate,
           lastDate,
         )
-  
   
       if (
         span ===
@@ -2793,12 +2433,10 @@ import type {
         continue
       }
   
-  
       const label =
         getPlantLabel(
           plant,
         )
-  
   
       insights.push({
         id:
@@ -2831,11 +2469,11 @@ import type {
           58,
   
         reasoning:
-          `Sprig found ${datedPhotos.length} dated Plant Story photographs between ${formatDate(
+          `Sprig found ${datedPhotos.length} dated photographs connected to this Plant Story between ${formatDate(
             firstDate,
           )} and ${formatDate(
             lastDate,
-          )}. Sprig is only using their dates and relationships here. It is not analysing the image pixels.`,
+          )}. It gathered Plant Story, Journal and Harvest photographs through their saved relationships and dates. Sprig is not analysing the image pixels.`,
   
         evidence: [
           {
@@ -2884,33 +2522,26 @@ import type {
       })
     }
   
-  
     return insights
   }
-  
   
   /* =======================================
      QUIET PLANT STORY
   ======================================= */
   
   function buildQuietStoryInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsight[] {
+    gardenData: GardenData,
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
   
-  
     const today =
       getToday()
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
       if (
         plant.status !==
@@ -2921,7 +2552,6 @@ import type {
         continue
       }
   
-  
       const lastEvent =
         getLastPlantEvent(
           plant.id,
@@ -2929,19 +2559,31 @@ import type {
           [],
         )
   
-  
-      const latestPhotoDate =
-        getDatedPlantPhotos(
+      const photoEvidence =
+        buildPlantPhotoEvidence(
           plant,
-        ).at(
-          -1,
+          gardenData,
         )
   
+      const latestPhotoDate =
+        photoEvidence
+          .datedPhotoDates
+          .at(
+            -1,
+          )
+  
+      const latestHarvestDate =
+        getLastPlantHarvestDate(
+          plant.id,
+          gardenData.harvests ??
+          [],
+        )
   
       const candidateDates =
         [
           lastEvent?.date,
           latestPhotoDate,
+          latestHarvestDate,
           plant.updatedAt,
           plant.enteredDate,
         ]
@@ -2950,6 +2592,7 @@ import type {
               value,
             ): value is string =>
               Boolean(
+                value &&
                 parseDate(
                   value,
                 ),
@@ -2965,16 +2608,15 @@ import type {
               ),
           )
   
-  
       const latest =
-        candidateDates[0]
-  
+        candidateDates[
+          0
+        ]
   
       const parsedLatest =
         parseDate(
           latest,
         )
-  
   
       if (
         !latest ||
@@ -2983,13 +2625,11 @@ import type {
         continue
       }
   
-  
       const quietDays =
         differenceInDays(
           today,
           parsedLatest,
         )
-  
   
       if (
         quietDays <
@@ -2998,28 +2638,16 @@ import type {
         continue
       }
   
-  
       const age =
         getPlantAgeDays(
           plant,
           gardenData,
         )
   
-  
-      /*
-       * Very old imported/current records can
-       * legitimately have large gaps.
-       *
-       * This observation remains low priority so
-       * it does not crowd out more meaningful
-       * timing or history findings.
-       */
-  
       const label =
         getPlantLabel(
           plant,
         )
-  
   
       insights.push({
         id:
@@ -3039,8 +2667,8 @@ import type {
         message:
           age !==
           undefined
-            ? `The Plant Story is still marked as ${plant.status}, but Sprig has not found a newer dated event, dated Plant photo or edit.`
-            : `The Plant Story is still active, but Sprig has not found a newer dated event, dated Plant photo or edit.`,
+            ? `The Plant Story is still marked as ${plant.status}, but Sprig has not found a newer dated Journal event, connected photograph, Harvest or edit.`
+            : 'The Plant Story is still active, but Sprig has not found a newer dated Journal event, connected photograph, Harvest or edit.',
   
         strength:
           'individual',
@@ -3100,87 +2728,20 @@ import type {
       })
     }
   
-  
     return insights
   }
-  
   
   /* =======================================
      TRIAL EVIDENCE
   ======================================= */
   
-  function buildTrialInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsight[] {
-    const insights:
-      SprigInsight[] =
-      []
-  
-  
-    for (
-      const trial of
-      gardenData
-        .gardenTrials ??
-      []
-    ) {
-      if (
-        trial.status !==
-        'active'
-      ) {
-        continue
-      }
-  
-  
-      const relationships =
-        trial.relationships ??
-        []
-  
-  
-      const observations =
-        trial.observations ??
-        []
-  
-  
-      const evidenceCount =
-        relationships.length +
-        observations.length
-  
-  
-      if (
-        evidenceCount <
-        3
-      ) {
-        continue
-      }
-  
-  
-      insights.push(
-        buildSingleTrialInsight(
-          trial,
-          evidenceCount,
-        ),
-      )
-    }
-  
-  
-    return insights
-  }
-  
-  
   function buildSingleTrialInsight(
-    trial:
-      GardenTrial,
-  
-    evidenceCount:
-      number,
-  ):
-    SprigInsight {
+    trial: GardenTrial,
+    evidenceCount: number,
+  ): SprigInsight {
     const hasManyPieces =
       evidenceCount >=
       6
-  
   
     return {
       id:
@@ -3211,7 +2772,7 @@ import type {
           : 48,
   
       reasoning:
-        `Sprig counted the records linked to this Trial together with its Trial-specific observations. It has not decided what the Trial means.`,
+        'Sprig counted the records linked to this Trial together with its Trial-specific observations. It has not decided what the Trial means.',
   
       evidence: [
         {
@@ -3247,20 +2808,63 @@ import type {
     }
   }
   
-  
-  /* =======================================
-     FIRSTS AND MILESTONES
-  ======================================= */
-  
-  function buildMilestoneInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsight[] {
+  function buildTrialInsights(
+    gardenData: GardenData,
+  ): SprigInsight[] {
     const insights:
       SprigInsight[] =
       []
   
+    for (
+      const trial of
+      gardenData.gardenTrials ??
+      []
+    ) {
+      if (
+        trial.status !==
+        'active'
+      ) {
+        continue
+      }
+  
+      const evidenceCount =
+        (
+          trial.relationships ??
+          []
+        ).length +
+        (
+          trial.observations ??
+          []
+        ).length
+  
+      if (
+        evidenceCount <
+        3
+      ) {
+        continue
+      }
+  
+      insights.push(
+        buildSingleTrialInsight(
+          trial,
+          evidenceCount,
+        ),
+      )
+    }
+  
+    return insights
+  }
+  
+  /* =======================================
+     FIRSTS + MILESTONES
+  ======================================= */
+  
+  function buildMilestoneInsights(
+    gardenData: GardenData,
+  ): SprigInsight[] {
+    const insights:
+      SprigInsight[] =
+      []
   
     const groups =
       new Map<
@@ -3268,17 +2872,14 @@ import type {
         PlantStory[]
       >()
   
-  
     for (
       const plant of
-      gardenData
-        .plantStories
+      gardenData.plantStories
     ) {
       const key =
         getPlantGroupKey(
           plant,
         )
-  
   
       if (
         !key
@@ -3286,25 +2887,19 @@ import type {
         continue
       }
   
-  
-      const existing =
-        groups.get(
-          key,
-        ) ??
-        []
-  
-  
-      existing.push(
-        plant,
-      )
-  
-  
       groups.set(
         key,
-        existing,
+        [
+          ...(
+            groups.get(
+              key,
+            ) ??
+            []
+          ),
+          plant,
+        ],
       )
     }
-  
   
     for (
       const [
@@ -3319,17 +2914,16 @@ import type {
         continue
       }
   
-  
       const plant =
-        plants[0]
-  
+        plants[
+          0
+        ]
   
       if (
         !plant
       ) {
         continue
       }
-  
   
       const hasHarvest =
         Boolean(
@@ -3340,13 +2934,11 @@ import type {
           ),
         )
   
-  
       const isComplete =
         plant.status ===
           'finished' ||
         plant.status ===
           'failed'
-  
   
       if (
         !hasHarvest &&
@@ -3355,12 +2947,10 @@ import type {
         continue
       }
   
-  
       const cropLabel =
         getPlantGroupLabel(
           plant,
         )
-  
   
       insights.push({
         id:
@@ -3424,30 +3014,24 @@ import type {
       })
     }
   
-  
     return insights
   }
   
-  
   /* =======================================
-     DEDUPLICATION
+     BALANCING
   ======================================= */
   
   function deduplicateInsights(
-    insights:
-      SprigInsight[],
-  ):
-    SprigInsight[] {
+    insights: SprigInsight[],
+  ): SprigInsight[] {
     const seenIds =
       new Set<
         string
       >()
   
-  
     const result:
       SprigInsight[] =
       []
-  
   
     for (
       const insight of
@@ -3461,31 +3045,21 @@ import type {
         continue
       }
   
-  
       seenIds.add(
         insight.id,
       )
-  
   
       result.push(
         insight,
       )
     }
   
-  
     return result
   }
   
-  
-  /* =======================================
-     PRIORITY BALANCING
-  ======================================= */
-  
   function balanceInsights(
-    insights:
-      SprigInsight[],
-  ):
-    SprigInsight[] {
+    insights: SprigInsight[],
+  ): SprigInsight[] {
     const sorted =
       [
         ...insights,
@@ -3498,25 +3072,15 @@ import type {
           left.priority,
       )
   
-  
-    /*
-     * Avoid ten different cards about the exact
-     * same Plant Story crowding Today.
-     *
-     * High-priority observations win.
-     */
-  
     const subjectCounts =
       new Map<
         string,
         number
       >()
   
-  
     const balanced:
       SprigInsight[] =
       []
-  
   
     for (
       const insight of
@@ -3524,7 +3088,6 @@ import type {
     ) {
       const subject =
         insight.subjectKey
-  
   
       if (
         !subject
@@ -3536,13 +3099,11 @@ import type {
         continue
       }
   
-  
       const count =
         subjectCounts.get(
           subject,
         ) ??
         0
-  
   
       if (
         count >=
@@ -3551,38 +3112,31 @@ import type {
         continue
       }
   
-  
       subjectCounts.set(
         subject,
         count +
         1,
       )
   
-  
       balanced.push(
         insight,
       )
     }
   
-  
     return balanced
   }
-  
   
   /* =======================================
      MAIN ENGINE
   ======================================= */
   
   export function buildSprigInsights(
-    gardenData:
-      GardenData,
-  ):
-    SprigInsightResult {
+    gardenData: GardenData,
+  ): SprigInsightResult {
     const baselines =
       buildSprigPlantBaselines(
         gardenData,
       )
-  
   
     const allInsights = [
       ...buildHarvestWindowInsights(
@@ -3623,14 +3177,12 @@ import type {
       ),
     ]
   
-  
     const insights =
       balanceInsights(
         deduplicateInsights(
           allInsights,
         ),
       )
-  
   
     return {
       generatedAt:
@@ -3658,26 +3210,25 @@ import type {
           insights.filter(
             insight =>
               insight.family ===
-                'from-your-garden',
+              'from-your-garden',
           ).length,
   
         worthWatching:
           insights.filter(
             insight =>
               insight.family ===
-                'worth-watching',
+              'worth-watching',
           ).length,
   
         milestones:
           insights.filter(
             insight =>
               insight.family ===
-                'milestone',
+              'milestone',
           ).length,
       },
     }
   }
-  
   
   /* =======================================
      DISPLAY HELPERS
@@ -3686,8 +3237,7 @@ import type {
   export function getSprigInsightStrengthLabel(
     strength:
       SprigEvidenceStrength,
-  ):
-    string {
+  ): string {
     return (
       SPRIG_EVIDENCE_STRENGTHS.find(
         item =>
@@ -3698,12 +3248,10 @@ import type {
     )
   }
   
-  
   export function getSprigInsightStrengthDescription(
     strength:
       SprigEvidenceStrength,
-  ):
-    string {
+  ): string {
     return (
       SPRIG_EVIDENCE_STRENGTHS.find(
         item =>
@@ -3714,12 +3262,10 @@ import type {
     )
   }
   
-  
   export function getSprigInsightFamilyLabel(
     family:
       SprigInsightFamily,
-  ):
-    string {
+  ): string {
     switch (
       family
     ) {
@@ -3752,742 +3298,450 @@ import type {
     }
   }
   
-  
   /* =======================================
-   TODAY EDITORIAL JUDGEMENT
-======================================= */
-
-/*
- * Sprig may notice many things across the
- * garden.
- *
- * Today is different.
- *
- * Today is the front porch, not the archive.
- * An insight can be completely valid and still
- * not deserve to interrupt the gardener today.
- *
- * The engine keeps every derived insight in
- * result.insights.
- *
- * These functions only decide which few thoughts
- * are worth bringing forward right now.
- */
-
-
-/* =======================================
-   TODAY THEMES
-======================================= */
-
-type SprigTodayTheme =
-| 'current-timing'
-| 'garden-memory'
-| 'comparison'
-| 'photographs'
-| 'trial'
-| 'quiet-story'
-| 'garden-maths'
-| 'other'
-
-
-function getSprigTodayTheme(
-insight:
-  SprigInsight,
-):
-SprigTodayTheme {
-switch (
-  insight.family
-) {
-  case 'happening-now':
-    return 'current-timing'
-
-
-  case 'from-your-garden':
-  case 'milestone':
-    /*
-     * A first baseline and a mature historical
-     * baseline are both part of the same broad
-     * conversation:
-     *
-     * "What has this garden taught Sprig?"
-     *
-     * Grouping them stops Today becoming a stack
-     * of similar baseline announcements.
-     */
-
-    return 'garden-memory'
-
-
-  case 'comparison':
-    return 'comparison'
-
-
-  case 'photographs':
-    return 'photographs'
-
-
-  case 'trial':
-    return 'trial'
-
-
-  case 'worth-watching':
-    if (
-      insight.id.startsWith(
-        'quiet-story-',
-      )
+     TODAY EDITORIAL JUDGEMENT
+  ======================================= */
+  
+  /*
+   * The engine may notice many valid things.
+   * Today is scarce front-porch space.
+   *
+   * Priority ranks an insight against similar
+   * insights. It does NOT automatically make a
+   * family worthy of Today. Family-specific
+   * editorial rules decide that separately.
+   */
+  
+  type SprigTodayTheme =
+    | 'current-timing'
+    | 'garden-memory'
+    | 'comparison'
+    | 'photographs'
+    | 'trial'
+    | 'quiet-story'
+    | 'garden-maths'
+    | 'other'
+  
+  function getSprigTodayTheme(
+    insight:
+      SprigInsight,
+  ): SprigTodayTheme {
+    switch (
+      insight.family
     ) {
-      return 'quiet-story'
+      case 'happening-now':
+        return 'current-timing'
+  
+      case 'from-your-garden':
+      case 'milestone':
+        return 'garden-memory'
+  
+      case 'comparison':
+        return 'comparison'
+  
+      case 'photographs':
+        return 'photographs'
+  
+      case 'trial':
+        return 'trial'
+  
+      case 'worth-watching':
+        return insight.id.startsWith(
+          'quiet-story-',
+        )
+          ? 'quiet-story'
+          : 'current-timing'
+  
+      case 'garden-maths':
+        return 'garden-maths'
+  
+      default:
+        return 'other'
     }
-
-
-    return 'current-timing'
-
-
-  case 'garden-maths':
-    return 'garden-maths'
-
-
-  default:
-    return 'other'
-}
-}
-
-
-/* =======================================
- STRENGTH RANK
-======================================= */
-
-function getStrengthRank(
-strength:
-  SprigEvidenceStrength,
-):
-number {
-switch (
-  strength
-) {
-  case 'repeated':
-    return 4
-
-
-  case 'emerging':
-    return 3
-
-
-  case 'worth-watching':
-    return 2
-
-
-  case 'individual':
-  default:
-    return 1
-}
-}
-
-
-/* =======================================
- FRONT-PORCH VALUE
-======================================= */
-
-/*
-* This does NOT decide whether an observation
-* is true or useful somewhere else in Sprig.
-*
-* It only decides whether it is strong enough
-* to occupy scarce space on Today.
-*/
-
-function isStrongTodayCandidate(
-insight:
-  SprigInsight,
-):
-boolean {
-/*
- * Anything with very high display priority
- * deserves consideration regardless of family.
- *
- * Examples:
- * - current plant later than its own history
- * - substantially overdue expected harvest
- * - strong Trial development
- */
-
-if (
-  insight.priority >=
-  75
-) {
-  return true
-}
-
-
-switch (
-  insight.family
-) {
-  case 'comparison':
-    /*
-     * A useful comparison is actionable and can
-     * reveal differences the gardener may not
-     * have noticed while records were created
-     * weeks apart.
-     */
-
-    return (
-      insight.priority >=
-      60
-    )
-
-
-  case 'from-your-garden':
-    /*
-     * Mature personal history is valuable.
-     *
-     * Two stories can be interesting internally,
-     * but Today should favour history that has
-     * actually started becoming a pattern.
-     */
-
-    return (
-      insight.priority >=
-        55 &&
-      getStrengthRank(
-        insight.strength,
-      ) >=
-        3
-    )
-
-
-  case 'photographs':
-    /*
-     * Photo-history suggestions are useful once
-     * enough dated material has accumulated.
-     */
-
-    return (
-      insight.priority >=
-        55 &&
-      getStrengthRank(
-        insight.strength,
-      ) >=
-        2
-    )
-
-
-  case 'trial':
-    return (
-      insight.priority >=
-        65 ||
-      getStrengthRank(
-        insight.strength,
-      ) >=
-        3
-    )
-
-
-  case 'worth-watching':
-    /*
-     * Quiet-story reminders are deliberately low
-     * priority. Other timing anomalies become
-     * front-porch material when the engine has
-     * already judged them significant.
-     */
-
-    return (
-      insight.priority >=
-      65
-    )
-
-
-  case 'happening-now':
-    return (
-      insight.priority >=
-      65
-    )
-
-
-  case 'milestone':
-    /*
-     * Individual first baselines remain valid
-     * insights, but they should not fill Today.
-     *
-     * Mature milestones may still surface later
-     * if we add stronger milestone types.
-     */
-
-    return (
-      insight.priority >=
-        60 &&
-      getStrengthRank(
-        insight.strength,
-      ) >=
-        3
-    )
-
-
-  case 'garden-maths':
-    /*
-     * Plant age calculations are useful context
-     * elsewhere, but ordinary age alone is not
-     * something Sprig needs to interrupt the
-     * gardener to announce.
-     */
-
-    return false
-
-
-  default:
-    return false
-}
-}
-
-
-/* =======================================
- PLANT OVERLAP
-======================================= */
-
-function insightsSharePlants(
-left:
-  SprigInsight,
-
-right:
-  SprigInsight,
-):
-boolean {
-const leftIds =
-  left.plantStoryIds ??
-  []
-
-
-const rightIds =
-  right.plantStoryIds ??
-  []
-
-
-if (
-  leftIds.length ===
-    0 ||
-  rightIds.length ===
-    0
-) {
-  return false
-}
-
-
-return leftIds.some(
-  plantId =>
-    rightIds.includes(
-      plantId,
-    ),
-)
-}
-
-
-/* =======================================
- SECOND SAME-FAMILY EXCEPTION
-======================================= */
-
-/*
-* Normally Today shows only one thought from a
-* family.
-*
-* Exception:
-* a second observation may appear when it is
-* unusually important in its own right.
-*
-* Priority 90 is intentionally a high bar.
-*/
-
-function canShowSecondFromFamily(
-insight:
-  SprigInsight,
-
-selectedFromFamily:
-  SprigInsight[],
-):
-boolean {
-if (
-  selectedFromFamily.length ===
-  0
-) {
-  return true
-}
-
-
-if (
-  selectedFromFamily.length >=
-  2
-) {
-  return false
-}
-
-
-if (
-  insight.priority <
-  90
-) {
-  return false
-}
-
-
-const existing =
-  selectedFromFamily[0]
-
-
-if (
-  !existing
-) {
-  return true
-}
-
-
-/*
- * Do not show two urgent cards that are really
- * talking about the same Plant Story.
- */
-
-if (
-  insightsSharePlants(
-    insight,
-    existing,
-  )
-) {
-  return false
-}
-
-
-return true
-}
-
-
-/* =======================================
- FALLBACK THOUGHT
-======================================= */
-
-/*
-* Silence is allowed.
-*
-* But when Sprig genuinely has some garden
-* history and nothing qualifies as a strong
-* front-porch observation, one gentle thought
-* can sometimes be worthwhile.
-*
-* We do NOT keep filling empty slots.
-*/
-
-function getGentleTodayFallback(
-result:
-  SprigInsightResult,
-):
-SprigInsight | undefined {
-/*
- * First preference:
- * one useful comparison.
- */
-
-const comparison =
-  result.insights.find(
-    insight =>
-      insight.family ===
-        'comparison' &&
-      insight.priority >=
-        55,
-  )
-
-
-if (
-  comparison
-) {
-  return comparison
-}
-
-
-/*
- * Second preference:
- * one first garden-memory milestone.
- *
- * Only one.
- *
- * This is where a new gardener may see:
- * "Sprig has its first harvest baseline..."
- *
- * Once another stronger observation exists,
- * this kind of card stays quietly in the
- * intelligence collection rather than
- * competing for Today.
- */
-
-const milestone =
-  result.insights.find(
-    insight =>
-      insight.family ===
-        'milestone' &&
-      insight.priority >=
-        40,
-  )
-
-
-if (
-  milestone
-) {
-  return milestone
-}
-
-
-/*
- * Last preference:
- * one piece of garden maths.
- *
- * This keeps a very young garden from feeling
- * completely inert while Sprig is still learning.
- */
-
-return result.insights.find(
-  insight =>
-    insight.family ===
-      'garden-maths',
-)
-}
-
-
-/* =======================================
- TODAY SELECTION
-======================================= */
-
-/*
-* TODAY RULES
-*
-* 1. Sprig keeps every derived observation.
-* 2. Today ordinarily shows no more than 3.
-* 3. Today does not need to fill 3 positions.
-* 4. One observation per family is normal.
-* 5. A second from the same family requires
-*    unusually high importance.
-* 6. Similar garden-memory announcements do not
-*    stack up.
-* 7. Repeated cards about the same plant are
-*    discouraged.
-* 8. Ordinary garden maths stays quiet unless
-*    Sprig has almost nothing else to say.
-* 9. Silence is legitimate.
-*/
-
-export function getSprigTodayInsights(
-result:
-  SprigInsightResult,
-
-limit:
-  number =
-  3,
-):
-SprigInsight[] {
-const maximum =
-  Math.max(
-    0,
-    Math.min(
-      limit,
-      3,
-    ),
-  )
-
-
-if (
-  maximum ===
-  0
-) {
-  return []
-}
-
-
-const selected:
-  SprigInsight[] =
-  []
-
-
-const selectedThemes =
-  new Map<
-    SprigTodayTheme,
-    SprigInsight[]
-  >()
-
-
-const selectedFamilies =
-  new Map<
-    SprigInsightFamily,
-    SprigInsight[]
-  >()
-
-
-const candidates =
-  result
-    .insights
-    .filter(
-      isStrongTodayCandidate,
-    )
-
-
-for (
-  const insight of
-  candidates
-) {
-  if (
-    selected.length >=
-    maximum
-  ) {
-    break
   }
-
-
-  const theme =
-    getSprigTodayTheme(
-      insight,
-    )
-
-
-  const sameTheme =
-    selectedThemes.get(
-      theme,
-    ) ??
-    []
-
-
-  const sameFamily =
-    selectedFamilies.get(
-      insight.family,
-    ) ??
-    []
-
-
-  /*
-   * Garden-memory is particularly prone to
-   * repetition:
-   *
-   * first Royal Blue baseline
-   * first Sebago baseline
-   * first broccoli baseline
-   *
-   * Sprig may know all of those things, but
-   * Today ordinarily needs only the strongest
-   * one.
-   */
-
-  if (
-    theme ===
-      'garden-memory' &&
-    sameTheme.length >=
-      1
-  ) {
-    continue
+  
+  function getStrengthRank(
+    strength:
+      SprigEvidenceStrength,
+  ): number {
+    switch (
+      strength
+    ) {
+      case 'repeated':
+        return 4
+  
+      case 'emerging':
+        return 3
+  
+      case 'worth-watching':
+        return 2
+  
+      case 'individual':
+      default:
+        return 1
+    }
   }
-
-
-  /*
-   * Other themes may occasionally contain two
-   * genuinely urgent thoughts, but only when
-   * each insight independently passes the
-   * high-priority exception.
-   */
-
-  if (
-    sameTheme.length >=
-      1 &&
-    insight.priority <
-      90
-  ) {
-    continue
+  
+  function isStrongTodayCandidate(
+    insight:
+      SprigInsight,
+  ): boolean {
+    switch (
+      insight.family
+    ) {
+      case 'comparison':
+        return (
+          insight.priority >=
+          60
+        )
+  
+      case 'from-your-garden':
+        return (
+          insight.priority >=
+            55 &&
+          getStrengthRank(
+            insight.strength,
+          ) >=
+            3
+        )
+  
+      case 'photographs':
+        return (
+          insight.priority >=
+            55 &&
+          getStrengthRank(
+            insight.strength,
+          ) >=
+            2
+        )
+  
+      case 'trial':
+        return (
+          insight.priority >=
+            65 ||
+          getStrengthRank(
+            insight.strength,
+          ) >=
+            3
+        )
+  
+      case 'worth-watching':
+        return (
+          insight.priority >=
+          65
+        )
+  
+      case 'happening-now':
+        return (
+          insight.priority >=
+          65
+        )
+  
+      case 'milestone':
+        return (
+          insight.priority >=
+            60 &&
+          getStrengthRank(
+            insight.strength,
+          ) >=
+            3
+        )
+  
+      case 'garden-maths':
+      default:
+        return false
+    }
   }
-
-
-  if (
-    !canShowSecondFromFamily(
-      insight,
-      sameFamily,
-    )
-  ) {
-    continue
-  }
-
-
-  /*
-   * Avoid showing another lower-value thought
-   * about a plant already represented on Today.
-   *
-   * A genuinely urgent 90+ observation can
-   * still win if needed.
-   */
-
-  const overlapping =
-    selected.find(
-      existing =>
-        insightsSharePlants(
-          insight,
-          existing,
+  
+  function insightsSharePlants(
+    left:
+      SprigInsight,
+  
+    right:
+      SprigInsight,
+  ): boolean {
+    const leftIds =
+      left.plantStoryIds ??
+      []
+  
+    const rightIds =
+      right.plantStoryIds ??
+      []
+  
+    if (
+      leftIds.length ===
+        0 ||
+      rightIds.length ===
+        0
+    ) {
+      return false
+    }
+  
+    return leftIds.some(
+      plantId =>
+        rightIds.includes(
+          plantId,
         ),
     )
-
-
-  if (
-    overlapping &&
-    insight.priority <
+  }
+  
+  function canShowSecondFromFamily(
+    insight:
+      SprigInsight,
+  
+    selectedFromFamily:
+      SprigInsight[],
+  ): boolean {
+    if (
+      selectedFromFamily.length ===
+      0
+    ) {
+      return true
+    }
+  
+    if (
+      selectedFromFamily.length >=
+      2
+    ) {
+      return false
+    }
+  
+    if (
+      insight.priority <
       90
-  ) {
-    continue
+    ) {
+      return false
+    }
+  
+    const existing =
+      selectedFromFamily[
+        0
+      ]
+  
+    if (
+      !existing
+    ) {
+      return true
+    }
+  
+    if (
+      insightsSharePlants(
+        insight,
+        existing,
+      )
+    ) {
+      return false
+    }
+  
+    return true
   }
-
-
-  selected.push(
-    insight,
-  )
-
-
-  selectedThemes.set(
-    theme,
-    [
-      ...sameTheme,
-      insight,
-    ],
-  )
-
-
-  selectedFamilies.set(
-    insight.family,
-    [
-      ...sameFamily,
-      insight,
-    ],
-  )
-}
-
-
-/*
- * This is deliberate.
- *
- * We only use a fallback when Sprig otherwise
- * has NOTHING strong enough to say.
- *
- * If one strong observation exists, Today can
- * simply show one observation.
- *
- * We do not add weaker thoughts to make the
- * page look full.
- */
-
-if (
-  selected.length ===
-  0
-) {
-  const fallback =
-    getGentleTodayFallback(
-      result,
+  
+  function getGentleTodayFallback(
+    result:
+      SprigInsightResult,
+  ): SprigInsight | undefined {
+    const comparison =
+      result.insights.find(
+        insight =>
+          insight.family ===
+            'comparison' &&
+          insight.priority >=
+            55,
+      )
+  
+    if (
+      comparison
+    ) {
+      return comparison
+    }
+  
+    const milestone =
+      result.insights.find(
+        insight =>
+          insight.family ===
+            'milestone' &&
+        insight.priority >=
+          40,
+      )
+  
+    if (
+      milestone
+    ) {
+      return milestone
+    }
+  
+    return result.insights.find(
+      insight =>
+        insight.family ===
+        'garden-maths',
     )
-
-
-  if (
-    fallback
-  ) {
-    return [
-      fallback,
-    ]
   }
-}
-
-
-return selected
-}
+  
+  /* =======================================
+     TODAY SELECTION
+  ======================================= */
+  
+  export function getSprigTodayInsights(
+    result:
+      SprigInsightResult,
+  
+    limit =
+      3,
+  ): SprigInsight[] {
+    const maximum =
+      Math.max(
+        0,
+        Math.min(
+          limit,
+          3,
+        ),
+      )
+  
+    if (
+      maximum ===
+      0
+    ) {
+      return []
+    }
+  
+    const selected:
+      SprigInsight[] =
+      []
+  
+    const selectedThemes =
+      new Map<
+        SprigTodayTheme,
+        SprigInsight[]
+      >()
+  
+    const selectedFamilies =
+      new Map<
+        SprigInsightFamily,
+        SprigInsight[]
+      >()
+  
+    const candidates =
+      result.insights.filter(
+        isStrongTodayCandidate,
+      )
+  
+    for (
+      const insight of
+      candidates
+    ) {
+      if (
+        selected.length >=
+        maximum
+      ) {
+        break
+      }
+  
+      const theme =
+        getSprigTodayTheme(
+          insight,
+        )
+  
+      const sameTheme =
+        selectedThemes.get(
+          theme,
+        ) ??
+        []
+  
+      const sameFamily =
+        selectedFamilies.get(
+          insight.family,
+        ) ??
+        []
+  
+      if (
+        theme ===
+          'garden-memory' &&
+        sameTheme.length >=
+          1
+      ) {
+        continue
+      }
+  
+      if (
+        sameTheme.length >=
+          1 &&
+        insight.priority <
+          90
+      ) {
+        continue
+      }
+  
+      if (
+        !canShowSecondFromFamily(
+          insight,
+          sameFamily,
+        )
+      ) {
+        continue
+      }
+  
+      const overlapping =
+        selected.find(
+          existing =>
+            insightsSharePlants(
+              insight,
+              existing,
+            ),
+        )
+  
+      if (
+        overlapping &&
+        insight.priority <
+          90
+      ) {
+        continue
+      }
+  
+      selected.push(
+        insight,
+      )
+  
+      selectedThemes.set(
+        theme,
+        [
+          ...sameTheme,
+          insight,
+        ],
+      )
+  
+      selectedFamilies.set(
+        insight.family,
+        [
+          ...sameFamily,
+          insight,
+        ],
+      )
+    }
+  
+    /*
+     * Silence is legitimate.
+     *
+     * A fallback is used only when there are no
+     * strong Today observations at all. We do not
+     * fill empty slots for decoration.
+     */
+    if (
+      selected.length ===
+      0
+    ) {
+      const fallback =
+        getGentleTodayFallback(
+          result,
+        )
+  
+      if (
+        fallback
+      ) {
+        return [
+          fallback,
+        ]
+      }
+    }
+  
+    return selected
+  }

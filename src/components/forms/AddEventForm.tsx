@@ -19,6 +19,7 @@ import type {
   GrowingPlaceScope,
   PlantScope,
   PlantStory,
+  SprigPhotoMetadata,
 } from '../../types'
 
 
@@ -57,9 +58,9 @@ interface AddEventFormProps {
   ) => void
 
   /*
-   * Journal can hand off to the real Harvest
-   * workflow instead of pretending a Harvest
-   * is only a Journal activity.
+   * Harvest is deliberately a real Harvest
+   * record rather than an ordinary Journal
+   * activity.
    */
   onAddHarvest?: (
     plantStoryIds: string[],
@@ -73,7 +74,8 @@ interface AddEventFormProps {
    TODAY
 ======================================= */
 
-function getTodayDate(): string {
+function getTodayDate():
+  string {
   const now =
     new Date()
 
@@ -106,8 +108,11 @@ function getTodayDate(): string {
 ======================================= */
 
 function getPlanActivityType(
-  plan?: GardenPlan,
-): EventType | undefined {
+  plan?:
+    GardenPlan,
+):
+  EventType |
+  undefined {
   if (
     !plan
   ) {
@@ -143,8 +148,10 @@ function getPlanActivityType(
 ======================================= */
 
 function getPlanPlantScope(
-  plan?: GardenPlan,
-): PlantScope {
+  plan?:
+    GardenPlan,
+):
+  PlantScope {
   const count =
     plan
       ?.plantStoryIds
@@ -177,8 +184,10 @@ function getPlanPlantScope(
 ======================================= */
 
 function getPlanPlaceScope(
-  plan?: GardenPlan,
-): GrowingPlaceScope {
+  plan?:
+    GardenPlan,
+):
+  GrowingPlaceScope {
   const count =
     plan
       ?.growingPlaceIds
@@ -211,8 +220,10 @@ function getPlanPlaceScope(
 ======================================= */
 
 function getEventPlantScope(
-  event?: GardenEvent,
-): PlantScope {
+  event?:
+    GardenEvent,
+):
+  PlantScope {
   if (
     event?.plantScope
   ) {
@@ -252,12 +263,16 @@ function getEventPlantScope(
 ======================================= */
 
 function getEventPlaceScope(
-  event?: GardenEvent,
-): GrowingPlaceScope {
+  event?:
+    GardenEvent,
+):
+  GrowingPlaceScope {
   if (
-    event?.growingPlaceScope
+    event
+      ?.growingPlaceScope
   ) {
-    return event.growingPlaceScope
+    return event
+      .growingPlaceScope
   }
 
 
@@ -285,6 +300,61 @@ function getEventPlaceScope(
 
 
   return 'none'
+}
+
+
+/* =======================================
+   EXISTING PHOTO CONTEXT
+======================================= */
+
+function getEventPhotoMetadata(
+  event?:
+    GardenEvent,
+): (
+  SprigPhotoMetadata |
+  undefined
+)[] {
+  const photoUrls =
+    event?.photoUrls ??
+    []
+
+
+  return photoUrls.map(
+    (
+      photoUrl,
+      index,
+    ) => {
+      const metadata =
+        event
+          ?.photoMetadata?.[
+            index
+          ]
+
+
+      return {
+        ...metadata,
+
+        photoUrl:
+          metadata
+            ?.photoUrl ??
+          photoUrl,
+
+        /*
+         * Older Journal photographs have no
+         * individual photograph date.
+         *
+         * The Journal moment date is good
+         * contextual evidence until the
+         * gardener supplies something more
+         * specific.
+         */
+        photoDate:
+          metadata
+            ?.photoDate ??
+          event?.date,
+      }
+    },
+  )
 }
 
 
@@ -321,44 +391,26 @@ export default function AddEventForm({
 
 
   /*
-   * When Journal is opened from one Plant
-   * Story, Sprig already knows which story
-   * this moment belongs to.
+   * Hard submission gate.
    *
-   * Keep that relationship fixed instead of
-   * asking the gardener to choose the same
-   * Plant Story again.
-   *
-   * Global Journal, Plan recording and editing
-   * keep their normal editable plant controls.
-   */
-  const isFixedPlantContext =
-    !isEditing &&
-    !isRecordingPlan &&
-    Boolean(
-      plantId,
-    )
-
-
-  /*
-   * This ref is the hard submission gate.
-   *
-   * React state disables the button visually,
-   * but state updates are asynchronous.
-   *
-   * A rapid second tap can therefore arrive
-   * before the disabled button has rendered.
-   * The ref closes that tiny gap immediately.
+   * React state disables the button
+   * visually, while this ref prevents a
+   * rapid second phone tap before the next
+   * render can arrive.
    */
   const isSubmittingRef =
-    useRef(false)
+    useRef(
+      false,
+    )
 
 
   const [
     isSubmitting,
     setIsSubmitting,
   ] =
-    useState(false)
+    useState(
+      false,
+    )
 
 
   /* =======================================
@@ -425,7 +477,9 @@ export default function AddEventForm({
     activityTypes,
     setActivityTypes,
   ] =
-    useState<EventType[]>(
+    useState<
+      EventType[]
+    >(
       eventActivityTypes ??
       (
         plannedActivity
@@ -441,7 +495,9 @@ export default function AddEventForm({
     isActivityPickerOpen,
     setIsActivityPickerOpen,
   ] =
-    useState(false)
+    useState(
+      false,
+    )
 
 
   /* =======================================
@@ -452,7 +508,9 @@ export default function AddEventForm({
     isGrowingPlacePickerOpen,
     setIsGrowingPlacePickerOpen,
   ] =
-    useState(false)
+    useState(
+      false,
+    )
 
 
   /* =======================================
@@ -463,7 +521,9 @@ export default function AddEventForm({
     isPlantPickerOpen,
     setIsPlantPickerOpen,
   ] =
-    useState(false)
+    useState(
+      false,
+    )
 
 
   /* =======================================
@@ -475,8 +535,10 @@ export default function AddEventForm({
     setDate,
   ] =
     useState(
-      eventToEdit?.date ??
-      planToRecord?.date ??
+      eventToEdit
+        ?.date ??
+      planToRecord
+        ?.date ??
       today,
     )
 
@@ -486,8 +548,10 @@ export default function AddEventForm({
     setTitle,
   ] =
     useState(
-      eventToEdit?.title ??
-      planToRecord?.title ??
+      eventToEdit
+        ?.title ??
+      planToRecord
+        ?.title ??
       '',
     )
 
@@ -497,7 +561,8 @@ export default function AddEventForm({
     setProductUsed,
   ] =
     useState(
-      eventToEdit?.productUsed ??
+      eventToEdit
+        ?.productUsed ??
       '',
     )
 
@@ -507,8 +572,10 @@ export default function AddEventForm({
     setNotes,
   ] =
     useState(
-      eventToEdit?.notes ??
-      planToRecord?.notes ??
+      eventToEdit
+        ?.notes ??
+      planToRecord
+        ?.notes ??
       '',
     )
 
@@ -521,7 +588,9 @@ export default function AddEventForm({
     photoUrls,
     setPhotoUrls,
   ] =
-    useState<string[]>(
+    useState<
+      string[]
+    >(
       [
         ...(
           eventToEdit
@@ -529,6 +598,22 @@ export default function AddEventForm({
           []
         ),
       ],
+    )
+
+
+  const [
+    photoMetadata,
+    setPhotoMetadata,
+  ] =
+    useState<
+      (
+        SprigPhotoMetadata |
+        undefined
+      )[]
+    >(
+      getEventPhotoMetadata(
+        eventToEdit,
+      ),
     )
 
 
@@ -540,7 +625,9 @@ export default function AddEventForm({
     growingPlaceScope,
     setGrowingPlaceScope,
   ] =
-    useState<GrowingPlaceScope>(
+    useState<
+      GrowingPlaceScope
+    >(
       eventToEdit
         ? getEventPlaceScope(
             eventToEdit,
@@ -559,7 +646,9 @@ export default function AddEventForm({
     growingPlaceIds,
     setGrowingPlaceIds,
   ] =
-    useState<string[]>(
+    useState<
+      string[]
+    >(
       eventToEdit
         ? [
             ...(
@@ -588,7 +677,9 @@ export default function AddEventForm({
     plantScope,
     setPlantScope,
   ] =
-    useState<PlantScope>(
+    useState<
+      PlantScope
+    >(
       eventToEdit
         ? getEventPlantScope(
             eventToEdit,
@@ -607,7 +698,9 @@ export default function AddEventForm({
     plantStoryIds,
     setPlantStoryIds,
   ] =
-    useState<string[]>(
+    useState<
+      string[]
+    >(
       eventToEdit
         ? [
             ...(
@@ -650,14 +743,17 @@ export default function AddEventForm({
               ],
         )
 
+
         setDate(
           eventToEdit.date,
         )
+
 
         setTitle(
           eventToEdit.title ??
           '',
         )
+
 
         setProductUsed(
           eventToEdit
@@ -665,16 +761,19 @@ export default function AddEventForm({
           '',
         )
 
+
         setNotes(
           eventToEdit.notes ??
           '',
         )
+
 
         setGrowingPlaceScope(
           getEventPlaceScope(
             eventToEdit,
           ),
         )
+
 
         setGrowingPlaceIds(
           [
@@ -686,11 +785,13 @@ export default function AddEventForm({
           ],
         )
 
+
         setPlantScope(
           getEventPlantScope(
             eventToEdit,
           ),
         )
+
 
         setPlantStoryIds(
           [
@@ -702,6 +803,7 @@ export default function AddEventForm({
           ],
         )
 
+
         setPhotoUrls(
           [
             ...(
@@ -712,24 +814,37 @@ export default function AddEventForm({
           ],
         )
 
+
+        setPhotoMetadata(
+          getEventPhotoMetadata(
+            eventToEdit,
+          ),
+        )
+
+
         setIsActivityPickerOpen(
           false,
         )
+
 
         setIsGrowingPlacePickerOpen(
           false,
         )
 
+
         setIsPlantPickerOpen(
           false,
         )
 
+
         isSubmittingRef.current =
           false
+
 
         setIsSubmitting(
           false,
         )
+
 
         return
       }
@@ -752,19 +867,23 @@ export default function AddEventForm({
         planToRecord.date,
       )
 
+
       setTitle(
         planToRecord.title ??
         '',
       )
+
 
       setNotes(
         planToRecord.notes ??
         '',
       )
 
+
       setProductUsed(
         '',
       )
+
 
       setActivityTypes(
         nextActivity
@@ -774,11 +893,13 @@ export default function AddEventForm({
           : [],
       )
 
+
       setGrowingPlaceScope(
         getPlanPlaceScope(
           planToRecord,
         ),
       )
+
 
       setGrowingPlaceIds(
         [
@@ -790,11 +911,13 @@ export default function AddEventForm({
         ],
       )
 
+
       setPlantScope(
         getPlanPlantScope(
           planToRecord,
         ),
       )
+
 
       setPlantStoryIds(
         [
@@ -806,24 +929,35 @@ export default function AddEventForm({
         ],
       )
 
+
       setPhotoUrls(
         [],
       )
+
+
+      setPhotoMetadata(
+        [],
+      )
+
 
       setIsActivityPickerOpen(
         false,
       )
 
+
       setIsGrowingPlacePickerOpen(
         false,
       )
+
 
       setIsPlantPickerOpen(
         false,
       )
 
+
       isSubmittingRef.current =
         false
+
 
       setIsSubmitting(
         false,
@@ -846,19 +980,25 @@ export default function AddEventForm({
         document.body
 
       const html =
-        document.documentElement
+        document
+          .documentElement
+
 
       const previousBodyOverflow =
-        body.style.overflow
+        body.style
+          .overflow
 
       const previousBodyOverscroll =
-        body.style.overscrollBehavior
+        body.style
+          .overscrollBehavior
 
       const previousHtmlOverflow =
-        html.style.overflow
+        html.style
+          .overflow
 
       const previousHtmlOverscroll =
-        html.style.overscrollBehavior
+        html.style
+          .overscrollBehavior
 
 
       body.style.overflow =
@@ -907,7 +1047,8 @@ export default function AddEventForm({
             growingPlaceIds.some(
               placeId =>
                 placeId ===
-                plant.currentGrowingPlaceId,
+                plant
+                  .currentGrowingPlaceId,
             ) ||
             plantStoryIds.includes(
               plant.id,
@@ -915,17 +1056,19 @@ export default function AddEventForm({
         )
 
 
-  const sortedAvailablePlants = [
-    ...availablePlants,
-  ].sort(
-    (
-      first,
-      second,
-    ) =>
-      first.displayName.localeCompare(
-        second.displayName,
-      ),
-  )
+  const sortedAvailablePlants =
+    [
+      ...availablePlants,
+    ].sort(
+      (
+        first,
+        second,
+      ) =>
+        first.displayName
+          .localeCompare(
+            second.displayName,
+          ),
+    )
 
 
   /* =======================================
@@ -933,7 +1076,8 @@ export default function AddEventForm({
   ======================================= */
 
   function chooseGrowingPlaceScope(
-    scope: GrowingPlaceScope,
+    scope:
+      GrowingPlaceScope,
   ) {
     setGrowingPlaceScope(
       scope,
@@ -941,8 +1085,10 @@ export default function AddEventForm({
 
 
     if (
-      scope === 'none' ||
-      scope === 'entire-garden'
+      scope ===
+        'none' ||
+      scope ===
+        'entire-garden'
     ) {
       setGrowingPlaceIds(
         [],
@@ -951,7 +1097,8 @@ export default function AddEventForm({
 
 
     if (
-      scope === 'single' &&
+      scope ===
+        'single' &&
       startingGrowingPlaceId &&
       growingPlaceIds.length ===
         0
@@ -970,7 +1117,8 @@ export default function AddEventForm({
   ======================================= */
 
   function choosePlantScope(
-    scope: PlantScope,
+    scope:
+      PlantScope,
   ) {
     setPlantScope(
       scope,
@@ -978,8 +1126,10 @@ export default function AddEventForm({
 
 
     if (
-      scope === 'none' ||
-      scope === 'all-plants'
+      scope ===
+        'none' ||
+      scope ===
+        'all-plants'
     ) {
       setPlantStoryIds(
         [],
@@ -988,7 +1138,8 @@ export default function AddEventForm({
 
 
     if (
-      scope === 'single' &&
+      scope ===
+        'single' &&
       startingPlant
     ) {
       setPlantStoryIds(
@@ -1010,118 +1161,116 @@ export default function AddEventForm({
     icon: string
   }[] = [
     {
-      value: 'observation',
-      label: 'Observed',
-      icon: '👀',
-    },
-    {
-      value: 'watered',
-      label: 'Watered',
-      icon: '💧',
-    },
-    {
-      value: 'fed',
-      label: 'Fertilised',
-      icon: '🌿',
-    },
-    {
-      value: 'sprouted',
-      label: 'Sprouted',
-      icon: '🌱',
-    },
-    {
-      value: 'pruned',
-      label: 'Pruned',
-      icon: '✂️',
-    },
-    {
-      value: 'treated',
-      label: 'Treated',
-      icon: '🩹',
-    },
-
-    {
-      value: 'moved',
-      label: 'Moved',
-      icon: '🪴',
-    },
-    {
-      value: 'hilled',
-      label: 'Hilled',
-      icon: '🥔',
-    },
-    {
-      value: 'weather',
-      label: 'Weather',
-      icon: '🌦️',
-    },
-    {
-      value: 'photo',
-      label: 'Photographed',
-      icon: '📷',
-    },
-    {
-      value: 'note',
-      label: 'Made a note',
-      icon: '📖',
-    },
-  ]
-
-  /*
-   * Older Journal records may already contain
-   * the legacy "harvest" activity.
-   *
-   * Keep it visible while editing those records
-   * so Sprig never hides or silently discards
-   * existing history. New Journal entries use
-   * the real Harvest workflow instead.
-   */
-  if (
-    eventActivityTypes
-      ?.includes(
-        'harvest',
-      )
-  ) {
-    activityOptions.push({
       value:
-        'harvest',
+        'observation',
 
       label:
-        'Harvested',
+        'Observed',
 
       icon:
-        '🧺',
-    })
-  }
+        '👀',
+    },
+    {
+      value:
+        'watered',
 
+      label:
+        'Watered',
 
-  /* =======================================
-     OPEN REAL HARVEST
-  ======================================= */
+      icon:
+        '💧',
+    },
+    {
+      value:
+        'fed',
 
-  function handleOpenHarvestInstead() {
-    if (
-      !onAddHarvest
-    ) {
-      return
-    }
+      label:
+        'Fertilised',
 
+      icon:
+        '🌿',
+    },
+    {
+      value:
+        'sprouted',
 
-    const harvestPlantIds =
-      isFixedPlantContext &&
-      startingPlant
-        ? [
-            startingPlant.id,
-          ]
-        : [
-            ...plantStoryIds,
-          ]
+      label:
+        'Sprouted',
 
+      icon:
+        '🌱',
+    },
+    {
+      value:
+        'pruned',
 
-    onAddHarvest(
-      harvestPlantIds,
-    )
-  }
+      label:
+        'Pruned',
+
+      icon:
+        '✂️',
+    },
+    {
+      value:
+        'treated',
+
+      label:
+        'Treated',
+
+      icon:
+        '🩹',
+    },
+    {
+      value:
+        'moved',
+
+      label:
+        'Moved',
+
+      icon:
+        '🪴',
+    },
+    {
+      value:
+        'hilled',
+
+      label:
+        'Hilled',
+
+      icon:
+        '🥔',
+    },
+    {
+      value:
+        'weather',
+
+      label:
+        'Weather',
+
+      icon:
+        '🌦️',
+    },
+    {
+      value:
+        'photo',
+
+      label:
+        'Photographed',
+
+      icon:
+        '📷',
+    },
+    {
+      value:
+        'note',
+
+      label:
+        'Made a note',
+
+      icon:
+        '📖',
+    },
+  ]
 
 
   /* =======================================
@@ -1129,7 +1278,8 @@ export default function AddEventForm({
   ======================================= */
 
   function toggleActivity(
-    activity: EventType,
+    activity:
+      EventType,
   ) {
     setActivityTypes(
       current => {
@@ -1156,6 +1306,34 @@ export default function AddEventForm({
 
 
   /* =======================================
+     OPEN REAL HARVEST RECORD
+  ======================================= */
+
+  function openHarvestRecord() {
+    if (
+      !onAddHarvest
+    ) {
+      return
+    }
+
+
+    /*
+     * If this Journal composer was opened
+     * from a Plant Story, plantStoryIds
+     * already contains that Plant Story.
+     *
+     * From the general Journal, the current
+     * relationship selection carries across.
+     */
+    onAddHarvest(
+      [
+        ...plantStoryIds,
+      ],
+    )
+  }
+
+
+  /* =======================================
      SAVE JOURNAL ENTRY
   ======================================= */
 
@@ -1175,6 +1353,7 @@ export default function AddEventForm({
 
     isSubmittingRef.current =
       true
+
 
     setIsSubmitting(
       true,
@@ -1203,6 +1382,59 @@ export default function AddEventForm({
         )
 
 
+    const savedPhotoMetadata =
+      photoUrls.map(
+        (
+          photoUrl,
+          index,
+        ) => {
+          const metadata =
+            photoMetadata[
+              index
+            ]
+
+
+          return {
+            ...metadata,
+
+            photoUrl:
+              metadata
+                ?.photoUrl ??
+              photoUrl,
+
+            /*
+             * If there is no separate photo
+             * date, the Journal date is the
+             * best available evidence.
+             */
+            photoDate:
+              metadata
+                ?.photoDate ??
+              date,
+
+            /*
+             * Observation is useful context
+             * when the Journal moment itself
+             * is an Observation.
+             *
+             * Never overwrite a purpose the
+             * gardener deliberately chose.
+             */
+            purpose:
+              metadata
+                ?.purpose ??
+              (
+                primaryType ===
+                  'observation'
+                  ? 'observation'
+                  : undefined
+              ),
+          } satisfies
+            SprigPhotoMetadata
+        },
+      )
+
+
     const savedEvent:
       GardenEvent = {
         ...(
@@ -1211,13 +1443,18 @@ export default function AddEventForm({
         ),
 
         id:
-          eventToEdit?.id ??
-          crypto.randomUUID(),
+          eventToEdit
+            ?.id ??
+          crypto
+            .randomUUID(),
 
         type:
           primaryType,
 
-        activityTypes,
+        activityTypes:
+          [
+            ...activityTypes,
+          ],
 
         date,
 
@@ -1232,25 +1469,30 @@ export default function AddEventForm({
           undefined,
 
         notes:
-          notes
-            .trim() ||
+          notes.trim() ||
           undefined,
 
         growingPlaceScope,
 
-        growingPlaceIds: [
-          ...growingPlaceIds,
-        ],
+        growingPlaceIds:
+          [
+            ...growingPlaceIds,
+          ],
 
-        photoUrls: [
-          ...photoUrls,
-        ],
+        photoUrls:
+          [
+            ...photoUrls,
+          ],
+
+        photoMetadata:
+          savedPhotoMetadata,
 
         plantScope,
 
-        plantStoryIds: [
-          ...plantStoryIds,
-        ],
+        plantStoryIds:
+          [
+            ...plantStoryIds,
+          ],
       }
 
 
@@ -1278,26 +1520,24 @@ export default function AddEventForm({
       }
 
 
-      /*
-       * Do not rely only on the parent save
-       * handler to dismiss the form.
-       *
-       * Successful Journal save means this
-       * page is finished.
-       */
       onClose()
     }
     catch (
       error
     ) {
+      console.error(
+        'Unable to save Journal entry:',
+        error,
+      )
+
+
       isSubmittingRef.current =
         false
+
 
       setIsSubmitting(
         false,
       )
-
-      throw error
     }
   }
 
@@ -1324,7 +1564,6 @@ export default function AddEventForm({
 
 
         <div className="chronicle-content">
-
           <h2
             id="add-event-title"
             className="notebook-page-title"
@@ -1366,48 +1605,49 @@ export default function AddEventForm({
 
             {isRecordingPlan &&
               planToRecord && (
-              <section className="sprig-form-section growing-setup-details">
-                <p className="section-label">
-                  From Garden Plan
-                </p>
+                <section className="sprig-form-section growing-setup-details">
+                  <p className="section-label">
+                    From Garden Plan
+                  </p>
 
-                <h3>
-                  {planToRecord.title}
-                </h3>
+                  <h3>
+                    {planToRecord.title}
+                  </h3>
 
-                <p className="form-whisper">
-                  Sprig has carried the intention
-                  into this Journal page. Change
-                  anything that happened differently
-                  before you save it.
-                </p>
+                  <p className="form-whisper">
+                    Sprig has carried the intention
+                    into this Journal page. Change
+                    anything that happened differently
+                    before you save it.
+                  </p>
 
-                <p className="form-whisper">
-                  The Garden Plan will remain as the
-                  record of what you intended. This
-                  page records what actually happened.
-                </p>
-              </section>
-            )}
+                  <p className="form-whisper">
+                    The Garden Plan remains the
+                    record of what you intended.
+                    This page records what actually
+                    happened.
+                  </p>
+                </section>
+              )}
 
 
             {isEditing && (
               <p className="form-whisper">
-                ✏ Change anything that needs correcting.
-                Sprig will update this same Journal page,
-                not create another one.
+                ✏ Change anything that needs
+                correcting. Sprig will update this
+                same Journal page, not create another.
               </p>
             )}
 
 
             {startingPlant &&
               !isRecordingPlan && (
-              <p className="form-whisper">
-                🌱 Adding to{' '}
-                {startingPlant.displayName}
-                &apos;s story
-              </p>
-            )}
+                <p className="form-whisper">
+                  🌱 Adding to{' '}
+                  {startingPlant.displayName}
+                  &apos;s story
+                </p>
+              )}
 
 
             <div className="journal-entry-heading-row">
@@ -1422,7 +1662,9 @@ export default function AddEventForm({
                     event,
                   ) =>
                     setTitle(
-                      event.target.value,
+                      event
+                        .target
+                        .value,
                     )
                   }
                   placeholder="Watered the front"
@@ -1442,7 +1684,9 @@ export default function AddEventForm({
                     event,
                   ) =>
                     setDate(
-                      event.target.value,
+                      event
+                        .target
+                        .value,
                     )
                   }
                 />
@@ -1481,30 +1725,33 @@ export default function AddEventForm({
               }
             />
 
-{onAddHarvest &&
-              !isEditing &&
-              !isRecordingPlan && (
-                <section className="sprig-form-section">
-                  <p className="form-whisper">
-                    Gathered something from the garden?
-                    Harvests have their own record in
-                    Sprig, with amounts, quality,
-                    photographs and what happens to the
-                    Plant Story next.
-                  </p>
 
+            {onAddHarvest && (
+              <section className="sprig-form-section growing-setup-details">
+                <p className="section-label">
+                  Harvest
+                </p>
 
-                  <button
-                    type="button"
-                    className="secondary-button"
-                    onClick={
-                      handleOpenHarvestInstead
-                    }
-                  >
-                    🧺 Record a Harvest instead
-                  </button>
-                </section>
-              )}
+                <p className="form-whisper">
+                  Gathered something from the
+                  garden? Harvest has its own
+                  record so Sprig can remember
+                  quantities, quality, timing and
+                  what the plant did afterwards.
+                </p>
+
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={
+                    openHarvestRecord
+                  }
+                >
+                  🧺 Record a Harvest
+                </button>
+              </section>
+            )}
+
 
             <section className="journal-connection-section">
               <div className="journal-section-heading">
@@ -1606,9 +1853,11 @@ export default function AddEventForm({
                         ],
                       )
 
+
                       setIsGrowingPlacePickerOpen(
                         false,
                       )
+
 
                       return
                     }
@@ -1635,170 +1884,171 @@ export default function AddEventForm({
             </section>
 
 
-            {!isFixedPlantContext && (
-              <section className="journal-connection-section">
-                <div className="journal-section-heading">
-                  <h5>
-                    Which plants were involved?
-                  </h5>
-                </div>
+            <section className="journal-connection-section">
+              <div className="journal-section-heading">
+                <h5>
+                  Which plants were involved?
+                </h5>
+              </div>
 
 
-                <div className="scope-card-grid plant-scope-grid">
-                  <SelectionCard
-                    title="One Plant"
-                    icon="🌱"
-                    isSelected={
+              <div className="scope-card-grid plant-scope-grid">
+                <SelectionCard
+                  title="One Plant"
+                  icon="🌱"
+                  isSelected={
+                    plantScope ===
+                    'single'
+                  }
+                  onClick={() =>
+                    choosePlantScope(
+                      'single',
+                    )
+                  }
+                />
+
+
+                <SelectionCard
+                  title="Several Plants"
+                  icon="🌿"
+                  isSelected={
+                    plantScope ===
+                    'multiple'
+                  }
+                  onClick={() =>
+                    choosePlantScope(
+                      'multiple',
+                    )
+                  }
+                />
+
+
+                <SelectionCard
+                  title="All Plants"
+                  icon="🌳"
+                  isSelected={
+                    plantScope ===
+                    'all-plants'
+                  }
+                  onClick={() =>
+                    choosePlantScope(
+                      'all-plants',
+                    )
+                  }
+                />
+              </div>
+
+
+              {(
+                plantScope ===
+                  'single' ||
+                plantScope ===
+                  'multiple'
+              ) && (
+                <SprigPicker
+                  title="Choose Plant"
+                  variant="label"
+                  emptySummary="Choose a Plant"
+                  options={
+                    sortedAvailablePlants.map(
+                      plant => {
+                        const growingPlace =
+                          growingPlaces.find(
+                            place =>
+                              place.id ===
+                              plant
+                                .currentGrowingPlaceId,
+                          )
+
+
+                        return {
+                          value:
+                            plant.id,
+
+                          label:
+                            plant.displayName,
+
+                          subtitle:
+                            growingPlace
+                              ? growingPlace.name
+                              : 'No Growing Place',
+
+                          meta:
+                            plant.plantedDate
+                              ? `Planted ${new Date(
+                                  `${plant.plantedDate}T00:00:00`,
+                                ).toLocaleDateString(
+                                  'en-AU',
+                                  {
+                                    day:
+                                      'numeric',
+
+                                    month:
+                                      'short',
+
+                                    year:
+                                      'numeric',
+                                  },
+                                )}`
+                              : undefined,
+                        }
+                      },
+                    )
+                  }
+                  selectedValues={
+                    plantStoryIds
+                  }
+                  isOpen={
+                    isPlantPickerOpen
+                  }
+                  onToggleOpen={() =>
+                    setIsPlantPickerOpen(
+                      current =>
+                        !current,
+                    )
+                  }
+                  onToggleValue={(
+                    id,
+                  ) => {
+                    if (
                       plantScope ===
                       'single'
-                    }
-                    onClick={() =>
-                      choosePlantScope(
-                        'single',
-                      )
-                    }
-                  />
-
-
-                  <SelectionCard
-                    title="Several Plants"
-                    icon="🌿"
-                    isSelected={
-                      plantScope ===
-                      'multiple'
-                    }
-                    onClick={() =>
-                      choosePlantScope(
-                        'multiple',
-                      )
-                    }
-                  />
-
-
-                  <SelectionCard
-                    title="All Plants"
-                    icon="🌳"
-                    isSelected={
-                      plantScope ===
-                      'all-plants'
-                    }
-                    onClick={() =>
-                      choosePlantScope(
-                        'all-plants',
-                      )
-                    }
-                  />
-                </div>
-
-
-                {(
-                  plantScope ===
-                    'single' ||
-                  plantScope ===
-                    'multiple'
-                ) && (
-                  <SprigPicker
-                    title="Choose Plant"
-                    variant="label"
-                    emptySummary="Choose a Plant"
-                    options={
-                      sortedAvailablePlants.map(
-                        plant => {
-                          const growingPlace =
-                            growingPlaces.find(
-                              place =>
-                                place.id ===
-                                plant.currentGrowingPlaceId,
-                            )
-
-
-                          return {
-                            value:
-                              plant.id,
-
-                            label:
-                              plant.displayName,
-
-                            subtitle:
-                              growingPlace
-                                ? growingPlace.name
-                                : 'No Growing Place',
-
-                            meta:
-                              plant.plantedDate
-                                ? `Planted ${new Date(
-                                    `${plant.plantedDate}T00:00:00`,
-                                  ).toLocaleDateString(
-                                    'en-AU',
-                                    {
-                                      day:
-                                        'numeric',
-
-                                      month:
-                                        'short',
-
-                                      year:
-                                        'numeric',
-                                    },
-                                  )}`
-                                : undefined,
-                          }
-                        },
-                      )
-                    }
-                    selectedValues={
-                      plantStoryIds
-                    }
-                    isOpen={
-                      isPlantPickerOpen
-                    }
-                    onToggleOpen={() =>
-                      setIsPlantPickerOpen(
-                        current =>
-                          !current,
-                      )
-                    }
-                    onToggleValue={(
-                      id,
-                    ) => {
-                      if (
-                        plantScope ===
-                        'single'
-                      ) {
-                        setPlantStoryIds(
-                          [
-                            id,
-                          ],
-                        )
-
-                        setIsPlantPickerOpen(
-                          false,
-                        )
-
-                        return
-                      }
-
-
+                    ) {
                       setPlantStoryIds(
-                        current =>
-                          current.includes(
-                            id,
-                          )
-                            ? current.filter(
-                                item =>
-                                  item !==
-                                  id,
-                              )
-                            : [
-                                ...current,
-                                id,
-                              ],
+                        [
+                          id,
+                        ],
                       )
-                    }}
-                  />
-                )}
-              </section>
-            )}
+
+
+                      setIsPlantPickerOpen(
+                        false,
+                      )
+
+
+                      return
+                    }
+
+
+                    setPlantStoryIds(
+                      current =>
+                        current.includes(
+                          id,
+                        )
+                          ? current.filter(
+                              item =>
+                                item !==
+                                id,
+                            )
+                          : [
+                              ...current,
+                              id,
+                            ],
+                    )
+                  }}
+                />
+              )}
+            </section>
 
 
             <label>
@@ -1812,7 +2062,9 @@ export default function AddEventForm({
                   event,
                 ) =>
                   setProductUsed(
-                    event.target.value,
+                    event
+                      .target
+                      .value,
                   )
                 }
                 placeholder="Seasol, PowerFeed, Blood & Bone..."
@@ -1834,7 +2086,9 @@ export default function AddEventForm({
                   event,
                 ) =>
                   setNotes(
-                    event.target.value,
+                    event
+                      .target
+                      .value,
                   )
                 }
                 placeholder="What would future you like to remember?"
@@ -1843,13 +2097,14 @@ export default function AddEventForm({
 
 
             {isRecordingPlan &&
-              planToRecord?.notes && (
-              <p className="form-whisper">
-                Your Plan note was carried across
-                as a starting point. Rewrite it if
-                reality needs different wording.
-              </p>
-            )}
+              planToRecord
+                ?.notes && (
+                <p className="form-whisper">
+                  Your Plan note was carried across
+                  as a starting point. Rewrite it
+                  if reality needs different wording.
+                </p>
+              )}
 
 
             <SprigPhotoPicker
@@ -1861,13 +2116,29 @@ export default function AddEventForm({
                 setPhotoUrls
               }
 
+              photoMetadata={
+                photoMetadata
+              }
+
+              onPhotoMetadataChange={
+                setPhotoMetadata
+              }
+
+              showPhotoContext
+
+              defaultNewPhotosToToday
+
               title="Photographs"
 
-              helperText="Tuck garden photographs into this page so Sprig can remember what this moment looked like."
+              helperText="Add the photographs from this moment. Sprig already knows the Journal page, its plants, Growing Place and date. Everything extra below is optional."
 
               addButtonText="Add journal photographs"
 
               photoAltPrefix="Journal photograph"
+
+              photoDateLabel="When was this photograph taken?"
+
+              photoDateHelperText="New photographs begin with today. Change the date when the photograph was taken earlier."
 
               maxPhotos={
                 12

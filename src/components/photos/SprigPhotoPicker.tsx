@@ -1,837 +1,1165 @@
 import {
-    useRef,
-    useState,
-    type ChangeEvent,
-  } from 'react'
-  
-  import {
-    processSprigPhotos,
-  } from '../../utils/photoUtils'
-  
-  
-  interface SprigPhotoPickerProps {
-    photoUrls: string[]
-  
-    onChange: (
-      photoUrls: string[],
-    ) => void
-  
-    /*
-     * Optional date metadata.
-     *
-     * The date at each index belongs to the
-     * photograph at the same index in
-     * photoUrls.
-     *
-     * Existing Sprig records do not need to
-     * provide this yet, which keeps this
-     * picker backwards compatible.
-     */
-    photoDates?: (
-      | string
-      | undefined
-    )[]
-  
-    /*
-     * When this callback is supplied, Sprig
-     * knows this particular use of the photo
-     * picker supports dated photographs.
-     *
-     * The date controls are deliberately only
-     * shown when the parent can actually save
-     * them.
-     */
-    onPhotoDatesChange?: (
-      photoDates: (
-        | string
-        | undefined
-      )[],
-    ) => void
-  
-    title?: string
-  
-    helperText?: string
-  
-    addButtonText?: string
-  
-    photoAltPrefix?: string
-  
-    multiple?: boolean
-  
-    maxPhotos?: number
-  
-    /*
-     * New photographs normally represent
-     * "today", but a parent can turn that off
-     * if a record type needs different
-     * behaviour.
-     */
-    defaultNewPhotosToToday?: boolean
-  
-    /*
-     * Optional wording for dated-photo UI.
-     */
-    photoDateLabel?: string
-  
-    photoDateHelperText?: string
-  }
-  
-  
-  /* =======================================
-     TODAY
-  ======================================= */
-  
-  function getTodayDate(): string {
-    return new Date()
-      .toISOString()
-      .slice(
-        0,
-        10,
-      )
-  }
-  
-  
-  /* =======================================
-     NORMALISE PHOTO DATES
-  ======================================= */
-  
-  function normalisePhotoDates(
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from 'react'
+
+import {
+  processSprigPhotos,
+} from '../../utils/photoUtils'
+
+import type {
+  SprigPhotoMetadata,
+  SprigPhotoPurpose,
+} from '../../types'
+
+
+interface SprigPhotoContext {
+  title?: string
+  notes?: string
+  tags?: string[]
+  photoTime?: string
+  purpose?: SprigPhotoPurpose
+}
+
+
+interface SprigPhotoPickerProps {
+  photoUrls: string[]
+
+  onChange: (
     photoUrls: string[],
-    photoDates?: (
-      | string
-      | undefined
+  ) => void
+
+  /*
+   * Existing date API.
+   *
+   * This remains supported so every current
+   * Sprig form continues to work exactly as
+   * it did before richer photograph context
+   * was introduced.
+   */
+  photoDates?: (
+    string |
+    undefined
+  )[]
+
+  onPhotoDatesChange?: (
+    photoDates: (
+      string |
+      undefined
     )[],
-  ): (
-    | string
-    | undefined
-  )[] {
-    return photoUrls.map(
-      (
-        _photoUrl,
-        index,
-      ) =>
+  ) => void
+
+  /*
+   * Rich per-photograph metadata.
+   *
+   * This is optional. Forms that are not yet
+   * ready for richer photograph context can
+   * continue using only photoUrls/photoDates.
+   */
+  photoMetadata?: (
+    SprigPhotoMetadata |
+    undefined
+  )[]
+
+  onPhotoMetadataChange?: (
+    photoMetadata: (
+      SprigPhotoMetadata |
+      undefined
+    )[],
+  ) => void
+
+  title?: string
+
+  helperText?: string
+
+  addButtonText?: string
+
+  photoAltPrefix?: string
+
+  multiple?: boolean
+
+  maxPhotos?: number
+
+  defaultNewPhotosToToday?: boolean
+
+  photoDateLabel?: string
+
+  photoDateHelperText?: string
+
+  /*
+   * Rich context stays optional for the
+   * gardener. The parent decides whether a
+   * particular workflow should show it.
+   */
+  showPhotoContext?: boolean
+}
+
+
+interface ProcessedPhoto {
+  photoUrl: string
+  originalFileName?: string
+}
+
+
+/* =======================================
+   DATE
+======================================= */
+
+function getTodayDate():
+  string {
+  return new Date()
+    .toISOString()
+    .slice(
+      0,
+      10,
+    )
+}
+
+
+/* =======================================
+   TAGS
+======================================= */
+
+function tagsToInputValue(
+  tags:
+    string[] |
+    undefined,
+): string {
+  return (
+    tags ??
+    []
+  )
+    .map(
+      tag =>
+        tag.startsWith(
+          '#',
+        )
+          ? tag
+          : `#${tag}`,
+    )
+    .join(
+      ' ',
+    )
+}
+
+
+function inputValueToTags(
+  value:
+    string,
+): string[] {
+  const seen =
+    new Set<string>()
+
+  const tags =
+    value
+      .split(
+        /[\s,]+/,
+      )
+      .map(
+        tag =>
+          tag
+            .trim()
+            .replace(
+              /^#+/,
+              '',
+            ),
+      )
+      .filter(
+        Boolean,
+      )
+      .filter(
+        tag => {
+          const key =
+            tag.toLowerCase()
+
+          if (
+            seen.has(
+              key,
+            )
+          ) {
+            return false
+          }
+
+          seen.add(
+            key,
+          )
+
+          return true
+        },
+      )
+
+  return tags
+}
+
+
+/* =======================================
+   PURPOSE LABEL
+======================================= */
+
+function getPhotoPurposeLabel(
+  purpose:
+    SprigPhotoPurpose,
+): string {
+  switch (
+    purpose
+  ) {
+    case 'observation':
+      return 'Observation'
+
+    case 'progress':
+      return 'Progress'
+
+    case 'problem':
+      return 'Problem'
+
+    case 'harvest':
+      return 'Harvest'
+
+    case 'setup':
+      return 'Setup'
+
+    case 'reference':
+      return 'Reference'
+
+    case 'other':
+    default:
+      return 'Other'
+  }
+}
+
+
+/* =======================================
+   PHOTO PICKER
+======================================= */
+
+export default function SprigPhotoPicker({
+  photoUrls,
+  onChange,
+  photoDates,
+  onPhotoDatesChange,
+  photoMetadata,
+  onPhotoMetadataChange,
+  title =
+    'Photographs',
+  helperText =
+    'Add photographs that belong to this record.',
+  addButtonText =
+    'Add photographs',
+  photoAltPrefix =
+    'Garden photograph',
+  multiple =
+    true,
+  maxPhotos =
+    20,
+  defaultNewPhotosToToday =
+    false,
+  photoDateLabel =
+    'Photograph date',
+  photoDateHelperText =
+    'Optional. Use the date the photograph was taken when you know it.',
+  showPhotoContext =
+    false,
+}: SprigPhotoPickerProps) {
+  const inputRef =
+    useRef<HTMLInputElement>(
+      null,
+    )
+
+  const [
+    isProcessing,
+    setIsProcessing,
+  ] =
+    useState(
+      false,
+    )
+
+  const [
+    processingMessage,
+    setProcessingMessage,
+  ] =
+    useState(
+      '',
+    )
+
+
+  /* =======================================
+     SAFE DATE LOOKUP
+  ======================================= */
+
+  function getPhotoDate(
+    index:
+      number,
+  ):
+    string {
+    return (
+      photoMetadata?.[
+        index
+      ]?.photoDate ??
+      photoDates?.[
+        index
+      ] ??
+      ''
+    )
+  }
+
+
+  /* =======================================
+     SAFE METADATA LOOKUP
+  ======================================= */
+
+  function getPhotoMetadata(
+    index:
+      number,
+  ):
+    SprigPhotoMetadata {
+    const metadata =
+      photoMetadata?.[
+        index
+      ]
+
+    return {
+      ...metadata,
+
+      photoDate:
+        metadata
+          ?.photoDate ??
         photoDates?.[
           index
         ],
-    )
+    }
   }
-  
-  
+
+
   /* =======================================
-     SPRIG PHOTO PICKER
+     KEEP METADATA LENGTH SAFE
   ======================================= */
-  
-  export default function SprigPhotoPicker({
-    photoUrls,
-    onChange,
-  
-    photoDates,
-    onPhotoDatesChange,
-  
-    title = 'Photographs',
-  
-    helperText =
-      'Tuck photographs into this page.',
-  
-    addButtonText =
-      'Add photographs',
-  
-    photoAltPrefix =
-      'Sprig photograph',
-  
-    multiple = true,
-  
-    maxPhotos,
-  
-    defaultNewPhotosToToday =
-      true,
-  
-    photoDateLabel =
-      'When was this photograph taken?',
-  
-    photoDateHelperText =
-      'The date helps Sprig compare how things looked at similar stages.',
-  }: SprigPhotoPickerProps) {
-  
-    const inputRef =
-      useRef<HTMLInputElement>(
-        null,
-      )
-  
-  
-    const [
-      isProcessing,
-      setIsProcessing,
-    ] =
-      useState(false)
-  
-  
-    const [
-      errorMessage,
-      setErrorMessage,
-    ] =
-      useState<
-        string | null
-      >(
-        null,
-      )
-  
-  
-    /*
-     * Date controls only appear when the
-     * parent record is capable of saving
-     * photograph dates.
-     *
-     * This lets Journal, Harvest and all older
-     * picker uses continue working untouched
-     * until we deliberately connect them.
-     */
-    const supportsPhotoDates =
-      Boolean(
-        onPhotoDatesChange,
-      )
-  
-  
-    const normalisedPhotoDates =
-      normalisePhotoDates(
-        photoUrls,
-        photoDates,
-      )
-  
-  
-    /* =======================================
-       UPDATE PHOTO DATES
-    ======================================= */
-  
-    function updatePhotoDates(
-      nextDates: (
-        | string
-        | undefined
-      )[],
-    ) {
+
+  useEffect(
+    () => {
       if (
-        !onPhotoDatesChange
+        !onPhotoMetadataChange ||
+        !photoMetadata
       ) {
         return
       }
-  
-  
-      onPhotoDatesChange(
-        nextDates,
-      )
-    }
-  
-  
-    /* =======================================
-       UPDATE ONE PHOTO DATE
-    ======================================= */
-  
-    function updatePhotoDate(
-      photoIndex: number,
-      date: string,
-    ) {
+
       if (
-        !onPhotoDatesChange
+        photoMetadata.length ===
+        photoUrls.length
       ) {
         return
       }
-  
-  
-      const nextDates = [
-        ...normalisedPhotoDates,
-      ]
-  
-  
-      nextDates[
-        photoIndex
-      ] =
-        date ||
-        undefined
-  
-  
-      updatePhotoDates(
-        nextDates,
-      )
-  
-  
-      setErrorMessage(
-        null,
-      )
-    }
-  
-  
-    /* =======================================
-       PHOTO SELECTION
-    ======================================= */
-  
-    async function handlePhotoSelection(
-      event:
-        ChangeEvent<HTMLInputElement>,
-    ) {
-      const files =
-        event.target.files
-  
-  
-      if (
-        !files?.length
-      ) {
-        return
-      }
-  
-  
-      /*
-       * Copy FileList before resetting the
-       * input.
-       *
-       * FileList may be tied to the browser
-       * input itself, so clearing the input
-       * first can also clear the selected
-       * files.
-       */
-      let selectedFiles =
-        Array.from(
-          files,
-        )
-  
-  
-      /*
-       * Reset after copying so the same
-       * photograph can be selected again
-       * later if it is removed.
-       */
-      event.target.value =
-        ''
-  
-  
-      setErrorMessage(
-        null,
-      )
-  
-  
-      setIsProcessing(
-        true,
-      )
-  
-  
-      try {
-  
-        /* =======================================
-           SINGLE PHOTO MODE
-        ======================================= */
-  
-        if (
-          !multiple
-        ) {
-          selectedFiles =
-            selectedFiles.slice(
-              0,
-              1,
-            )
-        }
-  
-  
-        /* =======================================
-           PHOTO LIMIT
-        ======================================= */
-  
-        if (
-          maxPhotos !==
-          undefined
-        ) {
-          const remainingSlots =
-            Math.max(
-              0,
-              maxPhotos -
-                photoUrls.length,
-            )
-  
-  
-          if (
-            remainingSlots ===
-            0
-          ) {
-            setErrorMessage(
-              `This page already has its maximum of ${maxPhotos} ${
-                maxPhotos ===
-                1
-                  ? 'photograph'
-                  : 'photographs'
-              }.`,
-            )
-  
-            return
-          }
-  
-  
-          if (
-            selectedFiles.length >
-            remainingSlots
-          ) {
-            selectedFiles =
-              selectedFiles.slice(
-                0,
-                remainingSlots,
-              )
-          }
-        }
-  
-  
-        /* =======================================
-           PROCESS PHOTOGRAPHS
-        ======================================= */
-  
-        const processedPhotos =
-          await processSprigPhotos(
-            selectedFiles,
-          )
-  
-  
-        if (
-          processedPhotos.length ===
-          0
-        ) {
-          setErrorMessage(
-            'Sprig could not find a usable photograph in that selection.',
-          )
-  
-          return
-        }
-  
-  
-        /* =======================================
-           DEFAULT DATES FOR NEW PHOTOS
-        ======================================= */
-  
-        const defaultDate =
-          supportsPhotoDates &&
-          defaultNewPhotosToToday
-            ? getTodayDate()
-            : undefined
-  
-  
-        const newPhotoDates =
-          processedPhotos.map(
-            () =>
-              defaultDate,
-          )
-  
-  
-        /* =======================================
-           SAVE SINGLE PHOTO
-        ======================================= */
-  
-        if (
-          !multiple
-        ) {
-          onChange(
-            [
-              processedPhotos[
-                0
-              ],
-            ],
-          )
-  
-  
-          if (
-            supportsPhotoDates
-          ) {
-            updatePhotoDates(
-              [
-                newPhotoDates[
-                  0
-                ],
-              ],
-            )
-          }
-  
-  
-          return
-        }
-  
-  
-        /* =======================================
-           SAVE MULTIPLE PHOTOS
-        ======================================= */
-  
-        onChange(
-          [
-            ...photoUrls,
-            ...processedPhotos,
-          ],
-        )
-  
-  
-        if (
-          supportsPhotoDates
-        ) {
-          updatePhotoDates(
-            [
-              ...normalisedPhotoDates,
-              ...newPhotoDates,
-            ],
-          )
-        }
-  
-      } catch (
-        error
-      ) {
-        console.error(
-          'Sprig photograph processing failed:',
-          error,
-        )
-  
-  
-        setErrorMessage(
-          'Sprig could not prepare one of those photographs. Please try another image.',
-        )
-      } finally {
-        setIsProcessing(
-          false,
-        )
-      }
-    }
-  
-  
-    /* =======================================
-       REMOVE PHOTO
-    ======================================= */
-  
-    function removePhoto(
-      photoIndex: number,
-    ) {
-      const nextPhotoUrls =
-        photoUrls.filter(
+
+      onPhotoMetadataChange(
+        photoUrls.map(
           (
             _photoUrl,
             index,
           ) =>
-            index !==
+            photoMetadata[
+              index
+            ],
+        ),
+      )
+    },
+    [
+      photoUrls,
+      photoMetadata,
+      onPhotoMetadataChange,
+    ],
+  )
+
+
+  /* =======================================
+     UPDATE DATE
+  ======================================= */
+
+  function updatePhotoDate(
+    index:
+      number,
+    nextDate:
+      string,
+  ) {
+    const savedDate =
+      nextDate ||
+      undefined
+
+    if (
+      onPhotoDatesChange
+    ) {
+      onPhotoDatesChange(
+        photoUrls.map(
+          (
+            _photoUrl,
             photoIndex,
+          ) =>
+            photoIndex ===
+              index
+              ? savedDate
+              : (
+                  photoDates?.[
+                    photoIndex
+                  ] ??
+                  photoMetadata?.[
+                    photoIndex
+                  ]?.photoDate
+                ),
+        ),
+      )
+    }
+
+    if (
+      onPhotoMetadataChange
+    ) {
+      onPhotoMetadataChange(
+        photoUrls.map(
+          (
+            _photoUrl,
+            photoIndex,
+          ) => {
+            const existing =
+              getPhotoMetadata(
+                photoIndex,
+              )
+
+            if (
+              photoIndex !==
+              index
+            ) {
+              return existing
+            }
+
+            return {
+              ...existing,
+
+              photoDate:
+                savedDate,
+            }
+          },
+        ),
+      )
+    }
+  }
+
+
+  /* =======================================
+     UPDATE CONTEXT
+  ======================================= */
+
+  function updatePhotoContext(
+    index:
+      number,
+    updates:
+      Partial<
+        SprigPhotoContext
+      >,
+  ) {
+    if (
+      !onPhotoMetadataChange
+    ) {
+      return
+    }
+
+    onPhotoMetadataChange(
+      photoUrls.map(
+        (
+          _photoUrl,
+          photoIndex,
+        ) => {
+          const existing =
+            getPhotoMetadata(
+              photoIndex,
+            )
+
+          if (
+            photoIndex !==
+            index
+          ) {
+            return existing
+          }
+
+          return {
+            ...existing,
+            ...updates,
+          }
+        },
+      ),
+    )
+  }
+
+
+  /* =======================================
+     REMOVE PHOTO
+  ======================================= */
+
+  function removePhoto(
+    indexToRemove:
+      number,
+  ) {
+    const nextPhotoUrls =
+      photoUrls.filter(
+        (
+          _photoUrl,
+          index,
+        ) =>
+          index !==
+          indexToRemove,
+      )
+
+    const nextPhotoDates =
+      photoUrls
+        .map(
+          (
+            _photoUrl,
+            index,
+          ) =>
+            getPhotoDate(
+              index,
+            ) ||
+            undefined,
         )
-  
-  
+        .filter(
+          (
+            _photoDate,
+            index,
+          ) =>
+            index !==
+            indexToRemove,
+        )
+
+    const nextMetadata =
+      photoUrls
+        .map(
+          (
+            _photoUrl,
+            index,
+          ) =>
+            getPhotoMetadata(
+              index,
+            ),
+        )
+        .filter(
+          (
+            _metadata,
+            index,
+          ) =>
+            index !==
+            indexToRemove,
+        )
+
+    onChange(
+      nextPhotoUrls,
+    )
+
+    if (
+      onPhotoDatesChange
+    ) {
+      onPhotoDatesChange(
+        nextPhotoDates,
+      )
+    }
+
+    if (
+      onPhotoMetadataChange
+    ) {
+      onPhotoMetadataChange(
+        nextMetadata,
+      )
+    }
+  }
+
+
+  /* =======================================
+     ADD PHOTOS
+  ======================================= */
+
+  async function handleFilesSelected(
+    event:
+      ChangeEvent<HTMLInputElement>,
+  ) {
+    const files =
+      Array.from(
+        event.target.files ??
+        [],
+      )
+
+    event.target.value =
+      ''
+
+    if (
+      files.length ===
+      0
+    ) {
+      return
+    }
+
+    const availableSlots =
+      Math.max(
+        0,
+        maxPhotos -
+        photoUrls.length,
+      )
+
+    if (
+      availableSlots ===
+      0
+    ) {
+      return
+    }
+
+    const selectedFiles =
+      files.slice(
+        0,
+        multiple
+          ? availableSlots
+          : 1,
+      )
+
+    setIsProcessing(
+      true,
+    )
+
+    setProcessingMessage(
+      selectedFiles.length ===
+        1
+        ? 'Preparing photograph…'
+        : `Preparing ${selectedFiles.length} photographs…`,
+    )
+
+    try {
+      const processedUrls =
+        await processSprigPhotos(
+          selectedFiles,
+        )
+
+      const processedPhotos:
+        ProcessedPhoto[] =
+        processedUrls.map(
+          (
+            photoUrl,
+            index,
+          ) => ({
+            photoUrl,
+
+            originalFileName:
+              selectedFiles[
+                index
+              ]?.name,
+          }),
+        )
+
+      const nextPhotoUrls =
+        [
+          ...photoUrls,
+
+          ...processedPhotos.map(
+            photo =>
+              photo.photoUrl,
+          ),
+        ]
+
+      const today =
+        getTodayDate()
+
+      const existingDates =
+        photoUrls.map(
+          (
+            _photoUrl,
+            index,
+          ) =>
+            getPhotoDate(
+              index,
+            ) ||
+            undefined,
+        )
+
+      const newDates =
+        processedPhotos.map(
+          () =>
+            defaultNewPhotosToToday
+              ? today
+              : undefined,
+        )
+
+      const existingMetadata =
+        photoUrls.map(
+          (
+            _photoUrl,
+            index,
+          ) =>
+            getPhotoMetadata(
+              index,
+            ),
+        )
+
+      const addedAt =
+        new Date()
+          .toISOString()
+
+      const newMetadata =
+        processedPhotos.map(
+          (
+            photo,
+            index,
+          ):
+            SprigPhotoMetadata => ({
+            photoDate:
+              newDates[
+                index
+              ],
+
+            originalFileName:
+              photo
+                .originalFileName,
+
+            addedAt,
+          }),
+        )
+
       onChange(
         nextPhotoUrls,
       )
-  
-  
-      /*
-       * Remove the matching date as well so
-       * photograph metadata can never slide
-       * onto the wrong image.
-       */
+
       if (
-        supportsPhotoDates
+        onPhotoDatesChange
       ) {
-        const nextPhotoDates =
-          normalisedPhotoDates.filter(
-            (
-              _date,
-              index,
-            ) =>
-              index !==
-              photoIndex,
-          )
-  
-  
-        updatePhotoDates(
-          nextPhotoDates,
-        )
+        onPhotoDatesChange([
+          ...existingDates,
+          ...newDates,
+        ])
       }
-  
-  
-      setErrorMessage(
-        null,
+
+      if (
+        onPhotoMetadataChange
+      ) {
+        onPhotoMetadataChange([
+          ...existingMetadata,
+          ...newMetadata,
+        ])
+      }
+    }
+    finally {
+      setIsProcessing(
+        false,
+      )
+
+      setProcessingMessage(
+        '',
       )
     }
-  
-  
-    /* =======================================
-       OPEN FILE PICKER
-    ======================================= */
-  
-    function openPhotoPicker() {
-      if (
-        isProcessing
-      ) {
-        return
-      }
-  
-  
-      inputRef.current
-        ?.click()
-    }
-  
-  
-    /* =======================================
-       PHOTO LIMIT
-    ======================================= */
-  
-    const hasReachedLimit =
-      maxPhotos !==
-        undefined &&
-      photoUrls.length >=
-        maxPhotos
-  
-  
-    /* =======================================
-       REMAINING PHOTO COUNT
-    ======================================= */
-  
-    const remainingPhotoCount =
-      maxPhotos !==
-        undefined
-        ? Math.max(
-            0,
-            maxPhotos -
-              photoUrls.length,
-          )
-        : undefined
-  
-  
-    return (
-      <section className="sprig-photo-picker">
-  
-        {/* =======================================
-            HEADING
-        ======================================= */}
-  
-        <div className="sprig-photo-picker-heading">
-  
-          <h3 className="sprig-photo-picker-title">
+  }
+
+
+  /* =======================================
+     OPEN FILE PICKER
+  ======================================= */
+
+  function openFilePicker() {
+    inputRef.current
+      ?.click()
+  }
+
+
+  const canAddMore =
+    photoUrls.length <
+    maxPhotos
+
+
+  const showDateControls =
+    Boolean(
+      onPhotoDatesChange ||
+      onPhotoMetadataChange,
+    )
+
+
+  const canEditRichContext =
+    Boolean(
+      showPhotoContext &&
+      onPhotoMetadataChange,
+    )
+
+
+  const purposeOptions:
+    SprigPhotoPurpose[] = [
+      'observation',
+      'progress',
+      'problem',
+      'harvest',
+      'setup',
+      'reference',
+      'other',
+    ]
+
+
+  return (
+    <section className="sprig-form-section sprig-photo-picker">
+      <div className="sprig-photo-picker-heading">
+        <div>
+          <p className="section-label">
+            Photographs
+          </p>
+
+          <h3>
             {title}
           </h3>
-  
-  
+
           {helperText && (
             <p className="form-whisper">
               {helperText}
             </p>
           )}
-  
-  
-          {supportsPhotoDates && (
-            <p className="form-whisper">
-              Each photograph can remember
-              when it was taken so Sprig can
-              place it at the right point in
-              the story.
-            </p>
-          )}
-  
         </div>
-  
-  
-        {/* =======================================
-            HIDDEN FILE INPUT
-        ======================================= */}
-  
-        <input
-          ref={
-            inputRef
-          }
-          className="sprig-photo-input"
-          type="file"
-          accept="image/*"
-          multiple={
-            multiple
-          }
-          onChange={
-            handlePhotoSelection
-          }
-        />
-  
-  
-        {/* =======================================
-            ADD PHOTO BUTTON
-        ======================================= */}
-  
-        <button
-          type="button"
-          className="secondary-button sprig-photo-add-button"
-          onClick={
-            openPhotoPicker
-          }
-          disabled={
-            isProcessing ||
-            hasReachedLimit
-          }
-        >
-          {isProcessing
-            ? 'Preparing photographs...'
-            : hasReachedLimit
-              ? 'Photograph limit reached'
-              : addButtonText}
-        </button>
-  
-  
-        {/* =======================================
-            REMAINING SPACE
-        ======================================= */}
-  
-        {remainingPhotoCount !==
-          undefined &&
-          remainingPhotoCount >
-            0 &&
-          photoUrls.length >
-            0 && (
-            <p className="form-whisper">
-              Room for{' '}
-              {
-                remainingPhotoCount
-              } more{' '}
-              {remainingPhotoCount ===
-              1
-                ? 'photograph'
-                : 'photographs'}
-              .
-            </p>
-          )}
-  
-  
-        {/* =======================================
-            ERROR MESSAGE
-        ======================================= */}
-  
-        {errorMessage && (
-          <p
-            className="sprig-photo-error"
-            role="alert"
-          >
-            {errorMessage}
-          </p>
-        )}
-  
-  
-        {/* =======================================
-            PHOTO PREVIEWS
-        ======================================= */}
-  
-        {photoUrls.length >
-          0 && (
-          <div className="sprig-photo-preview-grid">
-  
-            {photoUrls.map(
-              (
-                photoUrl,
-                index,
-              ) => {
-  
-                const photoDate =
-                  normalisedPhotoDates[
-                    index
-                  ]
-  
-  
-                return (
-                  <div
-                    key={`${photoUrl.slice(
+      </div>
+
+
+      <input
+        ref={
+          inputRef
+        }
+        type="file"
+        accept="image/*"
+        multiple={
+          multiple
+        }
+        onChange={
+          handleFilesSelected
+        }
+        hidden
+      />
+
+
+      {photoUrls.length >
+      0 ? (
+        <div className="sprig-photo-picker-list">
+          {photoUrls.map(
+            (
+              photoUrl,
+              index,
+            ) => {
+              const metadata =
+                getPhotoMetadata(
+                  index,
+                )
+
+              return (
+                <article
+                  key={
+                    `${photoUrl.slice(
                       0,
-                      30,
-                    )}-${index}`}
-                    className="sprig-photo-preview"
-                  >
-  
-                    {/* =======================================
-                        THUMBNAIL
-                    ======================================= */}
-  
+                      36,
+                    )}-${index}`
+                  }
+                  className="sprig-photo-picker-item"
+                >
+                  <div className="sprig-photo-picker-preview">
                     <img
-                      className="sprig-photo-thumbnail"
                       src={
                         photoUrl
                       }
-                      alt={`${photoAltPrefix} ${
-                        index +
-                        1
-                      }`}
+                      alt={`${photoAltPrefix} ${index + 1}`}
                     />
-  
-  
-                    {/* =======================================
-                        PHOTO DATE
-                    ======================================= */}
-  
-                    {supportsPhotoDates && (
-                      <div className="sprig-photo-date-field">
-  
-                        <label>
-                          {photoDateLabel}
-  
-                          <input
-                            type="date"
-                            value={
-                              photoDate ??
-                              ''
-                            }
-                            onChange={(
-                              event,
-                            ) =>
-                              updatePhotoDate(
-                                index,
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </label>
-  
-  
-                        <p className="form-whisper">
-                          {photoDate
-                            ? photoDateHelperText
-                            : 'No date is recorded for this photograph yet. It can still be kept, but Sprig cannot use it for age-based comparisons until a date is added.'}
-                        </p>
-  
-                      </div>
-                    )}
-  
-  
-                    {/* =======================================
-                        REMOVE
-                    ======================================= */}
-  
+
                     <button
                       type="button"
-                      className="secondary-button sprig-photo-remove-button"
+                      className="sprig-photo-picker-remove"
                       onClick={() =>
                         removePhoto(
                           index,
                         )
                       }
-                      aria-label={`Remove ${photoAltPrefix.toLowerCase()} ${
-                        index +
-                        1
-                      }`}
+                      aria-label={`Remove ${photoAltPrefix} ${index + 1}`}
                     >
-                      Remove photograph
+                      ×
                     </button>
-  
                   </div>
-                )
-              },
-            )}
-  
-          </div>
-        )}
-  
-  
-        {/* =======================================
-            PHOTO COUNT
-        ======================================= */}
-  
-        {maxPhotos !==
-          undefined &&
-          photoUrls.length >
-            0 && (
-            <p className="form-whisper">
-              {photoUrls.length} of{' '}
-              {maxPhotos}{' '}
-              {maxPhotos === 1
-                ? 'photograph'
-                : 'photographs'}
-            </p>
+
+
+                  <div className="sprig-photo-picker-context">
+                    <p className="section-label">
+                      Photo {index + 1}
+                    </p>
+
+
+                    {showDateControls && (
+                      <label>
+                        {photoDateLabel}
+
+                        <input
+                          type="date"
+                          value={
+                            getPhotoDate(
+                              index,
+                            )
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            updatePhotoDate(
+                              index,
+                              event
+                                .target
+                                .value,
+                            )
+                          }
+                        />
+
+                        {photoDateHelperText && (
+                          <span className="form-whisper">
+                            {photoDateHelperText}
+                          </span>
+                        )}
+                      </label>
+                    )}
+
+
+                    {canEditRichContext && (
+                      <>
+                        <label>
+                          Photo title
+
+                          <input
+                            type="text"
+                            value={
+                              metadata
+                                .title ??
+                              ''
+                            }
+                            onChange={(
+                              event,
+                            ) =>
+                              updatePhotoContext(
+                                index,
+                                {
+                                  title:
+                                    event
+                                      .target
+                                      .value ||
+                                    undefined,
+                                },
+                              )
+                            }
+                            placeholder="First flower buds, lower leaves yellowing..."
+                          />
+
+                          <span className="form-whisper">
+                            Optional. A short title
+                            makes this photograph
+                            easier to recognise later.
+                          </span>
+                        </label>
+
+
+                        <label>
+                          Photo notes
+
+                          <textarea
+                            value={
+                              metadata
+                                .notes ??
+                              ''
+                            }
+                            onChange={(
+                              event,
+                            ) =>
+                              updatePhotoContext(
+                                index,
+                                {
+                                  notes:
+                                    event
+                                      .target
+                                      .value ||
+                                    undefined,
+                                },
+                              )
+                            }
+                            rows={
+                              3
+                            }
+                            placeholder="Anything visible here that is worth remembering..."
+                          />
+                        </label>
+
+
+                        <label>
+                          Tags
+
+                          <input
+                            type="text"
+                            value={
+                              tagsToInputValue(
+                                metadata
+                                  .tags,
+                              )
+                            }
+                            onChange={(
+                              event,
+                            ) =>
+                              updatePhotoContext(
+                                index,
+                                {
+                                  tags:
+                                    inputValueToTags(
+                                      event
+                                        .target
+                                        .value,
+                                    ),
+                                },
+                              )
+                            }
+                            placeholder="#flowering #yellow-leaves #new-growth"
+                          />
+
+                          <span className="form-whisper">
+                            Optional. Separate tags
+                            with spaces or commas.
+                          </span>
+                        </label>
+
+
+                        <div className="sprig-photo-purpose-field">
+                          <p className="section-label">
+                            What kind of photograph is this?
+                          </p>
+
+                          <p className="form-whisper">
+                            Optional. Sprig can still
+                            understand plenty from the
+                            record this photograph
+                            belongs to.
+                          </p>
+
+                          <div className="selection-card-grid">
+                            {purposeOptions.map(
+                              purpose => {
+                                const isSelected =
+                                  metadata
+                                    .purpose ===
+                                  purpose
+
+                                return (
+                                  <button
+                                    key={
+                                      purpose
+                                    }
+                                    type="button"
+                                    className={
+                                      isSelected
+                                        ? 'selection-card selected'
+                                        : 'selection-card'
+                                    }
+                                    aria-pressed={
+                                      isSelected
+                                    }
+                                    onClick={() =>
+                                      updatePhotoContext(
+                                        index,
+                                        {
+                                          purpose:
+                                            isSelected
+                                              ? undefined
+                                              : purpose,
+                                        },
+                                      )
+                                    }
+                                  >
+                                    <strong>
+                                      {isSelected
+                                        ? '✓ '
+                                        : ''}
+                                      {getPhotoPurposeLabel(
+                                        purpose,
+                                      )}
+                                    </strong>
+                                  </button>
+                                )
+                              },
+                            )}
+                          </div>
+                        </div>
+
+
+                        <label>
+                          Time photographed
+
+                          <input
+                            type="time"
+                            value={
+                              metadata
+                                .photoTime ??
+                              ''
+                            }
+                            onChange={(
+                              event,
+                            ) =>
+                              updatePhotoContext(
+                                index,
+                                {
+                                  photoTime:
+                                    event
+                                      .target
+                                      .value ||
+                                    undefined,
+                                },
+                              )
+                            }
+                          />
+
+                          <span className="form-whisper">
+                            Optional. Useful when
+                            sunlight, shade or time of
+                            day matters.
+                          </span>
+                        </label>
+                      </>
+                    )}
+                  </div>
+                </article>
+              )
+            },
           )}
-  
-      </section>
-    )
-  }
+        </div>
+      ) : (
+        <p className="form-whisper">
+          No photographs added yet.
+        </p>
+      )}
+
+
+      {isProcessing && (
+        <p
+          className="form-whisper"
+          role="status"
+        >
+          {processingMessage}
+        </p>
+      )}
+
+
+      {canAddMore && (
+        <button
+          type="button"
+          className="secondary-button"
+          disabled={
+            isProcessing
+          }
+          onClick={
+            openFilePicker
+          }
+        >
+          {addButtonText}
+        </button>
+      )}
+
+
+      {photoUrls.length >=
+        maxPhotos && (
+        <p className="form-whisper">
+          This record has reached its
+          photograph limit of {maxPhotos}.
+        </p>
+      )}
+    </section>
+  )
+}
