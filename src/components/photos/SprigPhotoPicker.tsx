@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
   type ChangeEvent,
+  type KeyboardEvent,
 } from 'react'
 
 import {
@@ -31,14 +32,6 @@ interface SprigPhotoPickerProps {
     photoUrls: string[],
   ) => void
 
-  /*
-   * Existing date API.
-   *
-   * This remains supported so every current
-   * Sprig form continues to work exactly as
-   * it did before richer photograph context
-   * was introduced.
-   */
   photoDates?: (
     string |
     undefined
@@ -51,13 +44,6 @@ interface SprigPhotoPickerProps {
     )[],
   ) => void
 
-  /*
-   * Rich per-photograph metadata.
-   *
-   * This is optional. Forms that are not yet
-   * ready for richer photograph context can
-   * continue using only photoUrls/photoDates.
-   */
   photoMetadata?: (
     SprigPhotoMetadata |
     undefined
@@ -88,11 +74,6 @@ interface SprigPhotoPickerProps {
 
   photoDateHelperText?: string
 
-  /*
-   * Rich context stays optional for the
-   * gardener. The parent decides whether a
-   * particular workflow should show it.
-   */
   showPhotoContext?: boolean
 }
 
@@ -101,6 +82,13 @@ interface ProcessedPhoto {
   photoUrl: string
   originalFileName?: string
 }
+
+
+type TagDraftMap =
+  Record<
+    number,
+    string
+  >
 
 
 /* =======================================
@@ -119,78 +107,59 @@ function getTodayDate():
 
 
 /* =======================================
-   TAGS
+   TAG
 ======================================= */
 
-function tagsToInputValue(
-  tags:
-    string[] |
-    undefined,
+function cleanTag(
+  value: string,
 ): string {
-  return (
-    tags ??
-    []
-  )
-    .map(
-      tag =>
-        tag.startsWith(
-          '#',
-        )
-          ? tag
-          : `#${tag}`,
-    )
-    .join(
-      ' ',
+  return value
+    .trim()
+    .replace(
+      /^#+/,
+      '',
     )
 }
 
 
-function inputValueToTags(
-  value:
-    string,
+function getUniqueTags(
+  tags: string[],
 ): string[] {
   const seen =
     new Set<string>()
 
-  const tags =
-    value
-      .split(
-        /[\s,]+/,
-      )
-      .map(
-        tag =>
-          tag
-            .trim()
-            .replace(
-              /^#+/,
-              '',
-            ),
-      )
-      .filter(
-        Boolean,
-      )
-      .filter(
-        tag => {
-          const key =
-            tag.toLowerCase()
+  return tags.filter(
+    tag => {
+      const cleaned =
+        cleanTag(
+          tag,
+        )
 
-          if (
-            seen.has(
-              key,
-            )
-          ) {
-            return false
-          }
+      if (
+        !cleaned
+      ) {
+        return false
+      }
 
-          seen.add(
-            key,
-          )
+      const key =
+        cleaned
+          .toLowerCase()
 
-          return true
-        },
+      if (
+        seen.has(
+          key,
+        )
+      ) {
+        return false
+      }
+
+      seen.add(
+        key,
       )
 
-  return tags
+      return true
+    },
+  )
 }
 
 
@@ -237,28 +206,40 @@ function getPhotoPurposeLabel(
 export default function SprigPhotoPicker({
   photoUrls,
   onChange,
+
   photoDates,
   onPhotoDatesChange,
+
   photoMetadata,
   onPhotoMetadataChange,
+
   title =
     'Photographs',
+
   helperText =
     'Add photographs that belong to this record.',
+
   addButtonText =
     'Add photographs',
+
   photoAltPrefix =
     'Garden photograph',
+
   multiple =
     true,
+
   maxPhotos =
     20,
+
   defaultNewPhotosToToday =
     false,
+
   photoDateLabel =
-    'Photograph date',
+    'Date taken',
+
   photoDateHelperText =
-    'Optional. Use the date the photograph was taken when you know it.',
+    '',
+
   showPhotoContext =
     false,
 }: SprigPhotoPickerProps) {
@@ -283,16 +264,22 @@ export default function SprigPhotoPicker({
       '',
     )
 
+  const [
+    tagDrafts,
+    setTagDrafts,
+  ] =
+    useState<TagDraftMap>(
+      {},
+    )
+
 
   /* =======================================
      SAFE DATE LOOKUP
   ======================================= */
 
   function getPhotoDate(
-    index:
-      number,
-  ):
-    string {
+    index: number,
+  ): string {
     return (
       photoMetadata?.[
         index
@@ -310,10 +297,8 @@ export default function SprigPhotoPicker({
   ======================================= */
 
   function getPhotoMetadata(
-    index:
-      number,
-  ):
-    SprigPhotoMetadata {
+    index: number,
+  ): SprigPhotoMetadata {
     const metadata =
       photoMetadata?.[
         index
@@ -377,10 +362,8 @@ export default function SprigPhotoPicker({
   ======================================= */
 
   function updatePhotoDate(
-    index:
-      number,
-    nextDate:
-      string,
+    index: number,
+    nextDate: string,
   ) {
     const savedDate =
       nextDate ||
@@ -449,8 +432,7 @@ export default function SprigPhotoPicker({
   ======================================= */
 
   function updatePhotoContext(
-    index:
-      number,
+    index: number,
     updates:
       Partial<
         SprigPhotoContext
@@ -491,12 +473,197 @@ export default function SprigPhotoPicker({
 
 
   /* =======================================
+     TAG DRAFT
+  ======================================= */
+
+  function updateTagDraft(
+    index: number,
+    value: string,
+  ) {
+    setTagDrafts(
+      current => ({
+        ...current,
+
+        [index]:
+          value,
+      }),
+    )
+  }
+
+
+  /* =======================================
+     COMMIT TAG
+  ======================================= */
+
+  function commitTag(
+    index: number,
+  ) {
+    const draft =
+      tagDrafts[
+        index
+      ] ??
+      ''
+
+    const cleaned =
+      cleanTag(
+        draft,
+      )
+
+    if (
+      !cleaned
+    ) {
+      updateTagDraft(
+        index,
+        '',
+      )
+
+      return
+    }
+
+    const metadata =
+      getPhotoMetadata(
+        index,
+      )
+
+    const nextTags =
+      getUniqueTags([
+        ...(
+          metadata.tags ??
+          []
+        ),
+
+        cleaned,
+      ])
+
+    updatePhotoContext(
+      index,
+      {
+        tags:
+          nextTags,
+      },
+    )
+
+    updateTagDraft(
+      index,
+      '',
+    )
+  }
+
+
+  /* =======================================
+     TAG KEY
+  ======================================= */
+
+  function handleTagKeyDown(
+    index: number,
+    event:
+      KeyboardEvent<HTMLInputElement>,
+  ) {
+    if (
+      event.key ===
+        'Enter' ||
+      event.key ===
+        ','
+    ) {
+      event.preventDefault()
+
+      commitTag(
+        index,
+      )
+
+      return
+    }
+
+    if (
+      event.key ===
+        'Backspace' &&
+      !(
+        tagDrafts[
+          index
+        ] ??
+        ''
+      )
+    ) {
+      const metadata =
+        getPhotoMetadata(
+          index,
+        )
+
+      const tags =
+        metadata.tags ??
+        []
+
+      if (
+        tags.length ===
+        0
+      ) {
+        return
+      }
+
+      event.preventDefault()
+
+      const nextTags =
+        tags.slice(
+          0,
+          -1,
+        )
+
+      updatePhotoContext(
+        index,
+        {
+          tags:
+            nextTags.length >
+            0
+              ? nextTags
+              : undefined,
+        },
+      )
+    }
+  }
+
+
+  /* =======================================
+     REMOVE TAG
+  ======================================= */
+
+  function removeTag(
+    index: number,
+    tagToRemove: string,
+  ) {
+    const metadata =
+      getPhotoMetadata(
+        index,
+      )
+
+    const nextTags =
+      (
+        metadata.tags ??
+        []
+      ).filter(
+        tag =>
+          tag !==
+          tagToRemove,
+      )
+
+    updatePhotoContext(
+      index,
+      {
+        tags:
+          nextTags.length >
+          0
+            ? nextTags
+            : undefined,
+      },
+    )
+  }
+
+
+  /* =======================================
      REMOVE PHOTO
   ======================================= */
 
   function removePhoto(
-    indexToRemove:
-      number,
+    indexToRemove: number,
   ) {
     const nextPhotoUrls =
       photoUrls.filter(
@@ -568,6 +735,10 @@ export default function SprigPhotoPicker({
         nextMetadata,
       )
     }
+
+    setTagDrafts(
+      {},
+    )
   }
 
 
@@ -843,6 +1014,10 @@ export default function SprigPhotoPicker({
                   index,
                 )
 
+              const tags =
+                metadata.tags ??
+                []
+
               return (
                 <article
                   key={
@@ -853,6 +1028,31 @@ export default function SprigPhotoPicker({
                   }
                   className="sprig-photo-picker-item"
                 >
+                  <div className="sprig-photo-card-heading">
+                    <div>
+                      <p className="section-label">
+                        Photograph
+                      </p>
+
+                      <h4>
+                        Photo {index + 1}
+                      </h4>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="text-button sprig-photo-remove-text"
+                      onClick={() =>
+                        removePhoto(
+                          index,
+                        )
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
+
+
                   <div className="sprig-photo-picker-preview">
                     <img
                       src={
@@ -860,64 +1060,88 @@ export default function SprigPhotoPicker({
                       }
                       alt={`${photoAltPrefix} ${index + 1}`}
                     />
-
-                    <button
-                      type="button"
-                      className="sprig-photo-picker-remove"
-                      onClick={() =>
-                        removePhoto(
-                          index,
-                        )
-                      }
-                      aria-label={`Remove ${photoAltPrefix} ${index + 1}`}
-                    >
-                      ×
-                    </button>
                   </div>
 
 
                   <div className="sprig-photo-picker-context">
-                    <p className="section-label">
-                      Photo {index + 1}
-                    </p>
-
-
                     {showDateControls && (
-                      <label>
-                        {photoDateLabel}
-
-                        <input
-                          type="date"
-                          value={
-                            getPhotoDate(
-                              index,
-                            )
-                          }
-                          onChange={(
-                            event,
-                          ) =>
-                            updatePhotoDate(
-                              index,
-                              event
-                                .target
-                                .value,
-                            )
-                          }
-                        />
-
-                        {photoDateHelperText && (
-                          <span className="form-whisper">
-                            {photoDateHelperText}
+                      <div className="sprig-photo-date-time-row">
+                        <label className="sprig-photo-field">
+                          <span>
+                            {photoDateLabel}
                           </span>
+
+                          <input
+                            type="date"
+                            value={
+                              getPhotoDate(
+                                index,
+                              )
+                            }
+                            onChange={(
+                              event,
+                            ) =>
+                              updatePhotoDate(
+                                index,
+                                event
+                                  .target
+                                  .value,
+                              )
+                            }
+                          />
+                        </label>
+
+
+                        {canEditRichContext && (
+                          <label className="sprig-photo-field">
+                            <span>
+                              Time
+                            </span>
+
+                            <input
+                              type="time"
+                              value={
+                                metadata
+                                  .photoTime ??
+                                ''
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                updatePhotoContext(
+                                  index,
+                                  {
+                                    photoTime:
+                                      event
+                                        .target
+                                        .value ||
+                                      undefined,
+                                  },
+                                )
+                              }
+                            />
+                          </label>
                         )}
-                      </label>
+                      </div>
+                    )}
+
+
+                    {photoDateHelperText && (
+                      <p className="sprig-photo-field-note">
+                        {photoDateHelperText}
+                      </p>
                     )}
 
 
                     {canEditRichContext && (
                       <>
-                        <label>
-                          Photo title
+                        <label className="sprig-photo-field">
+                          <span>
+                            Title
+                            <small>
+                              optional
+                            </small>
+                          </span>
 
                           <input
                             type="text"
@@ -940,19 +1164,18 @@ export default function SprigPhotoPicker({
                                 },
                               )
                             }
-                            placeholder="First flower buds, lower leaves yellowing..."
+                            placeholder="First flower buds"
                           />
-
-                          <span className="form-whisper">
-                            Optional. A short title
-                            makes this photograph
-                            easier to recognise later.
-                          </span>
                         </label>
 
 
-                        <label>
-                          Photo notes
+                        <label className="sprig-photo-field">
+                          <span>
+                            Notes
+                            <small>
+                              optional
+                            </small>
+                          </span>
 
                           <textarea
                             value={
@@ -977,60 +1200,103 @@ export default function SprigPhotoPicker({
                             rows={
                               3
                             }
-                            placeholder="Anything visible here that is worth remembering..."
+                            placeholder="What is worth remembering about this photograph?"
                           />
                         </label>
 
 
-                        <label>
-                          Tags
+                        <div className="sprig-photo-tags-field">
+                          <label className="sprig-photo-field">
+                            <span>
+                              Tags
+                              <small>
+                                optional
+                              </small>
+                            </span>
 
-                          <input
-                            type="text"
-                            value={
-                              tagsToInputValue(
-                                metadata
-                                  .tags,
-                              )
-                            }
-                            onChange={(
-                              event,
-                            ) =>
-                              updatePhotoContext(
-                                index,
-                                {
-                                  tags:
-                                    inputValueToTags(
-                                      event
-                                        .target
-                                        .value,
-                                    ),
-                                },
-                              )
-                            }
-                            placeholder="#flowering #yellow-leaves #new-growth"
-                          />
+                            <input
+                              type="text"
+                              value={
+                                tagDrafts[
+                                  index
+                                ] ??
+                                ''
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                updateTagDraft(
+                                  index,
+                                  event
+                                    .target
+                                    .value,
+                                )
+                              }
+                              onKeyDown={(
+                                event,
+                              ) =>
+                                handleTagKeyDown(
+                                  index,
+                                  event,
+                                )
+                              }
+                              onBlur={() =>
+                                commitTag(
+                                  index,
+                                )
+                              }
+                              placeholder="Type a tag"
+                            />
+                          </label>
 
-                          <span className="form-whisper">
-                            Optional. Separate tags
-                            with spaces or commas.
-                          </span>
-                        </label>
-
-
-                        <div className="sprig-photo-purpose-field">
-                          <p className="section-label">
-                            What kind of photograph is this?
+                          <p className="sprig-photo-field-note">
+                            Press Enter or comma to add a tag.
+                            Spaces can stay inside a tag.
                           </p>
 
-                          <p className="form-whisper">
-                            Optional. Sprig can still
-                            understand plenty from the
-                            record this photograph
-                            belongs to.
-                          </p>
+                          {tags.length >
+                            0 && (
+                            <div className="sprig-photo-tag-list">
+                              {tags.map(
+                                tag => (
+                                  <button
+                                    key={
+                                      tag
+                                    }
+                                    type="button"
+                                    className="sprig-photo-tag"
+                                    onClick={() =>
+                                      removeTag(
+                                        index,
+                                        tag,
+                                      )
+                                    }
+                                    title={`Remove ${tag}`}
+                                  >
+                                    #{cleanTag(
+                                      tag,
+                                    )}
 
-                          <div className="selection-card-grid">
+                                    <span aria-hidden="true">
+                                      ×
+                                    </span>
+                                  </button>
+                                ),
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+
+                        <fieldset className="sprig-photo-purpose-field">
+                          <legend>
+                            Purpose
+                            <small>
+                              optional
+                            </small>
+                          </legend>
+
+                          <div className="sprig-photo-purpose-grid">
                             {purposeOptions.map(
                               purpose => {
                                 const isSelected =
@@ -1046,8 +1312,8 @@ export default function SprigPhotoPicker({
                                     type="button"
                                     className={
                                       isSelected
-                                        ? 'selection-card selected'
-                                        : 'selection-card'
+                                        ? 'sprig-photo-purpose-option selected'
+                                        : 'sprig-photo-purpose-option'
                                     }
                                     aria-pressed={
                                       isSelected
@@ -1064,54 +1330,18 @@ export default function SprigPhotoPicker({
                                       )
                                     }
                                   >
-                                    <strong>
-                                      {isSelected
-                                        ? '✓ '
-                                        : ''}
-                                      {getPhotoPurposeLabel(
-                                        purpose,
-                                      )}
-                                    </strong>
+                                    {isSelected &&
+                                      '✓ '}
+
+                                    {getPhotoPurposeLabel(
+                                      purpose,
+                                    )}
                                   </button>
                                 )
                               },
                             )}
                           </div>
-                        </div>
-
-
-                        <label>
-                          Time photographed
-
-                          <input
-                            type="time"
-                            value={
-                              metadata
-                                .photoTime ??
-                              ''
-                            }
-                            onChange={(
-                              event,
-                            ) =>
-                              updatePhotoContext(
-                                index,
-                                {
-                                  photoTime:
-                                    event
-                                      .target
-                                      .value ||
-                                    undefined,
-                                },
-                              )
-                            }
-                          />
-
-                          <span className="form-whisper">
-                            Optional. Useful when
-                            sunlight, shade or time of
-                            day matters.
-                          </span>
-                        </label>
+                        </fieldset>
                       </>
                     )}
                   </div>
@@ -1121,9 +1351,11 @@ export default function SprigPhotoPicker({
           )}
         </div>
       ) : (
-        <p className="form-whisper">
-          No photographs added yet.
-        </p>
+        <div className="sprig-photo-empty">
+          <p>
+            No photographs selected yet.
+          </p>
+        </div>
       )}
 
 
@@ -1140,7 +1372,7 @@ export default function SprigPhotoPicker({
       {canAddMore && (
         <button
           type="button"
-          className="secondary-button"
+          className="secondary-button sprig-photo-add-button"
           disabled={
             isProcessing
           }
@@ -1148,7 +1380,10 @@ export default function SprigPhotoPicker({
             openFilePicker
           }
         >
-          {addButtonText}
+          {photoUrls.length >
+            0
+            ? 'Add more photographs'
+            : addButtonText}
         </button>
       )}
 
