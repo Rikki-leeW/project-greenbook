@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -58,6 +59,10 @@ const MAX_COMPARE_PLANTS =
   6
 
 
+const PLANTS_BROWSER_STATE_KEY =
+  'sprig-plants-browser-state-v1'
+
+
 type PlantStoryView =
   | 'active'
   | 'completed'
@@ -78,6 +83,36 @@ type PlantFilterFamily =
   | 'growing-setup'
 
 
+type DurationDisplayUnit =
+  | 'days'
+  | 'weeks'
+  | 'months'
+
+
+interface PlantsBrowserState {
+  storyView:
+    PlantStoryView
+
+  searchQuery:
+    string
+
+  sortBy:
+    PlantSort
+
+  selectedStartMethods:
+    string[]
+
+  selectedGrowingPlaces:
+    string[]
+
+  selectedGrowingSetups:
+    string[]
+
+  ageUnit:
+    DurationDisplayUnit
+}
+
+
 interface PlantSearchDocument {
   plant:
     PlantStory
@@ -94,8 +129,41 @@ interface PlantSearchDocument {
   latestActivityDate:
     string
 
+  thumbnailPhotoUrl?:
+    string
+
   searchText:
     string
+}
+
+
+interface PlantPhotoCandidate {
+  photoUrl:
+    string
+
+  date:
+    string
+
+  priority:
+    number
+}
+
+
+interface SmartComparisonSuggestion {
+  id:
+    string
+
+  cropLabel:
+    string
+
+  plantIds:
+    string[]
+
+  title:
+    string
+
+  reasons:
+    string[]
 }
 
 
@@ -409,6 +477,212 @@ function getGrowingSetupSearchWords(
 
 
 /* =======================================
+   PHOTO DATE
+======================================= */
+
+function getPhotoDate(
+  metadataDate:
+    string | undefined,
+
+  legacyDate:
+    string | undefined,
+
+  fallback:
+    string,
+): string {
+  return (
+    metadataDate ??
+    legacyDate ??
+    fallback
+  )
+}
+
+
+/* =======================================
+   PLANT THUMBNAIL
+======================================= */
+
+function getPlantThumbnailPhotoUrl(
+  plant:
+    PlantStory,
+
+  plantEvents:
+    GardenEvent[],
+
+  plantHarvests:
+    HarvestRecord[],
+): string | undefined {
+  const candidates:
+    PlantPhotoCandidate[] =
+    []
+
+
+  for (
+    let index = 0;
+    index <
+    (
+      plant.photoUrls ??
+      []
+    ).length;
+    index += 1
+  ) {
+    const photoUrl =
+      plant.photoUrls?.[
+        index
+      ]
+
+    if (
+      !photoUrl
+    ) {
+      continue
+    }
+
+    candidates.push({
+      photoUrl,
+
+      date:
+        getPhotoDate(
+          plant.photoMetadata?.[
+            index
+          ]?.photoDate,
+          plant.photoDates?.[
+            index
+          ],
+          plant.updatedAt ??
+            plant.plantedDate,
+        ),
+
+      priority:
+        3,
+    })
+  }
+
+
+  for (
+    const event
+    of plantEvents
+  ) {
+    for (
+      let index = 0;
+      index <
+      (
+        event.photoUrls ??
+        []
+      ).length;
+      index += 1
+    ) {
+      const photoUrl =
+        event.photoUrls?.[
+          index
+        ]
+
+      if (
+        !photoUrl
+      ) {
+        continue
+      }
+
+      candidates.push({
+        photoUrl,
+
+        date:
+          getPhotoDate(
+            event.photoMetadata?.[
+              index
+            ]?.photoDate,
+            undefined,
+            event.date,
+          ),
+
+        priority:
+          2,
+      })
+    }
+  }
+
+
+  for (
+    const harvest
+    of plantHarvests
+  ) {
+    for (
+      let index = 0;
+      index <
+      (
+        harvest.photoUrls ??
+        []
+      ).length;
+      index += 1
+    ) {
+      const photoUrl =
+        harvest.photoUrls?.[
+          index
+        ]
+
+      if (
+        !photoUrl
+      ) {
+        continue
+      }
+
+      candidates.push({
+        photoUrl,
+
+        date:
+          getPhotoDate(
+            harvest.photoMetadata?.[
+              index
+            ]?.photoDate,
+            undefined,
+            harvest.date,
+          ),
+
+        priority:
+          1,
+      })
+    }
+  }
+
+
+  if (
+    candidates.length ===
+    0
+  ) {
+    return undefined
+  }
+
+
+  candidates.sort(
+    (
+      first,
+      second,
+    ) => {
+      const dateDifference =
+        second.date.localeCompare(
+          first.date,
+        )
+
+      if (
+        dateDifference !==
+        0
+      ) {
+        return dateDifference
+      }
+
+      return (
+        second.priority -
+        first.priority
+      )
+    },
+  )
+
+
+  return candidates[0]
+    .photoUrl
+}
+
+
+/* =======================================
    BUILD SEARCH DOCUMENT
 ======================================= */
 
@@ -529,6 +803,23 @@ function buildPlantSearchDocument(
         event.productUsed ??
           '',
         ...(
+          event.photoMetadata ??
+          []
+        ).flatMap(
+          metadata => [
+            metadata?.title ??
+              '',
+            metadata?.notes ??
+              '',
+            ...(
+              metadata?.tags ??
+              []
+            ),
+            metadata?.purpose ??
+              '',
+          ],
+        ),
+        ...(
           event.growingPlaceIds ??
           []
         ).map(
@@ -576,6 +867,43 @@ function buildPlantSearchDocument(
               harvest.count,
             )
           : '',
+        ...(
+          harvest.photoMetadata ??
+          []
+        ).flatMap(
+          metadata => [
+            metadata?.title ??
+              '',
+            metadata?.notes ??
+              '',
+            ...(
+              metadata?.tags ??
+              []
+            ),
+            metadata?.purpose ??
+              '',
+          ],
+        ),
+      ],
+    )
+
+
+  const plantPhotoWords =
+    (
+      plant.photoMetadata ??
+      []
+    ).flatMap(
+      metadata => [
+        metadata?.title ??
+          '',
+        metadata?.notes ??
+          '',
+        ...(
+          metadata?.tags ??
+          []
+        ),
+        metadata?.purpose ??
+          '',
       ],
     )
 
@@ -595,14 +923,44 @@ function buildPlantSearchDocument(
           []
         ),
 
+        ...(
+          plant.photoMetadata ??
+          []
+        ).map(
+          metadata =>
+            metadata?.photoDate,
+        ),
+
         ...plantEvents.map(
           event =>
             event.date,
         ),
 
+        ...plantEvents.flatMap(
+          event =>
+            (
+              event.photoMetadata ??
+              []
+            ).map(
+              metadata =>
+                metadata?.photoDate,
+            ),
+        ),
+
         ...plantHarvests.map(
           harvest =>
             harvest.date,
+        ),
+
+        ...plantHarvests.flatMap(
+          harvest =>
+            (
+              harvest.photoMetadata ??
+              []
+            ).map(
+              metadata =>
+                metadata?.photoDate,
+            ),
         ),
 
         ...(
@@ -651,6 +1009,7 @@ function buildPlantSearchDocument(
       plant.tags ??
       []
     ),
+    ...plantPhotoWords,
     ...(
       plant.photoDates ??
       []
@@ -707,6 +1066,13 @@ function buildPlantSearchDocument(
 
     latestActivityDate,
 
+    thumbnailPhotoUrl:
+      getPlantThumbnailPhotoUrl(
+        plant,
+        plantEvents,
+        plantHarvests,
+      ),
+
     searchText:
       normaliseSearchText(
         searchWords.join(
@@ -714,6 +1080,371 @@ function buildPlantSearchDocument(
         ),
       ),
   }
+}
+
+
+/* =======================================
+   SAVED BROWSER STATE
+======================================= */
+
+function readPlantsBrowserState():
+  Partial<PlantsBrowserState> {
+  if (
+    typeof window ===
+    'undefined'
+  ) {
+    return {}
+  }
+
+  try {
+    const savedState =
+      window.sessionStorage.getItem(
+        PLANTS_BROWSER_STATE_KEY,
+      )
+
+    if (
+      !savedState
+    ) {
+      return {}
+    }
+
+    const parsed =
+      JSON.parse(
+        savedState,
+      ) as Partial<PlantsBrowserState>
+
+    return parsed
+  } catch {
+    return {}
+  }
+}
+
+
+/* =======================================
+   SMART COMPARISON SUGGESTIONS
+======================================= */
+
+function buildSmartComparisonSuggestions(
+  plants:
+    PlantStory[],
+
+  searchDocumentByPlantId:
+    Map<
+      string,
+      PlantSearchDocument
+    >,
+): SmartComparisonSuggestion[] {
+  const cropGroups =
+    new Map<
+      string,
+      PlantStory[]
+    >()
+
+
+  for (
+    const plant
+    of plants
+  ) {
+    const cropKey =
+      normaliseSearchText(
+        plant.plantName,
+      )
+
+    if (
+      !cropKey
+    ) {
+      continue
+    }
+
+    const existing =
+      cropGroups.get(
+        cropKey,
+      ) ??
+      []
+
+    existing.push(
+      plant,
+    )
+
+    cropGroups.set(
+      cropKey,
+      existing,
+    )
+  }
+
+
+  const suggestions:
+    SmartComparisonSuggestion[] =
+    []
+
+
+  for (
+    const [
+      cropKey,
+      cropPlants,
+    ]
+    of cropGroups
+  ) {
+    if (
+      cropPlants.length <
+      2
+    ) {
+      continue
+    }
+
+
+    const orderedPlants =
+      [
+        ...cropPlants,
+      ].sort(
+        (
+          first,
+          second,
+        ) =>
+          (
+            searchDocumentByPlantId.get(
+              second.id,
+            )?.latestActivityDate ??
+            second.plantedDate
+          ).localeCompare(
+            searchDocumentByPlantId.get(
+              first.id,
+            )?.latestActivityDate ??
+              first.plantedDate,
+          ),
+      )
+
+
+    const comparisonPlants =
+      orderedPlants.slice(
+        0,
+        MAX_COMPARE_PLANTS,
+      )
+
+
+    const varieties =
+      uniqueText(
+        comparisonPlants.map(
+          plant =>
+            plant.variety ??
+            '',
+        ),
+      )
+
+
+    const places =
+      uniqueText(
+        comparisonPlants.map(
+          plant =>
+            searchDocumentByPlantId.get(
+              plant.id,
+            )?.growingPlaceName ??
+            '',
+        ),
+      )
+
+
+    const setups =
+      uniqueText(
+        comparisonPlants.flatMap(
+          plant =>
+            searchDocumentByPlantId.get(
+              plant.id,
+            )?.growingSetupNames ??
+            [],
+        ),
+      )
+
+
+    const startMethods =
+      uniqueText(
+        comparisonPlants.map(
+          plant =>
+            searchDocumentByPlantId.get(
+              plant.id,
+            )?.startMethodLabel ??
+            '',
+        ),
+      )
+
+
+    const completedCount =
+      comparisonPlants.filter(
+        plant =>
+          plant.status ===
+          'finished',
+      ).length
+
+
+    const activeCount =
+      comparisonPlants.length -
+      completedCount
+
+
+    const reasons:
+      string[] =
+      []
+
+
+    if (
+      varieties.length >
+      1
+    ) {
+      reasons.push(
+        `${varieties.length} varieties`,
+      )
+    }
+
+
+    if (
+      places.length >
+      1
+    ) {
+      reasons.push(
+        `${places.length} Growing Places`,
+      )
+    }
+
+
+    if (
+      setups.length >
+      1
+    ) {
+      reasons.push(
+        `${setups.length} Growing Recipes`,
+      )
+    }
+
+
+    if (
+      startMethods.length >
+      1
+    ) {
+      reasons.push(
+        `${startMethods.length} starting methods`,
+      )
+    }
+
+
+    if (
+      activeCount >
+        0 &&
+      completedCount >
+        0
+    ) {
+      reasons.push(
+        'current + past stories',
+      )
+    }
+
+
+    if (
+      reasons.length ===
+      0
+    ) {
+      reasons.push(
+        `${comparisonPlants.length} growing stories`,
+      )
+    }
+
+
+    const cropLabel =
+      comparisonPlants[0]
+        ?.plantName ??
+      cropKey
+
+
+    let title =
+      `${cropLabel}: ${comparisonPlants.length} stories worth looking at together`
+
+
+    if (
+      places.length >
+        1 &&
+      setups.length >
+        1
+    ) {
+      title =
+        `See how ${cropLabel} differed across places and Growing Recipes`
+    } else if (
+      places.length >
+      1
+    ) {
+      title =
+        `See how ${cropLabel} differed between Growing Places`
+    } else if (
+      setups.length >
+      1
+    ) {
+      title =
+        `See how ${cropLabel} differed between Growing Recipes`
+    } else if (
+      varieties.length >
+      1
+    ) {
+      title =
+        `Look across your ${cropLabel} varieties`
+    } else if (
+      activeCount >
+        0 &&
+      completedCount >
+        0
+    ) {
+      title =
+        `Compare this ${cropLabel} season with earlier stories`
+    }
+
+
+    suggestions.push({
+      id:
+        `crop-${cropKey}`,
+
+      cropLabel,
+
+      plantIds:
+        comparisonPlants.map(
+          plant =>
+            plant.id,
+        ),
+
+      title,
+
+      reasons:
+        reasons.slice(
+          0,
+          4,
+        ),
+    })
+  }
+
+
+  return suggestions
+    .sort(
+      (
+        first,
+        second,
+      ) => {
+        const reasonDifference =
+          second.reasons.length -
+          first.reasons.length
+
+        if (
+          reasonDifference !==
+          0
+        ) {
+          return reasonDifference
+        }
+
+        return (
+          second.plantIds.length -
+          first.plantIds.length
+        )
+      },
+    )
+    .slice(
+      0,
+      4,
+    )
 }
 
 
@@ -735,28 +1466,43 @@ export default function Plants({
   onComparePlants,
   initialComparePlantIds = [],
 }: PlantsProps) {
+  const savedBrowserState =
+    useMemo(
+      () =>
+        readPlantsBrowserState(),
+      [],
+    )
+
 
   /* =======================================
      STORY VIEW
   ======================================= */
+
+  const initialStoryView:
+    PlantStoryView =
+    initialComparePlantIds.some(
+      plantId =>
+        plants.some(
+          plant =>
+            plant.id ===
+              plantId &&
+            plant.status ===
+              'finished',
+        ),
+    )
+      ? 'completed'
+      : (
+          savedBrowserState.storyView ??
+          'active'
+        )
+
 
   const [
     storyView,
     setStoryView,
   ] =
     useState<PlantStoryView>(
-      initialComparePlantIds.some(
-        plantId =>
-          plants.some(
-            plant =>
-              plant.id ===
-                plantId &&
-              plant.status ===
-                'finished',
-          ),
-      )
-        ? 'completed'
-        : 'active',
+      initialStoryView,
     )
 
 
@@ -768,7 +1514,10 @@ export default function Plants({
     searchQuery,
     setSearchQuery,
   ] =
-    useState('')
+    useState(
+      savedBrowserState.searchQuery ??
+        '',
+    )
 
 
   const [
@@ -776,7 +1525,8 @@ export default function Plants({
     setSortBy,
   ] =
     useState<PlantSort>(
-      'newest-activity',
+      savedBrowserState.sortBy ??
+        'newest-activity',
     )
 
 
@@ -785,7 +1535,8 @@ export default function Plants({
     setSelectedStartMethods,
   ] =
     useState<string[]>(
-      [],
+      savedBrowserState.selectedStartMethods ??
+        [],
     )
 
 
@@ -794,7 +1545,8 @@ export default function Plants({
     setSelectedGrowingPlaces,
   ] =
     useState<string[]>(
-      [],
+      savedBrowserState.selectedGrowingPlaces ??
+        [],
     )
 
 
@@ -803,8 +1555,60 @@ export default function Plants({
     setSelectedGrowingSetups,
   ] =
     useState<string[]>(
-      [],
+      savedBrowserState.selectedGrowingSetups ??
+        [],
     )
+
+
+  const [
+    ageUnit,
+    setAgeUnit,
+  ] =
+    useState<DurationDisplayUnit>(
+      savedBrowserState.ageUnit ??
+        'weeks',
+    )
+
+
+  /* =======================================
+     REMEMBER BROWSER JOURNEY
+  ======================================= */
+
+  useEffect(
+    () => {
+      const state:
+        PlantsBrowserState = {
+        storyView,
+        searchQuery,
+        sortBy,
+        selectedStartMethods,
+        selectedGrowingPlaces,
+        selectedGrowingSetups,
+        ageUnit,
+      }
+
+      try {
+        window.sessionStorage.setItem(
+          PLANTS_BROWSER_STATE_KEY,
+          JSON.stringify(
+            state,
+          ),
+        )
+      } catch {
+        // Sprig can still work if browser
+        // session storage is unavailable.
+      }
+    },
+    [
+      storyView,
+      searchQuery,
+      sortBy,
+      selectedStartMethods,
+      selectedGrowingPlaces,
+      selectedGrowingSetups,
+      ageUnit,
+    ],
+  )
 
 
   /* =======================================
@@ -878,6 +1682,24 @@ export default function Plants({
         ),
       [
         searchDocuments,
+      ],
+    )
+
+
+  /* =======================================
+     SMART COMPARISONS
+  ======================================= */
+
+  const smartComparisonSuggestions =
+    useMemo(
+      () =>
+        buildSmartComparisonSuggestions(
+          plants,
+          searchDocumentByPlantId,
+        ),
+      [
+        plants,
+        searchDocumentByPlantId,
       ],
     )
 
@@ -1062,53 +1884,53 @@ export default function Plants({
     useMemo(
       () => {
         const normalisedQuery =
-        normaliseSearchText(
-          searchQuery,
-        )
+          normaliseSearchText(
+            searchQuery,
+          )
 
 
-      /*
-       * Sprig searches plant identity first.
-       *
-       * If the gardener types something that
-       * matches a plant name, variety or
-       * display name, do not allow an
-       * incidental word buried in a recipe,
-       * Journal entry or other relationship
-       * to swamp those obvious plant results.
-       *
-       * When there is no identity match,
-       * Sprig falls back to the full
-       * relational Plant Story document.
-       */
-      const hasPlantIdentityMatch =
-        Boolean(
-          normalisedQuery,
-        ) &&
-        storyViewPlants.some(
-          plant => {
-            const identityText =
-              normaliseSearchText(
-                [
-                  plant.plantName,
-                  plant.variety ??
-                    '',
-                  plant.displayName,
-                ].join(
-                  ' ',
-                ),
+        /*
+         * Sprig searches plant identity first.
+         *
+         * If the gardener types something that
+         * matches a plant name, variety or
+         * display name, do not allow an
+         * incidental word buried in a recipe,
+         * Journal entry or other relationship
+         * to swamp those obvious plant results.
+         *
+         * When there is no identity match,
+         * Sprig falls back to the full
+         * relational Plant Story document.
+         */
+        const hasPlantIdentityMatch =
+          Boolean(
+            normalisedQuery,
+          ) &&
+          storyViewPlants.some(
+            plant => {
+              const identityText =
+                normaliseSearchText(
+                  [
+                    plant.plantName,
+                    plant.variety ??
+                      '',
+                    plant.displayName,
+                  ].join(
+                    ' ',
+                  ),
+                )
+
+              return identityText.includes(
+                normalisedQuery,
               )
-
-            return identityText.includes(
-              normalisedQuery,
-            )
-          },
-        )
+            },
+          )
 
 
-      const filtered =
-        storyViewPlants.filter(
-          plant => {
+        const filtered =
+          storyViewPlants.filter(
+            plant => {
               const document =
                 searchDocumentByPlantId.get(
                   plant.id,
@@ -1405,6 +2227,97 @@ export default function Plants({
   }
 
 
+  function beginSmartComparison(
+    plantIds:
+      string[],
+  ) {
+    const usablePlantIds =
+      plantIds
+        .filter(
+          plantId =>
+            plants.some(
+              plant =>
+                plant.id ===
+                plantId,
+            ),
+        )
+        .slice(
+          0,
+          MAX_COMPARE_PLANTS,
+        )
+
+    if (
+      usablePlantIds.length <
+      2
+    ) {
+      return
+    }
+
+    onComparePlants(
+      usablePlantIds,
+    )
+  }
+
+
+  function chooseSmartComparison(
+    plantIds:
+      string[],
+  ) {
+    const usablePlantIds =
+      plantIds
+        .filter(
+          plantId =>
+            plants.some(
+              plant =>
+                plant.id ===
+                plantId,
+            ),
+        )
+        .slice(
+          0,
+          MAX_COMPARE_PLANTS,
+        )
+
+    if (
+      usablePlantIds.length <
+      2
+    ) {
+      return
+    }
+
+    const containsCompleted =
+      usablePlantIds.some(
+        plantId =>
+          plants.some(
+            plant =>
+              plant.id ===
+                plantId &&
+              plant.status ===
+                'finished',
+          ),
+      )
+
+    setStoryView(
+      containsCompleted
+        ? 'completed'
+        : 'active',
+    )
+
+    setSelectedPlantIds(
+      usablePlantIds,
+    )
+
+    setCompareMode(
+      true,
+    )
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
+
+
   const selectedPlants =
     selectedPlantIds
       .map(
@@ -1634,6 +2547,181 @@ export default function Plants({
         )}
 
 
+{!compareMode &&
+          smartComparisonSuggestions.length >
+            0 && (
+            <details className="sprig-smart-comparisons sprig-smart-collapsible">
+              <summary className="sprig-smart-summary">
+                <div className="sprig-smart-summary-copy">
+                  <span
+                    className="sprig-smart-summary-mark"
+                    aria-hidden="true"
+                  >
+                    🌱
+                  </span>
+
+                  <div>
+                    <p className="section-label">
+                      Sprig Smart
+                    </p>
+
+                    <h2>
+                      Sprig noticed something
+                    </h2>
+
+                    <p>
+                      {smartComparisonSuggestions.length}{' '}
+                      {smartComparisonSuggestions.length ===
+                      1
+                        ? 'useful comparison'
+                        : 'useful comparisons'}{' '}
+                      in your growing stories
+                    </p>
+                  </div>
+                </div>
+
+                <span className="sprig-smart-summary-action">
+                  <span className="sprig-smart-summary-open">
+                    See what Sprig noticed
+                  </span>
+
+                  <span className="sprig-smart-summary-close">
+                    Hide what Sprig noticed
+                  </span>
+
+                  <span
+                    className="sprig-smart-summary-chevron"
+                    aria-hidden="true"
+                  >
+                    ›
+                  </span>
+                </span>
+              </summary>
+
+
+              <div className="sprig-smart-expanded">
+                <div className="sprig-smart-expanded-heading">
+                  <div>
+                    <p className="section-label">
+                      Sprig Smart
+                    </p>
+
+                    <h2>
+                      Stories worth looking at together
+                    </h2>
+                  </div>
+                </div>
+
+                <p className="form-whisper sprig-smart-intro">
+                  Sprig has found growing stories
+                  with enough shared history to
+                  make a comparison useful.
+                </p>
+
+
+                <div className="sprig-smart-comparison-list">
+                  {smartComparisonSuggestions.map(
+                    suggestion => (
+                      <article
+                        className="sprig-smart-comparison-card"
+                        key={
+                          suggestion.id
+                        }
+                      >
+                        <div className="sprig-smart-comparison-main">
+                          <div>
+                            <p className="sprig-smart-comparison-crop">
+                              {suggestion.cropLabel}
+                            </p>
+
+                            <h3>
+                              {suggestion.title}
+                            </h3>
+                          </div>
+
+                          <div className="sprig-smart-reasons">
+                            {suggestion.reasons.map(
+                              reason => (
+                                <span
+                                  key={
+                                    `${suggestion.id}-${reason}`
+                                  }
+                                >
+                                  {reason}
+                                </span>
+                              ),
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="sprig-smart-comparison-actions">
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() =>
+                              chooseSmartComparison(
+                                suggestion.plantIds,
+                              )
+                            }
+                          >
+                            Choose stories
+                          </button>
+
+                          <button
+                            type="button"
+                            className="text-button"
+                            onClick={() =>
+                              beginSmartComparison(
+                                suggestion.plantIds,
+                              )
+                            }
+                          >
+                            Compare now
+                          </button>
+                        </div>
+                      </article>
+                    ),
+                  )}
+                </div>
+
+
+                <div className="sprig-smart-collapse-footer">
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={
+                      event => {
+                        const details =
+                          event.currentTarget.closest(
+                            'details',
+                          )
+
+                        if (
+                          details instanceof
+                          HTMLDetailsElement
+                        ) {
+                          details.open =
+                            false
+
+                          details.scrollIntoView({
+                            behavior:
+                              'smooth',
+
+                            block:
+                              'nearest',
+                          })
+                        }
+                      }
+                    }
+                  >
+                    ↑ Hide Sprig Smart
+                  </button>
+                </div>
+              </div>
+            </details>
+          )}
+
+
         {compareMode && (
           <section className="plant-compare-guidance">
             <p>
@@ -1751,6 +2839,58 @@ export default function Plants({
               </label>
 
 
+              <fieldset className="plant-filter-group">
+                <legend>
+                  Show plant age in
+                </legend>
+
+                <div
+                  className="plant-browser-age-control"
+                  aria-label="Plant age display"
+                >
+                  {(
+                    [
+                      'days',
+                      'weeks',
+                      'months',
+                    ] as DurationDisplayUnit[]
+                  ).map(
+                    unit => (
+                      <button
+                        type="button"
+                        key={
+                          unit
+                        }
+                        className={
+                          ageUnit ===
+                          unit
+                            ? 'selected'
+                            : ''
+                        }
+                        onClick={() =>
+                          setAgeUnit(
+                            unit,
+                          )
+                        }
+                        aria-pressed={
+                          ageUnit ===
+                          unit
+                        }
+                      >
+                        {unit ===
+                        'days'
+                          ? 'Days'
+                          : unit ===
+                            'weeks'
+                            ? 'Weeks'
+                            : 'Months'}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </fieldset>
+
+
               {renderFilterGroup(
                 'Started as',
                 'start-method',
@@ -1827,6 +2967,12 @@ export default function Plants({
                             latestActivityDate={
                               document?.latestActivityDate
                             }
+                            thumbnailPhotoUrl={
+                              document?.thumbnailPhotoUrl
+                            }
+                            ageUnit={
+                              ageUnit
+                            }
                             onOpen={
                               onOpenPlant
                             }
@@ -1887,6 +3033,12 @@ export default function Plants({
                       }
                       latestActivityDate={
                         document?.latestActivityDate
+                      }
+                      thumbnailPhotoUrl={
+                        document?.thumbnailPhotoUrl
+                      }
+                      ageUnit={
+                        ageUnit
                       }
                       onOpen={
                         onOpenPlant

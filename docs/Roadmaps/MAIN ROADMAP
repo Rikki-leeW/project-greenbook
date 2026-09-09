@@ -1560,3 +1560,37 @@ So yes, absolutely put this on our architecture roadmap. And please stop feeling
 
 
 ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅
+
+
+So I think we've recovered the missing roadmap
+
+The immediate Plants pass still has the concrete things:
+
+Small connected photograph thumbnail.
+Days / Weeks / Months age control and compact plant age.
+Remember Plants search/filter/sort/view state when journeying into a Plant Story and Back.
+Sprig Smart useful comparison suggestions, using the existing comparison machinery and the Smart comparison CSS that is already sitting unused in your stylesheet.
+
+But alongside that we discovered a larger architectural project:
+
+Sprig Intelligence V2
+
+Not just comparing records.
+
+It learns patterns from the garden history you are about to generate through Spring, including your natural language in Journal entries, notes, photograph context and Harvest records, combined with structured dates, ages, relationships and outcomes.
+
+And I think there is an important thing we should do now, even if we don't build the full brain yet:
+
+Make sure everything you're entering this Spring is being stored in a form that future Sprig Intelligence can actually use.
+
+That means our next architectural question isn't “Can we make the AI clever today?”
+
+It's:
+
+Are we capturing enough evidence now that Sprig can become clever from it later?
+
+Because you are about to generate the most valuable dataset Sprig has ever had: an entire real subtropical Spring garden season.
+
+I don't want us discovering in December that Sprig threw away half the clues.
+
+That, I think, is the important thing today's vanished conversation was leading us toward. 🌿

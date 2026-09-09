@@ -44,7 +44,7 @@ Check github
 
 
 ok>git add .
-git commit -m "Polish mobile Chronicle notebook experience2"
+git commit -m "Tidy Plant Details"
 git push origin master
 
 
