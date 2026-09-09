@@ -60,5 +60,12 @@ I need the code in a chat here in flow 1 then code here in a chat flow 2 etc so 
  
 
  when you return the code, please remember I need the code in a chat here in flow 1 then code here in a chat flow 2 etc so that I can copy paste it here. The tsx files get corrupted. the layout gets distorted and I cannot use them. and I dont need to say next each time.
- 
+
  Im very hesitant to do the multiple edits to this 10,000 file now. I would rather you do 1 pass for all the changes and give the code back to me completed. I need the FULL FILE NOT IN TSX though.... in a copy paste replace code in a chat here in flow 1 then code here in a chat flow 2 etc so that I can copy paste it here. The tsx files get corrupted. the layout gets distorted and I cannot use them. and I dont need to say next each time. i dont want to do a find and then copy replace I want to use our rule of you give me the first part of the files code in the first chat. then immediately after you then give me the following on code in the next chat. and so on. i continually paste the next code until I have all the code in the file.
+
+
+ Sprig code = code directly in chat.
+Never downloadable/generated code files.
+<2,000 lines = one complete code block.
+>2,000 lines = 2–3 complete sequential FLOW blocks.
+Multiple files = keep them coming without making you say “next.”

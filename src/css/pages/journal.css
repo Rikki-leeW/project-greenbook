@@ -167,3 +167,28 @@
     color: var(--ink-soft);
   }
   
+  /* =======================================
+   JOURNAL DETAIL · SECTION RHYTHM
+======================================= */
+
+.journal-page.journal-entry-detail-page
+.library-grid > .library-book {
+  min-width: 0;
+  margin: 0 0 1rem !important;
+  padding-top: 0.35rem;
+}
+
+.journal-page.journal-entry-detail-page
+.library-grid > .library-book:last-child {
+  margin-bottom: 0 !important;
+}
+
+.journal-page.journal-entry-detail-page
+.library-grid > .library-book > .section-label {
+  margin: 0 0 0.55rem !important;
+}
+
+.journal-page.journal-entry-detail-page
+.library-grid > .library-book > h2 {
+  margin: 0 0 0.85rem !important;
+}

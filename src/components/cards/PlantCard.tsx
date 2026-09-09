@@ -2,6 +2,10 @@ import type {
   PlantStory,
 } from '../../types'
 
+type DurationDisplayUnit =
+  | 'days'
+  | 'weeks'
+  | 'months'
 
 interface PlantCardProps {
   plant: PlantStory
@@ -9,6 +13,8 @@ interface PlantCardProps {
   growingPlaceName?: string
 
   latestActivityDate?: string
+
+  ageUnit?: DurationDisplayUnit
 
   onOpen: (
     plantId: string,
@@ -44,26 +50,23 @@ function formatShortDate(
 
 
 /* =======================================
-   GROWING AGE
+   AGE
 ======================================= */
 
 function getDaysGrowing(
   plantedDate: string,
 ): number {
-  const planted =
-    new Date(
-      `${plantedDate}T00:00:00`,
-    )
+  const planted = new Date(
+    `${plantedDate}T00:00:00`,
+  )
 
-  const today =
-    new Date()
+  const today = new Date()
 
-  const todayAtMidnight =
-    new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-    )
+  const todayAtMidnight = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  )
 
   return Math.max(
     0,
@@ -83,6 +86,42 @@ function getDaysGrowing(
 }
 
 
+function formatAge(
+  daysGrowing: number,
+  unit: DurationDisplayUnit,
+): string {
+  if (unit === 'weeks') {
+    const weeks = daysGrowing / 7
+
+    return `${Number(
+      weeks.toFixed(1),
+    )} ${
+      weeks === 1
+        ? 'week'
+        : 'weeks'
+    } growing`
+  }
+
+  if (unit === 'months') {
+    const months = daysGrowing / 30.4375
+
+    return `${Number(
+      months.toFixed(1),
+    )} ${
+      months === 1
+        ? 'month'
+        : 'months'
+    } growing`
+  }
+
+  return `${daysGrowing} ${
+    daysGrowing === 1
+      ? 'day'
+      : 'days'
+  } growing`
+}
+
+
 /* =======================================
    CARD
 ======================================= */
@@ -91,29 +130,24 @@ export default function PlantCard({
   plant,
   growingPlaceName,
   latestActivityDate,
+  ageUnit = 'weeks',
   onOpen,
   compareMode = false,
   isSelectedForComparison = false,
   onToggleComparison,
 }: PlantCardProps) {
-  const daysGrowing =
-    getDaysGrowing(
-      plant.plantedDate,
-    )
-
+  const daysGrowing = getDaysGrowing(
+    plant.plantedDate,
+  )
 
   const cropLabel =
     plant.plantName.trim()
 
-
   const locationLabel =
     growingPlaceName?.trim()
 
-
   function handleCardClick() {
-    if (
-      compareMode
-    ) {
+    if (compareMode) {
       onToggleComparison?.(
         plant.id,
       )
@@ -125,7 +159,6 @@ export default function PlantCard({
       plant.id,
     )
   }
-
 
   return (
     <button
@@ -141,12 +174,8 @@ export default function PlantCard({
           ? 'plant-card-compare-selected'
           : '',
       ]
-        .filter(
-          Boolean,
-        )
-        .join(
-          ' ',
-        )}
+        .filter(Boolean)
+        .join(' ')}
       onClick={
         handleCardClick
       }
@@ -156,12 +185,16 @@ export default function PlantCard({
               isSelectedForComparison
                 ? 'Remove'
                 : 'Select'
-            } ${plant.displayName} ${
+            } ${
+              plant.displayName
+            } ${
               isSelectedForComparison
                 ? 'from'
                 : 'for'
             } comparison`
-          : `Open the story for ${plant.displayName}`
+          : `Open the story for ${
+              plant.displayName
+            }`
       }
       aria-pressed={
         compareMode
@@ -197,7 +230,6 @@ export default function PlantCard({
           </p>
         </div>
 
-
         <span
           className={[
             'status-pill',
@@ -206,12 +238,8 @@ export default function PlantCard({
               ? 'plant-status-finished'
               : '',
           ]
-            .filter(
-              Boolean,
-            )
-            .join(
-              ' ',
-            )}
+            .filter(Boolean)
+            .join(' ')}
         >
           {compareMode
             ? isSelectedForComparison
@@ -220,7 +248,6 @@ export default function PlantCard({
             : plant.status}
         </span>
       </div>
-
 
       <div className="plant-card-compact-meta">
         <span>
@@ -238,15 +265,12 @@ export default function PlantCard({
         </span>
 
         <strong>
-          {daysGrowing}{' '}
-          {daysGrowing ===
-          1
-            ? 'day'
-            : 'days'}{' '}
-          growing
+          {formatAge(
+            daysGrowing,
+            ageUnit,
+          )}
         </strong>
       </div>
-
 
       {latestActivityDate &&
         latestActivityDate !==
@@ -258,7 +282,6 @@ export default function PlantCard({
             )}
           </p>
         )}
-
 
       <span className="open-story">
         {compareMode

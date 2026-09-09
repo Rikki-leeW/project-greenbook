@@ -1,600 +1,317 @@
-import type {
-    GrowingPlace,
-    PlantStory,
-  } from '../../types'
-  
-  
-  interface PlantSmartComparisonsProps {
-    plant:
-      PlantStory
-  
-    plants:
-      PlantStory[]
-  
-    growingPlaces:
-      GrowingPlace[]
-  
-    onOpenPlant: (
-      plantId:
-        string,
-    ) => void
-  
-    onComparePlants: (
-      plantIds:
-        string[],
-    ) => void
-  }
-  
-  
-  interface SimilarPlantStory {
-    plant:
-      PlantStory
-  
-    score:
-      number
-  
-    reasons:
-      string[]
-  }
-  
-  
-  /* =======================================
-     NORMALISE
-  ======================================= */
-  
-  function normalise(
-    value:
-      string | undefined,
-  ): string {
-    return (
-      value ??
-      ''
-    )
-      .trim()
-      .toLocaleLowerCase()
-  }
-  
-  
-  /* =======================================
-     DAYS BETWEEN
-  ======================================= */
-  
-  function getDaysBetween(
-    first:
-      string,
-  
-    second:
-      string,
-  ): number {
-    const firstDate =
-      new Date(
-        `${first}T00:00:00`,
-      )
-  
-    const secondDate =
-      new Date(
-        `${second}T00:00:00`,
-      )
-  
-    return Math.abs(
-      Math.round(
+import type { GrowingPlace, PlantStory } from '../../types';
+
+type DurationDisplayUnit = 'days' | 'weeks' | 'months';
+
+interface PlantSmartComparisonsProps {
+    plant: PlantStory;
+    plants: PlantStory[];
+    growingPlaces: GrowingPlace[];
+    durationDisplayUnit?: DurationDisplayUnit;
+    onOpenPlant: (plantId: string) => void;
+    onComparePlants: (plantIds: string[]) => void;
+}
+
+interface SimilarPlantStory {
+    plant: PlantStory;
+    score: number;
+    reasons: string[];
+}
+
+function normalise(value: string | undefined): string {
+    return (value ?? '').trim().toLocaleLowerCase();
+}
+
+function getDaysBetween(first: string, second: string): number {
+    return Math.abs(Math.round(
         (
-          firstDate.getTime() -
-          secondDate.getTime()
-        ) /
-          (
-            1000 *
-            60 *
-            60 *
-            24
-          ),
-      ),
-    )
-  }
-  
-  
-  /* =======================================
-     GROWING SETUP IDS
-  ======================================= */
-  
-  function getGrowingSetupIds(
-    plant:
-      PlantStory,
-  ): string[] {
-    return Array.from(
-      new Set(
-        [
-          plant.currentGrowingSetupId ??
-            '',
-  
-          ...(
-            plant.currentGrowingSetupIds ??
-            []
-          ),
-  
-          ...(
-            plant.previousGrowingSetupIds ??
-            []
-          ),
-  
-          ...(
-            plant.previousGrowingSetupIdsV2 ??
-            []
-          ),
-  
-          ...(
-            plant.growingHistory ??
-            []
-          ).flatMap(
-            historyEntry => [
-              historyEntry.growingSetupId ??
-                '',
-  
-              ...(
-                historyEntry.growingSetupIds ??
-                []
-              ),
-            ],
-          ),
-        ].filter(
-          Boolean,
-        ),
-      ),
-    )
-  }
-  
-  
-  /* =======================================
-     SIMILARITY
-  ======================================= */
-  
-  function getSimilarity(
-    plant:
-      PlantStory,
-  
-    candidate:
-      PlantStory,
-  ): SimilarPlantStory | null {
-    if (
-      plant.id ===
-      candidate.id
-    ) {
-      return null
+            new Date(`${first}T00:00:00`).getTime() -
+            new Date(`${second}T00:00:00`).getTime()
+        ) / 86400000,
+    ));
+}
+
+function formatDuration(
+    days: number,
+    unit: DurationDisplayUnit,
+): string {
+    if (unit === 'days') {
+        return `${days} ${days === 1 ? 'day' : 'days'}`;
     }
-  
-  
-    const sameCrop =
-      normalise(
-        plant.plantName,
-      ) ===
-      normalise(
-        candidate.plantName,
-      )
-  
-  
-    /*
-     * Crop identity is the minimum useful
-     * comparison boundary for this first
-     * Sprig Smart pass.
-     *
-     * Sprig may eventually notice useful
-     * cross-crop patterns, but it should not
-     * manufacture noisy "similar" stories
-     * merely because two unrelated plants
-     * happened to share a pot or date.
-     */
+
+    const divisor = unit === 'weeks' ? 7 : 30.4375;
+    const amount = Math.round((days / divisor) * 10) / 10;
+    const label = unit === 'weeks' ? 'week' : 'month';
+
+    return `${amount} ${label}${amount === 1 ? '' : 's'}`;
+}
+
+function getGrowingSetupIds(plant: PlantStory): string[] {
+    return Array.from(new Set([
+        plant.currentGrowingSetupId ?? '',
+        ...(plant.currentGrowingSetupIds ?? []),
+        ...(plant.previousGrowingSetupIds ?? []),
+        ...(plant.previousGrowingSetupIdsV2 ?? []),
+        ...(plant.growingHistory ?? []).flatMap(entry => [
+            entry.growingSetupId ?? '',
+            ...(entry.growingSetupIds ?? []),
+        ]),
+    ].filter(Boolean)));
+}
+
+function getSimilarity(
+    plant: PlantStory,
+    candidate: PlantStory,
+    unit: DurationDisplayUnit,
+): SimilarPlantStory | null {
+    if (plant.id === candidate.id) return null;
+
+    // Preserve the same-crop comparison boundary.
     if (
-      !sameCrop
+        normalise(plant.plantName) !==
+        normalise(candidate.plantName)
     ) {
-      return null
+        return null;
     }
-  
-  
-    let score =
-      4
-  
-  
-    const reasons:
-      string[] = [
-        'Same crop',
-      ]
-  
-  
+
+    let score = 4;
+    const reasons = ['Same crop'];
+
     const sameVariety =
-      Boolean(
-        plant.variety?.trim(),
-      ) &&
-      Boolean(
-        candidate.variety?.trim(),
-      ) &&
-      normalise(
-        plant.variety,
-      ) ===
-        normalise(
-          candidate.variety,
+        Boolean(plant.variety?.trim()) &&
+        Boolean(candidate.variety?.trim()) &&
+        normalise(plant.variety) === normalise(candidate.variety);
+
+    if (sameVariety) {
+        score += 6;
+        reasons.push('same variety');
+    }
+
+    if (
+        plant.basedOnPlantStoryId === candidate.id ||
+        candidate.basedOnPlantStoryId === plant.id ||
+        (
+            plant.basedOnPlantStoryId &&
+            candidate.basedOnPlantStoryId &&
+            plant.basedOnPlantStoryId === candidate.basedOnPlantStoryId
         )
-  
-  
-    if (
-      sameVariety
     ) {
-      score +=
-        6
-  
-      reasons.push(
-        'same variety',
-      )
+        score += 5;
+        reasons.push('related variation');
     }
-  
-  
+
     if (
-      plant.basedOnPlantStoryId ===
-        candidate.id ||
-      candidate.basedOnPlantStoryId ===
-        plant.id ||
-      (
-        plant.basedOnPlantStoryId &&
-        candidate.basedOnPlantStoryId &&
-        plant.basedOnPlantStoryId ===
-          candidate.basedOnPlantStoryId
-      )
+        plant.currentGrowingPlaceId &&
+        candidate.currentGrowingPlaceId &&
+        plant.currentGrowingPlaceId === candidate.currentGrowingPlaceId
     ) {
-      score +=
-        5
-  
-      reasons.push(
-        'related variation',
-      )
+        score += 3;
+        reasons.push('same Growing Place');
     }
-  
-  
+
+    const candidateSetupIds = getGrowingSetupIds(candidate);
+
     if (
-      plant.currentGrowingPlaceId &&
-      candidate.currentGrowingPlaceId &&
-      plant.currentGrowingPlaceId ===
-        candidate.currentGrowingPlaceId
+        getGrowingSetupIds(plant).some(id =>
+            candidateSetupIds.includes(id),
+        )
     ) {
-      score +=
-        3
-  
-      reasons.push(
-        'same Growing Place',
-      )
+        score += 3;
+        reasons.push('same growing setup');
     }
-  
-  
-    const plantSetupIds =
-      getGrowingSetupIds(
-        plant,
-      )
-  
-  
-    const candidateSetupIds =
-      getGrowingSetupIds(
-        candidate,
-      )
-  
-  
-    const sharesGrowingSetup =
-      plantSetupIds.some(
-        setupId =>
-          candidateSetupIds.includes(
-            setupId,
-          ),
-      )
-  
-  
-    if (
-      sharesGrowingSetup
-    ) {
-      score +=
-        3
-  
-      reasons.push(
-        'same growing setup',
-      )
+
+    if (plant.startMethod === candidate.startMethod) {
+        score += 2;
+        reasons.push('same start method');
     }
-  
-  
-    if (
-      plant.startMethod ===
-      candidate.startMethod
-    ) {
-      score +=
-        2
-  
-      reasons.push(
-        'same start method',
-      )
-    }
-  
-  
-    const plantingGap =
-      getDaysBetween(
+
+    const gap = getDaysBetween(
         plant.plantedDate,
         candidate.plantedDate,
-      )
-  
-  
-    if (
-      plantingGap <=
-      7
-    ) {
-      score +=
-        3
-  
-      reasons.push(
-        plantingGap ===
-        0
-          ? 'planted the same day'
-          : `planted ${plantingGap} ${
-              plantingGap ===
-              1
-                ? 'day'
-                : 'days'
-            } apart`,
-      )
-    } else if (
-      plantingGap <=
-      30
-    ) {
-      score +=
-        2
-  
-      reasons.push(
-        `planted ${plantingGap} days apart`,
-      )
-    } else if (
-      plantingGap <=
-      60
-    ) {
-      score +=
-        1
-  
-      reasons.push(
-        'similar planting period',
-      )
+    );
+
+    if (gap <= 7) {
+        score += 3;
+        reasons.push(
+            gap === 0
+                ? 'planted the same day'
+                : `planted ${formatDuration(gap, unit)} apart`,
+        );
+    } else if (gap <= 30) {
+        score += 2;
+        reasons.push(`planted ${formatDuration(gap, unit)} apart`);
+    } else if (gap <= 60) {
+        score += 1;
+        reasons.push('similar planting period');
     }
-  
-  
-    if (
-      plant.status ===
-      candidate.status
-    ) {
-      score +=
-        1
+
+    if (plant.status === candidate.status) score += 1;
+
+    return { plant: candidate, score, reasons };
+}
+
+const styles = `
+    .sprig-smart-comparisons .sprig-smart-disclosure > summary {
+        cursor: pointer;
+        color: #405841;
+        padding: 0.2rem 0;
+        line-height: 1.45;
     }
-  
-  
-    /*
-     * Crop match alone is allowed because
-     * another story of the same crop can still
-     * be useful when its growing conditions
-     * differ. Those differences are often the
-     * interesting part of comparison.
-     */
-    return {
-      plant:
-        candidate,
-  
-      score,
-  
-      reasons,
+
+    .sprig-smart-comparisons .sprig-smart-disclosure > summary::marker {
+        color: #718168;
     }
-  }
-  
-  
-  /* =======================================
-     PLACE NAME
-  ======================================= */
-  
-  function getGrowingPlaceName(
-    plant:
-      PlantStory,
-  
-    growingPlaces:
-      GrowingPlace[],
-  ): string | undefined {
-    if (
-      !plant.currentGrowingPlaceId
-    ) {
-      return undefined
+
+    .sprig-smart-comparisons .sprig-smart-summary-heading {
+        font-weight: 750;
+        font-size: 1rem;
     }
-  
-    return growingPlaces.find(
-      place =>
-        place.id ===
-        plant.currentGrowingPlaceId,
-    )?.name
-  }
-  
-  
-  /* =======================================
-     SMART COMPARISONS
-  ======================================= */
-  
-  export default function PlantSmartComparisons({
+
+    .sprig-smart-comparisons .sprig-smart-summary-copy {
+        display: block;
+        margin-top: 0.2rem;
+        color: #687364;
+        font-size: 0.82rem;
+        font-weight: 400;
+    }
+
+    .sprig-smart-comparisons .sprig-smart-disclosure-content {
+        padding-top: 0.7rem;
+    }
+
+    .sprig-smart-comparisons .sprig-smart-disclosure-content > p {
+        margin-top: 0;
+        font-size: 0.86rem;
+        line-height: 1.5;
+    }
+
+    .sprig-smart-comparisons summary:focus-visible {
+        outline: 2px solid #627c50;
+        outline-offset: 5px;
+        border-radius: 4px;
+    }
+`;
+
+export default function PlantSmartComparisons({
     plant,
     plants,
     growingPlaces,
+    durationDisplayUnit = 'days',
     onOpenPlant,
     onComparePlants,
-  }: PlantSmartComparisonsProps) {
-    const matches =
-      plants
-        .map(
-          candidate =>
-            getSimilarity(
-              plant,
-              candidate,
-            ),
+}: PlantSmartComparisonsProps) {
+    const matches = plants
+        .map(candidate =>
+            getSimilarity(plant, candidate, durationDisplayUnit),
         )
         .filter(
-          (
-            match,
-          ): match is SimilarPlantStory =>
-            Boolean(
-              match,
-            ),
+            (match): match is SimilarPlantStory => Boolean(match),
         )
-        .sort(
-          (
-            first,
-            second,
-          ) =>
-            second.score -
-            first.score,
-        )
-        .slice(
-          0,
-          3,
-        )
-  
-  
-    if (
-      matches.length ===
-      0
-    ) {
-      return null
-    }
-  
-  
-    const compareAllIds =
-      [
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+
+    if (matches.length === 0) return null;
+
+    const compareAllIds = [
         plant.id,
-  
-        ...matches.map(
-          match =>
-            match.plant.id,
-        ),
-      ]
-  
-  
+        ...matches.map(match => match.plant.id),
+    ];
+
     return (
-      <section className="story-section sprig-smart-comparisons">
-        <div className="section-heading">
-          <div>
-            <p className="section-label">
-              Sprig noticed
-            </p>
-  
-            <h2>
-              Stories worth comparing
-            </h2>
-          </div>
-        </div>
-  
-  
-        <p className="journal-intro sprig-smart-intro">
-          These stories share enough with this
-          one to make a closer look useful.
-          Sprig is showing why each was chosen,
-          rather than pretending similarity
-          means the plants behaved the same.
-        </p>
-  
-  
-        <div className="sprig-smart-comparison-list">
-          {matches.map(
-            match => {
-              const growingPlaceName =
-                getGrowingPlaceName(
-                  match.plant,
-                  growingPlaces,
-                )
-  
-  
-              return (
-                <article
-                  key={
-                    match.plant.id
-                  }
-                  className="sprig-smart-comparison-card"
-                >
-                  <div className="sprig-smart-comparison-main">
-                    <div>
-                      <p className="sprig-smart-comparison-crop">
-                        {match.plant.plantName}
-  
-                        {growingPlaceName
-                          ? ` · ${growingPlaceName}`
-                          : ''}
-                      </p>
-  
-                      <h3>
-                        {match.plant.displayName}
-                      </h3>
+        <section className="story-section sprig-smart-comparisons">
+            <style>{styles}</style>
+
+            <details key={plant.id} className="sprig-smart-disclosure">
+                <summary>
+                    <span className="sprig-smart-summary-heading">
+                        Sprig noticed
+                    </span>
+                    <span className="sprig-smart-summary-copy">
+                        {matches.length}{' '}
+                        {matches.length === 1
+                            ? 'related story worth comparing'
+                            : 'related stories worth comparing'}
+                        {' · Open when you’re curious'}
+                    </span>
+                </summary>
+
+                <div className="sprig-smart-disclosure-content">
+                    <p className="journal-intro sprig-smart-intro">
+                        These stories share useful connections with this one.
+                        The reasons below explain why they may be worth
+                        looking at together.
+                    </p>
+
+                    <div className="sprig-smart-comparison-list">
+                        {matches.map(match => {
+                            const placeName = growingPlaces.find(
+                                place =>
+                                    place.id ===
+                                    match.plant.currentGrowingPlaceId,
+                            )?.name;
+
+                            return (
+                                <article
+                                    key={match.plant.id}
+                                    className="sprig-smart-comparison-card"
+                                >
+                                    <div className="sprig-smart-comparison-main">
+                                        <div>
+                                            <p className="sprig-smart-comparison-crop">
+                                                {match.plant.plantName}
+                                                {placeName ? ` · ${placeName}` : ''}
+                                            </p>
+                                            <h3>{match.plant.displayName}</h3>
+                                        </div>
+
+                                        <div className="sprig-smart-reasons">
+                                            {match.reasons.map(reason => (
+                                                <span key={reason}>{reason}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="sprig-smart-comparison-actions">
+                                        <button
+                                            type="button"
+                                            className="text-button"
+                                            onClick={() =>
+                                                onOpenPlant(match.plant.id)
+                                            }
+                                        >
+                                            Open story →
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="secondary-button"
+                                            onClick={() =>
+                                                onComparePlants([
+                                                    plant.id,
+                                                    match.plant.id,
+                                                ])
+                                            }
+                                        >
+                                            Compare these two
+                                        </button>
+                                    </div>
+                                </article>
+                            );
+                        })}
                     </div>
-  
-  
-                    <div className="sprig-smart-reasons">
-                      {match.reasons.map(
-                        reason => (
-                          <span
-                            key={
-                              reason
-                            }
-                          >
-                            {reason}
-                          </span>
-                        ),
-                      )}
-                    </div>
-                  </div>
-  
-  
-                  <div className="sprig-smart-comparison-actions">
-                    <button
-                      type="button"
-                      className="text-button"
-                      onClick={() =>
-                        onOpenPlant(
-                          match.plant.id,
-                        )
-                      }
-                    >
-                      Open story →
-                    </button>
-  
-  
-                    <button
-                      type="button"
-                      className="secondary-button"
-                      onClick={() =>
-                        onComparePlants([
-                          plant.id,
-                          match.plant.id,
-                        ])
-                      }
-                    >
-                      Compare these two
-                    </button>
-                  </div>
-                </article>
-              )
-            },
-          )}
-        </div>
-  
-  
-        {matches.length >
-          1 && (
-          <div className="sprig-smart-compare-all">
-            <button
-              type="button"
-              className="journal-add-button"
-              onClick={() =>
-                onComparePlants(
-                  compareAllIds,
-                )
-              }
-            >
-              Compare all {
-                compareAllIds.length
-              } stories →
-            </button>
-          </div>
-        )}
-      </section>
-    )
-  }
+
+                    {matches.length > 1 && (
+                        <div className="sprig-smart-compare-all">
+                            <button
+                                type="button"
+                                className="journal-add-button"
+                                onClick={() => onComparePlants(compareAllIds)}
+                            >
+                                Compare all {compareAllIds.length} stories →
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </details>
+        </section>
+    );
+}

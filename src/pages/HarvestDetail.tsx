@@ -1,1168 +1,767 @@
-import GardenLayout from '../components/layout/GardenLayout'
-import SprigPhotoGallery from '../components/photos/SprigPhotoGallery'
+import { useState } from 'react';
+import GardenLayout from '../components/layout/GardenLayout';
+import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 
 import type {
-  HarvestMeasurementUnit,
-  HarvestPlantOutcome,
-  HarvestRecord,
-  HarvestType,
-  PlantStory,
-} from '../types'
+    HarvestMeasurementUnit,
+    HarvestPlantOutcome,
+    HarvestRecord,
+    HarvestType,
+    PlantStory,
+} from '../types';
 
-import type {
-  AppPage,
-} from '../types/navigation'
+import type { AppPage } from '../types/navigation';
 
+type DurationUnit = 'days' | 'weeks' | 'months';
 
 interface HarvestDetailProps {
-  harvest: HarvestRecord
-
-  harvests: HarvestRecord[]
-
-  plants: PlantStory[]
-
-  journeyBackLabel:
-    string | null
-
-  onBack: () => void
-
-  onOpenHarvests: () => void
-
-  onEdit: (
-    harvest: HarvestRecord,
-  ) => void
-
-  onRecordAnotherHarvest: (
-    harvest: HarvestRecord,
-  ) => void
-
-  onDelete: (
-    harvestId: string,
-  ) => void
-
-  onOpenPlant: (
-    plantId: string,
-  ) => void
-
-  onNavigate: (
-    page: AppPage,
-  ) => void
+    harvest: HarvestRecord;
+    harvests: HarvestRecord[];
+    plants: PlantStory[];
+    journeyBackLabel: string | null;
+    onBack: () => void;
+    onOpenHarvests: () => void;
+    onEdit: (harvest: HarvestRecord) => void;
+    onRecordAnotherHarvest: (harvest: HarvestRecord) => void;
+    onDelete: (harvestId: string) => void;
+    onOpenPlant: (plantId: string) => void;
+    onNavigate: (page: AppPage) => void;
 }
 
-
 /* =======================================
-   DATE
+   DATES AND PLANT AGE
 ======================================= */
 
-function formatDate(
-  date: string,
+function formatDate(value: string): string {
+    const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) return 'Date not recorded';
+
+    return date.toLocaleDateString('en-AU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
+}
+
+function getAgeDays(plant: PlantStory, date: string): number | undefined {
+    const start = new Date(`${plant.plantedDate.slice(0, 10)}T00:00:00`);
+    const end = new Date(`${date.slice(0, 10)}T00:00:00`);
+    const days = Math.round((end.getTime() - start.getTime()) / 86400000);
+
+    return Number.isFinite(days) ? days : undefined;
+}
+
+function formatAge(
+    plant: PlantStory,
+    date: string,
+    unit: DurationUnit,
 ): string {
-  return new Date(
-    `${date}T00:00:00`,
-  ).toLocaleDateString(
-    'en-AU',
-    {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    },
-  )
+    const days = getAgeDays(plant, date);
+    if (days === undefined) return 'Age not available';
+
+    const divisor = unit === 'days' ? 1 : unit === 'weeks' ? 7 : 30.4375;
+    const amount = unit === 'days'
+        ? Math.abs(days)
+        : Math.round((Math.abs(days) / divisor) * 10) / 10;
+
+    const label = unit === 'days' ? 'day' : unit === 'weeks' ? 'week' : 'month';
+    const duration = `${amount} ${label}${amount === 1 ? '' : 's'}`;
+
+    return days < 0
+        ? `${duration} before story began`
+        : `Age ${duration}`;
 }
 
-
 /* =======================================
-   STORY KEY
+   HARVEST GROUPING AND LABELS
 ======================================= */
 
-function getHarvestStoryKey(
-  harvest: HarvestRecord,
-): string {
-  const sortedPlantIds = [
-    ...harvest.plantStoryIds,
-  ].sort()
-
-
-  return sortedPlantIds.length >
-    0
-    ? sortedPlantIds.join(
-        '|',
-      )
-    : harvest.id
+function getHarvestStoryKey(harvest: HarvestRecord): string {
+    const ids = [...harvest.plantStoryIds].sort();
+    return ids.length ? ids.join('|') : harvest.id;
 }
-
-
-/* =======================================
-   PLANTS
-======================================= */
 
 function getMatchingPlants(
-  harvest: HarvestRecord,
-  plants: PlantStory[],
+    harvest: HarvestRecord,
+    plants: PlantStory[],
 ): PlantStory[] {
-  return plants.filter(
-    (
-      plant,
-    ) =>
-      harvest.plantStoryIds.includes(
-        plant.id,
-      ),
-  )
+    return plants.filter(plant => harvest.plantStoryIds.includes(plant.id));
 }
 
-
-function getPlantNames(
-  harvest: HarvestRecord,
-  plants: PlantStory[],
-): string {
-  const matchingPlants =
-    getMatchingPlants(
-      harvest,
-      plants,
-    )
-
-
-  if (
-    matchingPlants.length ===
-    0
-  ) {
-    return 'Unknown Plant Story'
-  }
-
-
-  return matchingPlants
-    .map(
-      (
-        plant,
-      ) =>
-        plant.displayName,
-    )
-    .join(
-      ', ',
-    )
-}
-
-
-/* =======================================
-   HARVEST TYPE
-======================================= */
-
-function getHarvestTypeLabel(
-  harvest: HarvestRecord,
-): string {
-  if (
-    harvest.harvestType ===
-      'other' &&
-    harvest.customHarvestTypeLabel
-  ) {
-    return harvest.customHarvestTypeLabel
-  }
-
-
-  const labels:
-    Partial<
-      Record<
-        HarvestType,
-        string
-      >
-    > = {
-      first:
-        'First harvest',
-
-      regular:
-        'Regular harvest',
-
-      main:
-        'Main harvest',
-
-      secondary:
-        'Secondary harvest',
-
-      final:
-        'Final harvest',
-
-      other:
-        'Other harvest',
+function getHarvestTypeLabel(harvest: HarvestRecord): string {
+    if (
+        harvest.harvestType === 'other' &&
+        harvest.customHarvestTypeLabel
+    ) {
+        return harvest.customHarvestTypeLabel;
     }
 
+    const labels: Partial<Record<HarvestType, string>> = {
+        first: 'First harvest',
+        regular: 'Regular harvest',
+        main: 'Main harvest',
+        secondary: 'Secondary harvest',
+        final: 'Final harvest',
+        other: 'Other harvest',
+    };
 
-  return harvest.harvestType
-    ? labels[
-        harvest.harvestType
-      ] ??
-        'Harvest'
-    : 'Harvest'
+    return harvest.harvestType
+        ? labels[harvest.harvestType] ?? 'Harvest'
+        : 'Harvest';
 }
-
-
-/* =======================================
-   MEASUREMENT
-======================================= */
 
 function getMeasurementUnitLabel(
-  harvest: HarvestRecord,
+    harvest: HarvestRecord,
 ): string | undefined {
-  if (
-    harvest.measurementUnit ===
-      'other' &&
-    harvest.customMeasurementUnitLabel
-  ) {
-    return harvest.customMeasurementUnitLabel
-  }
-
-
-  const labels:
-    Partial<
-      Record<
-        HarvestMeasurementUnit,
-        string
-      >
-    > = {
-      gram:
-        'g',
-
-      kilogram:
-        'kg',
-
-      millilitre:
-        'mL',
-
-      litre:
-        'L',
-
-      bunch:
-        'bunch',
-
-      handful:
-        'handful',
-
-      basket:
-        'basket',
-
-      container:
-        'container',
+    if (
+        harvest.measurementUnit === 'other' &&
+        harvest.customMeasurementUnitLabel
+    ) {
+        return harvest.customMeasurementUnitLabel;
     }
 
+    const labels: Partial<Record<HarvestMeasurementUnit, string>> = {
+        gram: 'g',
+        kilogram: 'kg',
+        millilitre: 'mL',
+        litre: 'L',
+        centimetre: 'cm',
+        inch: 'in',
+        bunch: 'bunch',
+        handful: 'handful',
+        basket: 'basket',
+        container: 'container',
+    };
 
-  return harvest.measurementUnit
-    ? labels[
-        harvest.measurementUnit
-      ]
-    : undefined
+    return harvest.measurementUnit
+        ? labels[harvest.measurementUnit]
+        : undefined;
 }
 
+function getHarvestAmount(harvest: HarvestRecord): string {
+    const pieces: string[] = [];
 
-function getHarvestAmount(
-  harvest: HarvestRecord,
-): string {
-  const pieces:
-    string[] = []
+    if (harvest.count !== undefined) pieces.push(`${harvest.count}`);
 
-
-  if (
-    harvest.count !==
-    undefined
-  ) {
-    pieces.push(
-      `${harvest.count}`,
-    )
-  }
-
-
-  if (
-    harvest.measurementAmount !==
-    undefined
-  ) {
-    const unit =
-      getMeasurementUnitLabel(
-        harvest,
-      )
-
-
-    pieces.push(
-      unit
-        ? `${harvest.measurementAmount} ${unit}`
-        : `${harvest.measurementAmount}`,
-    )
-  }
-
-
-  return pieces.length >
-    0
-    ? pieces.join(
-        ' · ',
-      )
-    : 'Not recorded'
-}
-
-
-/* =======================================
-   OUTCOME
-======================================= */
-
-function getPlantOutcomeLabel(
-  harvest: HarvestRecord,
-): string {
-  if (
-    harvest.plantOutcome ===
-      'other' &&
-    harvest.customPlantOutcomeLabel
-  ) {
-    return harvest.customPlantOutcomeLabel
-  }
-
-
-  const labels:
-    Partial<
-      Record<
-        HarvestPlantOutcome,
-        string
-      >
-    > = {
-      'still-producing':
-        'Still producing',
-
-      'more-expected':
-        'More expected',
-
-      'main-harvest-complete':
-        'Main harvest complete',
-
-      finished:
-        'Finished producing',
-
-      'no-change':
-        'Plant story continues',
-
-      'not-sure':
-        'Still unfolding',
-
-      other:
-        'Other',
+    if (harvest.measurementAmount !== undefined) {
+        const unit = getMeasurementUnitLabel(harvest);
+        pieces.push(
+            unit
+                ? `${harvest.measurementAmount} ${unit}`
+                : `${harvest.measurementAmount}`,
+        );
     }
 
-
-  return harvest.plantOutcome
-    ? labels[
-        harvest.plantOutcome
-      ] ??
-        'Not recorded'
-    : 'Not recorded'
+    return pieces.length ? pieces.join(' · ') : 'Not recorded';
 }
 
+function getPlantOutcomeLabel(harvest: HarvestRecord): string {
+    if (
+        harvest.plantOutcome === 'other' &&
+        harvest.customPlantOutcomeLabel
+    ) {
+        return harvest.customPlantOutcomeLabel;
+    }
 
-/* =======================================
-   QUALITY
-======================================= */
+    const labels: Partial<Record<HarvestPlantOutcome, string>> = {
+        'still-producing': 'Still producing',
+        'more-expected': 'More expected',
+        'main-harvest-complete': 'Main harvest complete',
+        finished: 'Finished producing',
+        'no-change': 'Plant story continues',
+        'not-sure': 'Still unfolding',
+        other: 'Other',
+    };
 
-function getQualityLabel(
-  harvest: HarvestRecord,
-): string {
-  switch (
-    harvest.quality
-  ) {
-    case 'poor':
-      return 'Poor'
-
-    case 'fair':
-      return 'Fair'
-
-    case 'good':
-      return 'Good'
-
-    case 'excellent':
-      return 'Excellent'
-
-    default:
-      return 'Not recorded'
-  }
+    return harvest.plantOutcome
+        ? labels[harvest.plantOutcome] ?? 'Not recorded'
+        : 'Not recorded';
 }
 
-
-/* =======================================
-   TOTAL COUNT
-======================================= */
-
-function getTotalCount(
-  harvests: HarvestRecord[],
-): number | undefined {
-  const harvestsWithCount =
-    harvests.filter(
-      (
-        harvest,
-      ) =>
-        harvest.count !==
-        undefined,
-    )
-
-
-  if (
-    harvestsWithCount.length ===
-    0
-  ) {
-    return undefined
-  }
-
-
-  return harvestsWithCount.reduce(
-    (
-      total,
-      harvest,
-    ) =>
-      total +
-      (
-        harvest.count ??
-        0
-      ),
-    0,
-  )
+function getQualityLabel(harvest: HarvestRecord): string {
+    switch (harvest.quality) {
+        case 'poor': return 'Poor';
+        case 'fair': return 'Fair';
+        case 'good': return 'Good';
+        case 'excellent': return 'Excellent';
+        default: return 'Not recorded';
+    }
 }
 
-
-/* =======================================
-   TOTAL MEASUREMENT
-======================================= */
+function getTotalCount(harvests: HarvestRecord[]): number | undefined {
+    const counted = harvests.filter(item => item.count !== undefined);
+    return counted.length
+        ? counted.reduce((total, item) => total + (item.count ?? 0), 0)
+        : undefined;
+}
 
 function getTotalMeasurement(
-  harvests: HarvestRecord[],
+    harvests: HarvestRecord[],
 ): string | undefined {
-  const measuredHarvests =
-    harvests.filter(
-      (
-        harvest,
-      ) =>
-        harvest.measurementAmount !==
-          undefined &&
-        harvest.measurementUnit !==
-          undefined,
-    )
+    const measured = harvests.filter(
+        item =>
+            item.measurementAmount !== undefined &&
+            item.measurementUnit !== undefined,
+    );
 
+    if (!measured.length) return undefined;
 
-  if (
-    measuredHarvests.length ===
-    0
-  ) {
-    return undefined
-  }
+    const allWeights = measured.every(
+        item => item.measurementUnit === 'gram' ||
+            item.measurementUnit === 'kilogram',
+    );
 
+    if (allWeights) {
+        const grams = measured.reduce(
+            (total, item) => total +
+                (item.measurementAmount ?? 0) *
+                (item.measurementUnit === 'kilogram' ? 1000 : 1),
+            0,
+        );
 
-  const allWeights =
-    measuredHarvests.every(
-      (
-        harvest,
-      ) =>
-        harvest.measurementUnit ===
-          'gram' ||
-        harvest.measurementUnit ===
-          'kilogram',
-    )
-
-
-  if (
-    allWeights
-  ) {
-    const totalGrams =
-      measuredHarvests.reduce(
-        (
-          total,
-          harvest,
-        ) => {
-          const amount =
-            harvest.measurementAmount ??
-            0
-
-
-          return total +
-            (
-              harvest.measurementUnit ===
-                'kilogram'
-                ? amount *
-                  1000
-                : amount
-            )
-        },
-        0,
-      )
-
-
-    if (
-      totalGrams >=
-      1000
-    ) {
-      return `${Number(
-        (
-          totalGrams /
-          1000
-        ).toFixed(
-          2,
-        ),
-      )} kg`
+        return grams >= 1000
+            ? `${Number((grams / 1000).toFixed(2))} kg`
+            : `${Number(grams.toFixed(2))} g`;
     }
 
+    const allVolumes = measured.every(
+        item => item.measurementUnit === 'millilitre' ||
+            item.measurementUnit === 'litre',
+    );
 
-    return `${Number(
-      totalGrams.toFixed(
-        2,
-      ),
-    )} g`
-  }
+    if (allVolumes) {
+        const millilitres = measured.reduce(
+            (total, item) => total +
+                (item.measurementAmount ?? 0) *
+                (item.measurementUnit === 'litre' ? 1000 : 1),
+            0,
+        );
 
-
-  const allVolumes =
-    measuredHarvests.every(
-      (
-        harvest,
-      ) =>
-        harvest.measurementUnit ===
-          'millilitre' ||
-        harvest.measurementUnit ===
-          'litre',
-    )
-
-
-  if (
-    allVolumes
-  ) {
-    const totalMillilitres =
-      measuredHarvests.reduce(
-        (
-          total,
-          harvest,
-        ) => {
-          const amount =
-            harvest.measurementAmount ??
-            0
-
-
-          return total +
-            (
-              harvest.measurementUnit ===
-                'litre'
-                ? amount *
-                  1000
-                : amount
-            )
-        },
-        0,
-      )
-
-
-    if (
-      totalMillilitres >=
-      1000
-    ) {
-      return `${Number(
-        (
-          totalMillilitres /
-          1000
-        ).toFixed(
-          2,
-        ),
-      )} L`
+        return millilitres >= 1000
+            ? `${Number((millilitres / 1000).toFixed(2))} L`
+            : `${Number(millilitres.toFixed(2))} mL`;
     }
 
-
-    return `${Number(
-      totalMillilitres.toFixed(
-        2,
-      ),
-    )} mL`
-  }
-
-
-  return undefined
+    return undefined;
 }
 
+/* =======================================
+   LOCAL PRESENTATION
+======================================= */
+
+const styles = `
+    .harvest-detail-page .harvest-age-control {
+        margin: 0.7rem 0 1rem;
+    }
+
+    .harvest-detail-page .harvest-age-control-label {
+        display: block;
+        margin-bottom: 0.35rem;
+        color: #62705f;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .harvest-detail-page .harvest-age-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .harvest-detail-page .harvest-age-picker button {
+        width: auto;
+        min-height: 40px;
+        margin: 0;
+        padding: 0.4rem 0.7rem;
+        border: 1px solid rgba(82, 112, 71, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 254, 249, 0.85);
+        color: #62705f;
+        font: inherit;
+        font-size: 0.76rem;
+        cursor: pointer;
+    }
+
+    .harvest-detail-page .harvest-age-picker button[aria-pressed="true"] {
+        background: #e2eed4;
+        border-color: rgba(82, 112, 71, 0.33);
+        color: #405e42;
+        font-weight: 700;
+    }
+
+    .harvest-detail-page .harvest-detail-list {
+        margin: 0.7rem 0;
+    }
+
+    .harvest-detail-page .harvest-detail-list > div {
+        display: grid;
+        grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.6fr);
+        gap: 0.2rem 0.8rem;
+        margin-top: 0.6rem;
+        line-height: 1.5;
+    }
+
+    .harvest-detail-page .harvest-detail-list dt {
+        color: #62705f;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .harvest-detail-page .harvest-detail-list dd {
+        margin: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .harvest-detail-page .harvest-dated-ages {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    .harvest-detail-page .harvest-dated-ages .harvest-plant-age {
+        color: #52634b;
+    }
+
+    .harvest-detail-page .harvest-multiple-ages {
+        display: grid;
+        gap: 0.3rem;
+        margin-top: 0.3rem;
+    }
+
+    .harvest-detail-page .harvest-multiple-ages .text-button {
+        width: auto;
+        margin: 0;
+        padding: 0;
+        font: inherit;
+        text-align: left;
+        white-space: normal;
+    }
+
+    .harvest-detail-page .detail-back-to-top {
+        display: flex;
+        justify-content: center;
+        padding: 1rem 0 2rem;
+    }
+
+    @media (max-width: 560px) {
+        .harvest-detail-page .harvest-detail-list > div {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.1rem;
+        }
+    }
+
+    @media print {
+        .harvest-detail-page .harvest-age-control,
+        .harvest-detail-page .detail-back-to-top {
+            display: none;
+        }
+    }
+`;
 
 /* =======================================
    HARVEST DETAIL
 ======================================= */
 
 export default function HarvestDetail({
-  harvest,
-  harvests,
-  plants,
-  journeyBackLabel,
-  onBack,
-  onOpenHarvests,
-  onEdit,
-  onRecordAnotherHarvest,
-  onDelete,
-  onOpenPlant,
-  onNavigate,
+    harvest,
+    harvests,
+    plants,
+    journeyBackLabel,
+    onBack,
+    onOpenHarvests,
+    onEdit,
+    onRecordAnotherHarvest,
+    onDelete,
+    onOpenPlant,
+    onNavigate,
 }: HarvestDetailProps) {
+    const [durationUnit, setDurationUnit] = useState<DurationUnit>('weeks');
+    const units: DurationUnit[] = ['days', 'weeks', 'months'];
 
-  const storyKey =
-    getHarvestStoryKey(
-      harvest,
-    )
+    const storyKey = getHarvestStoryKey(harvest);
 
+    // Keep the exact linked group together. Totals are not allocated
+    // to individual plants or varieties within that group.
+    const storyHarvests = harvests
+        .filter(item => getHarvestStoryKey(item) === storyKey)
+        .sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        );
 
-  const storyHarvests = [
-    ...harvests.filter(
-      (
-        candidate,
-      ) =>
-        getHarvestStoryKey(
-          candidate,
-        ) ===
-        storyKey,
-    ),
-  ].sort(
-    (
-      first,
-      second,
-    ) =>
-      new Date(
-        first.date,
-      ).getTime() -
-      new Date(
-        second.date,
-      ).getTime(),
-  )
+    const matchingPlants = getMatchingPlants(harvest, plants);
+    const plantNames = matchingPlants.length
+        ? matchingPlants.map(plant => plant.displayName).join(', ')
+        : 'Unknown Plant Story';
 
+    const totalCount = getTotalCount(storyHarvests);
+    const totalMeasurement = getTotalMeasurement(storyHarvests);
 
-  const matchingPlants =
-    getMatchingPlants(
-      harvest,
-      plants,
-    )
+    function renderDateWithAges(record: HarvestRecord) {
+        const recordPlants = getMatchingPlants(record, plants);
 
+        return (
+            <div className="harvest-dated-ages">
+                <time dateTime={record.date}>{formatDate(record.date)}</time>
 
-  const plantNames =
-    getPlantNames(
-      harvest,
-      plants,
-    )
+                {recordPlants.length === 1 && (
+                    <span className="harvest-plant-age">
+                        {' · '}
+                        {formatAge(recordPlants[0], record.date, durationUnit)}
+                    </span>
+                )}
 
-
-  const totalCount =
-    getTotalCount(
-      storyHarvests,
-    )
-
-
-  const totalMeasurement =
-    getTotalMeasurement(
-      storyHarvests,
-    )
-
-
-  /* =======================================
-     NAVIGATION
-  ======================================= */
-
-  const hasJourneyBack =
-    Boolean(
-      journeyBackLabel,
-    )
-
-
-  const journeyAlreadyReturnsToHarvests =
-    journeyBackLabel ===
-    'Harvests'
-
-
-  function handlePrint() {
-    window.print()
-  }
-
-
-  function handleExport() {
-    window.print()
-  }
-
-
-  function handleDeleteHarvest(
-    harvestToDelete:
-      HarvestRecord,
-  ) {
-    const confirmed =
-      window.confirm(
-        `Delete this ${getHarvestTypeLabel(
-          harvestToDelete,
-        )}? This cannot be undone.`,
-      )
-
-
-    if (
-      !confirmed
-    ) {
-      return
+                {recordPlants.length > 1 && (
+                    <div className="harvest-multiple-ages">
+                        {recordPlants.map(plant => (
+                            <div key={plant.id}>
+                                <button
+                                    type="button"
+                                    className="text-button"
+                                    onClick={() => onOpenPlant(plant.id)}
+                                >
+                                    {plant.displayName}
+                                </button>
+                                {' · '}
+                                <span className="harvest-plant-age">
+                                    {formatAge(plant, record.date, durationUnit)}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
     }
 
+    function getPhotoContexts(record: HarvestRecord) {
+        const recordPlants = getMatchingPlants(record, plants);
 
-    onDelete(
-      harvestToDelete.id,
-    )
-  }
+        return (record.photoUrls ?? []).map((photoUrl, index) => {
+            const metadata = record.photoMetadata?.[index] ??
+                record.photoMetadata?.find(item => item?.photoUrl === photoUrl);
 
+            const date = metadata?.photoDate || record.date;
+            const details = [formatDate(date)];
 
-  return (
-    <GardenLayout
-      activePage="harvest"
-      onNavigate={
-        onNavigate
-      }
-    >
-      <main className="journal-page harvest-detail-page">
-
-        {/* =======================================
-            NAVIGATION
-        ======================================= */}
-
-        <div
-          className="sprig-detail-navigation"
-          style={{
-            display:
-              'flex',
-
-            flexWrap:
-              'wrap',
-
-            gap:
-              '10px',
-
-            marginBottom:
-              '18px',
-          }}
-        >
-
-          {hasJourneyBack && (
-            <button
-              type="button"
-              className="garden-return-button"
-              onClick={
-                onBack
-              }
-            >
-              ← Back to{' '}
-              {
-                journeyBackLabel
-              }
-            </button>
-          )}
-
-
-          {!journeyAlreadyReturnsToHarvests && (
-            <button
-              type="button"
-              className="garden-return-button"
-              onClick={
-                onOpenHarvests
-              }
-            >
-              ← Harvests
-            </button>
-          )}
-
-        </div>
-
-
-        {/* =======================================
-            HEADER
-        ======================================= */}
-
-        <header className="journal-header harvest-detail-header">
-          <div>
-            <p className="section-label">
-              Harvest story
-            </p>
-
-
-            {matchingPlants.length ===
-            1 ? (
-              <h1>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() =>
-                    onOpenPlant(
-                      matchingPlants[0].id,
-                    )
-                  }
-                >
-                  {plantNames}
-                </button>
-              </h1>
-            ) : (
-              <h1>
-                {plantNames}
-              </h1>
-            )}
-
-
-            <p className="journal-intro">
-              {storyHarvests.length}{' '}
-              {storyHarvests.length ===
-              1
-                ? 'harvest'
-                : 'harvests'}
-              {totalMeasurement
-                ? ` · ${totalMeasurement} recorded`
-                : ''}
-            </p>
-          </div>
-        </header>
-
-
-        {/* =======================================
-            STORY ACTIONS
-        ======================================= */}
-
-        <section
-          className="harvest-detail-actions"
-          aria-label="Harvest story actions"
-        >
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() =>
-              onRecordAnotherHarvest(
-                harvest,
-              )
+            if (metadata?.photoTime) details.push(metadata.photoTime);
+            if (metadata?.notes) details.push(metadata.notes);
+            if (metadata?.tags?.length) {
+                details.push(
+                    metadata.tags.map(tag => `#${tag.replace(/^#+/, '')}`).join(' '),
+                );
             }
-          >
-            🧺 Record another harvest
-          </button>
 
+            let age: { days: number } | undefined;
 
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={
-              handlePrint
-            }
-          >
-            🖨 Print
-          </button>
-
-
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={
-              handleExport
-            }
-          >
-            📤 Export
-          </button>
-        </section>
-
-
-        {/* =======================================
-            STORY SUMMARY
-        ======================================= */}
-
-        <article className="journal-entry harvest-detail-card">
-          <div className="journal-entry-marker">
-            🌾
-          </div>
-
-
-          <div className="journal-entry-content">
-            <h2>
-              Harvest summary
-            </h2>
-
-
-            <dl className="harvest-detail-list">
-              <div>
-                <dt>
-                  Harvests recorded
-                </dt>
-
-                <dd>
-                  {
-                    storyHarvests.length
-                  }
-                </dd>
-              </div>
-
-
-              {totalCount !==
-                undefined && (
-                <div>
-                  <dt>
-                    Total count
-                  </dt>
-
-                  <dd>
-                    {
-                      totalCount
-                    }
-                  </dd>
-                </div>
-              )}
-
-
-              {totalMeasurement && (
-                <div>
-                  <dt>
-                    Total gathered
-                  </dt>
-
-                  <dd>
-                    {
-                      totalMeasurement
-                    }
-                  </dd>
-                </div>
-              )}
-
-
-              {storyHarvests.length >
-                0 && (
-                <div>
-                  <dt>
-                    First harvest
-                  </dt>
-
-                  <dd>
-                    {formatDate(
-                      storyHarvests[0]
-                        .date,
-                    )}
-                  </dd>
-                </div>
-              )}
-
-
-              {storyHarvests.length >
-                1 && (
-                <div>
-                  <dt>
-                    Latest harvest
-                  </dt>
-
-                  <dd>
-                    {formatDate(
-                      storyHarvests[
-                        storyHarvests.length -
-                        1
-                      ].date,
-                    )}
-                  </dd>
-                </div>
-              )}
-            </dl>
-
-
-            {matchingPlants.length >
-              0 && (
-              <section className="harvest-detail-section">
-                <h3>
-                  Gathered from
-                </h3>
-
-
-                {matchingPlants.map(
-                  (
-                    plant,
-                  ) => (
-                    <p
-                      key={
-                        plant.id
-                      }
-                    >
-                      🌱{' '}
-
-                      <button
-                        type="button"
-                        className="text-button"
-                        onClick={() =>
-                          onOpenPlant(
-                            plant.id,
-                          )
-                        }
-                      >
-                        {
-                          plant.displayName
-                        }
-                      </button>
-                    </p>
-                  ),
-                )}
-              </section>
-            )}
-          </div>
-        </article>
-
-
-        {/* =======================================
-            INDIVIDUAL HARVESTS
-        ======================================= */}
-
-        <section className="journal-list">
-          {storyHarvests.map(
-            (
-              storyHarvest,
-              index,
-            ) => (
-              <article
-                key={
-                  storyHarvest.id
+            if (recordPlants.length === 1) {
+                const days = getAgeDays(recordPlants[0], date);
+                if (days !== undefined && days >= 0) {
+                    age = { days };
+                } else {
+                    details.push(formatAge(recordPlants[0], date, durationUnit));
                 }
-                className="journal-entry harvest-detail-card"
-              >
-                <div className="journal-entry-marker">
-                  🧺
+            } else {
+                recordPlants.forEach(plant => {
+                    details.push(
+                        `${plant.displayName}: ${formatAge(plant, date, durationUnit)}`,
+                    );
+                });
+            }
+
+            return {
+                heading: metadata?.title || getHarvestTypeLabel(record),
+                detail: details.join(' · '),
+                age,
+            };
+        });
+    }
+
+    function handleDeleteHarvest(record: HarvestRecord) {
+        if (window.confirm(
+            `Delete this ${getHarvestTypeLabel(record)}? This cannot be undone.`,
+        )) {
+            onDelete(record.id);
+        }
+    }
+
+    function backToTop() {
+        document.getElementById('harvest-detail-top')?.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? 'auto' : 'smooth',
+            block: 'start',
+        });
+    }
+
+    return (
+        <GardenLayout activePage="harvest" onNavigate={onNavigate}>
+            <main className="journal-page harvest-detail-page" id="harvest-detail-top">
+                <style>{styles}</style>
+
+                <div
+                    className="sprig-detail-navigation"
+                    style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '10px',
+                        marginBottom: '18px',
+                    }}
+                >
+                    {journeyBackLabel && (
+                        <button
+                            type="button"
+                            className="garden-return-button"
+                            onClick={onBack}
+                        >
+                            ← Back to {journeyBackLabel}
+                        </button>
+                    )}
+
+                    {journeyBackLabel !== 'Harvests' && (
+                        <button
+                            type="button"
+                            className="garden-return-button"
+                            onClick={onOpenHarvests}
+                        >
+                            ← Harvests
+                        </button>
+                    )}
                 </div>
 
-
-                <div className="journal-entry-content">
-                  <div className="journal-entry-top">
+                <header className="journal-header harvest-detail-header">
                     <div>
-                      <p className="journal-entry-source plant-source">
-                        Harvest{' '}
-                        {index + 1}
-                      </p>
+                        <p className="section-label">Harvest story</p>
 
-
-                      <time>
-                        {formatDate(
-                          storyHarvest.date,
+                        {matchingPlants.length === 1 ? (
+                            <h1>
+                                <button
+                                    type="button"
+                                    className="text-button"
+                                    onClick={() => onOpenPlant(matchingPlants[0].id)}
+                                >
+                                    {plantNames}
+                                </button>
+                            </h1>
+                        ) : (
+                            <h1>{plantNames}</h1>
                         )}
-                      </time>
+
+                        <p className="journal-intro">
+                            {storyHarvests.length}{' '}
+                            {storyHarvests.length === 1 ? 'harvest' : 'harvests'}
+                            {totalMeasurement ? ` · ${totalMeasurement} recorded` : ''}
+                        </p>
                     </div>
-                  </div>
+                </header>
 
-
-                  <h2>
-                    {getHarvestTypeLabel(
-                      storyHarvest,
-                    )}
-                  </h2>
-
-
-                  <dl className="harvest-detail-list">
-                    <div>
-                      <dt>
-                        Gathered
-                      </dt>
-
-                      <dd>
-                        {getHarvestAmount(
-                          storyHarvest,
-                        )}
-                      </dd>
+                {matchingPlants.length > 0 && (
+                    <div className="harvest-age-control">
+                        <span className="harvest-age-control-label">
+                            Show plant age at harvest in
+                        </span>
+                        <div
+                            className="harvest-age-picker"
+                            role="group"
+                            aria-label="Plant age display"
+                        >
+                            {units.map(unit => (
+                                <button
+                                    key={unit}
+                                    type="button"
+                                    aria-pressed={durationUnit === unit}
+                                    onClick={() => setDurationUnit(unit)}
+                                >
+                                    {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                                </button>
+                            ))}
+                        </div>
                     </div>
+                )}
 
-
-                    <div>
-                      <dt>
-                        How it was
-                      </dt>
-
-                      <dd>
-                        {getQualityLabel(
-                          storyHarvest,
-                        )}
-                      </dd>
-                    </div>
-
-
-                    <div>
-                      <dt>
-                        From here
-                      </dt>
-
-                      <dd>
-                        {getPlantOutcomeLabel(
-                          storyHarvest,
-                        )}
-                      </dd>
-                    </div>
-                  </dl>
-
-
-                  {storyHarvest.notes && (
-                    <section className="harvest-detail-section">
-                      <h3>
-                        Notes to the harvest
-                      </h3>
-
-
-                      <p className="journal-notes">
-                        {
-                          storyHarvest.notes
-                        }
-                      </p>
-                    </section>
-                  )}
-
-
-                  <SprigPhotoGallery
-                    photoUrls={
-                      storyHarvest.photoUrls ??
-                      []
-                    }
-
-                    title="Harvest photographs"
-
-                    emptyMessage="No photographs have been tucked into this harvest yet."
-
-                    photoAltPrefix="Harvest photograph"
-                  />
-
-
-                  <section className="harvest-detail-section harvest-detail-record-info">
-                    <p>
-                      <strong>
-                        Created:
-                      </strong>{' '}
-
-                      {formatDate(
-                        storyHarvest.createdAt,
-                      )}
-                    </p>
-
-
-                    {storyHarvest.updatedAt && (
-                      <p>
-                        <strong>
-                          Last edited:
-                        </strong>{' '}
-
-                        {formatDate(
-                          storyHarvest.updatedAt,
-                        )}
-                      </p>
-                    )}
-                  </section>
-
-
-                  <div className="harvest-detail-actions">
+                <section
+                    className="harvest-detail-actions"
+                    aria-label="Harvest story actions"
+                >
                     <button
-                      type="button"
-                      className="secondary-button"
-                      onClick={() =>
-                        onEdit(
-                          storyHarvest,
-                        )
-                      }
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => onRecordAnotherHarvest(harvest)}
                     >
-                      ✏ Edit
+                        🧺 Record another harvest
                     </button>
-
-
                     <button
-                      type="button"
-                      className="text-button"
-                      onClick={() =>
-                        handleDeleteHarvest(
-                          storyHarvest,
-                        )
-                      }
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => window.print()}
                     >
-                      🗑 Delete
+                        🖨 Print
                     </button>
-                  </div>
+                    <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => window.print()}
+                    >
+                        📤 Export
+                    </button>
+                </section>
+
+                <article className="journal-entry harvest-detail-card">
+                    <div className="journal-entry-marker">🌾</div>
+
+                    <div className="journal-entry-content">
+                        <h2>Harvest summary</h2>
+
+                        <dl className="harvest-detail-list">
+                            <div>
+                                <dt>Harvests recorded</dt>
+                                <dd>{storyHarvests.length}</dd>
+                            </div>
+
+                            {totalCount !== undefined && (
+                                <div>
+                                    <dt>Total count</dt>
+                                    <dd>{totalCount}</dd>
+                                </div>
+                            )}
+
+                            {totalMeasurement && (
+                                <div>
+                                    <dt>Total gathered</dt>
+                                    <dd>{totalMeasurement}</dd>
+                                </div>
+                            )}
+
+                            {storyHarvests.length > 0 && (
+                                <div>
+                                    <dt>First harvest</dt>
+                                    <dd>{renderDateWithAges(storyHarvests[0])}</dd>
+                                </div>
+                            )}
+
+                            {storyHarvests.length > 1 && (
+                                <div>
+                                    <dt>Latest harvest</dt>
+                                    <dd>
+                                        {renderDateWithAges(
+                                            storyHarvests[storyHarvests.length - 1],
+                                        )}
+                                    </dd>
+                                </div>
+                            )}
+                        </dl>
+
+                        {matchingPlants.length > 0 && (
+                            <section className="harvest-detail-section">
+                                <h3>Gathered from</h3>
+                                {matchingPlants.map(plant => (
+                                    <p key={plant.id}>
+                                        🌱{' '}
+                                        <button
+                                            type="button"
+                                            className="text-button"
+                                            onClick={() => onOpenPlant(plant.id)}
+                                        >
+                                            {plant.displayName}
+                                        </button>
+                                    </p>
+                                ))}
+                            </section>
+                        )}
+                    </div>
+                </article>
+
+                <section className="journal-list">
+                    {storyHarvests.map((record, index) => (
+                        <article
+                            key={record.id}
+                            className="journal-entry harvest-detail-card"
+                        >
+                            <div className="journal-entry-marker">🧺</div>
+
+                            <div className="journal-entry-content">
+                                <div className="journal-entry-top">
+                                    <div>
+                                        <p className="journal-entry-source plant-source">
+                                            Harvest {index + 1}
+                                        </p>
+                                        {renderDateWithAges(record)}
+                                    </div>
+                                </div>
+
+                                <h2>{getHarvestTypeLabel(record)}</h2>
+
+                                <dl className="harvest-detail-list">
+                                    <div>
+                                        <dt>Gathered</dt>
+                                        <dd>{getHarvestAmount(record)}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>How it was</dt>
+                                        <dd>{getQualityLabel(record)}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>From here</dt>
+                                        <dd>{getPlantOutcomeLabel(record)}</dd>
+                                    </div>
+                                </dl>
+
+                                {record.notes && (
+                                    <section className="harvest-detail-section">
+                                        <h3>Notes to the harvest</h3>
+                                        <p className="journal-notes">{record.notes}</p>
+                                    </section>
+                                )}
+
+                                <SprigPhotoGallery
+                                    photoUrls={record.photoUrls ?? []}
+                                    photoContexts={getPhotoContexts(record)}
+                                    durationDisplayUnit={durationUnit}
+                                    showDurationUnitPicker={false}
+                                    title="Harvest photographs"
+                                    emptyMessage="No photographs have been tucked into this harvest yet."
+                                    photoAltPrefix="Harvest photograph"
+                                />
+
+                                <section className="harvest-detail-section harvest-detail-record-info">
+                                    <p>
+                                        <strong>Created:</strong>{' '}
+                                        {formatDate(record.createdAt)}
+                                    </p>
+                                    {record.updatedAt && (
+                                        <p>
+                                            <strong>Last edited:</strong>{' '}
+                                            {formatDate(record.updatedAt)}
+                                        </p>
+                                    )}
+                                </section>
+
+                                <div className="harvest-detail-actions">
+                                    <button
+                                        type="button"
+                                        className="secondary-button"
+                                        onClick={() => onEdit(record)}
+                                    >
+                                        ✏ Edit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="text-button"
+                                        onClick={() => handleDeleteHarvest(record)}
+                                    >
+                                        🗑 Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                </section>
+
+                <div className="detail-back-to-top">
+                    <button type="button" className="text-button" onClick={backToTop}>
+                        ↑ Back to top
+                    </button>
                 </div>
-              </article>
-            ),
-          )}
-        </section>
-      </main>
-    </GardenLayout>
-  )
+            </main>
+        </GardenLayout>
+    );
 }
