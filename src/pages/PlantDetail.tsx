@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import GardenLayout from '../components/layout/GardenLayout';
 import AddPlantForm from '../components/forms/AddPlantForm';
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
@@ -6,7 +6,16 @@ import SprigPhotoPicker from '../components/photos/SprigPhotoPicker';
 import SprigQuickPeek from '../components/common/SprigQuickPeek';
 import PlantSmartComparisons from '../components/plants/PlantSmartComparisons';
 
+import {
+    buildSprigInsights,
+    getSprigInsightFamilyLabel,
+    getSprigInsightStrengthLabel,
+    getSprigInsightsForPlant,
+    type SprigInsightAction,
+} from '../utils/sprigInsights';
+
 import type {
+    GardenData,
     GardenEvent,
     GardenProduct,
     GrowingPlace,
@@ -20,6 +29,44 @@ import type {
 } from '../types';
 
 import type { AppPage } from '../types/navigation';
+
+/* =======================================
+   TYPES
+======================================= */
+
+interface PlantDetailProps {
+    plant: PlantStory;
+    gardenData: GardenData;
+    plants: PlantStory[];
+    onOpenPlant: (plantId: string) => void;
+    onComparePlants: (plantIds: string[]) => void;
+    growingPlaces: GrowingPlace[];
+    growingSetups: GrowingSetup[];
+    ingredients: Ingredient[];
+    products: GardenProduct[];
+    events: GardenEvent[];
+    harvests: HarvestRecord[];
+    journeyBackLabel: string | null;
+    onBack: () => void;
+    onOpenPlants: () => void;
+    onNavigate: (page: AppPage) => void;
+    onOpenGrowingPlace: (growingPlaceId: string) => void;
+    onOpenJournalEntry: (eventId: string) => void;
+    onOpenHarvest: (harvestId: string) => void;
+    onAddHarvest: (plantStoryIds: string[]) => void;
+    onAddEvent: () => void;
+    onAddPlant: (plant: PlantStory) => void;
+    onAddGrowingPlace: (
+        place: GrowingPlace,
+        setup?: GrowingSetup,
+    ) => void;
+    onAddRecipe: (recipe: GrowingSetup) => void;
+    onAddIngredient: (ingredient: Ingredient) => void;
+    onAddProduct: (product: GardenProduct) => void;
+    onDeleteEvent: (eventId: string) => void;
+    onDeletePlant: (plantId: string) => void;
+    onUpdatePlant: (plant: PlantStory) => void;
+}
 
 /* =======================================
    TYPES
@@ -328,6 +375,83 @@ const plantDetailStyles = `
         padding: 1rem 0 2rem;
     }
 
+    .plant-story-page .plant-detail-intelligence-intro {
+        max-width: 44rem;
+        margin: 0.2rem 0 0;
+    }
+
+    .plant-story-page .plant-detail-intelligence-list {
+        display: grid;
+        gap: 0.8rem;
+        margin-top: 0.85rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-card {
+        border-left: 3px solid rgba(82, 112, 71, 0.34);
+    }
+
+    .plant-story-page .plant-detail-intelligence-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
+        margin-bottom: 0.35rem;
+        color: #687364;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-intelligence-card h3 {
+        margin: 0.15rem 0 0.4rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-details {
+        margin-top: 0.75rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid rgba(66, 91, 57, 0.12);
+    }
+
+    .plant-story-page .plant-detail-intelligence-details summary {
+        color: #52634b;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .plant-story-page .plant-detail-intelligence-evidence {
+        margin: 0.65rem 0 0;
+        padding-left: 1.1rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-evidence li + li {
+        margin-top: 0.4rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-evidence .text-button {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+        white-space: normal;
+        font: inherit;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-intelligence-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem 0.9rem;
+        margin-top: 0.75rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-actions .text-button {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 0.2rem 0;
+        white-space: normal;
+    }
+
     @media (max-width: 560px) {
         .plant-story-page .plant-detail-compact-card {
             padding: 0.8rem 0.85rem;
@@ -623,6 +747,7 @@ function createSafeFileName(value: string): string {
 
 export default function PlantDetail({
     plant,
+    gardenData,
     plants,
     growingPlaces,
     growingSetups,
@@ -652,6 +777,20 @@ export default function PlantDetail({
 }: PlantDetailProps) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isVariationOpen, setIsVariationOpen] = useState(false);
+
+    const sprigInsightResult = useMemo(
+        () => buildSprigInsights(gardenData),
+        [gardenData],
+    );
+
+    const plantInsights = useMemo(
+        () => getSprigInsightsForPlant(
+            sprigInsightResult,
+            plant.id,
+            3,
+        ),
+        [sprigInsightResult, plant.id],
+    );
 
     function handleVariationCreated(newPlant: PlantStory) {
         onAddPlant(newPlant);
@@ -1165,6 +1304,117 @@ export default function PlantDetail({
                 event.type === 'sprouted'
             ),
     );
+
+
+
+        /* SPRIG INTELLIGENCE ACTIONS */
+
+        function handleSprigInsightAction(
+            action: SprigInsightAction,
+        ) {
+            switch (action.type) {
+                case 'open-plant':
+                    if (action.plantStoryId) {
+                        onOpenPlant(action.plantStoryId);
+                    }
+                    return;
+    
+                case 'compare-plants':
+                    if (
+                        action.plantStoryIds &&
+                        action.plantStoryIds.length >= 2
+                    ) {
+                        onComparePlants(action.plantStoryIds);
+                    }
+                    return;
+    
+                case 'open-trial':
+                    onNavigate('garden-trials');
+                    return;
+    
+                case 'open-gallery':
+                    onNavigate('garden-gallery');
+                    return;
+    
+                case 'open-calendar':
+                    onNavigate('calendar');
+                    return;
+    
+                case 'open-harvests':
+                    onNavigate('harvest');
+                    return;
+    
+                case 'open-journal':
+                    onNavigate('journal');
+                    return;
+    
+                case 'none':
+                default:
+                    return;
+            }
+        }
+    
+        function canOpenSprigEvidence(
+            recordType: string,
+            recordId: string,
+        ): boolean {
+            if (recordType === 'plant-story') {
+                return recordId !== plant.id;
+            }
+    
+            return (
+                recordType === 'garden-event' ||
+                recordType === 'harvest' ||
+                recordType === 'growing-place'
+            );
+        }
+    
+        function openSprigEvidence(
+            recordType: string,
+            recordId: string,
+        ) {
+            switch (recordType) {
+                case 'plant-story':
+                    if (recordId !== plant.id) {
+                        onOpenPlant(recordId);
+                    }
+                    return;
+    
+                case 'garden-event':
+                    onOpenJournalEntry(recordId);
+                    return;
+    
+                case 'harvest':
+                    onOpenHarvest(recordId);
+                    return;
+    
+                case 'growing-place':
+                    onOpenGrowingPlace(recordId);
+                    return;
+    
+                default:
+                    return;
+            }
+        }
+    
+        function isUsefulSprigInsightAction(
+            action: SprigInsightAction,
+        ): boolean {
+            if (action.type === 'none') {
+                return false;
+            }
+    
+            if (
+                action.type === 'open-plant' &&
+                action.plantStoryId === plant.id
+            ) {
+                return false;
+            }
+    
+            return true;
+        }
+
+        
 
     /* STORY ACTIONS */
 
@@ -2196,6 +2446,154 @@ export default function PlantDetail({
                           </button>
                       )}
                   </section>
+
+                                    {/* SPRIG INTELLIGENCE */}
+
+                  {plantInsights.length > 0 && (
+                      <section className="story-section">
+                          <div className="section-heading">
+                              <div>
+                                  <p className="section-label">
+                                      From Sprig
+                                  </p>
+
+                                  <h2>
+                                      Sprig noticed something in this story
+                                  </h2>
+
+                                  <p className="form-whisper plant-detail-intelligence-intro">
+                                      These observations come from the same
+                                      shared Sprig Intelligence used across
+                                      the garden. They may change as this
+                                      story gains new evidence.
+                                  </p>
+                              </div>
+
+                              <button
+                                  type="button"
+                                  className="text-button"
+                                  onClick={() =>
+                                      onNavigate('sprig-smart')
+                                  }
+                              >
+                                  Sprig Smart →
+                              </button>
+                          </div>
+
+                          <div className="plant-detail-intelligence-list">
+                              {plantInsights.map(insight => {
+                                  const usefulActions = (
+                                      insight.actions ?? []
+                                  ).filter(
+                                      isUsefulSprigInsightAction,
+                                  );
+
+                                  return (
+                                      <article
+                                          key={insight.id}
+                                          className="story-info-card plant-detail-compact-card plant-detail-intelligence-card"
+                                      >
+                                          <div className="plant-detail-intelligence-meta">
+                                              <span>
+                                                  {getSprigInsightFamilyLabel(
+                                                      insight.family,
+                                                  )}
+                                              </span>
+
+                                              <span>
+                                                  {getSprigInsightStrengthLabel(
+                                                      insight.strength,
+                                                  )}
+                                              </span>
+                                          </div>
+
+                                          <h3>{insight.title}</h3>
+
+                                          <p>{insight.message}</p>
+
+                                          <details className="plant-detail-intelligence-details">
+                                              <summary>
+                                                  Why Sprig noticed this
+                                              </summary>
+
+                                              <p>
+                                                  {insight.reasoning}
+                                              </p>
+
+                                              {insight.evidence.length > 0 && (
+                                                  <ul className="plant-detail-intelligence-evidence">
+                                                      {insight.evidence.map(
+                                                          (
+                                                              evidence,
+                                                              index,
+                                                          ) => (
+                                                              <li
+                                                                  key={`${insight.id}-evidence-${evidence.recordType}-${evidence.recordId}-${index}`}
+                                                              >
+                                                                  {canOpenSprigEvidence(
+                                                                      evidence.recordType,
+                                                                      evidence.recordId,
+                                                                  ) ? (
+                                                                      <button
+                                                                          type="button"
+                                                                          className="text-button"
+                                                                          onClick={() =>
+                                                                              openSprigEvidence(
+                                                                                  evidence.recordType,
+                                                                                  evidence.recordId,
+                                                                              )
+                                                                          }
+                                                                      >
+                                                                          {evidence.label} →
+                                                                      </button>
+                                                                  ) : (
+                                                                      <strong>
+                                                                          {evidence.label}
+                                                                      </strong>
+                                                                  )}
+
+                                                                  {evidence.detail && (
+                                                                      <>
+                                                                          {' · '}
+                                                                          {evidence.detail}
+                                                                      </>
+                                                                  )}
+                                                              </li>
+                                                          ),
+                                                      )}
+                                                  </ul>
+                                              )}
+                                          </details>
+
+                                          {usefulActions.length > 0 && (
+                                              <div className="plant-detail-intelligence-actions">
+                                                  {usefulActions.map(
+                                                      (
+                                                          action,
+                                                          index,
+                                                      ) => (
+                                                          <button
+                                                              key={`${insight.id}-action-${action.type}-${index}`}
+                                                              type="button"
+                                                              className="text-button"
+                                                              onClick={() =>
+                                                                  handleSprigInsightAction(
+                                                                      action,
+                                                                  )
+                                                              }
+                                                          >
+                                                              {action.label} →
+                                                          </button>
+                                                      ),
+                                                  )}
+                                              </div>
+                                          )}
+                                      </article>
+                                  );
+                              })}
+                          </div>
+                      </section>
+                  )}
 
                   {/* OPTIONAL SPRIG SUGGESTIONS */}
 

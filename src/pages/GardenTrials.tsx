@@ -17,6 +17,7 @@ import type {
     GardenTrialTimingUnit,
     KnowledgeRelationship,
     KnowledgeRelationshipTargetType,
+    SprigPhotoMetadata,
 } from '../types';
 
 import type {
@@ -77,6 +78,9 @@ interface TrialDraft {
 
     photoUrls: string[];
     photoDates: Array<string | undefined>;
+    photoMetadata: Array<
+        SprigPhotoMetadata | undefined
+    >;
 }
 
 interface EvidencePhoto {
@@ -489,6 +493,7 @@ function makeEmptyDraft(): TrialDraft {
 
         photoUrls: [],
         photoDates: [],
+        photoMetadata: [],
     };
 }
 
@@ -569,7 +574,7 @@ function makeDraftFromTrial(
             trial.photoUrls ??
             [],
 
-        photoDates:
+            photoDates:
             (
                 trial.photoUrls ??
                 []
@@ -578,7 +583,24 @@ function makeDraftFromTrial(
                     _photoUrl,
                     index,
                 ) =>
+                    trial.photoMetadata?.[
+                        index
+                    ]?.photoDate ??
                     trial.photoDates?.[
+                        index
+                    ],
+            ),
+
+        photoMetadata:
+            (
+                trial.photoUrls ??
+                []
+            ).map(
+                (
+                    _photoUrl,
+                    index,
+                ) =>
+                    trial.photoMetadata?.[
                         index
                     ],
             ),
@@ -2266,6 +2288,22 @@ function TrialEditor({
                                 }),
                             )
                     }
+                    photoMetadata={
+                        draft.photoMetadata
+                    }
+                
+                    onPhotoMetadataChange={
+                        photoMetadata =>
+                            setDraft(
+                                current => ({
+                                    ...current,
+                                    photoMetadata,
+                                }),
+                            )
+                    }
+                
+                    showPhotoContext
+                    
                     photoDates={
                         draft.photoDates
                     }
@@ -3133,21 +3171,34 @@ export default function GardenTrials({
             [],
         );
 
-    const [
-        observationPhotoDates,
-        setObservationPhotoDates,
-    ] =
-        useState<
-            Array<
-                string |
-                undefined
-            >
-        >(
-            [],
-        );
-
-    const [
-        editingObservationId,
+        const [
+            observationPhotoDates,
+            setObservationPhotoDates,
+        ] =
+            useState<
+                Array<
+                    string |
+                    undefined
+                >
+            >(
+                [],
+            );
+    
+        const [
+            observationPhotoMetadata,
+            setObservationPhotoMetadata,
+        ] =
+            useState<
+                Array<
+                    SprigPhotoMetadata |
+                    undefined
+                >
+            >(
+                [],
+            );
+    
+        const [
+            editingObservationId,
         setEditingObservationId,
     ] =
         useState<
@@ -3420,21 +3471,35 @@ export default function GardenTrials({
                     ? draft.photoUrls
                     : undefined,
 
-            photoDates:
-                draft.photoUrls.length >
-                0
-                    ? draft.photoUrls.map(
-                          (
-                              _photoUrl,
-                              index,
-                          ) =>
-                              draft.photoDates[
-                                  index
-                              ],
-                      )
-                    : undefined,
-
-            observations:
+                    photoDates:
+                    draft.photoUrls.length >
+                    0
+                        ? draft.photoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  draft.photoDates[
+                                      index
+                                  ],
+                          )
+                        : undefined,
+                
+                photoMetadata:
+                    draft.photoUrls.length >
+                    0
+                        ? draft.photoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  draft.photoMetadata[
+                                      index
+                                  ],
+                          )
+                        : undefined,
+                
+                observations:
                 existing?.observations ??
                 [],
 
@@ -3783,6 +3848,10 @@ export default function GardenTrials({
         setObservationPhotoDates(
             [],
         );
+
+        setObservationPhotoMetadata(
+            [],
+        );
     }
 
     function handleAddObservation() {
@@ -3812,22 +3881,39 @@ export default function GardenTrials({
                         ? observationPhotoUrls
                         : undefined,
 
-                photoDates:
-                    observationPhotoUrls.length >
-                    0
-                        ? observationPhotoUrls.map(
-                              (
-                                  _photoUrl,
-                                  index,
-                              ) =>
-                                  observationPhotoDates[
-                                      index
-                                  ],
-                          )
-                        : undefined,
-
-                createdAt:
-                    getNow(),
+                        photoDates:
+                        observationPhotoUrls.length >
+                        0
+                            ? observationPhotoUrls.map(
+                                  (
+                                      _photoUrl,
+                                      index,
+                                  ) =>
+                                      observationPhotoMetadata[
+                                          index
+                                      ]?.photoDate ??
+                                      observationPhotoDates[
+                                          index
+                                      ],
+                              )
+                            : undefined,
+    
+                    photoMetadata:
+                        observationPhotoUrls.length >
+                        0
+                            ? observationPhotoUrls.map(
+                                  (
+                                      _photoUrl,
+                                      index,
+                                  ) =>
+                                      observationPhotoMetadata[
+                                          index
+                                      ],
+                              )
+                            : undefined,
+    
+                    createdAt:
+                        getNow(),
             };
 
         saveTrial({
@@ -4996,6 +5082,13 @@ export default function GardenTrials({
                                         onPhotoDatesChange={
                                             setObservationPhotoDates
                                         }
+                                        photoMetadata={
+                                            observationPhotoMetadata
+                                        }
+                                        onPhotoMetadataChange={
+                                            setObservationPhotoMetadata
+                                        }
+                                        showPhotoContext
                                         title="Photographs for this observation"
                                         helperText="Optional. Add visual evidence that belongs specifically with this Trial observation."
                                         addButtonText="Add observation photographs"

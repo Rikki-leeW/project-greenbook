@@ -966,26 +966,37 @@ export default function Gate({
               aria-labelledby="sprig-notices-title"
             >
               <div className="sprig-today-section-heading">
-                <div>
-                  <p className="sprig-today-kicker">
-                    From Sprig
-                  </p>
+  <div>
+    <p className="sprig-today-kicker">
+      From Sprig
+    </p>
 
-                  <h2 id="sprig-notices-title">
-  {
-    todayInsights.length ===
-    1
-      ? 'Something caught my eye.'
-      : todayInsights.length >
-          1
-        ? 'A few things caught my eye.'
-        : 'I’m getting to know this garden.'
-  }
-</h2>
-                </div>
+    <h2 id="sprig-notices-title">
+      {
+        todayInsights.length ===
+        1
+          ? 'Something caught my eye.'
+          : todayInsights.length >
+              1
+            ? 'A few things caught my eye.'
+            : 'I’m getting to know this garden.'
+      }
+    </h2>
+  </div>
 
-             
-              </div>
+  <button
+    type="button"
+    className="sprig-today-text-button"
+    onClick={
+      () =>
+        onNavigate(
+          'sprig-smart',
+        )
+    }
+  >
+    Sprig Smart
+  </button>
+</div>
 
 
               {

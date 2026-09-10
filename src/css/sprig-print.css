@@ -1,0 +1,81 @@
+/* =======================================
+   SPRIG GLOBAL PRINT FOUNDATION
+======================================= */
+
+/*
+ * This stylesheet owns Sprig-wide print
+ * behaviour.
+ *
+ * Feature stylesheets may control how
+ * their own reports look, but they must
+ * not globally hide or reshape unrelated
+ * Sprig pages.
+ *
+ * Architecture:
+ *
+ *   sprig-print.css
+ *     Global print behaviour and shared
+ *     print foundations.
+ *
+ *   Feature CSS
+ *     The appearance of that feature's
+ *     own printed content.
+ *
+ * This prevents one report type from
+ * accidentally affecting another.
+ */
+
+
+/* =======================================
+   PRINT TARGETS
+======================================= */
+
+/*
+ * Some Sprig exports use a dedicated
+ * print-only report in the existing DOM.
+ *
+ * When one of those reports is present,
+ * Sprig isolates that report for printing.
+ *
+ * Ordinary printable pages, including
+ * Sprig Smart, do not use these selectors
+ * and therefore remain untouched.
+ */
+
+ @media print {
+
+    /* =====================================
+       COMPARISON REPORT
+    ===================================== */
+  
+    body:has(.sprig-comparison-report) * {
+      visibility:
+        hidden;
+    }
+  
+    body:has(.sprig-comparison-report)
+    .sprig-comparison-report,
+    body:has(.sprig-comparison-report)
+    .sprig-comparison-report * {
+      visibility:
+        visible;
+    }
+  
+  
+    /* =====================================
+       GARDEN TRIAL REPORT
+    ===================================== */
+  
+    body:has(.sprig-trial-print-report) * {
+      visibility:
+        hidden !important;
+    }
+  
+    body:has(.sprig-trial-print-report)
+    .sprig-trial-print-report,
+    body:has(.sprig-trial-print-report)
+    .sprig-trial-print-report * {
+      visibility:
+        visible !important;
+    }
+  }

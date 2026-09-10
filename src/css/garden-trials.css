@@ -571,15 +571,6 @@
       margin: 15mm;
     }
   
-    body * {
-      visibility: hidden !important;
-    }
-  
-    .sprig-trial-print-report,
-    .sprig-trial-print-report * {
-      visibility: visible !important;
-    }
-  
     .sprig-trial-print-report {
       display: block !important;
       position: absolute;

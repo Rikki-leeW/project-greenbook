@@ -824,6 +824,7 @@ export default function AppLibrary({
               ...component,
             })),
         photoUrls: [],
+        photoMetadata: [],
         createdAt,
         updatedAt: undefined,
       };
@@ -876,6 +877,7 @@ export default function AppLibrary({
           sourceIngredient.source,
         notes: undefined,
         photoUrls: [],
+        photoMetadata: [],
         isFavourite: false,
         rating: undefined,
         isArchived: false,
@@ -994,6 +996,7 @@ export default function AppLibrary({
         isArchived: false,
         archivedAt: undefined,
         photoUrls: [],
+        photoMetadata: [],
         createdAt: today,
         updatedAt: undefined,
       };
@@ -1463,6 +1466,7 @@ export default function AppLibrary({
         onBack={() =>
           onNavigate(
             'growing-places',
+            'ingredients',
           )
         }
         onEdit={() =>
@@ -1614,6 +1618,13 @@ export default function AppLibrary({
         onBack={() =>
           onNavigate(
             'growing-places',
+            selectedRecipe.category === 'own-mix'
+              ? 'growing-own-mix'
+              : selectedRecipe.category === 'bought-mix'
+                ? 'growing-bought-mix'
+                : selectedRecipe.category === 'growing-system'
+                  ? 'growing-system'
+                  : 'growing-ground-type',
           )
         }
         onEdit={() =>
@@ -1825,6 +1836,7 @@ export default function AppLibrary({
         onBack={() =>
           onNavigate(
             'growing-places',
+            'products',
           )
         }
         onEdit={() =>

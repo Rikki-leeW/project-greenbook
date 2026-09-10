@@ -81,6 +81,8 @@ import {
       gardenData: GardenData,
     ) => void
   
+    onBack: () => void
+  
     onNavigate: (
       page: AppPage,
     ) => void
@@ -1783,6 +1785,7 @@ import {
   export default function GardenGallery({
     gardenData,
     onGardenDataChange,
+    onBack,
     onNavigate,
     onOpenRelationship,
   }: GardenGalleryProps) {
@@ -2695,8 +2698,23 @@ import {
           onNavigate
         }
       >
-        <main className="sprig-gallery-page">
-          <section className="sprig-gallery-header">
+     <main className="sprig-gallery-page">
+  <nav
+    className="sprig-gallery-journey-nav"
+    aria-label="Garden Gallery navigation"
+  >
+    <button
+      type="button"
+      className="sprig-gallery-secondary-button sprig-gallery-back-button"
+      onClick={
+        onBack
+      }
+    >
+      ← Back
+    </button>
+  </nav>
+
+  <section className="sprig-gallery-header">
             <div>
               <p className="section-label">
                 Photographs

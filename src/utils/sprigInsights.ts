@@ -3298,6 +3298,1551 @@ import type {
     }
   }
   
+
+
+  /* =======================================
+   SPRIG SMART EDITORIAL JUDGEMENT
+======================================= */
+
+/*
+ * Sprig Intelligence may derive many valid
+ * observations.
+ *
+ * Sprig Smart is a broader window than Today,
+ * but it is still editorial.
+ *
+ * The page should surface a useful handful,
+ * not dump every calculation Sprig can make.
+ *
+ * Key principles:
+ *
+ * 1. Garden maths remains underneath unless it
+ *    has become relevant through another family.
+ * 2. Early garden memory is allowed through,
+ *    even when evidence strength is still
+ *    individual.
+ * 3. Repeated "first baseline" milestones do not
+ *    take over the page.
+ * 4. Similar observations about the same plant
+ *    are discouraged.
+ * 5. Comparison, timing, trials and photographs
+ *    can all contribute when genuinely useful.
+ * 6. Sprig Smart does not fill space merely to
+ *    reach a target number.
+ */
+
+
+function getSprigSmartStrengthRank(
+  strength:
+    SprigEvidenceStrength,
+): number {
+  switch (
+    strength
+  ) {
+    case 'repeated':
+      return 4
+
+    case 'emerging':
+      return 3
+
+    case 'worth-watching':
+      return 2
+
+    case 'individual':
+    default:
+      return 1
+  }
+}
+
+
+function getSprigSmartTheme(
+  insight:
+    SprigInsight,
+):
+  | 'current-timing'
+  | 'garden-memory'
+  | 'comparison'
+  | 'photographs'
+  | 'trial'
+  | 'quiet-story'
+  | 'other' {
+  switch (
+    insight.family
+  ) {
+    case 'happening-now':
+      return 'current-timing'
+
+    case 'worth-watching':
+      return insight.id.startsWith(
+        'quiet-story-',
+      )
+        ? 'quiet-story'
+        : 'current-timing'
+
+    case 'from-your-garden':
+    case 'milestone':
+      return 'garden-memory'
+
+    case 'comparison':
+      return 'comparison'
+
+    case 'photographs':
+      return 'photographs'
+
+    case 'trial':
+      return 'trial'
+
+    default:
+      return 'other'
+  }
+}
+
+
+function isUsefulSprigSmartCandidate(
+  insight:
+    SprigInsight,
+): boolean {
+  switch (
+    insight.family
+  ) {
+    case 'garden-maths':
+      return false
+
+    case 'happening-now':
+      return (
+        insight.priority >=
+        60
+      )
+
+    case 'worth-watching':
+      return (
+        insight.priority >=
+        60
+      )
+
+    case 'comparison':
+      return (
+        insight.priority >=
+        50
+      )
+
+    case 'from-your-garden':
+      return (
+        insight.priority >=
+          50 ||
+        getSprigSmartStrengthRank(
+          insight.strength,
+        ) >=
+          2
+      )
+
+    case 'milestone':
+      /*
+       * Early gardens genuinely benefit from
+       * seeing that Sprig has begun to establish
+       * personal history.
+       *
+       * These can therefore appear at individual
+       * evidence strength, but later selection
+       * rules stop them stacking endlessly.
+       */
+      return (
+        insight.priority >=
+        40
+      )
+
+    case 'photographs':
+      return (
+        insight.priority >=
+          50 ||
+        insight.evidence.length >=
+          2
+      )
+
+    case 'trial':
+      return (
+        insight.priority >=
+          55 ||
+        getSprigSmartStrengthRank(
+          insight.strength,
+        ) >=
+          2
+      )
+
+    default:
+      return false
+  }
+}
+
+
+function sprigSmartInsightsSharePlants(
+  left:
+    SprigInsight,
+
+  right:
+    SprigInsight,
+): boolean {
+  const leftIds =
+    left.plantStoryIds ??
+    []
+
+  const rightIds =
+    right.plantStoryIds ??
+    []
+
+  if (
+    leftIds.length ===
+      0 ||
+    rightIds.length ===
+      0
+  ) {
+    return false
+  }
+
+  return leftIds.some(
+    plantId =>
+      rightIds.includes(
+        plantId,
+      ),
+  )
+}
+
+
+function compareSprigSmartInsights(
+  left:
+    SprigInsight,
+
+  right:
+    SprigInsight,
+): number {
+  /*
+   * Priority is the first editorial signal.
+   *
+   * Evidence strength then separates observations
+   * with similar relevance.
+   */
+
+  const priorityDifference =
+    right.priority -
+    left.priority
+
+  if (
+    priorityDifference !==
+    0
+  ) {
+    return priorityDifference
+  }
+
+  const strengthDifference =
+    getSprigSmartStrengthRank(
+      right.strength,
+    ) -
+    getSprigSmartStrengthRank(
+      left.strength,
+    )
+
+  if (
+    strengthDifference !==
+    0
+  ) {
+    return strengthDifference
+  }
+
+  return (
+    right.evidence.length -
+    left.evidence.length
+  )
+}
+
+
+/* =======================================
+   SPRIG SMART SELECTION
+======================================= */
+
+/*
+ * This is deliberately separate from Today.
+ *
+ * Today asks:
+ * "What deserves attention right now?"
+ *
+ * Sprig Smart asks:
+ * "What useful things has the garden begun
+ *  to teach Sprig?"
+ *
+ * Same Intelligence.
+ * Different editorial window.
+ */
+
+export function getSprigSmartInsights(
+  result:
+    SprigInsightResult,
+
+  limit:
+    number =
+    7,
+):
+  SprigInsight[] {
+  const maximum =
+    Math.max(
+      0,
+      Math.min(
+        limit,
+        9,
+      ),
+    )
+
+  if (
+    maximum ===
+    0
+  ) {
+    return []
+  }
+
+  const candidates =
+    result
+      .insights
+      .filter(
+        isUsefulSprigSmartCandidate,
+      )
+      .sort(
+        compareSprigSmartInsights,
+      )
+
+  const selected:
+    SprigInsight[] =
+    []
+
+  const themeCounts =
+    new Map<
+      ReturnType<
+        typeof getSprigSmartTheme
+      >,
+      number
+    >()
+
+  let milestoneCount =
+    0
+
+
+  for (
+    const insight of
+    candidates
+  ) {
+    if (
+      selected.length >=
+      maximum
+    ) {
+      break
+    }
+
+    const theme =
+      getSprigSmartTheme(
+        insight,
+      )
+
+    const themeCount =
+      themeCounts.get(
+        theme,
+      ) ??
+      0
+
+
+    /*
+     * Garden-memory is valuable, but it is the
+     * family most likely to become repetitive
+     * while Sprig is young.
+     *
+     * Example:
+     * "first baseline for Royal Blue"
+     * "first baseline for Sebago"
+     * "first baseline for Ox Heart"
+     *
+     * Allow two garden-memory items in Sprig
+     * Smart, but no more.
+     */
+
+    if (
+      theme ===
+        'garden-memory' &&
+      themeCount >=
+        2
+    ) {
+      continue
+    }
+
+
+    /*
+     * Within garden-memory, only one plain
+     * milestone is normally needed.
+     *
+     * A stronger "from your garden" history can
+     * still sit beside it.
+     */
+
+    if (
+      insight.family ===
+        'milestone'
+    ) {
+      if (
+        milestoneCount >=
+        1
+      ) {
+        continue
+      }
+    }
+
+
+    /*
+     * Current-timing can occasionally contain
+     * more than one genuinely useful item, but
+     * we still stop it becoming a wall.
+     */
+
+    if (
+      theme ===
+        'current-timing' &&
+      themeCount >=
+        2
+    ) {
+      continue
+    }
+
+
+    /*
+     * Comparison, photographs and trials each
+     * get one normal place on the page.
+     */
+
+    if (
+      (
+        theme ===
+          'comparison' ||
+        theme ===
+          'photographs' ||
+        theme ===
+          'trial'
+      ) &&
+      themeCount >=
+        1
+    ) {
+      continue
+    }
+
+
+    /*
+     * Avoid another lower-value observation about
+     * a Plant Story already represented.
+     *
+     * Exception:
+     * very high-priority observations can still
+     * coexist if they are independently important.
+     */
+
+    const overlapping =
+      selected.find(
+        existing =>
+          sprigSmartInsightsSharePlants(
+            insight,
+            existing,
+          ),
+      )
+
+    if (
+      overlapping &&
+      insight.priority <
+        90
+    ) {
+      continue
+    }
+
+
+    selected.push(
+      insight,
+    )
+
+    themeCounts.set(
+      theme,
+      themeCount +
+      1,
+    )
+
+    if (
+      insight.family ===
+        'milestone'
+    ) {
+      milestoneCount +=
+        1
+    }
+  }
+
+
+  /*
+   * A young garden may still be sparse after the
+   * main editorial pass.
+   *
+   * If Sprig Smart has fewer than four useful
+   * observations, allow one additional early
+   * garden-memory item before accepting silence.
+   *
+   * We still do not introduce garden maths here.
+   */
+
+  if (
+    selected.length <
+    Math.min(
+      4,
+      maximum,
+    )
+  ) {
+    const extraGardenMemory =
+      candidates.find(
+        insight =>
+          (
+            insight.family ===
+              'milestone' ||
+            insight.family ===
+              'from-your-garden'
+          ) &&
+          !selected.some(
+            chosen =>
+              chosen.id ===
+              insight.id,
+          ),
+      )
+
+    if (
+      extraGardenMemory
+    ) {
+      selected.push(
+        extraGardenMemory,
+      )
+    }
+  }
+
+
+  return selected.slice(
+    0,
+    maximum,
+  )
+}
+
+
+/* =======================================
+PLANT STORY CONTEXT
+======================================= */
+
+/*
+ * Plant Detail is a contextual window into the
+ * same shared Sprig Intelligence system.
+ *
+ * It asks:
+ *
+ * "Is there anything Sprig has noticed that is
+ * specifically useful while I am looking at
+ * this Plant Story?"
+ *
+ * This is deliberately narrower than Sprig
+ * Smart.
+ *
+ * Rules:
+ *
+ * 1. The observation must actually belong to
+ *    this Plant Story through plantStoryIds or
+ *    explicit Plant Story evidence.
+ *
+ * 2. Raw garden maths stays underneath. Plant
+ *    Detail already knows which story it is
+ *    showing and does not need Sprig narrating
+ *    every available calculation.
+ *
+ * 3. Current timing and worth-watching
+ *    observations get first consideration.
+ *
+ * 4. A comparison involving this story can be
+ *    especially useful here because the
+ *    gardener is already looking at one side of
+ *    that comparison.
+ *
+ * 5. Photographic history can appear when it
+ *    has become genuinely useful.
+ *
+ * 6. Garden memory may appear when it is
+ *    specifically connected to this story.
+ *
+ * 7. Silence is legitimate. Plant Detail does
+ *    not need an Intelligence card merely to
+ *    fill space.
+ */
+
+
+type SprigPlantInsightTheme =
+  | 'attention'
+  | 'comparison'
+  | 'photographs'
+  | 'garden-memory'
+  | 'trial'
+  | 'other'
+
+
+function insightBelongsToPlant(
+  insight:
+    SprigInsight,
+
+  plantStoryId:
+    string,
+): boolean {
+  if (
+    insight.plantStoryIds?.includes(
+      plantStoryId,
+    )
+  ) {
+    return true
+  }
+
+  return insight.evidence.some(
+    evidence =>
+      evidence.recordType ===
+        'plant-story' &&
+      evidence.recordId ===
+        plantStoryId,
+  )
+}
+
+
+function getSprigPlantInsightTheme(
+  insight:
+    SprigInsight,
+): SprigPlantInsightTheme {
+  switch (
+    insight.family
+  ) {
+    case 'happening-now':
+    case 'worth-watching':
+      return 'attention'
+
+    case 'comparison':
+      return 'comparison'
+
+    case 'photographs':
+      return 'photographs'
+
+    case 'from-your-garden':
+    case 'milestone':
+      return 'garden-memory'
+
+    case 'trial':
+      return 'trial'
+
+    default:
+      return 'other'
+  }
+}
+
+
+function isUsefulPlantInsightCandidate(
+  insight:
+    SprigInsight,
+): boolean {
+  switch (
+    insight.family
+  ) {
+    case 'garden-maths':
+      return false
+
+    case 'happening-now':
+      return (
+        insight.priority >=
+        60
+      )
+
+    case 'worth-watching':
+      return (
+        insight.priority >=
+        60
+      )
+
+    case 'comparison':
+      return (
+        insight.priority >=
+        50
+      )
+
+    case 'photographs':
+      return (
+        insight.priority >=
+        50
+      )
+
+    case 'from-your-garden':
+      return (
+        insight.priority >=
+          50 ||
+        getSprigSmartStrengthRank(
+          insight.strength,
+        ) >=
+          2
+      )
+
+    case 'milestone':
+      return (
+        insight.priority >=
+        40
+      )
+
+    case 'trial':
+      return (
+        insight.priority >=
+          55 ||
+        getSprigSmartStrengthRank(
+          insight.strength,
+        ) >=
+          2
+      )
+
+    default:
+      return false
+  }
+}
+
+
+function comparePlantContextInsights(
+  left:
+    SprigInsight,
+
+  right:
+    SprigInsight,
+): number {
+  /*
+   * On Plant Detail, immediate attention is
+   * slightly more valuable than general garden
+   * memory, even if the broader observation has
+   * respectable evidence strength.
+   */
+
+  const getContextRank = (
+    insight:
+      SprigInsight,
+  ): number => {
+    switch (
+      insight.family
+    ) {
+      case 'happening-now':
+        return 6
+
+      case 'worth-watching':
+        return 5
+
+      case 'comparison':
+        return 4
+
+      case 'photographs':
+        return 3
+
+      case 'from-your-garden':
+        return 2
+
+      case 'milestone':
+        return 1
+
+      case 'trial':
+        return 1
+
+      default:
+        return 0
+    }
+  }
+
+
+  const contextDifference =
+    getContextRank(
+      right,
+    ) -
+    getContextRank(
+      left,
+    )
+
+  if (
+    contextDifference !==
+    0
+  ) {
+    return contextDifference
+  }
+
+
+  const priorityDifference =
+    right.priority -
+    left.priority
+
+  if (
+    priorityDifference !==
+    0
+  ) {
+    return priorityDifference
+  }
+
+
+  const strengthDifference =
+    getSprigSmartStrengthRank(
+      right.strength,
+    ) -
+    getSprigSmartStrengthRank(
+      left.strength,
+    )
+
+  if (
+    strengthDifference !==
+    0
+  ) {
+    return strengthDifference
+  }
+
+
+  return (
+    right.evidence.length -
+    left.evidence.length
+  )
+}
+
+
+/* =======================================
+PLANT STORY SELECTION
+======================================= */
+
+export function getSprigInsightsForPlant(
+  result:
+    SprigInsightResult,
+
+  plantStoryId:
+    string,
+
+  limit:
+    number =
+    3,
+): SprigInsight[] {
+  const cleanPlantStoryId =
+    plantStoryId.trim()
+
+  const maximum =
+    Math.max(
+      0,
+      Math.min(
+        limit,
+        3,
+      ),
+    )
+
+
+  if (
+    !cleanPlantStoryId ||
+    maximum ===
+      0
+  ) {
+    return []
+  }
+
+
+  const candidates =
+    result.insights
+      .filter(
+        insight =>
+          insightBelongsToPlant(
+            insight,
+            cleanPlantStoryId,
+          ),
+      )
+      .filter(
+        isUsefulPlantInsightCandidate,
+      )
+      .sort(
+        comparePlantContextInsights,
+      )
+
+
+  const selected:
+    SprigInsight[] =
+    []
+
+  const selectedThemes =
+    new Set<
+      SprigPlantInsightTheme
+    >()
+
+
+  for (
+    const insight of
+    candidates
+  ) {
+    if (
+      selected.length >=
+      maximum
+    ) {
+      break
+    }
+
+
+    const theme =
+      getSprigPlantInsightTheme(
+        insight,
+      )
+
+
+    /*
+     * One observation from each contextual
+     * theme is normally enough on Plant Detail.
+     *
+     * The exception is attention. Two genuinely
+     * important current observations may both
+     * matter, for example:
+     *
+     * - beyond expected harvest timing
+     * - later than this garden's own history
+     */
+
+    if (
+      selectedThemes.has(
+        theme,
+      )
+    ) {
+      if (
+        theme !==
+          'attention'
+      ) {
+        continue
+      }
+
+      const existingAttentionCount =
+        selected.filter(
+          existing =>
+            getSprigPlantInsightTheme(
+              existing,
+            ) ===
+            'attention',
+        ).length
+
+      if (
+        existingAttentionCount >=
+        2
+      ) {
+        continue
+      }
+
+      /*
+       * A second attention item must be strong
+       * enough to justify the extra interruption.
+       */
+
+      if (
+        insight.priority <
+        85
+      ) {
+        continue
+      }
+    }
+
+
+    selected.push(
+      insight,
+    )
+
+    selectedThemes.add(
+      theme,
+    )
+  }
+
+
+  return selected
+}
+
+
+/* =======================================
+   PLANT COMPARISON CONTEXT
+======================================= */
+
+/*
+ * Compare Plants is another contextual window
+ * into the same shared Sprig Intelligence.
+ *
+ * It asks:
+ *
+ * "Has Sprig already noticed anything that is
+ * useful specifically because these Plant
+ * Stories are being looked at together?"
+ *
+ * This selector does not calculate a second
+ * comparison system.
+ *
+ * The comparison tables remain the gardener's
+ * direct evidence-exploration tools. This
+ * selector only chooses relevant observations
+ * that the shared Intelligence engine has
+ * already derived.
+ *
+ * Rules:
+ *
+ * 1. An observation must connect to the selected
+ *    Plant Stories through explicit Plant Story
+ *    relationships or evidence.
+ *
+ * 2. Comparison observations are strongest when
+ *    they involve at least two of the stories
+ *    currently on the comparison page.
+ *
+ * 3. A single-story observation may appear only
+ *    when it adds genuinely useful context to the
+ *    comparison, such as unusual timing against
+ *    this garden's history.
+ *
+ * 4. Raw garden maths stays underneath. The
+ *    comparison tables already expose direct
+ *    calculations.
+ *
+ * 5. Plain milestones do not belong here merely
+ *    because one of the selected stories has a
+ *    remembered history.
+ *
+ * 6. Photographic observations may appear when
+ *    they help explain why visual comparison is
+ *    useful.
+ *
+ * 7. Silence is legitimate. Compare Plants does
+ *    not need an Intelligence observation simply
+ *    because several stories are on screen.
+ */
+
+
+type SprigComparisonInsightTheme =
+  | 'direct-comparison'
+  | 'timing'
+  | 'photographs'
+  | 'garden-history'
+  | 'trial'
+  | 'other'
+
+
+function getInsightPlantStoryIds(
+  insight:
+    SprigInsight,
+): string[] {
+  const ids =
+    new Set<string>(
+      insight.plantStoryIds ??
+      [],
+    )
+
+  insight.evidence.forEach(
+    evidence => {
+      if (
+        evidence.recordType ===
+        'plant-story'
+      ) {
+        ids.add(
+          evidence.recordId,
+        )
+      }
+    },
+  )
+
+  return Array.from(
+    ids,
+  )
+}
+
+
+function getSelectedComparisonPlantIds(
+  insight:
+    SprigInsight,
+
+  selectedPlantStoryIds:
+    Set<string>,
+): string[] {
+  return getInsightPlantStoryIds(
+    insight,
+  ).filter(
+    plantStoryId =>
+      selectedPlantStoryIds.has(
+        plantStoryId,
+      ),
+  )
+}
+
+
+function getSprigComparisonInsightTheme(
+  insight:
+    SprigInsight,
+): SprigComparisonInsightTheme {
+  switch (
+    insight.family
+  ) {
+    case 'comparison':
+      return 'direct-comparison'
+
+    case 'happening-now':
+    case 'worth-watching':
+      return 'timing'
+
+    case 'photographs':
+      return 'photographs'
+
+    case 'from-your-garden':
+      return 'garden-history'
+
+    case 'trial':
+      return 'trial'
+
+    default:
+      return 'other'
+  }
+}
+
+
+function isUsefulComparisonInsightCandidate(
+  insight:
+    SprigInsight,
+
+  selectedPlantStoryIds:
+    Set<string>,
+): boolean {
+  const matchingPlantIds =
+    getSelectedComparisonPlantIds(
+      insight,
+      selectedPlantStoryIds,
+    )
+
+
+  if (
+    matchingPlantIds.length ===
+    0
+  ) {
+    return false
+  }
+
+
+  switch (
+    insight.family
+  ) {
+    case 'garden-maths':
+      return false
+
+
+    case 'milestone':
+      /*
+       * "This is Sprig's first Royal Blue story"
+       * can be useful on Plant Detail, but it does
+       * not become comparison insight merely
+       * because Royal Blue is one selected column.
+       */
+      return false
+
+
+    case 'comparison':
+      /*
+       * A direct comparison observation belongs
+       * here only when at least two of the Plant
+       * Stories it refers to are actually selected.
+       */
+      return (
+        matchingPlantIds.length >=
+          2 &&
+        insight.priority >=
+          50
+      )
+
+
+    case 'happening-now':
+      return (
+        insight.priority >=
+        70
+      )
+
+
+    case 'worth-watching':
+      /*
+       * Quiet-story reminders are useful on Today
+       * or Plant Detail, but do not help explain a
+       * comparison.
+       */
+      if (
+        insight.id.startsWith(
+          'quiet-story-',
+        )
+      ) {
+        return false
+      }
+
+      return (
+        insight.priority >=
+        70
+      )
+
+
+    case 'photographs':
+      return (
+        insight.priority >=
+        50
+      )
+
+
+    case 'from-your-garden':
+      return (
+        insight.priority >=
+          55 &&
+        getSprigSmartStrengthRank(
+          insight.strength,
+        ) >=
+          2
+      )
+
+
+    case 'trial':
+      return (
+        matchingPlantIds.length >=
+          2 &&
+        (
+          insight.priority >=
+            55 ||
+          getSprigSmartStrengthRank(
+            insight.strength,
+          ) >=
+            2
+        )
+      )
+
+
+    default:
+      return false
+  }
+}
+
+
+function compareComparisonContextInsights(
+  left:
+    SprigInsight,
+
+  right:
+    SprigInsight,
+
+  selectedPlantStoryIds:
+    Set<string>,
+): number {
+  const getContextRank = (
+    insight:
+      SprigInsight,
+  ): number => {
+    switch (
+      insight.family
+    ) {
+      case 'comparison':
+        return 6
+
+      case 'worth-watching':
+        return 5
+
+      case 'happening-now':
+        return 4
+
+      case 'from-your-garden':
+        return 3
+
+      case 'photographs':
+        return 2
+
+      case 'trial':
+        return 1
+
+      default:
+        return 0
+    }
+  }
+
+
+  /*
+   * Prefer observations that genuinely connect
+   * more of the stories currently being compared.
+   */
+
+  const leftCoverage =
+    getSelectedComparisonPlantIds(
+      left,
+      selectedPlantStoryIds,
+    ).length
+
+  const rightCoverage =
+    getSelectedComparisonPlantIds(
+      right,
+      selectedPlantStoryIds,
+    ).length
+
+
+  const coverageDifference =
+    rightCoverage -
+    leftCoverage
+
+  if (
+    coverageDifference !==
+    0
+  ) {
+    return coverageDifference
+  }
+
+
+  const contextDifference =
+    getContextRank(
+      right,
+    ) -
+    getContextRank(
+      left,
+    )
+
+  if (
+    contextDifference !==
+    0
+  ) {
+    return contextDifference
+  }
+
+
+  const priorityDifference =
+    right.priority -
+    left.priority
+
+  if (
+    priorityDifference !==
+    0
+  ) {
+    return priorityDifference
+  }
+
+
+  const strengthDifference =
+    getSprigSmartStrengthRank(
+      right.strength,
+    ) -
+    getSprigSmartStrengthRank(
+      left.strength,
+    )
+
+  if (
+    strengthDifference !==
+    0
+  ) {
+    return strengthDifference
+  }
+
+
+  return (
+    right.evidence.length -
+    left.evidence.length
+  )
+}
+
+
+/* =======================================
+   PLANT COMPARISON SELECTION
+======================================= */
+
+export function getSprigInsightsForComparison(
+  result:
+    SprigInsightResult,
+
+  plantStoryIds:
+    string[],
+
+  limit:
+    number =
+    3,
+): SprigInsight[] {
+  const selectedPlantStoryIds =
+    new Set(
+      plantStoryIds
+        .map(
+          plantStoryId =>
+            plantStoryId.trim(),
+        )
+        .filter(
+          Boolean,
+        ),
+    )
+
+
+  const maximum =
+    Math.max(
+      0,
+      Math.min(
+        limit,
+        3,
+      ),
+    )
+
+
+  if (
+    selectedPlantStoryIds.size <
+      2 ||
+    maximum ===
+      0
+  ) {
+    return []
+  }
+
+
+  const candidates =
+    result.insights
+      .filter(
+        insight =>
+          isUsefulComparisonInsightCandidate(
+            insight,
+            selectedPlantStoryIds,
+          ),
+      )
+      .sort(
+        (
+          left,
+          right,
+        ) =>
+          compareComparisonContextInsights(
+            left,
+            right,
+            selectedPlantStoryIds,
+          ),
+      )
+
+
+  const selected:
+    SprigInsight[] =
+    []
+
+  const selectedThemes =
+    new Set<
+      SprigComparisonInsightTheme
+    >()
+
+
+  for (
+    const insight of
+    candidates
+  ) {
+    if (
+      selected.length >=
+      maximum
+    ) {
+      break
+    }
+
+
+    const theme =
+      getSprigComparisonInsightTheme(
+        insight,
+      )
+
+
+    /*
+     * Normally one observation per comparison
+     * theme is enough.
+     *
+     * Direct comparisons are the exception. If
+     * Sprig eventually derives two independently
+     * useful comparison observations involving
+     * different selected stories, both may earn a
+     * place.
+     */
+
+    if (
+      selectedThemes.has(
+        theme,
+      )
+    ) {
+      if (
+        theme !==
+          'direct-comparison'
+      ) {
+        continue
+      }
+
+
+      const directComparisonCount =
+        selected.filter(
+          existing =>
+            getSprigComparisonInsightTheme(
+              existing,
+            ) ===
+            'direct-comparison',
+        ).length
+
+
+      if (
+        directComparisonCount >=
+        2
+      ) {
+        continue
+      }
+
+
+      /*
+       * A second direct comparison needs enough
+       * priority to justify another Intelligence
+       * card on an already data-rich page.
+       */
+
+      if (
+        insight.priority <
+        70
+      ) {
+        continue
+      }
+    }
+
+
+    /*
+     * Single-story context is allowed, but once
+     * one such observation is present we prefer
+     * not to stack several unrelated individual
+     * observations beside a multi-story
+     * comparison.
+     */
+
+    const matchingPlantIds =
+      getSelectedComparisonPlantIds(
+        insight,
+        selectedPlantStoryIds,
+      )
+
+
+    if (
+      matchingPlantIds.length ===
+        1
+    ) {
+      const alreadyHasSingleStoryContext =
+        selected.some(
+          existing =>
+            getSelectedComparisonPlantIds(
+              existing,
+              selectedPlantStoryIds,
+            ).length ===
+              1,
+        )
+
+
+      if (
+        alreadyHasSingleStoryContext
+      ) {
+        continue
+      }
+    }
+
+
+    selected.push(
+      insight,
+    )
+
+    selectedThemes.add(
+      theme,
+    )
+  }
+
+
+  return selected
+}
+
+
   /* =======================================
      TODAY EDITORIAL JUDGEMENT
   ======================================= */

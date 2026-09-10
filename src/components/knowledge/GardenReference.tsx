@@ -10,6 +10,7 @@ import type {
     KnowledgeRelationshipTargetType,
     PlantReference,
     PlantReferenceTopic,
+    SprigPhotoMetadata,
 } from '../../types';
 
 interface GardenReferenceProps {
@@ -1176,6 +1177,19 @@ export default function GardenReference({
         );
 
     const [
+        photoMetadata,
+        setPhotoMetadata,
+    ] =
+        useState<
+            Array<
+                SprigPhotoMetadata |
+                undefined
+            >
+        >(
+            [],
+        );
+
+    const [
         editSubjectType,
         setEditSubjectType,
     ] =
@@ -1281,6 +1295,19 @@ export default function GardenReference({
     ] =
         useState<
             string[]
+        >(
+            [],
+        );
+
+    const [
+        editPhotoMetadata,
+        setEditPhotoMetadata,
+    ] =
+        useState<
+            Array<
+                SprigPhotoMetadata |
+                undefined
+            >
         >(
             [],
         );
@@ -1553,6 +1580,10 @@ export default function GardenReference({
         setPhotoUrls(
             [],
         );
+
+        setPhotoMetadata(
+            [],
+        );
     }
 
     function getResolvedSubject(
@@ -1593,6 +1624,23 @@ export default function GardenReference({
             resolvedLabel,
         };
     }
+
+    /*
+     * GARDEN REFERENCE PROVENANCE
+     *
+     * A PlantReference is reusable knowledge.
+     * Its referenceDate describes the date
+     * associated with that knowledge record.
+     *
+     * createdAt records when Sprig first
+     * stored the reference. Editing later
+     * must not rewrite either historical
+     * value merely because the edit happened
+     * today.
+     *
+     * Photographs and their rich metadata are
+     * evidence owned by this reference.
+     */
 
     function handleSaveReference() {
         const resolved =
@@ -1691,6 +1739,20 @@ export default function GardenReference({
                     photoUrls.length >
                     0
                         ? photoUrls
+                        : undefined,
+
+                photoMetadata:
+                    photoUrls.length >
+                    0
+                        ? photoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  photoMetadata[
+                                      index
+                                  ],
+                          )
                         : undefined,
 
                 sourceIds:
@@ -1818,6 +1880,11 @@ export default function GardenReference({
 
         setEditPhotoUrls(
             reference.photoUrls ??
+                [],
+        );
+
+        setEditPhotoMetadata(
+            reference.photoMetadata ??
                 [],
         );
 
@@ -1974,6 +2041,20 @@ export default function GardenReference({
                     editPhotoUrls.length >
                     0
                         ? editPhotoUrls
+                        : undefined,
+
+                photoMetadata:
+                    editPhotoUrls.length >
+                    0
+                        ? editPhotoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  editPhotoMetadata[
+                                      index
+                                  ],
+                          )
                         : undefined,
 
                 relationships:
@@ -3098,7 +3179,6 @@ export default function GardenReference({
             </>
         );
     }
-
     function renderDetail(
         reference:
             PlantReference,
@@ -3348,6 +3428,12 @@ export default function GardenReference({
                             onChange={
                                 setEditPhotoUrls
                             }
+                            photoMetadata={
+                                editPhotoMetadata
+                            }
+                            onPhotoMetadataChange={
+                                setEditPhotoMetadata
+                            }
                             title="Photographs"
                             helperText="Add or remove photographs that belong to this reference."
                             addButtonText="Add photographs"
@@ -3357,6 +3443,9 @@ export default function GardenReference({
                             }
                             maxPhotos={
                                 12
+                            }
+                            showPhotoContext={
+                                true
                             }
                         />
 
@@ -4101,6 +4190,12 @@ export default function GardenReference({
                     onChange={
                         setPhotoUrls
                     }
+                    photoMetadata={
+                        photoMetadata
+                    }
+                    onPhotoMetadataChange={
+                        setPhotoMetadata
+                    }
                     title="Photographs"
                     helperText="Add labels, diagrams, packaging or other photographs that support this piece of knowledge."
                     addButtonText="Add photographs"
@@ -4110,6 +4205,9 @@ export default function GardenReference({
                     }
                     maxPhotos={
                         12
+                    }
+                    showPhotoContext={
+                        true
                     }
                 />
 

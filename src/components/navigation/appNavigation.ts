@@ -157,6 +157,41 @@ export const sprigNavigation:
 
 
     /* ========================================
+       SPRIG SMART
+    ======================================== */
+
+    {
+      id:
+        'sprig-smart',
+
+      title:
+        'Sprig Smart',
+
+      items: [
+        {
+          id:
+            'sprig-smart',
+
+          label:
+            'What Sprig Has Noticed',
+
+          icon:
+            '🌱',
+
+          status:
+            'live',
+
+          page:
+            'sprig-smart',
+
+          note:
+            'Patterns, comparisons and useful things Sprig is beginning to notice from your own garden records',
+        },
+      ],
+    },
+
+
+    /* ========================================
        MY GARDEN
     ======================================== */
 

@@ -14,5 +14,6 @@ export type AppPage =
   | 'saved-sources'
   | 'garden-trials'
   | 'garden-gallery'
+  | 'sprig-smart'
   | 'library'
   | 'backup'

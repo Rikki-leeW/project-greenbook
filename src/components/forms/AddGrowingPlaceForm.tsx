@@ -7,11 +7,14 @@ import {
 
 import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
 
+import SprigPhotoPicker from '../photos/SprigPhotoPicker'
+
 import type {
   GardenAspect,
   GrowingPlace,
   GrowingPlaceKind,
   ShelterLevel,
+  SprigPhotoMetadata,
   SunlightLevel,
 } from '../../types'
 
@@ -31,7 +34,9 @@ interface AddGrowingPlaceFormProps {
 }
 
 
-interface SelectOption<T extends string> {
+interface SelectOption<
+  T extends string
+> {
   value: T
   label: string
 }
@@ -364,6 +369,36 @@ export default function AddGrowingPlaceForm({
     )
 
 
+  /* =======================================
+     PHOTOGRAPHS
+  ======================================= */
+
+  const [
+    photoUrls,
+    setPhotoUrls,
+  ] =
+    useState<string[]>(
+      placeToEdit?.photoUrls ??
+      [],
+    )
+
+
+  const [
+    photoMetadata,
+    setPhotoMetadata,
+  ] =
+    useState<
+      Array<
+        SprigPhotoMetadata |
+        undefined
+      >
+    >(
+      placeToEdit
+        ?.photoMetadata ??
+      [],
+    )
+
+
   useEffect(
     () => {
       const scrollY =
@@ -493,6 +528,10 @@ export default function AddGrowingPlaceForm({
             notes.trim() ||
             undefined,
 
+          photoUrls,
+
+          photoMetadata,
+
           updatedAt:
             now,
         }
@@ -543,6 +582,10 @@ export default function AddGrowingPlaceForm({
         notes:
           notes.trim() ||
           undefined,
+
+        photoUrls,
+
+        photoMetadata,
 
         createdAt:
           now,
@@ -843,6 +886,39 @@ export default function AddGrowingPlaceForm({
                 }
               />
             </label>
+
+
+            {/* =======================================
+                PHOTOGRAPHS
+            ======================================= */}
+
+            <SprigPhotoPicker
+              photoUrls={
+                photoUrls
+              }
+
+              onChange={
+                setPhotoUrls
+              }
+
+              photoMetadata={
+                photoMetadata
+              }
+
+              onPhotoMetadataChange={
+                setPhotoMetadata
+              }
+
+              showPhotoContext
+
+              title="Photographs"
+
+              helperText="Keep photographs of this Growing Place here. You can optionally add what the photograph shows so Sprig can remember the place and its conditions more clearly later."
+
+              addButtonText="Add photographs"
+
+              photoAltPrefix="Growing Place photograph"
+            />
 
 
             <div className="form-actions">

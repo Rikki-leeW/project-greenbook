@@ -15,6 +15,7 @@ import {
   } from '../utils/plantComparisonUtils'
   
   import type {
+    GardenData,
     GardenEvent,
     GardenProduct,
     GrowingPlace,
@@ -26,13 +27,19 @@ import {
     HarvestRecord,
     HarvestType,
     PlantStory,
+    KnowledgeRelationshipTargetType,
   } from '../types'
   
   import type {
     AppPage,
   } from '../types/navigation'
   
-  
+  import {
+    buildSprigInsights,
+    getSprigInsightsForComparison,
+    getSprigInsightStrengthLabel,
+} from '../utils/sprigInsights'
+
   /* =======================================
      COMPARISON LENSES
   ======================================= */
@@ -133,8 +140,10 @@ import {
     )
 
 
-interface PlantComparisonProps {
-  plantIds: string[]
+    interface PlantComparisonProps {
+      gardenData: GardenData
+    
+      plantIds: string[]
 
   activeSavedComparisonId:
     string | null
@@ -153,6 +162,8 @@ interface PlantComparisonProps {
 
   harvests: HarvestRecord[]
 
+  backLabel:string
+
   onBack: () => void
 
   onEditComparison: (
@@ -164,8 +175,11 @@ interface PlantComparisonProps {
     plantStoryIds: string[],
   ) => void
 
-  onNavigate: (
-    page: AppPage,
+  onNavigate: (page: AppPage) => void
+
+  onOpenRelationship: (
+    targetType: KnowledgeRelationshipTargetType,
+    targetId: string,
   ) => void
 }
 
@@ -1471,6 +1485,7 @@ function getGrowingSetupComponentGroups(
 
 
 export default function PlantComparison({
+    gardenData,
     plantIds,
     activeSavedComparisonId,
     plants,
@@ -1480,11 +1495,13 @@ export default function PlantComparison({
     products,
     events,
     harvests,
+    backLabel,
     onBack,
     onEditComparison,
     onSaveComparison,
-    onNavigate,
-  }: PlantComparisonProps) {
+onNavigate,
+onOpenRelationship,
+}: PlantComparisonProps) {
   
     /* =======================================
        COMPARISON LENSES
@@ -1618,11 +1635,291 @@ export default function PlantComparison({
             plant,
           ),
       )
+      const sprigInsightResult =
+      buildSprigInsights(
+          gardenData,
+      )
 
-
-        /* =======================================
-     DYNAMIC PHOTO AGE CHECKPOINTS
-  ======================================= */
+      const comparisonInsights =
+      getSprigInsightsForComparison(
+        sprigInsightResult,
+        selectedPlants.map(
+          (
+            plant,
+          ) =>
+            plant.id,
+        ),
+        3,
+      )
+  
+  
+    /* =======================================
+       SPRIG INTELLIGENCE NAVIGATION
+    ======================================= */
+  
+    function handleSprigInsightAction(
+      action:
+        NonNullable<
+          typeof comparisonInsights[number]['actions']
+        >[number],
+    ) {
+      switch (
+        action.type
+      ) {
+        case 'open-plant': {
+          if (
+            !action.plantStoryId
+          ) {
+            return
+          }
+  
+          /*
+           * Compare Plants does not currently own
+           * the selected Plant Story detail route.
+           *
+           * Rather than inventing a second record
+           * navigation mechanism here, return to
+           * Plants with the relevant story still
+           * identifiable through its evidence.
+           *
+           * Direct record opening can be upgraded
+           * when the shared record-navigation layer
+           * is available to this page.
+           */
+          onNavigate(
+            'plants',
+          )
+  
+          return
+        }
+  
+  
+        case 'compare-plants': {
+          if (
+            !action.plantStoryIds ||
+            action.plantStoryIds.length <
+              2
+          ) {
+            return
+          }
+  
+          /*
+           * We are already inside Compare Plants.
+           *
+           * If Sprig's suggested stories are not
+           * exactly the current selection, use the
+           * existing comparison-edit journey rather
+           * than navigating away and rebuilding the
+           * comparison through another route.
+           */
+          const currentIds =
+            new Set(
+              selectedPlants.map(
+                (
+                  plant,
+                ) =>
+                  plant.id,
+              ),
+            )
+  
+          const suggestedIds =
+            Array.from(
+              new Set(
+                action.plantStoryIds,
+              ),
+            )
+  
+  
+          const isCurrentComparison =
+            suggestedIds.length ===
+              currentIds.size &&
+            suggestedIds.every(
+              plantStoryId =>
+                currentIds.has(
+                  plantStoryId,
+                ),
+            )
+  
+  
+          if (
+            !isCurrentComparison
+          ) {
+            onEditComparison(
+              suggestedIds,
+            )
+          }
+  
+          return
+        }
+  
+  
+        case 'open-gallery':
+          onNavigate(
+            'garden-gallery',
+          )
+  
+          return
+  
+  
+        case 'open-calendar':
+          onNavigate(
+            'calendar',
+          )
+  
+          return
+  
+  
+        case 'open-harvests':
+          onNavigate(
+            'harvest',
+          )
+  
+          return
+  
+  
+        case 'open-journal':
+          onNavigate(
+            'journal',
+          )
+  
+          return
+  
+  
+        case 'open-trial':
+          onNavigate(
+            'garden-trials',
+          )
+  
+          return
+  
+  
+        case 'none':
+        default:
+          return
+      }
+    }
+  
+  
+    function canOpenSprigEvidence(
+      recordType:
+        typeof comparisonInsights[number]['evidence'][number]['recordType'],
+    ): boolean {
+      switch (
+        recordType
+      ) {
+        case 'plant-story':
+        case 'garden-event':
+        case 'harvest':
+        case 'growing-place':
+        case 'growing-setup':
+        case 'garden-trial':
+        case 'gallery-photo':
+        case 'plant-reference':
+          return true
+  
+        default:
+          return false
+      }
+    }
+  
+  
+    function openSprigEvidence(
+      recordType:
+        KnowledgeRelationshipTargetType |
+        'gallery-photo',
+      recordId: string,
+    ) {
+      if (
+        recordType ===
+        'gallery-photo'
+      ) {
+        onNavigate(
+          'garden-gallery',
+        )
+    
+        return
+      }
+    
+      onOpenRelationship(
+        recordType as
+          KnowledgeRelationshipTargetType,
+        recordId,
+      )
+    }
+  
+  
+    function isUsefulSprigInsightAction(
+      action:
+        NonNullable<
+          typeof comparisonInsights[number]['actions']
+        >[number],
+    ): boolean {
+      if (
+        action.type ===
+        'none'
+      ) {
+        return false
+      }
+  
+  
+      if (
+        action.type !==
+        'compare-plants'
+      ) {
+        return true
+      }
+  
+  
+      if (
+        !action.plantStoryIds ||
+        action.plantStoryIds.length <
+          2
+      ) {
+        return false
+      }
+  
+  
+      const currentIds =
+        new Set(
+          selectedPlants.map(
+            (
+              plant,
+            ) =>
+              plant.id,
+          ),
+        )
+  
+  
+      const suggestedIds =
+        Array.from(
+          new Set(
+            action.plantStoryIds,
+          ),
+        )
+  
+  
+      /*
+       * Do not offer "Compare these stories" when
+       * those exact stories are already the whole
+       * comparison currently on screen.
+       */
+  
+      return !(
+        suggestedIds.length ===
+          currentIds.size &&
+        suggestedIds.every(
+          plantStoryId =>
+            currentIds.has(
+              plantStoryId,
+            ),
+        )
+      )
+    }
+  
+  
+    /* =======================================
+       DYNAMIC PHOTO AGE CHECKPOINTS
+    ======================================= */
 
   const visualComparisonAges =
   buildPlantComparisonAgeCheckpoints(
@@ -3781,15 +4078,15 @@ async function handleExportGardenReport() {
 
         <section className="plant-record-actions">
 
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={
-              onBack
-            }
-          >
-            ← Back to Plants
-          </button>
+        <button
+  type="button"
+  className="secondary-button"
+  onClick={
+    onBack
+  }
+>
+  ← {backLabel}
+</button>
 
 
           <button
@@ -3847,27 +4144,214 @@ async function handleExportGardenReport() {
         </section>
 
 
+
+        {comparisonInsights.length > 0 && (
+          <section
+            className="sprig-card plant-comparison-intelligence"
+            aria-labelledby="plant-comparison-intelligence-title"
+          >
+            <div className="plant-comparison-intelligence-header">
+              <div>
+                <p className="plant-comparison-intelligence-eyebrow">
+                  From Sprig
+                </p>
+
+                <h2 id="plant-comparison-intelligence-title">
+                  What Sprig noticed while comparing these stories
+                </h2>
+
+                <p className="plant-comparison-intelligence-intro">
+                  These observations come from the same shared Sprig Intelligence
+                  that reads your garden records elsewhere. The comparison tables
+                  below remain the evidence to explore for yourself.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="plant-comparison-intelligence-link"
+                onClick={() =>
+                  onNavigate(
+                    'sprig-smart',
+                  )
+                }
+              >
+                Sprig Smart →
+              </button>
+            </div>
+
+
+            <div className="plant-comparison-intelligence-list">
+              {comparisonInsights.map(
+                (
+                  insight,
+                ) => {
+
+                  const usefulActions =
+                    (
+                      insight.actions ??
+                      []
+                    ).filter(
+                      isUsefulSprigInsightAction,
+                    )
+
+
+                  return (
+                    <article
+                      key={
+                        insight.id
+                      }
+                      className="plant-comparison-intelligence-observation"
+                    >
+                      <div className="plant-comparison-intelligence-meta">
+                        <span>
+                          {
+                            insight.eyebrow
+                          }
+                        </span>
+
+                        <span>
+                          {getSprigInsightStrengthLabel(
+                            insight.strength,
+                          )}
+                        </span>
+                      </div>
+
+
+                      <h3>
+                        {
+                          insight.title
+                        }
+                      </h3>
+
+
+                      <p>
+                        {
+                          insight.message
+                        }
+                      </p>
+
+
+                      {usefulActions.length >
+                        0 && (
+                        <div className="plant-record-actions">
+                          {usefulActions.map(
+                            (
+                              action,
+                              actionIndex,
+                            ) => (
+                              <button
+                                key={`${insight.id}-${action.type}-${actionIndex}`}
+                                type="button"
+                                className="secondary-button"
+                                onClick={() =>
+                                  handleSprigInsightAction(
+                                    action,
+                                  )
+                                }
+                              >
+                                {
+                                  action.label
+                                }
+                              </button>
+                            ),
+                          )}
+                        </div>
+                      )}
+
+
+                      <details className="plant-comparison-intelligence-details">
+                        <summary>
+                          Why Sprig noticed this
+                        </summary>
+
+                        <p>
+                          {
+                            insight.reasoning
+                          }
+                        </p>
+
+
+                        {insight.evidence.length >
+                          0 && (
+                          <div className="plant-comparison-intelligence-evidence">
+                            <strong>
+                              Evidence
+                            </strong>
+
+                            <ul>
+                              {insight.evidence.map(
+                                (
+                                  evidence,
+                                  evidenceIndex,
+                                ) => {
+
+                                  const evidenceText =
+                                    evidence.detail
+                                      ? `${evidence.label} · ${evidence.detail}`
+                                      : evidence.label
+
+
+                                  return (
+                                    <li
+                                      key={`${insight.id}-${evidence.recordType}-${evidence.recordId}-${evidenceIndex}`}
+                                    >
+                                      {canOpenSprigEvidence(
+                                        evidence.recordType,
+                                      ) ? (
+                                        <button
+                                          type="button"
+                                          className="plant-comparison-intelligence-link"
+                                          onClick={() =>
+                                            openSprigEvidence(
+                                              evidence.recordType,
+                                              evidence.recordId,
+                                            )
+                                          }
+                                        >
+                                          {
+                                            evidenceText
+                                          }
+                                        </button>
+                                      ) : (
+                                        evidenceText
+                                      )}
+                                    </li>
+                                  )
+                                },
+                              )}
+                            </ul>
+                          </div>
+                        )}
+                      </details>
+                    </article>
+                  )
+                },
+              )}
+            </div>
+          </section>
+        )}
+
+
         {/* =======================================
             COMPARISON LENSES
         ======================================= */}
 
         <section className="sprig-comparison-section sprig-comparison-lens-picker">
 
-          <p className="section-label">
-            Choose your view
-          </p>
+            <p className="section-label">
+                Choose your view
+            </p>
 
+            <h2>
+                What would you like to compare?
+            </h2>
 
-          <h2>
-            What would you like to compare?
-          </h2>
-
-
-          <p className="journal-intro">
-            Choose one or a few parts of
-            these growing stories, or keep
-            the whole comparison open.
-          </p>
+            <p className="journal-intro">
+                Choose one or a few parts of
+                these growing stories, or keep
+                the whole comparison open.
+            </p>
 
 
           <div className="plant-record-actions">

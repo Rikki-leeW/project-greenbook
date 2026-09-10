@@ -65,7 +65,14 @@ function getSimilarity(
 ): SimilarPlantStory | null {
     if (plant.id === candidate.id) return null;
 
-    // Preserve the same-crop comparison boundary.
+    /*
+     * This component is an exploration tool, not an
+     * Intelligence conclusion.
+     *
+     * It deliberately keeps a broad same-crop boundary
+     * so the gardener can inspect nearby stories and
+     * decide whether a comparison is useful.
+     */
     if (
         normalise(plant.plantName) !==
         normalise(candidate.plantName)
@@ -144,9 +151,15 @@ function getSimilarity(
         reasons.push('similar planting period');
     }
 
-    if (plant.status === candidate.status) score += 1;
+    if (plant.status === candidate.status) {
+        score += 1;
+    }
 
-    return { plant: candidate, score, reasons };
+    return {
+        plant: candidate,
+        score,
+        reasons,
+    };
 }
 
 const styles = `
@@ -161,7 +174,18 @@ const styles = `
         color: #718168;
     }
 
+    .sprig-smart-comparisons .sprig-smart-summary-eyebrow {
+        display: block;
+        margin-bottom: 0.15rem;
+        color: #718168;
+        font-size: 0.7rem;
+        font-weight: 750;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
+
     .sprig-smart-comparisons .sprig-smart-summary-heading {
+        display: block;
         font-weight: 750;
         font-size: 1rem;
     }
@@ -201,15 +225,22 @@ export default function PlantSmartComparisons({
 }: PlantSmartComparisonsProps) {
     const matches = plants
         .map(candidate =>
-            getSimilarity(plant, candidate, durationDisplayUnit),
+            getSimilarity(
+                plant,
+                candidate,
+                durationDisplayUnit,
+            ),
         )
         .filter(
-            (match): match is SimilarPlantStory => Boolean(match),
+            (match): match is SimilarPlantStory =>
+                Boolean(match),
         )
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
 
-    if (matches.length === 0) return null;
+    if (matches.length === 0) {
+        return null;
+    }
 
     const compareAllIds = [
         plant.id,
@@ -220,25 +251,34 @@ export default function PlantSmartComparisons({
         <section className="story-section sprig-smart-comparisons">
             <style>{styles}</style>
 
-            <details key={plant.id} className="sprig-smart-disclosure">
+            <details
+                key={plant.id}
+                className="sprig-smart-disclosure"
+            >
                 <summary>
-                    <span className="sprig-smart-summary-heading">
-                        Sprig noticed
+                    <span className="sprig-smart-summary-eyebrow">
+                        Related stories
                     </span>
+
+                    <span className="sprig-smart-summary-heading">
+                        Stories you may want to compare
+                    </span>
+
                     <span className="sprig-smart-summary-copy">
                         {matches.length}{' '}
                         {matches.length === 1
-                            ? 'related story worth comparing'
-                            : 'related stories worth comparing'}
+                            ? 'related Plant Story'
+                            : 'related Plant Stories'}
                         {' · Open when you’re curious'}
                     </span>
                 </summary>
 
                 <div className="sprig-smart-disclosure-content">
                     <p className="journal-intro sprig-smart-intro">
-                        These stories share useful connections with this one.
-                        The reasons below explain why they may be worth
-                        looking at together.
+                        These stories share recorded details with this one.
+                        That does not mean they behaved the same way or form
+                        a pattern. They are simply useful neighbours to
+                        explore in Compare Plants.
                     </p>
 
                     <div className="sprig-smart-comparison-list">
@@ -258,14 +298,21 @@ export default function PlantSmartComparisons({
                                         <div>
                                             <p className="sprig-smart-comparison-crop">
                                                 {match.plant.plantName}
-                                                {placeName ? ` · ${placeName}` : ''}
+                                                {placeName
+                                                    ? ` · ${placeName}`
+                                                    : ''}
                                             </p>
-                                            <h3>{match.plant.displayName}</h3>
+
+                                            <h3>
+                                                {match.plant.displayName}
+                                            </h3>
                                         </div>
 
                                         <div className="sprig-smart-reasons">
                                             {match.reasons.map(reason => (
-                                                <span key={reason}>{reason}</span>
+                                                <span key={reason}>
+                                                    {reason}
+                                                </span>
                                             ))}
                                         </div>
                                     </div>
@@ -275,7 +322,9 @@ export default function PlantSmartComparisons({
                                             type="button"
                                             className="text-button"
                                             onClick={() =>
-                                                onOpenPlant(match.plant.id)
+                                                onOpenPlant(
+                                                    match.plant.id,
+                                                )
                                             }
                                         >
                                             Open story →
@@ -304,7 +353,9 @@ export default function PlantSmartComparisons({
                             <button
                                 type="button"
                                 className="journal-add-button"
-                                onClick={() => onComparePlants(compareAllIds)}
+                                onClick={() =>
+                                    onComparePlants(compareAllIds)
+                                }
                             >
                                 Compare all {compareAllIds.length} stories →
                             </button>

@@ -28,6 +28,8 @@ interface ComparisonsProps {
     comparisonId: string,
   ) => void
 
+  onBack: () => void
+
   onNavigate: (
     page: AppPage,
   ) => void
@@ -147,6 +149,7 @@ export default function Comparisons({
   onOpenComparison,
   onRenameComparison,
   onDeleteComparison,
+  onBack,
   onNavigate,
 }: ComparisonsProps) {
 
@@ -179,6 +182,26 @@ export default function Comparisons({
       }
     >
       <main className="garden-page">
+
+        {/* =======================================
+            JOURNEY NAVIGATION
+        ======================================= */}
+
+<nav
+  className="detail-back-row"
+  aria-label="Comparisons navigation"
+>
+  <button
+    type="button"
+    className="secondary-button"
+    onClick={
+      onBack
+    }
+  >
+    ← Back
+  </button>
+</nav>
+
 
         {/* =======================================
             HEADER

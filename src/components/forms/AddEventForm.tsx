@@ -15,6 +15,7 @@ import type {
   EventType,
   GardenEvent,
   GardenPlan,
+  GardenProduct,
   GrowingPlace,
   GrowingPlaceScope,
   PlantScope,
@@ -29,6 +30,8 @@ interface AddEventFormProps {
   plants: PlantStory[]
 
   growingPlaces: GrowingPlace[]
+
+  products: GardenProduct[]
 
   /*
    * Optional existing Journal record.
@@ -100,6 +103,77 @@ function getTodayDate():
     )
 
   return `${year}-${month}-${day}`
+}
+
+
+/* =======================================
+   PRODUCT CATEGORY LABEL
+======================================= */
+
+function getProductCategoryLabel(
+  product:
+    GardenProduct,
+):
+  string |
+  undefined {
+  if (
+    product.customCategoryLabel
+      ?.trim()
+  ) {
+    return product
+      .customCategoryLabel
+      .trim()
+  }
+
+
+  switch (
+    product.category
+  ) {
+    case 'fertiliser':
+      return 'Fertiliser'
+
+    case 'soil-conditioner':
+      return 'Soil conditioner'
+
+    case 'wetting-agent':
+      return 'Wetting agent'
+
+    case 'pest-treatment':
+      return 'Pest treatment'
+
+    case 'disease-treatment':
+      return 'Disease treatment'
+
+    case 'weed-treatment':
+      return 'Weed treatment'
+
+    case 'biological-treatment':
+      return 'Biological treatment'
+
+    case 'root-treatment':
+      return 'Root treatment'
+
+    case 'plant-tonic':
+      return 'Plant tonic'
+
+    case 'growing-medium':
+      return 'Growing medium'
+
+    case 'mulch':
+      return 'Mulch'
+
+    case 'seed-treatment':
+      return 'Seed treatment'
+
+    case 'cleaning-product':
+      return 'Cleaning product'
+
+    case 'other':
+      return 'Other'
+
+    default:
+      return undefined
+  }
 }
 
 
@@ -366,6 +440,7 @@ export default function AddEventForm({
   plantId,
   plants,
   growingPlaces,
+  products,
   eventToEdit,
   planToRecord,
   onAddEvent,
@@ -520,6 +595,36 @@ export default function AddEventForm({
   const [
     isPlantPickerOpen,
     setIsPlantPickerOpen,
+  ] =
+    useState(
+      false,
+    )
+
+
+  /* =======================================
+     PRODUCT PICKER
+  ======================================= */
+
+  const [
+    productIds,
+    setProductIds,
+  ] =
+    useState<
+      string[]
+    >(
+      [
+        ...(
+          eventToEdit
+            ?.productIds ??
+          []
+        ),
+      ],
+    )
+
+
+  const [
+    isProductPickerOpen,
+    setIsProductPickerOpen,
   ] =
     useState(
       false,
@@ -755,6 +860,17 @@ export default function AddEventForm({
         )
 
 
+        setProductIds(
+          [
+            ...(
+              eventToEdit
+                .productIds ??
+              []
+            ),
+          ],
+        )
+
+
         setProductUsed(
           eventToEdit
             .productUsed ??
@@ -837,6 +953,11 @@ export default function AddEventForm({
         )
 
 
+        setIsProductPickerOpen(
+          false,
+        )
+
+
         isSubmittingRef.current =
           false
 
@@ -877,6 +998,11 @@ export default function AddEventForm({
       setNotes(
         planToRecord.notes ??
         '',
+      )
+
+
+      setProductIds(
+        [],
       )
 
 
@@ -951,6 +1077,11 @@ export default function AddEventForm({
 
 
       setIsPlantPickerOpen(
+        false,
+      )
+
+
+      setIsProductPickerOpen(
         false,
       )
 
@@ -1069,6 +1200,33 @@ export default function AddEventForm({
             second.displayName,
           ),
     )
+
+
+  /* =======================================
+     AVAILABLE PRODUCTS
+  ======================================= */
+
+  const availableProducts =
+    [
+      ...products,
+    ]
+      .filter(
+        product =>
+          !product.isArchived ||
+          productIds.includes(
+            product.id,
+          ),
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          first.name
+            .localeCompare(
+              second.name,
+            ),
+      )
 
 
   /* =======================================
@@ -1462,6 +1620,14 @@ export default function AddEventForm({
           title.trim() ||
           generatedTitle ||
           'Garden moment',
+
+        productIds:
+          productIds.length >
+          0
+            ? [
+                ...productIds,
+              ]
+            : undefined,
 
         productUsed:
           productUsed
@@ -1884,6 +2050,11 @@ export default function AddEventForm({
             </section>
 
 
+            {(
+              !startingPlant ||
+              isEditing ||
+              isRecordingPlan
+            ) && (
             <section className="journal-connection-section">
               <div className="journal-section-heading">
                 <h5>
@@ -2048,28 +2219,131 @@ export default function AddEventForm({
                   }}
                 />
               )}
+                      </section>
+            )}
+
+
+            <section className="journal-connection-section">
+              <div className="journal-section-heading">
+                <h5>
+                  What did you use?
+                </h5>
+              </div>
+
+
+              <p className="form-whisper">
+                Choose any Products Sprig already
+                knows. You can choose more than one.
+              </p>
+
+
+              {availableProducts.length >
+              0 ? (
+                <SprigPicker
+                  title="Choose Product"
+                  variant="label"
+                  emptySummary="Choose saved Products"
+                  options={
+                    availableProducts.map(
+                      product => {
+                        const category =
+                          getProductCategoryLabel(
+                            product,
+                          )
+
+
+                        return {
+                          value:
+                            product.id,
+
+                          label:
+                            product.name,
+
+                          subtitle:
+                            product.brand
+                              ?.trim() ||
+                            category,
+
+                          meta:
+                            product.brand
+                              ?.trim() &&
+                            category
+                              ? category
+                              : undefined,
+                        }
+                      },
+                    )
+                  }
+                  selectedValues={
+                    productIds
+                  }
+                  isOpen={
+                    isProductPickerOpen
+                  }
+                  onToggleOpen={() =>
+                    setIsProductPickerOpen(
+                      current =>
+                        !current,
+                    )
+                  }
+                  onToggleValue={(
+                    id,
+                  ) =>
+                    setProductIds(
+                      current =>
+                        current.includes(
+                          id,
+                        )
+                          ? current.filter(
+                              item =>
+                                item !==
+                                id,
+                            )
+                          : [
+                              ...current,
+                              id,
+                            ],
+                    )
+                  }
+                />
+              ) : (
+                <p className="form-whisper">
+                  Sprig does not have any saved
+                  Products yet. That is fine. You
+                  can still record what you used
+                  below.
+                </p>
+              )}
+
+
+              <label>
+                Something else you used
+
+                <input
+                  value={
+                    productUsed
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    setProductUsed(
+                      event
+                        .target
+                        .value,
+                    )
+                  }
+                  placeholder="Anything that is not a saved Product..."
+                />
+              </label>
+
+
+              <p className="form-whisper">
+                This stays as your own wording.
+                Sprig will not quietly turn an old
+                free-text entry into a Product
+                relationship.
+              </p>
             </section>
-
-
-            <label>
-              What did you use?
-
-              <input
-                value={
-                  productUsed
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setProductUsed(
-                    event
-                      .target
-                      .value,
-                  )
-                }
-                placeholder="Seasol, PowerFeed, Blood & Bone..."
-              />
-            </label>
 
 
             <label>

@@ -1846,13 +1846,16 @@
     }
   
   
-    body * {
+    body:has(.sprig-comparison-report)
+    * {
       visibility:
         hidden;
     }
-  
-  
+
+
+    body:has(.sprig-comparison-report)
     .sprig-comparison-report,
+    body:has(.sprig-comparison-report)
     .sprig-comparison-report * {
       visibility:
         visible;

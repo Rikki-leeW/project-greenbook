@@ -24,7 +24,16 @@ import type {
     PlantReference,
     SavedKnowledgeSource,
     SavedKnowledgeSourceKind,
+    SprigPhotoMetadata,
 } from '../types';
+
+import {
+    buildSprigInsights,
+    getSprigInsightFamilyLabel,
+    getSprigInsightStrengthLabel,
+    getSprigSmartInsights,
+    type SprigInsight,
+} from '../utils/sprigInsights';
 
 import '../css/garden-knowledge.css';
 
@@ -1295,40 +1304,93 @@ function buildAlmanacThreads(
 }
 
 
-function getEvidencePhrase(
-    count:
-        number,
+function getThreadContentsPhrase(
+    thread:
+        AlmanacThread,
 ):
     string {
+    const recordCount =
+        thread.plantStoryCount +
+        thread.harvestCount +
+        thread.noteCount +
+        thread.referenceCount +
+        thread.sourceCount;
+
     if (
-        count <=
+        recordCount ===
         0
     ) {
-        return 'Reference only so far';
+        return 'A place for this garden subject';
     }
 
     if (
-        count ===
+        recordCount ===
         1
     ) {
-        return 'One piece of your garden story';
+        return 'One related piece kept together';
     }
+
+    return `${recordCount} related pieces kept together`;
+}
+
+
+function insightMatchesAlmanacThread(
+    insight:
+        SprigInsight,
+
+    thread:
+        AlmanacThread,
+):
+    boolean {
+    const threadNeedle =
+        normalise(
+            thread.label,
+        );
+
+    const broadNeedle =
+        normalise(
+            thread.label.split(
+                '·',
+            )[0],
+        );
+
+    const insightText =
+        normalise(
+            [
+                insight.title,
+                insight.message,
+                insight.reasoning,
+                insight.eyebrow,
+                insight.subjectKey ??
+                    '',
+                ...insight.evidence.flatMap(
+                    evidence => [
+                        evidence.label,
+                        evidence.detail ??
+                            '',
+                    ],
+                ),
+            ].join(
+                ' ',
+            ),
+        );
 
     if (
-        count <=
-        3
+        threadNeedle &&
+        insightText.includes(
+            threadNeedle,
+        )
     ) {
-        return 'A small pattern may be forming';
+        return true;
     }
 
-    if (
-        count <=
-        7
-    ) {
-        return 'Several pieces of your garden story';
-    }
-
-    return 'A well-populated garden thread';
+    return (
+        broadNeedle.length >
+            2 &&
+        insightText.includes(
+            broadNeedle,
+        )
+    );
 }
 
 
@@ -1793,23 +1855,36 @@ export default function GardenKnowledge({
             getToday(),
         );
 
-    const [
-        notePhotoUrls,
-        setNotePhotoUrls,
-    ] =
-        useState<
-            string[]
-        >(
-            [],
-        );
-
-    const [
-        isImporting,
-        setIsImporting,
-    ] =
-        useState(
-            false,
-        );
+        const [
+            notePhotoUrls,
+            setNotePhotoUrls,
+        ] =
+            useState<
+                string[]
+            >(
+                [],
+            );
+    
+        const [
+            notePhotoMetadata,
+            setNotePhotoMetadata,
+        ] =
+            useState<
+                Array<
+                    SprigPhotoMetadata |
+                    undefined
+                >
+            >(
+                [],
+            );
+    
+        const [
+            isImporting,
+            setIsImporting,
+        ] =
+            useState(
+                false,
+            );
 
     const [
         importSourceLabel,
@@ -1875,23 +1950,36 @@ export default function GardenKnowledge({
             '',
         );
 
-    const [
-        editNotePhotoUrls,
-        setEditNotePhotoUrls,
-    ] =
-        useState<
-            string[]
-        >(
-            [],
-        );
-
-    const [
-        sourceTitle,
-        setSourceTitle,
-    ] =
-        useState(
-            '',
-        );
+        const [
+            editNotePhotoUrls,
+            setEditNotePhotoUrls,
+        ] =
+            useState<
+                string[]
+            >(
+                [],
+            );
+    
+        const [
+            editNotePhotoMetadata,
+            setEditNotePhotoMetadata,
+        ] =
+            useState<
+                Array<
+                    SprigPhotoMetadata |
+                    undefined
+                >
+            >(
+                [],
+            );
+    
+        const [
+            sourceTitle,
+            setSourceTitle,
+        ] =
+            useState(
+                '',
+            );
 
     const [
         sourceKind,
@@ -1959,23 +2047,36 @@ export default function GardenKnowledge({
             getToday(),
         );
 
-    const [
-        sourcePhotoUrls,
-        setSourcePhotoUrls,
-    ] =
-        useState<
-            string[]
-        >(
-            [],
-        );
-
-    const [
-        sourceComposerOpen,
-        setSourceComposerOpen,
-    ] =
-        useState(
-            false,
-        );
+        const [
+            sourcePhotoUrls,
+            setSourcePhotoUrls,
+        ] =
+            useState<
+                string[]
+            >(
+                [],
+            );
+    
+        const [
+            sourcePhotoMetadata,
+            setSourcePhotoMetadata,
+        ] =
+            useState<
+                Array<
+                    SprigPhotoMetadata |
+                    undefined
+                >
+            >(
+                [],
+            );
+    
+        const [
+            sourceComposerOpen,
+            setSourceComposerOpen,
+        ] =
+            useState(
+                false,
+            );
 
     const [
         sourceSearch,
@@ -2059,23 +2160,36 @@ export default function GardenKnowledge({
             '',
         );
 
-    const [
-        editSourcePhotoUrls,
-        setEditSourcePhotoUrls,
-    ] =
-        useState<
-            string[]
-        >(
-            [],
-        );
-
-    const [
-        relationshipSearch,
-        setRelationshipSearch,
-    ] =
-        useState(
-            '',
-        );
+        const [
+            editSourcePhotoUrls,
+            setEditSourcePhotoUrls,
+        ] =
+            useState<
+                string[]
+            >(
+                [],
+            );
+    
+        const [
+            editSourcePhotoMetadata,
+            setEditSourcePhotoMetadata,
+        ] =
+            useState<
+                Array<
+                    SprigPhotoMetadata |
+                    undefined
+                >
+            >(
+                [],
+            );
+    
+        const [
+            relationshipSearch,
+            setRelationshipSearch,
+        ] =
+            useState(
+                '',
+            );
 
     const [
         selectedRelationshipKey,
@@ -2159,7 +2273,7 @@ export default function GardenKnowledge({
         );
 
 
-    const almanacThreads =
+        const almanacThreads =
         useMemo(
             () =>
                 buildAlmanacThreads(
@@ -2167,6 +2281,37 @@ export default function GardenKnowledge({
                 ),
             [
                 gardenData,
+            ],
+        );
+
+
+    const sprigInsightResult =
+        useMemo(
+            () =>
+                buildSprigInsights(
+                    gardenData,
+                ),
+            [
+                gardenData,
+            ],
+        );
+
+
+    const almanacInsights =
+        useMemo(
+            () =>
+                getSprigSmartInsights(
+                    sprigInsightResult,
+                    7,
+                ).filter(
+                    insight =>
+                        insight.family !==
+                            'garden-maths' &&
+                        insight.family !==
+                            'happening-now',
+                ),
+            [
+                sprigInsightResult,
             ],
         );
 
@@ -2510,6 +2655,10 @@ export default function GardenKnowledge({
         setNotePhotoUrls(
             [],
         );
+
+        setNotePhotoMetadata(
+            [],
+        );
     }
 
 
@@ -2553,8 +2702,24 @@ export default function GardenKnowledge({
         setSourcePhotoUrls(
             [],
         );
+
+        setSourcePhotoMetadata(
+            [],
+        );
     }
 
+
+    /* =======================================
+       SAVE GARDEN NOTE
+
+       The Note owns its wording, note date,
+       photographs and photograph context.
+
+       Imported text keeps its untouched
+       originalBody snapshot. Editing the
+       working note later must never rewrite
+       that original evidence.
+    ======================================= */
 
     function handleSaveNote() {
         const rawBody =
@@ -2626,6 +2791,20 @@ export default function GardenKnowledge({
                         ? notePhotoUrls
                         : undefined,
 
+                photoMetadata:
+                    notePhotoUrls.length >
+                    0
+                        ? notePhotoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  notePhotoMetadata[
+                                      index
+                                  ],
+                          )
+                        : undefined,
+
                 createdAt:
                     now,
             };
@@ -2682,6 +2861,11 @@ export default function GardenKnowledge({
             [],
         );
 
+        setEditNotePhotoMetadata(
+            note.photoMetadata ??
+            [],
+        );
+
         setEditingNoteId(
             note.id,
         );
@@ -2725,6 +2909,20 @@ export default function GardenKnowledge({
                     editNotePhotoUrls.length >
                     0
                         ? editNotePhotoUrls
+                        : undefined,
+
+                photoMetadata:
+                    editNotePhotoUrls.length >
+                    0
+                        ? editNotePhotoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  editNotePhotoMetadata[
+                                      index
+                                  ],
+                          )
                         : undefined,
 
                 updatedAt:
@@ -2784,6 +2982,19 @@ export default function GardenKnowledge({
     }
 
 
+        /* =======================================
+       SAVE TIP / SOURCE
+
+       savedDate means when the gardener
+       saved or noted the source.
+
+       It does not mean the advice became
+       true in the garden on that date.
+
+       Source photographs and their metadata
+       remain evidence owned by this Source.
+    ======================================= */
+
     function handleSaveSource() {
         if (
             !sourceTitle.trim()
@@ -2841,6 +3052,20 @@ export default function GardenKnowledge({
                     sourcePhotoUrls.length >
                     0
                         ? sourcePhotoUrls
+                        : undefined,
+
+                photoMetadata:
+                    sourcePhotoUrls.length >
+                    0
+                        ? sourcePhotoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  sourcePhotoMetadata[
+                                      index
+                                  ],
+                          )
                         : undefined,
 
                 createdAt:
@@ -2923,11 +3148,15 @@ export default function GardenKnowledge({
             [],
         );
 
+        setEditSourcePhotoMetadata(
+            source.photoMetadata ??
+            [],
+        );
+
         setEditingSourceId(
             source.id,
         );
     }
-
 
     function handleSaveEditedSource(
         source:
@@ -2938,62 +3167,76 @@ export default function GardenKnowledge({
         ) {
             return;
         }
-
+    
         const updated:
             SavedKnowledgeSource =
             {
                 ...source,
-
+    
                 title:
                     editSourceTitle.trim(),
-
+    
                 kind:
                     editSourceKind,
-
+    
                 customKindLabel:
                     editSourceKind ===
                     'other'
                         ? editSourceCustomKind.trim() ||
                           undefined
                         : undefined,
-
+    
                 sourceName:
                     editSourceName.trim() ||
                     undefined,
-
+    
                 url:
                     editSourceUrl.trim() ||
                     undefined,
-
+    
                 category:
                     editSourceCategory.trim() ||
                     undefined,
-
+    
                 excerpt:
                     editSourceExcerpt.trim() ||
                     undefined,
-
+    
                 notes:
                     editSourceNotes.trim() ||
                     undefined,
-
+    
                 savedDate:
                     editSourceSavedDate ||
                     undefined,
-
+    
                 photoUrls:
                     editSourcePhotoUrls.length >
                     0
                         ? editSourcePhotoUrls
                         : undefined,
-
+    
+                photoMetadata:
+                    editSourcePhotoUrls.length >
+                    0
+                        ? editSourcePhotoUrls.map(
+                              (
+                                  _photoUrl,
+                                  index,
+                              ) =>
+                                  editSourcePhotoMetadata[
+                                      index
+                                  ],
+                          )
+                        : undefined,
+    
                 updatedAt:
                     getNow(),
             };
-
+    
         save({
             ...gardenData,
-
+    
             savedKnowledgeSources:
                 sources.map(
                     item =>
@@ -3003,7 +3246,7 @@ export default function GardenKnowledge({
                             : item,
                 ),
         });
-
+    
         setEditingSourceId(
             null,
         );
@@ -3731,10 +3974,28 @@ export default function GardenKnowledge({
                 plantStoryIds:
                     linkedPlantIds,
 
-                photoUrls:
-                    note.photoUrls,
+                                /*
+                 * This is an explicit placement:
+                 * the gardener has confirmed that
+                 * this Note describes real garden
+                 * history on placementJournalDate.
+                 *
+                 * The new Journal record therefore
+                 * owns its own copy of the selected
+                 * Note evidence. Preserve the rich
+                 * photograph context with the image
+                 * references rather than separating
+                 * dates, titles, notes or tags from
+                 * their photographs.
+                 */
 
-            };
+                                photoUrls:
+                                note.photoUrls,
+            
+                            photoMetadata:
+                                note.photoMetadata,
+            
+                        };
 
         appendPlacement(
             note,
@@ -4407,6 +4668,12 @@ export default function GardenKnowledge({
                                 onChange={
                                     setEditNotePhotoUrls
                                 }
+                                photoMetadata={
+                                    editNotePhotoMetadata
+                                }
+                                onPhotoMetadataChange={
+                                    setEditNotePhotoMetadata
+                                }
                                 title="Photographs"
                                 helperText="Add or remove photographs that belong to this thought."
                                 addButtonText="Add photographs"
@@ -4416,6 +4683,9 @@ export default function GardenKnowledge({
                                 }
                                 maxPhotos={
                                     12
+                                }
+                                showPhotoContext={
+                                    true
                                 }
                             />
 
@@ -4764,12 +5034,18 @@ export default function GardenKnowledge({
                         </>
                     )}
 
-                    <SprigPhotoPicker
+<SprigPhotoPicker
                         photoUrls={
                             notePhotoUrls
                         }
                         onChange={
                             setNotePhotoUrls
+                        }
+                        photoMetadata={
+                            notePhotoMetadata
+                        }
+                        onPhotoMetadataChange={
+                            setNotePhotoMetadata
                         }
                         title="Photographs"
                         helperText="Add any photographs that belong to this thought."
@@ -4780,6 +5056,9 @@ export default function GardenKnowledge({
                         }
                         maxPhotos={
                             12
+                        }
+                        showPhotoContext={
+                            true
                         }
                     />
 
@@ -5229,6 +5508,12 @@ export default function GardenKnowledge({
                                 onChange={
                                     setEditSourcePhotoUrls
                                 }
+                                photoMetadata={
+                                    editSourcePhotoMetadata
+                                }
+                                onPhotoMetadataChange={
+                                    setEditSourcePhotoMetadata
+                                }
                                 title="Photographs"
                                 helperText="Add or remove screenshots, pages or other photographs."
                                 addButtonText="Add photographs"
@@ -5238,6 +5523,9 @@ export default function GardenKnowledge({
                                 }
                                 maxPhotos={
                                     12
+                                }
+                                showPhotoContext={
+                                    true
                                 }
                             />
 
@@ -5655,6 +5943,12 @@ export default function GardenKnowledge({
                         onChange={
                             setSourcePhotoUrls
                         }
+                        photoMetadata={
+                            sourcePhotoMetadata
+                        }
+                        onPhotoMetadataChange={
+                            setSourcePhotoMetadata
+                        }
                         title="Photographs"
                         helperText="Add screenshots, labels, pages or other photographs that preserve the source."
                         addButtonText="Add photographs"
@@ -5664,6 +5958,9 @@ export default function GardenKnowledge({
                         }
                         maxPhotos={
                             12
+                        }
+                        showPhotoContext={
+                            true
                         }
                     />
 
@@ -5831,6 +6128,7 @@ export default function GardenKnowledge({
             ) ??
             null;
 
+
         if (
             selectedThread
         ) {
@@ -5932,6 +6230,17 @@ export default function GardenKnowledge({
                     },
                 );
 
+
+            const threadInsights =
+                almanacInsights.filter(
+                    insight =>
+                        insightMatchesAlmanacThread(
+                            insight,
+                            selectedThread,
+                        ),
+                );
+
+
             return (
                 <div className="sprig-knowledge-almanac">
                     <div className="sprig-knowledge-detail-toolbar">
@@ -5948,6 +6257,7 @@ export default function GardenKnowledge({
                         </button>
                     </div>
 
+
                     <section className="sprig-knowledge-paper">
                         <p className="section-label">
                             Garden thread
@@ -5958,18 +6268,90 @@ export default function GardenKnowledge({
                         </h2>
 
                         <p className="sprig-knowledge-almanac-phrase">
-                            {getEvidencePhrase(
-                                selectedThread.evidenceCount,
+                            {getThreadContentsPhrase(
+                                selectedThread,
                             )}
                         </p>
 
                         <p>
-                            Sprig is gathering related pieces
-                            here so you can see the story
-                            together. The original records
-                            remain where they belong.
+                            The Almanac gathers the records and
+                            knowledge you have kept about this
+                            subject. The original records remain
+                            where they belong.
                         </p>
                     </section>
+
+
+                    {threadInsights.length >
+                        0 && (
+                        <section className="sprig-knowledge-paper">
+                            <div className="sprig-knowledge-section-heading">
+                                <div>
+                                    <p className="section-label">
+                                        From your garden
+                                    </p>
+
+                                    <h3>
+                                        What Sprig has noticed
+                                    </h3>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="sprig-knowledge-text-button"
+                                    onClick={() =>
+                                        onNavigate(
+                                            'sprig-smart',
+                                        )
+                                    }
+                                >
+                                    Sprig Smart ›
+                                </button>
+                            </div>
+
+                            <p className="sprig-knowledge-muted">
+                                These observations are derived
+                                from your garden records. They
+                                are not stored as gardening facts,
+                                and they may change as Sprig gains
+                                more evidence.
+                            </p>
+
+                            <div className="sprig-knowledge-card-list">
+                                {threadInsights.map(
+                                    insight => (
+                                        <article
+                                            key={
+                                                insight.id
+                                            }
+                                            className="sprig-knowledge-card"
+                                        >
+                                            <div>
+                                                <span className="sprig-knowledge-card-kicker">
+                                                    {getSprigInsightFamilyLabel(
+                                                        insight.family,
+                                                    )}
+                                                    {' · '}
+                                                    {getSprigInsightStrengthLabel(
+                                                        insight.strength,
+                                                    )}
+                                                </span>
+
+                                                <strong>
+                                                    {insight.title}
+                                                </strong>
+
+                                                <p>
+                                                    {insight.message}
+                                                </p>
+                                            </div>
+                                        </article>
+                                    ),
+                                )}
+                            </div>
+                        </section>
+                    )}
+
 
                     {plantStories.length >
                         0 && (
@@ -6006,6 +6388,7 @@ export default function GardenKnowledge({
                         </section>
                     )}
 
+
                     {harvests.length >
                         0 && (
                         <section className="sprig-knowledge-paper">
@@ -6041,6 +6424,7 @@ export default function GardenKnowledge({
                             </div>
                         </section>
                     )}
+
 
                     {threadNotes.length >
                         0 && (
@@ -6083,6 +6467,7 @@ export default function GardenKnowledge({
                         </section>
                     )}
 
+
                     {threadReferences.length >
                         0 && (
                         <section className="sprig-knowledge-paper">
@@ -6123,6 +6508,7 @@ export default function GardenKnowledge({
                             </div>
                         </section>
                     )}
+
 
                     {threadSources.length >
                         0 && (
@@ -6165,6 +6551,7 @@ export default function GardenKnowledge({
             );
         }
 
+
         return (
             <div className="sprig-knowledge-almanac">
                 <section className="sprig-knowledge-paper sprig-knowledge-almanac-intro">
@@ -6173,8 +6560,14 @@ export default function GardenKnowledge({
                     </p>
 
                     <h2>
-                        Your garden, beginning to teach itself back to you
+                        The knowledge and history your garden has gathered
                     </h2>
+
+                    <p>
+                        Find a subject to bring its Plant Stories,
+                        Harvests, Garden Notes, Garden Reference
+                        and saved Tips & Sources together.
+                    </p>
 
                     <label className="sprig-knowledge-field">
                         <span>
@@ -6201,22 +6594,103 @@ export default function GardenKnowledge({
                         </summary>
 
                         <p>
-                            The Almanac is not another place to
-                            re-enter records. It gathers threads
-                            from Plant Stories, Harvests, Garden
-                            Notes, Garden Reference and Tips &
-                            Sources so patterns can become visible
-                            without pretending every clue is a
-                            proven gardening rule.
+                            The Almanac is an index into knowledge
+                            and garden history you have kept. It
+                            gathers related records without moving
+                            them or changing what they mean.
+                        </p>
+
+                        <p>
+                            Sprig Intelligence is separate. When
+                            Sprig has derived a useful observation
+                            about an Almanac subject, it can appear
+                            here as “From your garden”, with the
+                            full Intelligence view available in
+                            Sprig Smart.
                         </p>
 
                         <p className="sprig-knowledge-muted">
-                            Your original records stay where they
-                            belong. The Almanac simply gathers the
-                            threads.
+                            Record counts tell you how much material
+                            is in a thread. They do not, by themselves,
+                            prove that a pattern exists.
                         </p>
                     </details>
                 </section>
+
+
+                {almanacInsights.length >
+                    0 && (
+                    <section className="sprig-knowledge-paper">
+                        <div className="sprig-knowledge-section-heading">
+                            <div>
+                                <p className="section-label">
+                                    From your garden
+                                </p>
+
+                                <h2>
+                                    A few things Sprig has noticed
+                                </h2>
+                            </div>
+
+                            <button
+                                type="button"
+                                className="sprig-knowledge-text-button"
+                                onClick={() =>
+                                    onNavigate(
+                                        'sprig-smart',
+                                    )
+                                }
+                            >
+                                Sprig Smart ›
+                            </button>
+                        </div>
+
+                        <p className="sprig-knowledge-muted">
+                            These come from the shared Sprig
+                            Intelligence system. The Almanac does
+                            not create a second set of patterns.
+                        </p>
+
+                        <div className="sprig-knowledge-card-list">
+                            {almanacInsights
+                                .slice(
+                                    0,
+                                    3,
+                                )
+                                .map(
+                                    insight => (
+                                        <article
+                                            key={
+                                                insight.id
+                                            }
+                                            className="sprig-knowledge-card"
+                                        >
+                                            <div>
+                                                <span className="sprig-knowledge-card-kicker">
+                                                    {getSprigInsightFamilyLabel(
+                                                        insight.family,
+                                                    )}
+                                                    {' · '}
+                                                    {getSprigInsightStrengthLabel(
+                                                        insight.strength,
+                                                    )}
+                                                </span>
+
+                                                <strong>
+                                                    {insight.title}
+                                                </strong>
+
+                                                <p>
+                                                    {insight.message}
+                                                </p>
+                                            </div>
+                                        </article>
+                                    ),
+                                )}
+                        </div>
+                    </section>
+                )}
+
 
                 {filteredAlmanacThreads.length ===
                 0 ? (
@@ -6226,8 +6700,8 @@ export default function GardenKnowledge({
                         </strong>
 
                         <p>
-                            As Sprig gathers your garden story,
-                            more threads can begin appearing here.
+                            As you keep garden knowledge and
+                            history, more subjects can appear here.
                         </p>
                     </div>
                 ) : (
@@ -6255,8 +6729,8 @@ export default function GardenKnowledge({
                                     </h3>
 
                                     <p className="sprig-knowledge-almanac-phrase">
-                                        {getEvidencePhrase(
-                                            thread.evidenceCount,
+                                        {getThreadContentsPhrase(
+                                            thread,
                                         )}
                                     </p>
 
@@ -6323,7 +6797,6 @@ export default function GardenKnowledge({
             </div>
         );
     }
-
 
     function renderKnowledgeNavigation() {
         return (

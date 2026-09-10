@@ -3,14 +3,7 @@ import {
   type ReactNode,
 } from 'react'
 
-import labelTall from '../../images/cards/label-tall.png'
-import labelShort from '../../images/cards/label-short.png'
-
 import '../../css/components/sprig.css'
-
-import selectionCard from '../../images/cards/selection-card.png'
-import tag from '../../images/cards/tag.png'
-import tagSelected from '../../images/cards/tag-selected.png'
 
 
 /* =======================================
@@ -438,22 +431,6 @@ export default function SprigPicker<
         aria-pressed={
           isSelected
         }
-        style={{
-          backgroundImage:
-            `url(${
-              variant ===
-              'label'
-                ? labelShort
-
-                : variant ===
-                  'label-tall'
-                  ? labelTall
-
-                  : isSelected
-                    ? tagSelected
-                    : tag
-            })`,
-        }}
       >
         {option.icon && (
           <span className="sprig-picker-option-icon">
@@ -529,10 +506,6 @@ export default function SprigPicker<
           aria-expanded={
             isOpen
           }
-          style={{
-            backgroundImage:
-              `url(${selectionCard})`,
-          }}
         >
           <span className="sprig-picker-summary">
             {summary}
@@ -557,9 +530,6 @@ export default function SprigPicker<
 
       {isOpen && (
         <div className="sprig-picker-panel">
-
-          
-
 
           {/* =====================================
               STANDARD PICKER

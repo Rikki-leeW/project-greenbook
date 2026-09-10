@@ -16,6 +16,7 @@ import type {
   GardenProductCategory,
   PurchaseRecord,
   PurchaseUnit,
+  SprigPhotoMetadata,
 } from '../../types'
 
 
@@ -25,21 +26,20 @@ type ProductEditorMode =
   | 'variation'
 
 
-  interface AddProductFormProps {
-    product?: GardenProduct | null
-  
-    mode?: ProductEditorMode
-  
-    initialPurchase?: PurchaseRecord | null
-  
-    onSave: (
-      product: GardenProduct,
-      purchase?: PurchaseRecord,
-    ) => void
-  
-    onClose: () => void
-  }
+interface AddProductFormProps {
+  product?: GardenProduct | null
 
+  mode?: ProductEditorMode
+
+  initialPurchase?: PurchaseRecord | null
+
+  onSave: (
+    product: GardenProduct,
+    purchase?: PurchaseRecord,
+  ) => void
+
+  onClose: () => void
+}
 
 
 type RecordRating =
@@ -317,6 +317,23 @@ export default function AddProductForm({
 
 
   const [
+    photoMetadata,
+    setPhotoMetadata,
+  ] =
+    useState<
+      Array<
+        SprigPhotoMetadata |
+        undefined
+      >
+    >(
+      isVariation
+        ? []
+        : product?.photoMetadata ??
+          [],
+    )
+
+
+  const [
     isFavourite,
     setIsFavourite,
   ] =
@@ -342,7 +359,7 @@ export default function AddProductForm({
     )
 
 
-    /* =======================================
+  /* =======================================
      PURCHASE STATE
   ======================================= */
 
@@ -508,6 +525,15 @@ export default function AddProductForm({
       )
 
 
+      setPhotoMetadata(
+        mode ===
+          'variation'
+          ? []
+          : product?.photoMetadata ??
+            [],
+      )
+
+
       setIsFavourite(
         mode ===
           'variation'
@@ -525,7 +551,7 @@ export default function AddProductForm({
       )
 
 
-            /*
+      /*
        * A brand-new Product starts with
        * fresh purchase fields.
        *
@@ -536,100 +562,101 @@ export default function AddProductForm({
        * a brand-new Purchase record.
        */
 
-            if (
-              mode === 'new'
-            ) {
-              setSupplier(
-                '',
+      if (
+        mode === 'new'
+      ) {
+        setSupplier(
+          '',
+        )
+
+        setPurchaseDate(
+          getTodayDate(),
+        )
+
+        setPricePaid(
+          '',
+        )
+
+        setQuantity(
+          '1',
+        )
+
+        setUnit(
+          'each',
+        )
+
+        setPackageSize(
+          '',
+        )
+
+        setPackageUnit(
+          'litre',
+        )
+
+        setPurchaseNotes(
+          '',
+        )
+      }
+
+
+      if (
+        mode === 'variation'
+      ) {
+        setSupplier(
+          initialPurchase?.supplier ??
+            '',
+        )
+
+        setPurchaseDate(
+          getTodayDate(),
+        )
+
+        setPricePaid(
+          initialPurchase?.pricePaid !==
+            undefined
+            ? String(
+                initialPurchase.pricePaid,
               )
-      
-              setPurchaseDate(
-                getTodayDate(),
+            : '',
+        )
+
+        setQuantity(
+          initialPurchase?.quantity !==
+            undefined
+            ? String(
+                initialPurchase.quantity,
               )
-      
-              setPricePaid(
-                '',
+            : '1',
+        )
+
+        setUnit(
+          initialPurchase?.unit ??
+            'each',
+        )
+
+        setPackageSize(
+          initialPurchase?.packageSize !==
+            undefined
+            ? String(
+                initialPurchase.packageSize,
               )
-      
-              setQuantity(
-                '1',
-              )
-      
-              setUnit(
-                'each',
-              )
-      
-              setPackageSize(
-                '',
-              )
-      
-              setPackageUnit(
-                'litre',
-              )
-      
-              setPurchaseNotes(
-                '',
-              )
-            }
-      
-      
-            if (
-              mode === 'variation'
-            ) {
-              setSupplier(
-                initialPurchase?.supplier ??
-                  '',
-              )
-      
-              setPurchaseDate(
-                getTodayDate(),
-              )
-      
-              setPricePaid(
-                initialPurchase?.pricePaid !==
-                  undefined
-                  ? String(
-                      initialPurchase.pricePaid,
-                    )
-                  : '',
-              )
-      
-              setQuantity(
-                initialPurchase?.quantity !==
-                  undefined
-                  ? String(
-                      initialPurchase.quantity,
-                    )
-                  : '1',
-              )
-      
-              setUnit(
-                initialPurchase?.unit ??
-                  'each',
-              )
-      
-              setPackageSize(
-                initialPurchase?.packageSize !==
-                  undefined
-                  ? String(
-                      initialPurchase.packageSize,
-                    )
-                  : '',
-              )
-      
-              setPackageUnit(
-                initialPurchase?.packageUnit ??
-                  'litre',
-              )
-      
-              setPurchaseNotes(
-                '',
-              )
-            }
+            : '',
+        )
+
+        setPackageUnit(
+          initialPurchase?.packageUnit ??
+            'litre',
+        )
+
+        setPurchaseNotes(
+          '',
+        )
+      }
     },
     [
       product,
       mode,
+      initialPurchase,
     ],
   )
 
@@ -1004,6 +1031,8 @@ export default function AddProductForm({
           undefined,
 
         photoUrls,
+
+        photoMetadata,
 
         isFavourite,
 
@@ -1522,9 +1551,19 @@ export default function AddProductForm({
                 setPhotoUrls
               }
 
+              photoMetadata={
+                photoMetadata
+              }
+
+              onPhotoMetadataChange={
+                setPhotoMetadata
+              }
+
+              showPhotoContext
+
               title="Photographs"
 
-              helperText="Tuck photographs of the package, label, instructions or anything else worth keeping with this Product into this page."
+              helperText="Tuck photographs of the package, label, instructions or anything else worth keeping with this Product into this page. Extra context is optional, but Sprig can remember what each photograph shows later."
 
               addButtonText="Add Product photographs"
 

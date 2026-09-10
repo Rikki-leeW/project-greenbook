@@ -4,6 +4,7 @@ import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 
 import type {
     GardenEvent,
+    GardenProduct,
     GrowingPlace,
     PlantStory,
 } from '../types';
@@ -16,6 +17,7 @@ interface JournalEntryDetailProps {
     event: GardenEvent;
     plants: PlantStory[];
     growingPlaces: GrowingPlace[];
+    products: GardenProduct[];
     journeyBackLabel: string | null;
     onBack: () => void;
     onOpenJournal: () => void;
@@ -23,6 +25,7 @@ interface JournalEntryDetailProps {
     onDelete: (eventId: string) => void;
     onOpenPlant: (plantId: string) => void;
     onOpenGrowingPlace: (growingPlaceId: string) => void;
+    onOpenProduct: (productId: string) => void;
     onNavigate: (page: AppPage) => void;
 }
 
@@ -179,6 +182,28 @@ const styles = `
         line-height: 1.5;
     }
 
+    .journal-entry-detail-page .journal-linked-product-list {
+        list-style: none;
+        margin: 0.6rem 0 0;
+        padding: 0;
+    }
+
+    .journal-entry-detail-page .journal-linked-product-list li + li {
+        margin-top: 0.55rem;
+    }
+
+    .journal-entry-detail-page .journal-linked-product-list .text-button {
+        width: auto;
+        margin: 0;
+        padding: 0.15rem 0;
+        text-align: left;
+        white-space: normal;
+    }
+
+    .journal-entry-detail-page .journal-free-text-product {
+        margin-top: 0.8rem;
+    }
+
     .journal-entry-detail-page .detail-back-to-top {
         display: flex;
         justify-content: center;
@@ -201,6 +226,7 @@ export default function JournalEntryDetail({
     event,
     plants,
     growingPlaces,
+    products,
     journeyBackLabel,
     onBack,
     onOpenJournal,
@@ -208,6 +234,7 @@ export default function JournalEntryDetail({
     onDelete,
     onOpenPlant,
     onOpenGrowingPlace,
+    onOpenProduct,
     onNavigate,
 }: JournalEntryDetailProps) {
     const [durationUnit, setDurationUnit] = useState<DurationUnit>('weeks');
@@ -221,6 +248,10 @@ export default function JournalEntryDetail({
 
     const linkedGrowingPlaces = growingPlaces.filter(
         place => event.growingPlaceIds?.includes(place.id),
+    );
+
+    const linkedProducts = products.filter(
+        product => event.productIds?.includes(product.id),
     );
 
     const activityTypes = event.activityTypes?.length
@@ -475,11 +506,38 @@ export default function JournalEntryDetail({
                         )}
                     </article>
 
-                    {event.productUsed && (
+                    {(linkedProducts.length > 0 || event.productUsed) && (
                         <article className="library-book">
                             <p className="section-label">Garden provisions</p>
                             <h2>What was used</h2>
-                            <p>{event.productUsed}</p>
+
+                            {linkedProducts.length > 0 && (
+                                <ul className="journal-linked-product-list">
+                                    {linkedProducts.map(product => (
+                                        <li key={product.id}>
+                                            <button
+                                                type="button"
+                                                className="text-button"
+                                                onClick={() => onOpenProduct(product.id)}
+                                            >
+                                                🌿 {product.name}
+                                                {product.brand && (
+                                                    <> · {product.brand}</>
+                                                )}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            {event.productUsed && (
+                                <p className="journal-free-text-product">
+                                    {linkedProducts.length > 0 && (
+                                        <strong>Also noted: </strong>
+                                    )}
+                                    {event.productUsed}
+                                </p>
+                            )}
                         </article>
                     )}
 

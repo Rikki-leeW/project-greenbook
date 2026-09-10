@@ -4,6 +4,7 @@ import {
 } from 'react';
 
 import './css/App.css';
+import './css/sprig-print.css';
 
 import AppLibrary from './components/app/AppLibrary';
 
@@ -11,6 +12,8 @@ import AddEventForm from './components/forms/AddEventForm';
 import AddPlantForm from './components/forms/AddPlantForm';
 import AddRecipeForm from './components/forms/AddRecipeForm';
 import AddGrowingPlaceForm from './components/forms/AddGrowingPlaceForm';
+import AddIngredientForm from './components/forms/AddIngredientForm';
+import AddProductForm from './components/forms/AddProductForm';
 import AddHarvestForm from './components/forms/AddHarvestForm';
 
 import PurchaseEditor from './components/purchases/PurchaseEditor';
@@ -38,6 +41,7 @@ import GlobalSearch from './pages/GlobalSearch';
 import GardenKnowledge from './pages/GardenKnowledge';
 import GardenTrials from './pages/GardenTrials';
 import GardenGallery from './pages/GardenGallery';
+import SprigSmart from './pages/SprigSmart';
 
 import type {
   GlobalSearchItem,
@@ -359,18 +363,36 @@ function App() {
     );
 
 
-  const [
-    isAddGrowingPlaceOpen,
-    setIsAddGrowingPlaceOpen,
-  ] =
-    useState(
-      false,
-    );
-
-
-  /* =======================================
-     PLAN → REALITY
-  ======================================= */
+    const [
+      isAddGrowingPlaceOpen,
+      setIsAddGrowingPlaceOpen,
+    ] =
+      useState(
+        false,
+      );
+  
+  
+    const [
+      isAddIngredientOpen,
+      setIsAddIngredientOpen,
+    ] =
+      useState(
+        false,
+      );
+  
+  
+    const [
+      isAddProductOpen,
+      setIsAddProductOpen,
+    ] =
+      useState(
+        false,
+      );
+  
+  
+    /* =======================================
+       PLAN → REALITY
+    ======================================= */
 
   const [
     planToRecord,
@@ -654,6 +676,9 @@ function App() {
 
       case 'garden-trials':
         return 'Garden Trials';
+
+        case 'sprig-smart':
+        return 'Sprig Smart';
 
       case 'garden-gallery':
         return 'Garden Gallery';
@@ -1208,6 +1233,14 @@ function App() {
       false,
     );
 
+    setIsAddIngredientOpen(
+      false,
+    );
+
+    setIsAddProductOpen(
+      false,
+    );
+
     setHarvestEditorRecord(
       null,
     );
@@ -1485,6 +1518,119 @@ function App() {
     clearLibraryRecordDestination();
 
     closeTransientNavigationState();
+
+
+    /*
+     * CANONICAL GROWING DESTINATIONS
+     *
+     * Growing is now the home for Growing
+     * Places, Growing Setups, Ingredients
+     * and Products.
+     *
+     * The optional destination tells Sprig
+     * which part of Growing the gardener is
+     * returning to.
+     *
+     * This keeps the global navigation rule:
+     *
+     * Back remembers the journey.
+     * Home remembers where the record lives.
+     */
+    if (
+      page ===
+      'growing-places'
+    ) {
+      switch (
+        libraryView
+      ) {
+        case 'ingredients':
+          setGrowingSection(
+            'ingredients',
+          );
+
+          setGrowingSetupSection(
+            'overview',
+          );
+
+          break;
+
+
+        case 'products':
+          setGrowingSection(
+            'products',
+          );
+
+          setGrowingSetupSection(
+            'overview',
+          );
+
+          break;
+
+
+        case 'growing-own-mix':
+          setGrowingSection(
+            'setups',
+          );
+
+          setGrowingSetupSection(
+            'own-mix',
+          );
+
+          break;
+
+
+        case 'growing-bought-mix':
+          setGrowingSection(
+            'setups',
+          );
+
+          setGrowingSetupSection(
+            'bought-mix',
+          );
+
+          break;
+
+
+        case 'growing-system':
+          setGrowingSection(
+            'setups',
+          );
+
+          setGrowingSetupSection(
+            'growing-system',
+          );
+
+          break;
+
+
+        case 'growing-ground-type':
+          setGrowingSection(
+            'setups',
+          );
+
+          setGrowingSetupSection(
+            'ground-type',
+          );
+
+          break;
+
+
+        case 'growing-recipes':
+          setGrowingSection(
+            'setups',
+          );
+
+          setGrowingSetupSection(
+            'overview',
+          );
+
+          break;
+
+
+        default:
+          break;
+      }
+    }
 
 
     if (
@@ -5082,6 +5228,11 @@ function App() {
             gardenData.growingPlaces
           }
 
+          products={
+            gardenData.products ??
+            []
+          }
+
           journeyBackLabel={
             journeyBackLabel
           }
@@ -5124,6 +5275,10 @@ function App() {
             handleOpenGrowingPlaceRecord
           }
 
+          onOpenProduct={
+            handleOpenProductRecord
+          }
+
           onNavigate={
             handleNavigate
           }
@@ -5140,6 +5295,11 @@ function App() {
 
             growingPlaces={
               gardenData.growingPlaces
+            }
+
+            products={
+              gardenData.products ??
+              []
             }
 
             eventToEdit={
@@ -5283,76 +5443,88 @@ function App() {
   ) {
     return (
       <PlantComparison
-        plantIds={
-          comparisonPlantIds
-        }
-
-        activeSavedComparisonId={
+      gardenData={gardenData}
+    
+      plantIds={
+        comparisonPlantIds
+      }
+    
+      activeSavedComparisonId={
+        activeSavedComparisonId
+      }
+    
+      plants={
+        gardenData.plantStories
+      }
+    
+      growingPlaces={
+        gardenData.growingPlaces
+      }
+    
+      growingSetups={
+        gardenData.growingSetups ??
+        []
+      }
+    
+      ingredients={
+        gardenData.ingredients ??
+        []
+      }
+    
+      products={
+        gardenData.products ??
+        []
+      }
+    
+      events={
+        gardenData.events
+      }
+    
+      harvests={
+        gardenData.harvests
+      }
+    
+      backLabel={
+        activeSavedComparisonId
+          ? 'Back to Comparisons'
+          : 'Back to Plants'
+      }
+    
+      onBack={() =>
+        handleJourneyBack(
           activeSavedComparisonId
+            ? 'comparisons'
+            : 'plants',
+        )
+      }
+    
+      onEditComparison={
+        plantStoryIds => {
+          setJourneyHistory(
+            [],
+          );
+    
+          setComparisonPlantIds(
+            plantStoryIds,
+          );
+    
+          setActivePage(
+            'plants',
+          );
         }
-
-        plants={
-          gardenData.plantStories
-        }
-
-        growingPlaces={
-          gardenData.growingPlaces
-        }
-
-        growingSetups={
-          gardenData.growingSetups ??
-          []
-        }
-
-        ingredients={
-          gardenData.ingredients ??
-          []
-        }
-
-        products={
-          gardenData.products ??
-          []
-        }
-
-        events={
-          gardenData.events
-        }
-
-        harvests={
-          gardenData.harvests
-        }
-
-        onBack={() =>
-          handleJourneyBack(
-            activeSavedComparisonId
-              ? 'comparisons'
-              : 'plants',
-          )
-        }
-
-        onEditComparison={
-          plantStoryIds => {
-            setJourneyHistory(
-              [],
-            );
-
-            setComparisonPlantIds(
-              plantStoryIds,
-            );
-
-            setActivePage(
-              'plants',
-            );
-          }
-        }
-
-        onSaveComparison={
-          handleSavePlantComparison
-        }
-
-        onNavigate={
-          handleNavigate
-        }
+      }
+    
+      onSaveComparison={
+        handleSavePlantComparison
+      }
+    
+      onNavigate={
+        handleNavigate
+      }
+      
+      onOpenRelationship={
+        handleOpenKnowledgeRelationship
+      }
       />
     );
   }
@@ -5367,9 +5539,13 @@ function App() {
   ) {
     return (
       <>
-        <PlantDetail
+            <PlantDetail
           plant={
             selectedPlant
+          }
+
+          gardenData={
+            gardenData
           }
 
           plants={
@@ -5524,6 +5700,11 @@ function App() {
                 gardenData.growingPlaces
               }
 
+              products={
+                gardenData.products ??
+                []
+              }
+
               onAddEvent={
                 handleAddEvent
               }
@@ -5641,47 +5822,51 @@ function App() {
 
 
   /* =======================================
-     COMPARISONS
-  ======================================= */
+    COMPARISONS
+======================================= */
 
-  if (
-    activePage ===
-    'comparisons'
-  ) {
-    return (
-      <Comparisons
-        comparisons={
-          gardenData.savedComparisons ??
-          []
-        }
+if (
+  activePage ===
+  'comparisons'
+) {
+  return (
+    <Comparisons
+      comparisons={
+        gardenData.savedComparisons ??
+        []
+      }
 
-        plants={
-          gardenData.plantStories
-        }
+      plants={
+        gardenData.plantStories
+      }
 
-        onOpenComparison={
-          comparison =>
-            handleOpenComparisonRecord(
-              comparison.id,
-            )
-        }
+      onOpenComparison={
+        comparison =>
+          handleOpenComparisonRecord(
+            comparison.id,
+          )
+      }
 
-        onRenameComparison={
-          handleRenameSavedComparison
-        }
+      onRenameComparison={
+        handleRenameSavedComparison
+      }
 
-        onDeleteComparison={
-          handleDeleteSavedComparison
-        }
+      onDeleteComparison={
+        handleDeleteSavedComparison
+      }
 
-        onNavigate={
-          handleNavigate
-        }
-      />
-    );
-  }
+      onBack={() =>
+        handleJourneyBack(
+          'plants',
+        )
+      }
 
-
+      onNavigate={
+        handleNavigate
+      }
+    />
+  );
+}
   /* =======================================
      JOURNAL
   ======================================= */
@@ -5745,6 +5930,11 @@ function App() {
 
             growingPlaces={
               gardenData.growingPlaces
+            }
+
+            products={
+              gardenData.products ??
+              []
             }
 
             onAddEvent={
@@ -6051,6 +6241,18 @@ function App() {
             )
           }
 
+          onAddIngredient={() => {
+            setIsAddIngredientOpen(
+              true,
+            );
+          }}
+
+          onAddProduct={() => {
+            setIsAddProductOpen(
+              true,
+            );
+          }}
+
           onOpenPlace={
             handleOpenGrowingPlaceRecord
           }
@@ -6122,7 +6324,7 @@ function App() {
         )}
 
 
-        {isAddRecipeOpen && (
+{isAddRecipeOpen && (
           <AddRecipeForm
             ingredients={
               gardenData.ingredients ??
@@ -6157,6 +6359,79 @@ function App() {
 
             onClose={() =>
               setIsAddRecipeOpen(
+                false,
+              )
+            }
+          />
+        )}
+
+
+        {isAddIngredientOpen && (
+          <AddIngredientForm
+            onAddIngredient={
+              ingredient => {
+                handleAddIngredient(
+                  ingredient,
+                );
+
+                setIsAddIngredientOpen(
+                  false,
+                );
+              }
+            }
+
+            onUpdateIngredient={
+              handleUpdateIngredient
+            }
+
+            onAddPurchase={
+              handleAddPurchase
+            }
+
+            onClose={() =>
+              setIsAddIngredientOpen(
+                false,
+              )
+            }
+          />
+        )}
+
+
+        {isAddProductOpen && (
+          <AddProductForm
+            product={
+              null
+            }
+
+            mode="new"
+
+            initialPurchase={
+              null
+            }
+
+            onSave={(
+              product,
+              purchase,
+            ) => {
+              handleAddProduct(
+                product,
+              );
+
+              if (
+                purchase
+              ) {
+                handleAddPurchase(
+                  purchase,
+                );
+              }
+
+              setIsAddProductOpen(
+                false,
+              );
+            }}
+
+            onClose={() =>
+              setIsAddProductOpen(
                 false,
               )
             }
@@ -6382,22 +6657,28 @@ function App() {
     return (
       <>
         <GardenGallery
-          gardenData={
-            gardenData
-          }
+  gardenData={
+    gardenData
+  }
 
-          onGardenDataChange={
-            handleGardenGalleryDataChange
-          }
+  onGardenDataChange={
+    handleGardenGalleryDataChange
+  }
 
-          onNavigate={
-            handleNavigate
-          }
+  onBack={() =>
+    handleJourneyBack(
+      'gate',
+    )
+  }
 
-          onOpenRelationship={
-            handleOpenKnowledgeRelationship
-          }
-        />
+  onNavigate={
+    handleNavigate
+  }
+
+  onOpenRelationship={
+    handleOpenKnowledgeRelationship
+  }
+/>
 
 
         {selectedPurchase && (
@@ -6762,7 +7043,7 @@ function App() {
             planToRecord.kind ===
               'other'
           ) && (
-          <AddEventForm
+            <AddEventForm
             plantId=""
 
             plants={
@@ -6771,6 +7052,11 @@ function App() {
 
             growingPlaces={
               gardenData.growingPlaces
+            }
+
+            products={
+              gardenData.products ??
+              []
             }
 
             planToRecord={
@@ -6862,6 +7148,84 @@ function App() {
           />
         )}
       </>
+    );
+  }
+
+
+    /* =======================================
+     SPRIG SMART
+  ======================================= */
+
+  if (
+    activePage ===
+    'sprig-smart'
+  ) {
+    return (
+      <SprigSmart
+      gardenData={
+        gardenData
+      }
+
+      onNavigate={
+        handleNavigate
+      }
+
+      onBack={() =>
+          handleJourneyBack(
+            'gate',
+          )
+        }
+
+        onOpenPlant={
+          handleOpenPlantRecord
+        }
+
+        onComparePlants={
+          plantIds => {
+            rememberCurrentJourneyState();
+
+            setComparisonPlantIds(
+              plantIds,
+            );
+
+            setActiveSavedComparisonId(
+              null,
+            );
+
+            setActivePage(
+              'comparison',
+            );
+          }
+        }
+
+        onOpenTrial={
+          handleOpenGardenTrialRecord
+        }
+
+        onOpenGallery={() =>
+          handleNavigate(
+            'garden-gallery',
+          )
+        }
+
+        onOpenCalendar={() =>
+          handleNavigate(
+            'calendar',
+          )
+        }
+
+        onOpenHarvests={() =>
+          handleNavigate(
+            'harvest',
+          )
+        }
+
+        onOpenJournal={() =>
+          handleNavigate(
+            'journal',
+          )
+        }
+      />
     );
   }
 
@@ -7159,6 +7523,11 @@ function App() {
 
           growingPlaces={
             gardenData.growingPlaces
+          }
+
+          products={
+            gardenData.products ??
+            []
           }
 
           onAddEvent={
