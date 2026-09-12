@@ -16,6 +16,8 @@ interface PlantCardProps {
 
   latestActivityDate?: string
 
+  latestActivitySummary?: string
+
   thumbnailPhotoUrl?: string
 
   ageUnit?: DurationDisplayUnit
@@ -73,7 +75,8 @@ function getDaysBetweenDates(
     end = new Date(
       `${endDate}T00:00:00`,
     )
-  } else {
+  }
+  else {
     const today =
       new Date()
 
@@ -157,6 +160,7 @@ export default function PlantCard({
   plant,
   growingPlaceName,
   latestActivityDate,
+  latestActivitySummary,
   thumbnailPhotoUrl,
   ageUnit = 'weeks',
   onOpen,
@@ -164,6 +168,7 @@ export default function PlantCard({
   isSelectedForComparison = false,
   onToggleComparison,
 }: PlantCardProps) {
+
   /*
    * A completed Plant Story stops ageing
    * when its story ends.
@@ -263,6 +268,7 @@ export default function PlantCard({
       }
     >
       <div className="plant-card-content">
+
         <div className="plant-card-compact-heading">
           <div className="plant-card-compact-title">
             <h3>
@@ -290,6 +296,7 @@ export default function PlantCard({
               )}
             </p>
           </div>
+
 
           <span
             className={[
@@ -319,6 +326,7 @@ export default function PlantCard({
         <div className="plant-card-compact-meta">
           <span>
             Planted{' '}
+
             {formatShortDate(
               plant.plantedDate,
             )}
@@ -339,16 +347,28 @@ export default function PlantCard({
           </strong>
         </div>
 
-
         {latestActivityDate &&
-          latestActivityDate !==
-            plant.plantedDate && (
-            <p className="plant-card-latest-activity">
-              Latest activity{' '}
-              {formatShortDate(
-                latestActivityDate,
+  (
+    latestActivitySummary ||
+    latestActivityDate !==
+      plant.plantedDate
+  ) && (
+            <div className="plant-card-latest-activity">
+              <strong>
+                Latest ·{' '}
+                {formatShortDate(
+                  latestActivityDate,
+                )}
+              </strong>
+
+              {latestActivitySummary && (
+                <span>
+                  {' '}
+                  ·{' '}
+                  {latestActivitySummary}
+                </span>
               )}
-            </p>
+            </div>
           )}
 
 

@@ -796,7 +796,6 @@ export default function PlantDetail({
         onAddPlant(newPlant);
         setIsVariationOpen(false);
         onOpenPlant(newPlant.id);
-        setIsEditOpen(true);
     }
 
     const [durationDisplayUnit, setDurationDisplayUnit] =

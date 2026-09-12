@@ -621,7 +621,7 @@ export default function AddGrowingPlaceForm({
 
         <div className="chronicle-content">
 
-          <div className="form-heading-row">
+          <div className="form-heading">
             <div>
               <p className="section-label">
                 Growing · Where
@@ -645,7 +645,7 @@ export default function AddGrowingPlaceForm({
 
             <button
               type="button"
-              className="form-close-button"
+              className="close-button"
               onClick={
                 onClose
               }

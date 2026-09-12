@@ -535,6 +535,7 @@ export interface PlantStory {
 
 export type EventType =
   | 'planted'
+  | 'transplanted'
   | 'sprouted'
   | 'watered'
   | 'fed'
@@ -561,6 +562,21 @@ export type PlantScope =
   | 'category'
   | 'all-plants';
 
+/*
+ * A Move or Transplant can change the
+ * conditions a Plant Story is currently
+ * growing in.
+ *
+ * These values belong to the Garden Event
+ * because the event is the historical fact
+ * that explains when and why the Plant
+ * Story's current state changed.
+ */
+export type GardenEventGrowingChange =
+  | 'growing-place'
+  | 'growing-setup'
+  | 'both';
+
 export interface GardenEvent {
   id: string;
   date: string;
@@ -568,8 +584,28 @@ export interface GardenEvent {
   activityTypes?: EventType[];
   title: string;
   notes?: string;
+
+  /*
+   * Real Product relationships used for
+   * fertilising, treating, transplanting or
+   * any other garden intervention.
+   *
+   * productUsed remains as the gardener's
+   * original free-text escape hatch for
+   * things that are not saved Products.
+   */
   productIds?: string[];
   productUsed?: string;
+
+  /*
+   * Optional context for a treatment.
+   * This deliberately preserves the
+   * gardener's own wording rather than
+   * trying to turn a symptom into a
+   * diagnosis.
+   */
+  treatmentReason?: string;
+
   photoUrls?: string[];
 
   photoMetadata?: Array<
@@ -577,8 +613,33 @@ export interface GardenEvent {
   >;
 
   originatingKnowledgeNoteId?: string;
+
+  /*
+   * General location relationship for the
+   * Moment itself.
+   */
   growingPlaceScope?: GrowingPlaceScope;
   growingPlaceIds?: string[];
+
+  /*
+   * Structured growing-state provenance.
+   *
+   * Moved normally changes Growing Place.
+   * Transplanted may change Growing Place,
+   * Growing Setup, or both.
+   *
+   * "From" values preserve what was true
+   * immediately before the event. "To"
+   * values preserve what became true.
+   */
+  growingChange?: GardenEventGrowingChange;
+
+  fromGrowingPlaceId?: string;
+  toGrowingPlaceId?: string;
+
+  fromGrowingSetupIds?: string[];
+  toGrowingSetupIds?: string[];
+
   plantScope?: PlantScope;
   plantStoryIds: string[];
   plantCategory?: string;

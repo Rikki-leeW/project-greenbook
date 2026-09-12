@@ -3815,6 +3815,306 @@ function App() {
   }
 
 
+   /* =======================================
+     EVENT → PLANT GROWING STATE
+
+     Garden Events own the historical fact.
+     Plant Stories retain the current state
+     and dated growing-history chapters.
+  ======================================= */
+
+  function getPlantGrowingSetupIds(
+    plant:
+      PlantStory,
+  ): string[] {
+    return Array.from(
+      new Set(
+        [
+          ...(
+            plant
+              .currentGrowingSetupIds ??
+            []
+          ),
+
+          plant
+            .currentGrowingSetupId,
+        ].filter(
+          (
+            id,
+          ): id is string =>
+            Boolean(
+              id,
+            ),
+        ),
+      ),
+    );
+  }
+
+
+  function applyGrowingEventToPlant(
+    plant:
+      PlantStory,
+
+    event:
+      GardenEvent,
+  ): PlantStory {
+    if (
+      !event
+        .plantStoryIds
+        .includes(
+          plant.id,
+        )
+    ) {
+      return plant;
+    }
+
+
+    const isMoved =
+      event.type ===
+        'moved' ||
+      event.activityTypes
+        ?.includes(
+          'moved',
+        );
+
+
+    const isTransplanted =
+      event.type ===
+        'transplanted' ||
+      event.activityTypes
+        ?.includes(
+          'transplanted',
+        );
+
+
+    if (
+      !isMoved &&
+      !isTransplanted
+    ) {
+      return plant;
+    }
+
+
+    const changesPlace =
+      Boolean(
+        isMoved,
+      ) ||
+      (
+        Boolean(
+          isTransplanted,
+        ) &&
+        (
+          event.growingChange ===
+            'growing-place' ||
+          event.growingChange ===
+            'both'
+        )
+      );
+
+
+    const changesSetup =
+      Boolean(
+        isTransplanted,
+      ) &&
+      (
+        event.growingChange ===
+          'growing-setup' ||
+        event.growingChange ===
+          'both'
+      );
+
+
+    const nextPlaceId =
+      changesPlace
+        ? event
+            .toGrowingPlaceId
+        : plant
+            .currentGrowingPlaceId;
+
+
+    const currentSetupIds =
+      getPlantGrowingSetupIds(
+        plant,
+      );
+
+
+    const nextSetupIds =
+      changesSetup
+        ? [
+            ...(
+              event
+                .toGrowingSetupIds ??
+              []
+            ),
+          ]
+        : currentSetupIds;
+
+
+    const placeActuallyChanged =
+      changesPlace &&
+      nextPlaceId !==
+        plant
+          .currentGrowingPlaceId;
+
+
+    const setupActuallyChanged =
+      changesSetup &&
+      (
+        nextSetupIds.length !==
+          currentSetupIds.length ||
+        nextSetupIds.some(
+          id =>
+            !currentSetupIds.includes(
+              id,
+            ),
+        )
+      );
+
+
+    if (
+      !placeActuallyChanged &&
+      !setupActuallyChanged
+    ) {
+      return plant;
+    }
+
+
+    const previousPlaceIds =
+      Array.from(
+        new Set(
+          [
+            ...(
+              plant
+                .previousGrowingPlaceIds ??
+              []
+            ),
+
+            placeActuallyChanged
+              ? plant
+                  .currentGrowingPlaceId
+              : undefined,
+          ].filter(
+            (
+              id,
+            ): id is string =>
+              Boolean(
+                id,
+              ),
+          ),
+        ),
+      );
+
+
+    const previousSetupIds =
+      Array.from(
+        new Set(
+          [
+            ...(
+              plant
+                .previousGrowingSetupIdsV2 ??
+              []
+            ),
+
+            ...(
+              setupActuallyChanged
+                ? currentSetupIds
+                : []
+            ),
+          ],
+        ),
+      );
+
+
+    const existingHistory =
+      [
+        ...(
+          plant
+            .growingHistory ??
+          []
+        ),
+      ];
+
+
+    /*
+     * Close the currently open chapter.
+     * We do not rewrite older closed history.
+     */
+    const closedHistory =
+      existingHistory.map(
+        historyEntry =>
+          !historyEntry
+            .endedDate
+            ? {
+                ...historyEntry,
+
+                endedDate:
+                  event.date,
+              }
+            : historyEntry,
+      );
+
+
+    const nextHistoryEntry = {
+      id:
+        `${plant.id}-growing-history-${event.id}`,
+
+      startedDate:
+        event.date,
+
+      growingPlaceId:
+        nextPlaceId,
+
+      growingSetupId:
+        nextSetupIds[0],
+
+      growingSetupIds:
+        [
+          ...nextSetupIds,
+        ],
+
+      gardenEventId:
+        event.id,
+
+      notes:
+        isTransplanted
+          ? 'Growing conditions changed when this Plant Story was transplanted.'
+          : 'Growing Place changed when this Plant Story was moved.',
+    };
+
+
+    return {
+      ...plant,
+
+      currentGrowingPlaceId:
+        nextPlaceId,
+
+      previousGrowingPlaceIds:
+        previousPlaceIds,
+
+      currentGrowingSetupId:
+        nextSetupIds[0],
+
+      currentGrowingSetupIds:
+        [
+          ...nextSetupIds,
+        ],
+
+      previousGrowingSetupIdsV2:
+        previousSetupIds,
+
+      growingHistory: [
+        ...closedHistory,
+
+        nextHistoryEntry,
+      ],
+
+      updatedAt:
+        new Date()
+          .toISOString(),
+    };
+  }
+
+
   /* =======================================
      ADD EVENT
   ======================================= */
@@ -3822,21 +4122,42 @@ function App() {
   function handleAddEvent(
     newEvent:
       GardenEvent,
+
+    openJournalAfterSave =
+      true,
   ) {
+    const eventAlreadyExists =
+      gardenData.events.some(
+        event =>
+          event.id ===
+          newEvent.id,
+      );
+
+
     const updatedGardenData = {
       ...gardenData,
 
       events:
-        gardenData.events.some(
-          event =>
-            event.id ===
-            newEvent.id,
-        )
+        eventAlreadyExists
           ? gardenData.events
           : [
               ...gardenData.events,
               newEvent,
             ],
+
+      plantStories:
+        eventAlreadyExists
+          ? gardenData
+              .plantStories
+          : gardenData
+              .plantStories
+              .map(
+                plant =>
+                  applyGrowingEventToPlant(
+                    plant,
+                    newEvent,
+                  ),
+              ),
     };
 
 
@@ -3852,9 +4173,14 @@ function App() {
       false,
     );
 
-    handleOpenJournalRecord(
-      newEvent.id,
-    );
+
+    if (
+      openJournalAfterSave
+    ) {
+      handleOpenJournalRecord(
+        newEvent.id,
+      );
+    }
   }
 
 
@@ -3866,6 +4192,17 @@ function App() {
     updatedEvent:
       GardenEvent,
   ) {
+    /*
+     * Existing event-driven growing-history
+     * entries keep their event relationship
+     * and follow a corrected event date.
+     *
+     * We deliberately do not try to
+     * reconstruct an old Plant Story's entire
+     * state from an edited historical Move
+     * here. That deserves chronological
+     * replay, not a lossy local guess.
+     */
     const updatedGardenData = {
       ...gardenData,
 
@@ -3925,6 +4262,8 @@ function App() {
       false,
     );
   }
+
+
 
 
   /* =======================================
@@ -5228,6 +5567,7 @@ function App() {
             gardenData.growingPlaces
           }
 
+      
           products={
             gardenData.products ??
             []
@@ -5295,6 +5635,19 @@ function App() {
 
             growingPlaces={
               gardenData.growingPlaces
+            }
+
+            onAddGrowingPlace={
+              handleAddGrowingPlace
+            }
+            
+            onAddRecipe={
+              handleAddRecipe
+            }
+            
+            growingSetups={
+              gardenData.growingSetups ??
+              []
             }
 
             products={
@@ -5700,13 +6053,30 @@ function App() {
                 gardenData.growingPlaces
               }
 
+              onAddGrowingPlace={
+                handleAddGrowingPlace
+              }
+              
+              onAddRecipe={
+                handleAddRecipe
+              }
+              
+              growingSetups={
+                gardenData.growingSetups ??
+                []
+              }
+
               products={
                 gardenData.products ??
                 []
               }
 
               onAddEvent={
-                handleAddEvent
+                newEvent =>
+                  handleAddEvent(
+                    newEvent,
+                    false,
+                  )
               }
 
               onAddHarvest={
@@ -5930,6 +6300,19 @@ if (
 
             growingPlaces={
               gardenData.growingPlaces
+            }
+
+            onAddGrowingPlace={
+              handleAddGrowingPlace
+            }
+            
+            onAddRecipe={
+              handleAddRecipe
+            }
+            
+            growingSetups={
+              gardenData.growingSetups ??
+              []
             }
 
             products={
@@ -7054,6 +7437,19 @@ if (
               gardenData.growingPlaces
             }
 
+            onAddGrowingPlace={
+              handleAddGrowingPlace
+            }
+            
+            onAddRecipe={
+              handleAddRecipe
+            }
+            
+            growingSetups={
+              gardenData.growingSetups ??
+              []
+            }
+
             products={
               gardenData.products ??
               []
@@ -7523,6 +7919,19 @@ if (
 
           growingPlaces={
             gardenData.growingPlaces
+          }
+
+          onAddGrowingPlace={
+            handleAddGrowingPlace
+          }
+          
+          onAddRecipe={
+            handleAddRecipe
+          }
+          
+          growingSetups={
+            gardenData.growingSetups ??
+            []
           }
 
           products={

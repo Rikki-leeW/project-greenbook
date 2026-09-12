@@ -27,7 +27,9 @@ interface ProductDetailProps {
   onNavigate: (page: AppPage) => void;
 }
 
-function getProductCategoryLabel(product: GardenProduct): string {
+function getProductCategoryLabel(
+  product: GardenProduct,
+): string {
   if (
     product.category === 'other' &&
     product.customCategoryLabel
@@ -41,50 +43,82 @@ function getProductCategoryLabel(product: GardenProduct): string {
   switch (category) {
     case 'fertiliser':
       return 'Fertiliser';
+
     case 'soil-conditioner':
       return 'Soil Conditioner';
+
     case 'wetting-agent':
       return 'Wetting Agent';
+
     case 'pest-treatment':
       return 'Pest Treatment';
+
     case 'disease-treatment':
       return 'Disease Treatment';
+
     case 'weed-treatment':
       return 'Weed Treatment';
+
     case 'biological-treatment':
       return 'Biological Treatment';
+
     case 'root-treatment':
       return 'Root Treatment';
+
     case 'plant-tonic':
       return 'Plant Tonic';
+
     case 'growing-medium':
       return 'Growing Medium';
+
     case 'mulch':
       return 'Mulch';
+
     case 'seed-treatment':
       return 'Seed Treatment';
+
     case 'cleaning-product':
       return 'Cleaning Product';
+
     case 'other':
       return 'Other';
+
     default:
       return 'Garden Product';
   }
 }
 
-function formatDate(date?: string): string {
-  if (!date) return '';
+function formatDate(
+  date?: string,
+): string {
+  if (!date) {
+    return '';
+  }
 
-  const safeDate = date.slice(0, 10);
-  const parsed = new Date(`${safeDate}T00:00:00`);
+  const safeDate =
+    date.slice(0, 10);
 
-  if (Number.isNaN(parsed.getTime())) return date;
+  const parsed =
+    new Date(
+      `${safeDate}T00:00:00`,
+    );
 
-  return parsed.toLocaleDateString('en-AU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  if (
+    Number.isNaN(
+      parsed.getTime(),
+    )
+  ) {
+    return date;
+  }
+
+  return parsed.toLocaleDateString(
+    'en-AU',
+    {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    },
+  );
 }
 
 function formatMoney(
@@ -92,10 +126,13 @@ function formatMoney(
   currency = 'AUD',
 ): string {
   try {
-    return new Intl.NumberFormat('en-AU', {
-      style: 'currency',
-      currency,
-    }).format(value);
+    return new Intl.NumberFormat(
+      'en-AU',
+      {
+        style: 'currency',
+        currency,
+      },
+    ).format(value);
   } catch {
     return `$${value.toFixed(2)}`;
   }
@@ -104,11 +141,17 @@ function formatMoney(
 function formatPurchaseQuantity(
   purchase: PurchaseRecord,
 ): string | undefined {
-  if (purchase.quantity === undefined) return undefined;
+  if (
+    purchase.quantity ===
+    undefined
+  ) {
+    return undefined;
+  }
 
-  const unit = purchase.unit
-    ? ` ${purchase.unit}`
-    : '';
+  const unit =
+    purchase.unit
+      ? ` ${purchase.unit}`
+      : '';
 
   return `${purchase.quantity}${unit}`;
 }
@@ -116,11 +159,17 @@ function formatPurchaseQuantity(
 function formatPackageSize(
   purchase: PurchaseRecord,
 ): string | undefined {
-  if (purchase.packageSize === undefined) return undefined;
+  if (
+    purchase.packageSize ===
+    undefined
+  ) {
+    return undefined;
+  }
 
-  const unit = purchase.packageUnit
-    ? ` ${purchase.packageUnit}`
-    : '';
+  const unit =
+    purchase.packageUnit
+      ? ` ${purchase.packageUnit}`
+      : '';
 
   return `${purchase.packageSize}${unit}`;
 }
@@ -144,15 +193,44 @@ export default function ProductDetail({
   onEditPurchase,
   onNavigate,
 }: ProductDetailProps) {
-  const productPurchases = purchases
-    .filter(
-      purchase =>
-        purchase.itemType === 'product' &&
-        purchase.itemId === product.id,
-    )
-    .sort((first, second) =>
-      second.date.localeCompare(first.date),
-    );
+  const productPurchases =
+    purchases
+      .filter(
+        purchase =>
+          purchase.itemType ===
+            'product' &&
+          purchase.itemId ===
+            product.id,
+      )
+      .sort(
+        (
+          first,
+          second,
+        ) =>
+          second.date.localeCompare(
+            first.date,
+          ),
+      );
+
+  function backToTop() {
+    const prefersReducedMotion =
+      window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+
+    document
+      .getElementById(
+        'product-detail-top',
+      )
+      ?.scrollIntoView({
+        behavior:
+          prefersReducedMotion
+            ? 'auto'
+            : 'smooth',
+
+        block: 'start',
+      });
+  }
 
   function printProduct() {
     window.print();
@@ -161,62 +239,120 @@ export default function ProductDetail({
   function exportProduct() {
     const exportRecord = {
       product,
-      purchases: productPurchases,
+      purchases:
+        productPurchases,
     };
 
-    const blob = new Blob(
-      [JSON.stringify(exportRecord, null, 2)],
-      { type: 'application/json' },
+    const blob =
+      new Blob(
+        [
+          JSON.stringify(
+            exportRecord,
+            null,
+            2,
+          ),
+        ],
+        {
+          type:
+            'application/json',
+        },
+      );
+
+    const url =
+      URL.createObjectURL(
+        blob,
+      );
+
+    const link =
+      document.createElement(
+        'a',
+      );
+
+    const safeName =
+      product.name
+        .trim()
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]+/g,
+          '-',
+        )
+        .replace(
+          /^-|-$/g,
+          '',
+        );
+
+    link.href =
+      url;
+
+    link.download =
+      `${
+        safeName ||
+        'sprig-product'
+      }.json`;
+
+    document.body.appendChild(
+      link,
     );
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    const safeName = product.name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    link.href = url;
-    link.download = `${safeName || 'sprig-product'}.json`;
-
-    document.body.appendChild(link);
     link.click();
+
     link.remove();
 
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(
+      url,
+    );
   }
 
   return (
-    <GardenLayout activePage="library" onNavigate={onNavigate}>
-      <div className="journal-page">
+    <GardenLayout
+      activePage="library"
+      onNavigate={
+        onNavigate
+      }
+    >
+      <div
+        className="journal-page"
+        id="product-detail-top"
+      >
         <header className="journal-header">
           <div>
-            <p className="section-label">Garden Product</p>
-            <h1>{product.name}</h1>
+            <p className="section-label">
+              Garden Product
+            </p>
+
+            <h1>
+              {product.name}
+            </h1>
 
             <p className="journal-intro">
-              {getProductCategoryLabel(product)}
+              {
+                getProductCategoryLabel(
+                  product,
+                )
+              }
             </p>
 
             {product.isArchived && (
               <p className="form-whisper">
-                This Product is resting safely in Sprig&apos;s archive.
+                This Product is resting safely
+                in Sprig&apos;s archive.
               </p>
             )}
           </div>
         </header>
 
         <section
-          className="plant-record-actions"
+          className="record-actions"
           aria-label="Product actions"
         >
-          {onBackToOrigin && backLabel && (
+          {onBackToOrigin &&
+            backLabel && (
             <button
               type="button"
-              className="secondary-button"
-              onClick={onBackToOrigin}
+              className="record-action-button record-action-back record-action-contextual-back"
+              onClick={
+                onBackToOrigin
+              }
             >
               ← Back to {backLabel}
             </button>
@@ -224,214 +360,337 @@ export default function ProductDetail({
 
           <button
             type="button"
-            className="secondary-button"
-            onClick={onBack}
+            className="record-action-button record-action-back"
+            onClick={
+              onBack
+            }
           >
-            Growing Home
+            ← Growing Home
           </button>
 
-          {onEdit && (
+          <div className="record-actions-primary">
+            {onEdit && (
+              <button
+                type="button"
+                className="record-action-button"
+                onClick={
+                  onEdit
+                }
+              >
+                ✏️ Edit Product
+              </button>
+            )}
+
+            {onCreateVariation && (
+              <button
+                type="button"
+                className="record-action-button"
+                onClick={
+                  onCreateVariation
+                }
+              >
+                🌱 Create a variation
+              </button>
+            )}
+
+            {onToggleFavourite && (
+              <button
+                type="button"
+                className="record-action-button"
+                onClick={
+                  onToggleFavourite
+                }
+                aria-pressed={
+                  Boolean(
+                    product.isFavourite,
+                  )
+                }
+              >
+                {
+                  product.isFavourite
+                    ? '★ Remove from favourites'
+                    : '☆ Add to favourites'
+                }
+              </button>
+            )}
+
+            {onAddPhotographs && (
+              <button
+                type="button"
+                className="record-action-button"
+                onClick={
+                  onAddPhotographs
+                }
+              >
+                📸 Add photographs
+              </button>
+            )}
+
             <button
               type="button"
-              className="secondary-button"
-              onClick={onEdit}
+              className="record-action-button"
+              onClick={
+                printProduct
+              }
             >
-              ✏ Edit This Product&apos;s Details
+              🖨 Print
             </button>
-          )}
 
-          {onCreateVariation && (
             <button
               type="button"
-              className="secondary-button"
-              onClick={onCreateVariation}
+              className="record-action-button"
+              onClick={
+                exportProduct
+              }
             >
-              🌱 Create a variation
+              📤 Export
             </button>
-          )}
 
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={onToggleFavourite}
-            disabled={!onToggleFavourite}
-            aria-pressed={Boolean(product.isFavourite)}
-          >
-            {product.isFavourite
-              ? '★ Favourite'
-              : '☆ Favourite'}
-          </button>
+            {onAddNote && (
+              <button
+                type="button"
+                className="record-action-button"
+                onClick={
+                  onAddNote
+                }
+              >
+                📖 Add a note
+              </button>
+            )}
+          </div>
 
-          {onAddPhotographs && (
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={onAddPhotographs}
-            >
-              📸 Add photographs
-            </button>
-          )}
+          {(
+            onArchive ||
+            onRestore ||
+            onDelete
+          ) && (
+            <div className="record-actions-secondary">
+              {
+                product.isArchived
+                  ? onRestore && (
+                      <button
+                        type="button"
+                        className="record-action-button record-action-restore"
+                        onClick={
+                          onRestore
+                        }
+                      >
+                        🌱 Restore
+                      </button>
+                    )
+                  : onArchive && (
+                      <button
+                        type="button"
+                        className="record-action-button record-action-archive"
+                        onClick={
+                          onArchive
+                        }
+                      >
+                        📦 Archive
+                      </button>
+                    )
+              }
 
-          {product.isArchived
-            ? onRestore && (
+              {onDelete && (
                 <button
                   type="button"
-                  className="secondary-button"
-                  onClick={onRestore}
+                  className="record-action-button record-action-delete"
+                  onClick={
+                    onDelete
+                  }
                 >
-                  🌱 Restore
-                </button>
-              )
-            : onArchive && (
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={onArchive}
-                >
-                  📦 Archive
+                  🗑 Delete permanently
                 </button>
               )}
-
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={printProduct}
-          >
-            🖨 Print
-          </button>
-
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={exportProduct}
-          >
-            📤 Export
-          </button>
-
-          {onDelete && (
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={onDelete}
-            >
-              🗑 Delete
-            </button>
-          )}
-
-          {onAddNote && (
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={onAddNote}
-            >
-              📖 Add a note
-            </button>
+            </div>
           )}
         </section>
 
         <section className="library-grid">
           <article className="library-book">
-            <p className="section-label">Your experience</p>
-            <h2>What you think of it</h2>
+            <p className="section-label">
+              Your experience
+            </p>
 
-            <button
-              type="button"
-              className={
-                product.isFavourite
-                  ? 'sprig-selection-card selected'
-                  : 'sprig-selection-card'
-              }
-              onClick={onToggleFavourite}
-              disabled={!onToggleFavourite}
-              aria-pressed={Boolean(product.isFavourite)}
-            >
-              {product.isFavourite
-                ? '★ Garden favourite'
-                : '☆ Mark as a favourite'}
-            </button>
+            <h2>
+              What you think of it
+            </h2>
+
+            {onToggleFavourite && (
+              <button
+                type="button"
+                className="record-action-button"
+                onClick={
+                  onToggleFavourite
+                }
+                aria-pressed={
+                  Boolean(
+                    product.isFavourite,
+                  )
+                }
+              >
+                {
+                  product.isFavourite
+                    ? '★ Garden favourite'
+                    : '☆ Mark as a favourite'
+                }
+              </button>
+            )}
 
             <div
-              className="sprig-rating"
+              className="sprig-rating-picker"
+              role="group"
               aria-label="Product rating"
             >
-              {[1, 2, 3, 4, 5].map(value => (
-                <button
-                  key={value}
-                  type="button"
-                  className="sprig-rating-button"
-                  onClick={() => onSetRating?.(value)}
-                  disabled={!onSetRating}
-                  aria-label={`Rate ${value} out of 5`}
-                >
-                  {product.rating &&
-                  value <= product.rating
-                    ? '★'
-                    : '☆'}
-                </button>
-              ))}
+              {[
+                1,
+                2,
+                3,
+                4,
+                5,
+              ].map(
+                value => (
+                  <button
+                    key={
+                      value
+                    }
+                    type="button"
+                    className="sprig-rating-star"
+                    onClick={() =>
+                      onSetRating?.(
+                        value,
+                      )
+                    }
+                    disabled={
+                      !onSetRating
+                    }
+                    aria-label={`Rate ${value} out of 5`}
+                    aria-pressed={
+                      product.rating ===
+                      value
+                    }
+                  >
+                    {
+                      product.rating &&
+                      value <=
+                        product.rating
+                        ? '★'
+                        : '☆'
+                    }
+                  </button>
+                ),
+              )}
             </div>
 
             <p className="form-whisper">
-              {product.rating
-                ? `${product.rating} out of 5`
-                : 'Not rated yet.'}
+              {
+                product.rating
+                  ? `${product.rating} out of 5`
+                  : 'Not rated yet.'
+              }
             </p>
           </article>
 
           <article className="library-book">
-            <p className="section-label">Product details</p>
-            <h2>{product.name}</h2>
+            <p className="section-label">
+              Product details
+            </p>
+
+            <h2>
+              {product.name}
+            </h2>
 
             <p>
-              <strong>Category:</strong>{' '}
-              {getProductCategoryLabel(product)}
+              <strong>
+                Category:
+              </strong>{' '}
+              {
+                getProductCategoryLabel(
+                  product,
+                )
+              }
             </p>
 
             {product.brand && (
               <p>
-                <strong>Brand:</strong>{' '}
-                {product.brand}
+                <strong>
+                  Brand:
+                </strong>{' '}
+                {
+                  product.brand
+                }
               </p>
             )}
 
             {product.productName && (
               <p>
-                <strong>Product name:</strong>{' '}
-                {product.productName}
+                <strong>
+                  Product name:
+                </strong>{' '}
+                {
+                  product.productName
+                }
               </p>
             )}
 
             <p>
-              <strong>Added:</strong>{' '}
-              {formatDate(product.createdAt)}
+              <strong>
+                Added:
+              </strong>{' '}
+              {
+                formatDate(
+                  product.createdAt,
+                )
+              }
             </p>
 
             {product.updatedAt && (
               <p>
-                <strong>Last updated:</strong>{' '}
-                {formatDate(product.updatedAt)}
+                <strong>
+                  Last updated:
+                </strong>{' '}
+                {
+                  formatDate(
+                    product.updatedAt,
+                  )
+                }
               </p>
             )}
           </article>
 
           <article className="library-book">
-            <p className="section-label">Notes</p>
-            <h2>What Sprig remembers</h2>
+            <p className="section-label">
+              Notes
+            </p>
+
+            <h2>
+              What Sprig remembers
+            </h2>
 
             {product.notes ? (
-              <p>{product.notes}</p>
+              <p>
+                {
+                  product.notes
+                }
+              </p>
             ) : (
               <p>
-                No notes have been tucked into this Product yet.
+                No notes have been tucked
+                into this Product yet.
               </p>
             )}
           </article>
 
           <article className="library-book">
-            <p className="section-label">Photographs</p>
+            <p className="section-label">
+              Photographs
+            </p>
 
             <SprigPhotoGallery
-              photoUrls={product.photoUrls ?? []}
+              photoUrls={
+                product.photoUrls ??
+                []
+              }
               title="Product photographs"
               emptyMessage="No photographs have been tucked into this Product yet."
               photoAltPrefix={`${product.name} photograph`}
@@ -439,81 +698,124 @@ export default function ProductDetail({
           </article>
 
           <article className="library-book">
-            <p className="section-label">Purchase history</p>
-            <h2>What it has cost</h2>
+            <p className="section-label">
+              Purchase history
+            </p>
 
-            {productPurchases.length > 0 ? (
+            <h2>
+              What it has cost
+            </h2>
+
+            {productPurchases.length >
+            0 ? (
               <>
                 <p>
-                  Sprig remembers {productPurchases.length}{' '}
-                  {productPurchases.length === 1
-                    ? 'purchase'
-                    : 'purchases'}{' '}
+                  Sprig remembers{' '}
+                  {
+                    productPurchases.length
+                  }{' '}
+                  {
+                    productPurchases.length ===
+                    1
+                      ? 'purchase'
+                      : 'purchases'
+                  }{' '}
                   for this Product.
                 </p>
 
                 <p className="form-whisper">
-                  Each purchase stays separate so Sprig can remember changing
-                  prices, suppliers and package sizes over time.
+                  Each purchase stays separate so
+                  Sprig can remember changing
+                  prices, suppliers and package
+                  sizes over time.
                 </p>
 
                 <ul>
-                  {productPurchases.map(purchase => {
-                    const quantity =
-                      formatPurchaseQuantity(purchase);
+                  {productPurchases.map(
+                    purchase => {
+                      const quantity =
+                        formatPurchaseQuantity(
+                          purchase,
+                        );
 
-                    const packageSize =
-                      formatPackageSize(purchase);
+                      const packageSize =
+                        formatPackageSize(
+                          purchase,
+                        );
 
-                    return (
-                      <li key={purchase.id}>
-                        <div>
-                          <strong>
-                            {formatMoney(
-                              purchase.pricePaid,
-                              purchase.currency ?? 'AUD',
-                            )}
-                          </strong>
+                      return (
+                        <li
+                          key={
+                            purchase.id
+                          }
+                        >
+                          <div>
+                            <strong>
+                              {
+                                formatMoney(
+                                  purchase.pricePaid,
+                                  purchase.currency ??
+                                    'AUD',
+                                )
+                              }
+                            </strong>
 
-                          {' · '}
-                          {formatDate(purchase.date)}
+                            {' · '}
 
-                          {purchase.supplier
-                            ? ` · ${purchase.supplier}`
-                            : ''}
-
-                          {quantity
-                            ? ` · ${quantity}`
-                            : ''}
-
-                          {packageSize
-                            ? ` · ${packageSize} package`
-                            : ''}
-
-                          {purchase.notes
-                            ? ` · ${purchase.notes}`
-                            : ''}
-                        </div>
-
-                        {onEditPurchase && (
-                          <button
-                            type="button"
-                            className="text-button"
-                            onClick={() =>
-                              onEditPurchase(purchase)
+                            {
+                              formatDate(
+                                purchase.date,
+                              )
                             }
-                          >
-                            ✏ Edit purchase information
-                          </button>
-                        )}
-                      </li>
-                    );
-                  })}
+
+                            {
+                              purchase.supplier
+                                ? ` · ${purchase.supplier}`
+                                : ''
+                            }
+
+                            {
+                              quantity
+                                ? ` · ${quantity}`
+                                : ''
+                            }
+
+                            {
+                              packageSize
+                                ? ` · ${packageSize} package`
+                                : ''
+                            }
+
+                            {
+                              purchase.notes
+                                ? ` · ${purchase.notes}`
+                                : ''
+                            }
+                          </div>
+
+                          {onEditPurchase && (
+                            <button
+                              type="button"
+                              className="text-button"
+                              onClick={() =>
+                                onEditPurchase(
+                                  purchase,
+                                )
+                              }
+                            >
+                              ✏ Edit purchase information
+                            </button>
+                          )}
+                        </li>
+                      );
+                    },
+                  )}
                 </ul>
               </>
             ) : (
               <p>
-                No purchase history has been recorded for this Product yet.
+                No purchase history has been
+                recorded for this Product yet.
               </p>
             )}
 
@@ -521,7 +823,9 @@ export default function ProductDetail({
               <button
                 type="button"
                 className="journal-add-button"
-                onClick={onAddPurchase}
+                onClick={
+                  onAddPurchase
+                }
               >
                 🛒 Bought this again
               </button>
@@ -529,20 +833,28 @@ export default function ProductDetail({
           </article>
 
           <article className="library-book">
-            <p className="section-label">Product shelf</p>
-            <h2>Keep or tuck away</h2>
+            <p className="section-label">
+              Product shelf
+            </p>
+
+            <h2>
+              Keep or tuck away
+            </h2>
 
             {product.isArchived ? (
               <>
                 <p>
-                  This Product is archived but its history remains intact.
+                  This Product is archived but
+                  its history remains intact.
                 </p>
 
                 {onRestore && (
                   <button
                     type="button"
                     className="journal-add-button"
-                    onClick={onRestore}
+                    onClick={
+                      onRestore
+                    }
                   >
                     Restore Product
                   </button>
@@ -551,14 +863,18 @@ export default function ProductDetail({
             ) : (
               <>
                 <p>
-                  Archive Products you no longer use while keeping their history.
+                  Archive Products you no
+                  longer use while keeping
+                  their history.
                 </p>
 
                 {onArchive && (
                   <button
                     type="button"
                     className="journal-add-button"
-                    onClick={onArchive}
+                    onClick={
+                      onArchive
+                    }
                   >
                     Archive Product
                   </button>
@@ -569,14 +885,28 @@ export default function ProductDetail({
             {onDelete && (
               <button
                 type="button"
-                className="secondary-button"
-                onClick={onDelete}
+                className="record-action-button record-action-delete"
+                onClick={
+                  onDelete
+                }
               >
-                Permanently Delete Product
+                🗑 Permanently Delete Product
               </button>
             )}
           </article>
         </section>
+
+        <div className="growing-back-to-top">
+          <button
+            type="button"
+            className="text-button"
+            onClick={
+              backToTop
+            }
+          >
+            ↑ Back to the top
+          </button>
+        </div>
       </div>
     </GardenLayout>
   );

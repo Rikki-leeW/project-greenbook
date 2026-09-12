@@ -3777,29 +3777,50 @@ const formRef =
               photoUrls={
                 photoUrls
               }
+
               onChange={
                 handlePhotoUrlsChange
               }
-              title="Plant photographs"
-              helperText={
-                isVariation
-                  ? 'This new variation begins with its own empty photograph story.'
-                  : 'Keep photographs that belong directly to this Plant Story.'
+
+              photoDates={
+                photoDates
               }
-              addButtonText="Add plant photographs"
-              photoAltPrefix="Plant photograph"
-              maxPhotos={
-                20
+
+              onPhotoDatesChange={
+                setPhotoDates
               }
+
               photoMetadata={
                 photoMetadata
               }
-              
+
               onPhotoMetadataChange={
                 setPhotoMetadata
               }
-              
+
               showPhotoContext
+
+              defaultNewPhotosToToday
+
+              title="Plant photographs"
+
+              helperText={
+                isVariation
+                  ? 'This new variation begins with its own photograph story. Sprig already knows which Plant Story these photographs belong to; everything extra below is optional.'
+                  : 'Keep photographs that belong directly to this Plant Story. Sprig already knows the plant; add the date, purpose or notes when they help future you.'
+              }
+
+              addButtonText="Add plant photographs"
+
+              photoAltPrefix="Plant photograph"
+
+              photoDateLabel="When was this photograph taken?"
+
+              photoDateHelperText="New photographs begin with today. Change the date when the photograph was taken earlier."
+
+              maxPhotos={
+                20
+              }
             />
 
 

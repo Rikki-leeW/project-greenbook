@@ -745,7 +745,7 @@ export default function Gate({
         <header className="garden-header sprig-today-header">
           <div>
             <p className="app-name">
-              Sprig
+              Garden of Mine
             </p>
 
             <h1 className="garden-title">
@@ -846,7 +846,7 @@ export default function Gate({
                 </h2>
 
                 <p>
-                  You do not need to set Sprig up
+                  You do not need to set Garden of Mine up
                   perfectly before you use it.
                   Begin with whatever is already
                   happening in your garden.
@@ -966,37 +966,24 @@ export default function Gate({
               aria-labelledby="sprig-notices-title"
             >
               <div className="sprig-today-section-heading">
-  <div>
-    <p className="sprig-today-kicker">
-      From Sprig
-    </p>
+                <div>
+                  <p className="sprig-today-kicker">
+                    From Sprig
+                  </p>
 
-    <h2 id="sprig-notices-title">
-      {
-        todayInsights.length ===
-        1
-          ? 'Something caught my eye.'
-          : todayInsights.length >
-              1
-            ? 'A few things caught my eye.'
-            : 'I’m getting to know this garden.'
-      }
-    </h2>
-  </div>
-
-  <button
-    type="button"
-    className="sprig-today-text-button"
-    onClick={
-      () =>
-        onNavigate(
-          'sprig-smart',
-        )
-    }
-  >
-    Sprig Smart
-  </button>
-</div>
+                  <h2 id="sprig-notices-title">
+                    {
+                      todayInsights.length ===
+                      1
+                        ? 'Something caught my eye.'
+                        : todayInsights.length >
+                            1
+                          ? 'A few things caught my eye.'
+                          : 'I’m getting to know this garden.'
+                    }
+                  </h2>
+                </div>
+              </div>
 
 
               {

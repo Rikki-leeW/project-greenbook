@@ -448,12 +448,23 @@ export default function GrowingRecipeDetail({
     setIsRatingOpen(false);
   }
 
+  function backToTop() {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+
+    document.getElementById('growing-recipe-detail-top')?.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }
+
   return (
     <GardenLayout
       activePage="library"
       onNavigate={onNavigate}
     >
-      <div className="journal-page">
+      <div className="journal-page" id="growing-recipe-detail-top">
         <header className="journal-header">
           <div>
             <p className="section-label">
@@ -830,7 +841,7 @@ export default function GrowingRecipeDetail({
                               <button
                                 key={item.ingredient.id}
                                 type="button"
-                                className="sprig-ingredient-chip"
+                                className="text-button"
                                 onClick={() =>
                                   onOpenIngredient(
                                     item.ingredient.id,
@@ -870,7 +881,7 @@ export default function GrowingRecipeDetail({
                             <button
                               key={item.product.id}
                               type="button"
-                              className="sprig-ingredient-chip"
+                              className="text-button"
                               onClick={() =>
                                 onOpenProduct(
                                   item.product.id,
@@ -919,7 +930,7 @@ export default function GrowingRecipeDetail({
                                   item.growingSetup.id
                                 }
                                 type="button"
-                                className="sprig-ingredient-chip"
+                                className="text-button"
                                 onClick={() =>
                                   onOpenRecipe(
                                     item.growingSetup.id,
@@ -986,7 +997,7 @@ export default function GrowingRecipeDetail({
                   <li key={plant.id}>
                     <button
                       type="button"
-                      className="record-link-button"
+                      className="text-button"
                       onClick={() =>
                         onOpenPlant(plant.id)
                       }
@@ -1023,7 +1034,7 @@ export default function GrowingRecipeDetail({
                     <li key={linkedSetup.id}>
                       <button
                         type="button"
-                        className="record-link-button"
+                        className="text-button"
                         onClick={() =>
                           onOpenRecipe(
                             linkedSetup.id,
@@ -1124,6 +1135,16 @@ export default function GrowingRecipeDetail({
             )}
           </article>
         </section>
+
+        <div className="growing-back-to-top">
+          <button
+            type="button"
+            className="text-button"
+            onClick={backToTop}
+          >
+            ↑ Back to the top
+          </button>
+        </div>
       </div>
     </GardenLayout>
   );

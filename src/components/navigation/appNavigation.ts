@@ -138,7 +138,7 @@ export const sprigNavigation:
             'search-sprig',
 
           label:
-            'Search Sprig',
+            'Search Garden of Mine',
 
           icon:
             '🔎',

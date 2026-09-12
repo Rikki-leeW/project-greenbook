@@ -5,7 +5,9 @@ import type {
   PlantStory,
 } from '../types'
 
-import type { AppPage } from '../types/navigation'
+import type {
+  AppPage,
+} from '../types/navigation'
 
 
 interface JournalProps {
@@ -36,17 +38,103 @@ interface JournalProps {
 function getEventEmoji(
   type: GardenEvent['type'],
 ): string {
-  if (type === 'planted') return '🌱'
-  if (type === 'sprouted') return '🌿'
-  if (type === 'watered') return '💧'
-  if (type === 'fed') return '🧪'
-  if (type === 'moved') return '🪴'
-  if (type === 'pruned') return '✂️'
-  if (type === 'treated') return '🩹'
-  if (type === 'weather') return '🌦️'
-  if (type === 'photo') return '📷'
-  if (type === 'harvest') return '🧺'
-  if (type === 'observation') return '👀'
+  if (
+    type ===
+    'planted'
+  ) {
+    return '🌱'
+  }
+
+  if (
+    type ===
+    'sprouted'
+  ) {
+    return '🌿'
+  }
+
+  if (
+    type ===
+    'watered'
+  ) {
+    return '💧'
+  }
+
+  if (
+    type ===
+    'fed'
+  ) {
+    return '🧪'
+  }
+
+  if (
+    type ===
+    'moved'
+  ) {
+    return '🪴'
+  }
+
+  if (
+    type ===
+    'transplanted'
+  ) {
+    return '🌱'
+  }
+
+  if (
+    type ===
+    'hilled'
+  ) {
+    return '🥔'
+  }
+
+  if (
+    type ===
+    'pruned'
+  ) {
+    return '✂️'
+  }
+
+  if (
+    type ===
+    'treated'
+  ) {
+    return '🩹'
+  }
+
+  if (
+    type ===
+    'weather'
+  ) {
+    return '🌦️'
+  }
+
+  if (
+    type ===
+    'photo'
+  ) {
+    return '📷'
+  }
+
+  if (
+    type ===
+    'harvest'
+  ) {
+    return '🧺'
+  }
+
+  if (
+    type ===
+    'observation'
+  ) {
+    return '👀'
+  }
+
+  if (
+    type ===
+    'note'
+  ) {
+    return '📖'
+  }
 
   return '📝'
 }
@@ -90,9 +178,7 @@ function getPlantNames(
 
   const matchingPlants =
     plants.filter(
-      (
-        plant,
-      ) =>
+      plant =>
         event.plantStoryIds.includes(
           plant.id,
         ),
@@ -109,9 +195,7 @@ function getPlantNames(
 
   return matchingPlants
     .map(
-      (
-        plant,
-      ) =>
+      plant =>
         plant.displayName,
     )
     .join(
@@ -132,20 +216,40 @@ export default function Journal({
   onDeleteEvent,
   onNavigate,
 }: JournalProps) {
-  const sortedEvents = [
-    ...events,
-  ].sort(
-    (
-      first,
-      second,
-    ) =>
-      new Date(
-        second.date,
-      ).getTime() -
-      new Date(
-        first.date,
-      ).getTime(),
-  )
+  const sortedEvents =
+    [
+      ...events,
+    ].sort(
+      (
+        first,
+        second,
+      ) =>
+        new Date(
+          second.date,
+        ).getTime() -
+        new Date(
+          first.date,
+        ).getTime(),
+    )
+
+
+  function backToTop() {
+    document
+      .getElementById(
+        'journal-top',
+      )
+      ?.scrollIntoView({
+        behavior:
+          window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+          ).matches
+            ? 'auto'
+            : 'smooth',
+
+        block:
+          'start',
+      })
+  }
 
 
   return (
@@ -155,7 +259,10 @@ export default function Journal({
         onNavigate
       }
     >
-      <div className="journal-page">
+      <div
+        className="journal-page"
+        id="journal-top"
+      >
 
         {/* =======================================
             HEADER
@@ -199,9 +306,7 @@ export default function Journal({
           {sortedEvents.length >
           0 ? (
             sortedEvents.map(
-              (
-                event,
-              ) => {
+              event => {
                 const isGardenEntry =
                   event.plantStoryIds.length ===
                   0
@@ -300,7 +405,9 @@ export default function Journal({
                               )
                             }
                           }}
-                          aria-label={`Delete ${event.title}`}
+                          aria-label={
+                            `Delete ${event.title}`
+                          }
                         >
                           🗑️
                         </button>
@@ -360,6 +467,19 @@ export default function Journal({
             </div>
           )}
         </section>
+
+
+        <div className="detail-back-to-top">
+          <button
+            type="button"
+            className="text-button"
+            onClick={
+              backToTop
+            }
+          >
+            ↑ Back to top
+          </button>
+        </div>
 
       </div>
     </GardenLayout>

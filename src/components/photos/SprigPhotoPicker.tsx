@@ -264,18 +264,33 @@ export default function SprigPhotoPicker({
       '',
     )
 
-  const [
-    tagDrafts,
-    setTagDrafts,
-  ] =
-    useState<TagDraftMap>(
-      {},
-    )
-
-
-  /* =======================================
-     SAFE DATE LOOKUP
-  ======================================= */
+    const [
+      tagDrafts,
+      setTagDrafts,
+    ] =
+      useState<TagDraftMap>(
+        {},
+      )
+  
+  
+    const [
+      purposeDrafts,
+      setPurposeDrafts,
+    ] =
+      useState<
+        Record<
+          number,
+          SprigPhotoPurpose |
+          undefined
+        >
+      >(
+        {},
+      )
+  
+  
+    /* =======================================
+       SAFE DATE LOOKUP
+    ======================================= */
 
   function getPhotoDate(
     index: number,
@@ -737,6 +752,10 @@ export default function SprigPhotoPicker({
     }
 
     setTagDrafts(
+      {},
+    )
+
+    setPurposeDrafts(
       {},
     )
   }
@@ -1297,11 +1316,24 @@ export default function SprigPhotoPicker({
                           </legend>
 
                           <div className="sprig-photo-purpose-grid">
-                            {purposeOptions.map(
+                          {purposeOptions.map(
                               purpose => {
+                                const hasPurposeDraft =
+                                  Object.prototype.hasOwnProperty.call(
+                                    purposeDrafts,
+                                    index,
+                                  )
+
+                                const selectedPurpose =
+                                  hasPurposeDraft
+                                    ? purposeDrafts[
+                                        index
+                                      ]
+                                    : metadata
+                                        .purpose
+
                                 const isSelected =
-                                  metadata
-                                    .purpose ===
+                                  selectedPurpose ===
                                   purpose
 
                                 return (
@@ -1318,17 +1350,29 @@ export default function SprigPhotoPicker({
                                     aria-pressed={
                                       isSelected
                                     }
-                                    onClick={() =>
+                                    onClick={() => {
+                                      const nextPurpose =
+                                        isSelected
+                                          ? undefined
+                                          : purpose
+
+                                      setPurposeDrafts(
+                                        current => ({
+                                          ...current,
+
+                                          [index]:
+                                            nextPurpose,
+                                        }),
+                                      )
+
                                       updatePhotoContext(
                                         index,
                                         {
                                           purpose:
-                                            isSelected
-                                              ? undefined
-                                              : purpose,
+                                            nextPurpose,
                                         },
                                       )
-                                    }
+                                    }}
                                   >
                                     {isSelected &&
                                       '✓ '}

@@ -1,3 +1,7 @@
+import type {
+  CSSProperties,
+} from 'react'
+
 import GardenLayout from '../components/layout/GardenLayout'
 
 import type {
@@ -63,6 +67,10 @@ interface GrowingPlaceDetailProps {
 }
 
 
+/* =======================================
+   LABELS
+======================================= */
+
 function formatLabel(
   value:
     string,
@@ -115,6 +123,10 @@ function getPlantLabel(
 }
 
 
+/* =======================================
+   CURRENT SETUPS
+======================================= */
+
 function getCurrentSetupIds(
   plant:
     PlantStory,
@@ -142,8 +154,86 @@ function getCurrentSetupIds(
 }
 
 
+/* =======================================
+   EXPORT HELPERS
+======================================= */
+
+function makeSafeFileName(
+  value:
+    string,
+): string {
+  return value
+    .trim()
+    .replace(
+      /[<>:"/\\|?*\u0000-\u001F]/g,
+      '',
+    )
+    .replace(
+      /\s+/g,
+      '-',
+    )
+    .replace(
+      /-+/g,
+      '-',
+    )
+    .replace(
+      /^-|-$/g,
+      '',
+    ) ||
+    'growing-place'
+}
+
+
+function escapeRtf(
+  value:
+    string,
+): string {
+  return value
+    .replaceAll(
+      '\\',
+      '\\\\',
+    )
+    .replaceAll(
+      '{',
+      '\\{',
+    )
+    .replaceAll(
+      '}',
+      '\\}',
+    )
+    .replace(
+      /\r?\n/g,
+      '\\line ',
+    )
+    .replace(
+      /[^\x00-\x7F]/g,
+      character => {
+        const code =
+          character.charCodeAt(
+            0,
+          )
+
+
+        const signedCode =
+          code >
+          32767
+            ? code -
+              65536
+            : code
+
+
+        return `\\u${signedCode}?`
+      },
+    )
+}
+
+
+/* =======================================
+   RELATIONSHIP ROW PRESENTATION
+======================================= */
+
 const relationshipRowStyle:
-  React.CSSProperties = {
+  CSSProperties = {
     width:
       '100%',
 
@@ -185,32 +275,115 @@ const relationshipRowStyle:
   }
 
 
+const relationshipCopyStyle:
+  CSSProperties = {
+    minWidth:
+      0,
+
+    flex:
+      '1 1 auto',
+  }
+
+
+const relationshipTitleStyle:
+  CSSProperties = {
+    display:
+      'block',
+
+    overflowWrap:
+      'anywhere',
+  }
+
+
+const relationshipArrowStyle:
+  CSSProperties = {
+    flexShrink:
+      0,
+  }
+
+
+/* =======================================
+   LOCAL PRESENTATION
+======================================= */
+
+const styles = `
+  .growing-place-detail-page .growing-place-detail-row {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.8fr) minmax(0, 1.4fr);
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgba(72, 71, 56, 0.16);
+  }
+
+  .growing-place-detail-page .growing-place-detail-row > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .growing-place-detail-page .growing-place-detail-navigation,
+  .growing-place-detail-page .growing-place-detail-actions,
+  .growing-place-detail-page .growing-place-export-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .growing-place-detail-page .growing-place-detail-navigation {
+    margin-bottom: 1rem;
+  }
+
+  .growing-place-detail-page .growing-place-detail-actions {
+    margin: 0 0 1.5rem;
+  }
+
+  .growing-place-detail-page .growing-place-export-actions {
+    margin: 0 0 1.5rem;
+  }
+
+  .growing-place-detail-page .detail-back-to-top {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0 2rem;
+  }
+
+  @media (max-width: 620px) {
+    .growing-place-detail-page .growing-place-detail-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+
+    .growing-place-detail-page .growing-place-detail-row strong {
+      overflow-wrap: anywhere;
+    }
+  }
+
+  @media print {
+    .growing-place-detail-page .growing-place-detail-navigation,
+    .growing-place-detail-page .growing-place-detail-actions,
+    .growing-place-detail-page .growing-place-export-actions,
+    .growing-place-detail-page .detail-back-to-top {
+      display: none !important;
+    }
+  }
+`;
+
+
+/* =======================================
+   DETAIL ROW
+======================================= */
+
 function DetailRow({
   label,
   value,
 }: {
-  label: string
-  value: string
+  label:
+    string
+
+  value:
+    string
 }) {
   return (
-    <div
-      style={{
-        display:
-          'grid',
-
-        gridTemplateColumns:
-          'minmax(7.5rem, 0.8fr) minmax(0, 1.4fr)',
-
-        gap:
-          '1rem',
-
-        padding:
-          '0.7rem 0',
-
-        borderBottom:
-          '1px solid rgba(72, 71, 56, 0.16)',
-      }}
-    >
+    <div className="growing-place-detail-row">
       <strong>
         {label}
       </strong>
@@ -222,6 +395,10 @@ function DetailRow({
   )
 }
 
+
+/* =======================================
+   PAGE
+======================================= */
 
 export default function GrowingPlaceDetail({
   growingPlace,
@@ -262,7 +439,9 @@ export default function GrowingPlaceDetail({
 
 
   const eventsHere =
-    [...events]
+    [
+      ...events,
+    ]
       .filter(
         event =>
           event.growingPlaceIds
@@ -323,6 +502,231 @@ export default function GrowingPlaceDetail({
       )
 
 
+  /* =======================================
+     EXPORT
+  ======================================= */
+
+  function exportPdf() {
+    window.print()
+  }
+
+
+  function exportRtf() {
+    const sections:
+      string[] = [
+        `\\b ${escapeRtf(
+          growingPlace.name,
+        )}\\b0`,
+
+        `\\b Place type\\b0\\line ${escapeRtf(
+          getPlaceKindLabel(
+            growingPlace,
+          ),
+        )}`,
+      ]
+
+
+    if (
+      growingPlace.aspect
+    ) {
+      sections.push(
+        `\\b Aspect\\b0\\line ${escapeRtf(
+          formatLabel(
+            growingPlace.aspect,
+          ),
+        )}`,
+      )
+    }
+
+
+    if (
+      growingPlace.sunlight
+    ) {
+      sections.push(
+        `\\b Sunlight\\b0\\line ${escapeRtf(
+          formatLabel(
+            growingPlace.sunlight,
+          ),
+        )}`,
+      )
+    }
+
+
+    if (
+      growingPlace.shelter
+    ) {
+      sections.push(
+        `\\b Shelter\\b0\\line ${escapeRtf(
+          formatLabel(
+            growingPlace.shelter,
+          ),
+        )}`,
+      )
+    }
+
+
+    if (
+      growingPlace.notes
+    ) {
+      sections.push(
+        `\\b Notes\\b0\\line ${escapeRtf(
+          growingPlace.notes,
+        )}`,
+      )
+    }
+
+
+    sections.push(
+      `\\b Plant Stories living here now\\b0\\line ${
+        plantsHere.length >
+        0
+          ? escapeRtf(
+              plantsHere
+                .map(
+                  plant =>
+                    getPlantLabel(
+                      plant,
+                    ),
+                )
+                .join(
+                  ', ',
+                ),
+            )
+          : 'No active Plant Stories are currently recorded here.'
+      }`,
+    )
+
+
+    sections.push(
+      `\\b Growing Setups used here\\b0\\line ${
+        setupsHere.length >
+        0
+          ? escapeRtf(
+              setupsHere
+                .map(
+                  setup =>
+                    setup.name,
+                )
+                .join(
+                  ', ',
+                ),
+            )
+          : 'No current Growing Setup is linked through Plant Stories living here.'
+      }`,
+    )
+
+
+    sections.push(
+      `\\b Journal pages from here\\b0\\line ${
+        eventsHere.length >
+        0
+          ? eventsHere
+              .map(
+                event =>
+                  `${escapeRtf(
+                    event.date,
+                  )} - ${escapeRtf(
+                    event.title ||
+                    'Garden Journal',
+                  )}`,
+              )
+              .join(
+                '\\line ',
+              )
+          : 'No Journal pages are linked to this Growing Place yet.'
+      }`,
+    )
+
+
+    const rtf =
+      `{\\rtf1\\ansi\\deff0` +
+      `{\\fonttbl{\\f0 Georgia;}}` +
+      `\\fs24\\f0 ` +
+      sections.join(
+        '\\par\\par ',
+      ) +
+      `}`
+
+
+    const blob =
+      new Blob(
+        [
+          rtf,
+        ],
+        {
+          type:
+            'application/rtf',
+        },
+      )
+
+
+    const url =
+      URL.createObjectURL(
+        blob,
+      )
+
+
+    const link =
+      document.createElement(
+        'a',
+      )
+
+
+    link.href =
+      url
+
+
+    link.download =
+      `${makeSafeFileName(
+        growingPlace.name,
+      )}-growing-place.rtf`
+
+
+    document.body.appendChild(
+      link,
+    )
+
+
+    link.click()
+
+
+    link.remove()
+
+
+    window.setTimeout(
+      () => {
+        URL.revokeObjectURL(
+          url,
+        )
+      },
+      0,
+    )
+  }
+
+
+  /* =======================================
+     BACK TO TOP
+  ======================================= */
+
+  function backToTop() {
+    document
+      .getElementById(
+        'growing-place-detail-top',
+      )
+      ?.scrollIntoView({
+        behavior:
+          window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+          ).matches
+            ? 'auto'
+            : 'smooth',
+
+        block:
+          'start',
+      })
+  }
+
+
   return (
     <GardenLayout
       activePage="growing-places"
@@ -330,27 +734,20 @@ export default function GrowingPlaceDetail({
         onNavigate
       }
     >
-      <div className="garden-page">
+      <div
+        className="garden-page growing-place-detail-page"
+        id="growing-place-detail-top"
+      >
+        <style>
+          {styles}
+        </style>
+
 
         {/* ===================================
             NAVIGATION
         =================================== */}
 
-        <div
-          style={{
-            display:
-              'flex',
-
-            gap:
-              '0.65rem',
-
-            flexWrap:
-              'wrap',
-
-            marginBottom:
-              '1rem',
-          }}
-        >
+        <div className="growing-place-detail-navigation">
           <button
             type="button"
             className="record-action-button"
@@ -389,9 +786,11 @@ export default function GrowingPlaceDetail({
               Growing · Place
             </p>
 
+
             <h1>
               {growingPlace.name}
             </h1>
+
 
             <p className="journal-intro">
               {
@@ -408,21 +807,7 @@ export default function GrowingPlaceDetail({
             RECORD ACTIONS
         =================================== */}
 
-        <div
-          style={{
-            display:
-              'flex',
-
-            gap:
-              '0.65rem',
-
-            flexWrap:
-              'wrap',
-
-            margin:
-              '0 0 1.5rem',
-          }}
-        >
+        <div className="growing-place-detail-actions">
           <button
             type="button"
             className="secondary-button"
@@ -446,17 +831,44 @@ export default function GrowingPlaceDetail({
         </div>
 
 
+        <div
+          className="growing-place-export-actions"
+          aria-label="Growing Place exports"
+        >
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={
+              exportPdf
+            }
+          >
+            PDF
+          </button>
+
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={
+              exportRtf
+            }
+          >
+            RTF
+          </button>
+        </div>
+
+
         {/* ===================================
             PLACE DETAILS
         =================================== */}
 
         <section className="story-section">
-
           <div className="section-heading">
             <div>
               <p className="section-label">
                 About this place
               </p>
+
 
               <h2>
                 Location & conditions
@@ -524,8 +936,11 @@ export default function GrowingPlaceDetail({
                 Notes
               </p>
 
+
               <p>
-                {growingPlace.notes}
+                {
+                  growingPlace.notes
+                }
               </p>
             </div>
           )}
@@ -537,12 +952,12 @@ export default function GrowingPlaceDetail({
         =================================== */}
 
         <section className="story-section">
-
           <div className="section-heading">
             <div>
               <p className="section-label">
                 Living here now
               </p>
+
 
               <h2>
                 Plant Stories
@@ -569,19 +984,21 @@ export default function GrowingPlaceDetail({
                     style={
                       relationshipRowStyle
                     }
-                    onClick={
-                      () =>
-                        onOpenPlant(
-                          plant.id,
-                        )
+                    onClick={() =>
+                      onOpenPlant(
+                        plant.id,
+                      )
                     }
                   >
-                    <span>
+                    <span
+                      style={
+                        relationshipCopyStyle
+                      }
+                    >
                       <strong
-                        style={{
-                          display:
-                            'block',
-                        }}
+                        style={
+                          relationshipTitleStyle
+                        }
                       >
                         {
                           getPlantLabel(
@@ -590,15 +1007,18 @@ export default function GrowingPlaceDetail({
                         }
                       </strong>
 
-                      <span
-                        className="form-whisper"
-                      >
+
+                      <span className="form-whisper">
                         Open Plant Story
                       </span>
                     </span>
 
+
                     <span
                       aria-hidden="true"
+                      style={
+                        relationshipArrowStyle
+                      }
                     >
                       →
                     </span>
@@ -615,16 +1035,17 @@ export default function GrowingPlaceDetail({
         =================================== */}
 
         <section className="story-section">
-
           <div className="section-heading">
             <div>
               <p className="section-label">
                 What they grow in
               </p>
 
+
               <h2>
                 Growing Setups used here
               </h2>
+
 
               <p>
                 These relationships belong to
@@ -655,26 +1076,29 @@ export default function GrowingPlaceDetail({
                     style={
                       relationshipRowStyle
                     }
-                    onClick={
-                      () =>
-                        onOpenRecipe(
-                          setup.id,
-                        )
+                    onClick={() =>
+                      onOpenRecipe(
+                        setup.id,
+                      )
                     }
                   >
-                    <span>
+                    <span
+                      style={
+                        relationshipCopyStyle
+                      }
+                    >
                       <strong
-                        style={{
-                          display:
-                            'block',
-                        }}
+                        style={
+                          relationshipTitleStyle
+                        }
                       >
-                        {setup.name}
+                        {
+                          setup.name
+                        }
                       </strong>
 
-                      <span
-                        className="form-whisper"
-                      >
+
+                      <span className="form-whisper">
                         {
                           setup.category ===
                             'own-mix'
@@ -690,8 +1114,12 @@ export default function GrowingPlaceDetail({
                       </span>
                     </span>
 
+
                     <span
                       aria-hidden="true"
+                      style={
+                        relationshipArrowStyle
+                      }
                     >
                       →
                     </span>
@@ -708,12 +1136,12 @@ export default function GrowingPlaceDetail({
         =================================== */}
 
         <section className="story-section">
-
           <div className="section-heading">
             <div>
               <p className="section-label">
                 Chronicle
               </p>
+
 
               <h2>
                 Journal pages from here
@@ -740,19 +1168,21 @@ export default function GrowingPlaceDetail({
                     style={
                       relationshipRowStyle
                     }
-                    onClick={
-                      () =>
-                        onOpenEvent(
-                          event.id,
-                        )
+                    onClick={() =>
+                      onOpenEvent(
+                        event.id,
+                      )
                     }
                   >
-                    <span>
+                    <span
+                      style={
+                        relationshipCopyStyle
+                      }
+                    >
                       <strong
-                        style={{
-                          display:
-                            'block',
-                        }}
+                        style={
+                          relationshipTitleStyle
+                        }
                       >
                         {
                           event.title ||
@@ -760,15 +1190,20 @@ export default function GrowingPlaceDetail({
                         }
                       </strong>
 
-                      <span
-                        className="form-whisper"
-                      >
-                        {event.date}
+
+                      <span className="form-whisper">
+                        {
+                          event.date
+                        }
                       </span>
                     </span>
 
+
                     <span
                       aria-hidden="true"
+                      style={
+                        relationshipArrowStyle
+                      }
                     >
                       →
                     </span>
@@ -781,50 +1216,20 @@ export default function GrowingPlaceDetail({
 
 
         {/* ===================================
-            NAVIGATION AGAIN
+            BACK TO TOP
         =================================== */}
 
-        <div
-          style={{
-            display:
-              'flex',
-
-            gap:
-              '0.65rem',
-
-            flexWrap:
-              'wrap',
-
-            marginTop:
-              '1.5rem',
-          }}
-        >
+        <div className="detail-back-to-top">
           <button
             type="button"
-            className="record-action-button"
+            className="text-button"
             onClick={
-              onBack
+              backToTop
             }
           >
-            ←{' '}
-            {
-              journeyBackLabel
-                ? `Back to ${journeyBackLabel}`
-                : 'Back'
-            }
-          </button>
-
-          <button
-            type="button"
-            className="record-action-button"
-            onClick={
-              onOpenGrowingPlaces
-            }
-          >
-            Growing Home
+            ↑ Back to top
           </button>
         </div>
-
       </div>
     </GardenLayout>
   )

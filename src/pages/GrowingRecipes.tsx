@@ -438,8 +438,7 @@ export default function GrowingRecipes({
 
 
                 if (
-                  ratingDifference !==
-                  0
+                  ratingDifference !== 0
                 ) {
                   return ratingDifference
                 }
@@ -537,6 +536,18 @@ export default function GrowingRecipes({
       : '+ Add Growing Setup'
 
 
+  function backToTop() {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+
+    document.getElementById('growing-recipes-top')?.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    })
+  }
+
+
   return (
     <GardenLayout
       activePage="library"
@@ -544,7 +555,7 @@ export default function GrowingRecipes({
         onNavigate
       }
     >
-      <div className="journal-page">
+      <div className="journal-page" id="growing-recipes-top">
 
         {!showArchivedStatus && (
           <div
@@ -572,20 +583,7 @@ export default function GrowingRecipes({
                   )
               }
             >
-              ← Back to Growing
-            </button>
-
-            <button
-              type="button"
-              className="record-action-button"
-              onClick={
-                () =>
-                  onNavigate(
-                    'growing-places',
-                  )
-              }
-            >
-              Growing Home
+              ← Growing Home
             </button>
           </div>
         )}
@@ -1026,49 +1024,15 @@ export default function GrowingRecipes({
         </section>
 
 
-        {!showArchivedStatus && (
-          <div
-            style={{
-              display:
-                'flex',
-
-              gap:
-                '0.65rem',
-
-              flexWrap:
-                'wrap',
-
-              marginTop:
-                '1.5rem',
-            }}
+        <div className="growing-back-to-top">
+          <button
+            type="button"
+            className="text-button"
+            onClick={backToTop}
           >
-            <button
-              type="button"
-              className="record-action-button"
-              onClick={
-                () =>
-                  onNavigate(
-                    'growing-places',
-                  )
-              }
-            >
-              ← Back to Growing
-            </button>
-
-            <button
-              type="button"
-              className="record-action-button"
-              onClick={
-                () =>
-                  onNavigate(
-                    'growing-places',
-                  )
-              }
-            >
-              Growing Home
-            </button>
-          </div>
-        )}
+            ↑ Back to the top
+          </button>
+        </div>
 
       </div>
     </GardenLayout>

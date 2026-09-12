@@ -24,7 +24,7 @@ interface WelcomeProps {
             />
       
             <div className="welcome-content">
-              <p className="app-name">Sprig</p>
+              <p className="app-name">GARDEN OF MINE</p>
       
               <h1>The Garden Keeper</h1>
       

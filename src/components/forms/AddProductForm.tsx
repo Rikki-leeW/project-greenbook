@@ -359,6 +359,15 @@ export default function AddProductForm({
     )
 
 
+  const [
+    isCategoryPickerOpen,
+    setIsCategoryPickerOpen,
+  ] =
+    useState(
+      false,
+    )
+
+
   /* =======================================
      PURCHASE STATE
   ======================================= */
@@ -503,6 +512,11 @@ export default function AddProductForm({
       setNotes(
         product?.notes ??
           '',
+      )
+
+
+      setIsCategoryPickerOpen(
+        false,
       )
 
 
@@ -780,6 +794,11 @@ export default function AddProductForm({
         '',
       )
     }
+
+
+    setIsCategoryPickerOpen(
+      false,
+    )
   }
 
 
@@ -804,6 +823,11 @@ export default function AddProductForm({
 
     setCustomCategoryLabel(
       trimmedLabel,
+    )
+
+
+    setIsCategoryPickerOpen(
+      false,
     )
 
 
@@ -1223,7 +1247,7 @@ export default function AddProductForm({
             <section className="sprig-form-section">
               <SprigPicker
                 title="What sort of Product is it?"
-                variant="label-tall"
+                variant="label"
                 emptySummary="Choose a Product type"
                 options={
                   categoryOptions
@@ -1232,12 +1256,17 @@ export default function AddProductForm({
                   category,
                 ]}
                 isOpen={
-                  true
+                  isCategoryPickerOpen
                 }
                 showTrigger={
-                  false
+                  true
                 }
-                onToggleOpen={() => {}}
+                onToggleOpen={() =>
+                  setIsCategoryPickerOpen(
+                    current =>
+                      !current,
+                  )
+                }
                 onToggleValue={
                   handleToggleCategory
                 }
@@ -1419,9 +1448,7 @@ export default function AddProductForm({
                 }
                 onClick={() =>
                   setIsFavourite(
-                    (
-                      current,
-                    ) =>
+                    current =>
                       !current,
                   )
                 }
@@ -1471,9 +1498,7 @@ export default function AddProductForm({
                   4,
                   5,
                 ].map(
-                  (
-                    value,
-                  ) => (
+                  value => (
                     <button
                       key={
                         value

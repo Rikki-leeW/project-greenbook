@@ -79,9 +79,7 @@ function getPlantNames(
 ): string {
   const matchingPlants =
     plants.filter(
-      (
-        plant,
-      ) =>
+      plant =>
         harvest.plantStoryIds.includes(
           plant.id,
         ),
@@ -98,9 +96,7 @@ function getPlantNames(
 
   return matchingPlants
     .map(
-      (
-        plant,
-      ) =>
+      plant =>
         plant.displayName,
     )
     .join(
@@ -118,9 +114,7 @@ function getTotalCount(
 ): number | undefined {
   const harvestsWithCount =
     harvests.filter(
-      (
-        harvest,
-      ) =>
+      harvest =>
         harvest.count !==
         undefined,
     )
@@ -158,9 +152,7 @@ function getTotalMeasurement(
 ): string | undefined {
   const measuredHarvests =
     harvests.filter(
-      (
-        harvest,
-      ) =>
+      harvest =>
         harvest.measurementAmount !==
           undefined &&
         harvest.measurementUnit !==
@@ -192,9 +184,7 @@ function getTotalMeasurement(
 
   const allWeights =
     measuredHarvests.every(
-      (
-        harvest,
-      ) =>
+      harvest =>
         harvest.measurementUnit !==
           undefined &&
         weightUnits.includes(
@@ -255,9 +245,7 @@ function getTotalMeasurement(
 
   const allVolumes =
     measuredHarvests.every(
-      (
-        harvest,
-      ) =>
+      harvest =>
         harvest.measurementUnit !==
           undefined &&
         volumeUnits.includes(
@@ -356,9 +344,7 @@ function buildHarvestStories(
 
 
   harvests.forEach(
-    (
-      harvest,
-    ) => {
+    harvest => {
       const key =
         getHarvestStoryKey(
           harvest,
@@ -467,6 +453,25 @@ export default function Harvest({
     )
 
 
+  function backToTop() {
+    document
+      .getElementById(
+        'harvest-top',
+      )
+      ?.scrollIntoView({
+        behavior:
+          window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+          ).matches
+            ? 'auto'
+            : 'smooth',
+
+        block:
+          'start',
+      })
+  }
+
+
   return (
     <GardenLayout
       activePage="harvest"
@@ -474,7 +479,10 @@ export default function Harvest({
         onNavigate
       }
     >
-      <div className="journal-page">
+      <div
+        className="journal-page"
+        id="harvest-top"
+      >
         <header className="journal-header">
           <div>
             <p className="section-label">
@@ -512,9 +520,7 @@ export default function Harvest({
           {harvestStories.length >
           0 ? (
             harvestStories.map(
-              (
-                story,
-              ) => {
+              story => {
                 const totalCount =
                   getTotalCount(
                     story.harvests,
@@ -662,6 +668,19 @@ export default function Harvest({
             </div>
           )}
         </section>
+
+
+        <div className="detail-back-to-top">
+          <button
+            type="button"
+            className="text-button"
+            onClick={
+              backToTop
+            }
+          >
+            ↑ Back to top
+          </button>
+        </div>
       </div>
     </GardenLayout>
   )

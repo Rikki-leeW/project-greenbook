@@ -129,6 +129,9 @@ interface PlantSearchDocument {
   latestActivityDate:
     string
 
+  latestActivitySummary?:
+    string
+
   thumbnailPhotoUrl?:
     string
 
@@ -188,6 +191,23 @@ function normaliseSearchText(
    START METHOD LABEL
 ======================================= */
 
+function formatBuiltInStartMethodLabel(
+  value:
+    string,
+): string {
+  return value
+    .replaceAll(
+      '-',
+      ' ',
+    )
+    .replace(
+      /\b\w/g,
+      letter =>
+        letter.toUpperCase(),
+    )
+}
+
+
 function getStartMethodLabel(
   plant: PlantStory,
 ): string {
@@ -199,11 +219,9 @@ function getStartMethodLabel(
     return plant.customStartMethodLabel
   }
 
-  return plant.startMethod
-    .replaceAll(
-      '-',
-      ' ',
-    )
+  return formatBuiltInStartMethodLabel(
+    plant.startMethod,
+  )
 }
 
 
@@ -271,6 +289,718 @@ function getLatestDate(
   )
 }
 
+/* =======================================
+   LATEST PLANT MEMORY
+======================================= */
+
+interface PlantMemoryClue {
+  date: string
+  summary: string
+  priority: number
+}
+
+
+function cleanMemoryText(
+  value:
+    string | undefined,
+): string {
+  return (
+    value ??
+    ''
+  )
+    .replace(
+      /\s+/g,
+      ' ',
+    )
+    .trim()
+}
+
+
+function shortenMemoryText(
+  value:
+    string,
+  maxLength =
+    74,
+): string {
+  if (
+    value.length <=
+    maxLength
+  ) {
+    return value
+  }
+
+  return `${
+    value
+      .slice(
+        0,
+        maxLength - 1,
+      )
+      .trimEnd()
+  }…`
+}
+
+
+function formatEventTypeLabel(
+  type:
+    GardenEvent['type'],
+): string {
+  switch (
+    type
+  ) {
+    case 'observation':
+      return 'Observed'
+
+    case 'watered':
+      return 'Watered'
+
+    case 'fed':
+      return 'Fertilised'
+
+    case 'sprouted':
+      return 'Sprouted'
+
+    case 'pruned':
+      return 'Pruned'
+
+    case 'treated':
+      return 'Treated'
+
+    case 'moved':
+      return 'Moved'
+
+    case 'transplanted':
+      return 'Transplanted'
+
+    case 'hilled':
+      return 'Hilled'
+
+    case 'weather':
+      return 'Weather'
+
+    case 'photo':
+      return 'Photograph'
+
+    case 'note':
+      return 'Note'
+
+    case 'harvest':
+      return 'Harvest'
+
+    case 'planted':
+      return 'Planted'
+
+    default:
+      return 'Garden moment'
+  }
+}
+
+
+function getEventMemorySummary(
+  event:
+    GardenEvent,
+
+  growingPlaces:
+    GrowingPlace[],
+
+  products:
+    GardenProduct[],
+): string {
+  const activityTypes =
+    event.activityTypes
+      ?.length
+      ? event.activityTypes
+      : [
+          event.type,
+        ]
+
+
+  const activityLabel =
+    activityTypes
+      .map(
+        activity =>
+          formatEventTypeLabel(
+            activity,
+          ),
+      )
+      .join(
+        ' + ',
+      )
+
+
+  const title =
+    cleanMemoryText(
+      event.title,
+    )
+
+
+  const note =
+    cleanMemoryText(
+      event.notes,
+    )
+
+
+  const treatmentReason =
+    cleanMemoryText(
+      event.treatmentReason,
+    )
+
+
+  const productText =
+    cleanMemoryText(
+      event.productUsed,
+    )
+
+
+  const genericTitles = [
+    activityLabel
+      .toLocaleLowerCase(),
+
+    'garden moment',
+
+    'adding a moment',
+
+    'add a moment',
+
+    'journal entry',
+
+    'adding this page',
+
+    'new journal entry',
+  ]
+
+
+  const titleIsUseful =
+    Boolean(
+      title,
+    ) &&
+    !genericTitles.includes(
+      title
+        .toLocaleLowerCase(),
+    )
+
+
+  if (
+    titleIsUseful
+  ) {
+    return shortenMemoryText(
+      `${activityLabel} · ${title}`,
+    )
+  }
+
+
+  if (
+    activityTypes.includes(
+      'treated',
+    ) &&
+    treatmentReason
+  ) {
+    return shortenMemoryText(
+      `Treated · ${treatmentReason}`,
+    )
+  }
+
+
+  if (
+    note
+  ) {
+    return shortenMemoryText(
+      `${activityLabel} · ${note}`,
+    )
+  }
+
+
+  const linkedProductNames =
+    (
+      event.productIds ??
+      []
+    )
+      .map(
+        productId =>
+          products.find(
+            product =>
+              product.id ===
+              productId,
+          )?.name,
+      )
+      .filter(
+        (
+          name,
+        ): name is string =>
+          Boolean(
+            name,
+          ),
+      )
+
+
+  if (
+    linkedProductNames.length >
+    0
+  ) {
+    return shortenMemoryText(
+      `${activityLabel} · ${
+        linkedProductNames.join(
+          ' · ',
+        )
+      }`,
+    )
+  }
+
+
+  if (
+    productText
+  ) {
+    return shortenMemoryText(
+      `${activityLabel} · ${productText}`,
+    )
+  }
+
+
+  const photoContext =
+    (
+      event.photoMetadata ??
+      []
+    )
+      .map(
+        metadata => {
+          if (
+            !metadata
+          ) {
+            return ''
+          }
+
+
+          const photoTitle =
+            cleanMemoryText(
+              metadata.title,
+            )
+
+
+          if (
+            photoTitle
+          ) {
+            return photoTitle
+          }
+
+
+          const photoNotes =
+            cleanMemoryText(
+              metadata.notes,
+            )
+
+
+          if (
+            photoNotes
+          ) {
+            return photoNotes
+          }
+
+
+          if (
+            metadata.purpose
+          ) {
+            return metadata.purpose
+              .replaceAll(
+                '-',
+                ' ',
+              )
+              .replace(
+                /\b\w/g,
+                letter =>
+                  letter.toUpperCase(),
+              )
+          }
+
+
+          return ''
+        },
+      )
+      .find(
+        Boolean,
+      )
+
+
+  if (
+    photoContext
+  ) {
+    return shortenMemoryText(
+      `${activityLabel} · ${photoContext}`,
+    )
+  }
+
+
+  const placeNames =
+    (
+      event.growingPlaceIds ??
+      []
+    )
+      .map(
+        placeId =>
+          growingPlaces.find(
+            place =>
+              place.id ===
+              placeId,
+          )?.name,
+      )
+      .filter(
+        (
+          name,
+        ): name is string =>
+          Boolean(
+            name,
+          ),
+      )
+
+
+  if (
+    placeNames.length >
+    0
+  ) {
+    return shortenMemoryText(
+      `${activityLabel} · ${
+        placeNames.join(
+          ' · ',
+        )
+      }`,
+    )
+  }
+
+
+  return activityLabel
+}
+
+
+function getHarvestMemorySummary(
+  harvest:
+    HarvestRecord,
+): string {
+  const details:
+    string[] = []
+
+
+  if (
+    harvest.count !==
+    undefined
+  ) {
+    details.push(
+      `${harvest.count} ${
+        harvest.count ===
+        1
+          ? 'item'
+          : 'items'
+      }`,
+    )
+  }
+
+
+  if (
+    harvest.measurementAmount !==
+    undefined
+  ) {
+    const measurementUnit =
+      harvest.customMeasurementUnitLabel ??
+      harvest.measurementUnit
+
+    details.push(
+      measurementUnit
+        ? `${harvest.measurementAmount} ${
+            measurementUnit
+              .replaceAll(
+                '-',
+                ' ',
+              )
+          }`
+        : String(
+            harvest.measurementAmount,
+          ),
+    )
+  }
+
+
+  if (
+    harvest.quality
+  ) {
+    details.push(
+      harvest.quality
+        .charAt(
+          0,
+        )
+        .toUpperCase() +
+      harvest.quality
+        .slice(
+          1,
+        ),
+    )
+  }
+
+
+  const notes =
+    cleanMemoryText(
+      harvest.notes,
+    )
+
+
+  if (
+    details.length ===
+      0 &&
+    notes
+  ) {
+    details.push(
+      notes,
+    )
+  }
+
+
+  return shortenMemoryText(
+    details.length >
+      0
+      ? `Harvest · ${
+          details.join(
+            ' · ',
+          )
+        }`
+      : 'Harvest',
+  )
+}
+
+
+function getPhotoMemorySummary(
+  title:
+    string | undefined,
+
+  notes:
+    string | undefined,
+
+  purpose:
+    string | undefined,
+): string {
+  const titleText =
+    cleanMemoryText(
+      title,
+    )
+
+
+  if (
+    titleText
+  ) {
+    return shortenMemoryText(
+      `Photograph · ${titleText}`,
+    )
+  }
+
+
+  const notesText =
+    cleanMemoryText(
+      notes,
+    )
+
+
+  if (
+    notesText
+  ) {
+    return shortenMemoryText(
+      `Photograph · ${notesText}`,
+    )
+  }
+
+
+  if (
+    purpose
+  ) {
+    return `Photograph · ${
+      purpose
+        .replaceAll(
+          '-',
+          ' ',
+        )
+        .replace(
+          /\b\w/g,
+          letter =>
+            letter.toUpperCase(),
+        )
+    }`
+  }
+
+
+  return 'Photograph'
+}
+
+
+function getLatestPlantMemoryClue(
+  plant:
+    PlantStory,
+
+  plantEvents:
+    GardenEvent[],
+
+  plantHarvests:
+    HarvestRecord[],
+
+  growingPlaces:
+    GrowingPlace[],
+
+  products:
+    GardenProduct[],
+): PlantMemoryClue | undefined {
+  const clues:
+    PlantMemoryClue[] =
+    []
+
+
+  /*
+   * Journal Moments are appended to the
+   * garden event collection when they are
+   * created.
+   *
+   * plantEvents preserves that order.
+   *
+   * So, when several Moments share the same
+   * calendar date, the later array position
+   * is the later-created Moment.
+   */
+  plantEvents.forEach(
+    (
+      event,
+      index,
+    ) => {
+      clues.push({
+        date:
+          event.date,
+
+        summary:
+          getEventMemorySummary(
+            event,
+            growingPlaces,
+            products,
+          ),
+
+        /*
+         * Journal wins over Harvest/photo
+         * on an exact same-date tie.
+         *
+         * Within Journal, later-created
+         * Moments win.
+         */
+        priority:
+          300000 +
+          index,
+      })
+    },
+  )
+
+
+  plantHarvests.forEach(
+    (
+      harvest,
+      index,
+    ) => {
+      clues.push({
+        date:
+          harvest.date,
+
+        summary:
+          getHarvestMemorySummary(
+            harvest,
+          ),
+
+        priority:
+          200000 +
+          index,
+      })
+    },
+  )
+
+
+  ;(
+    plant.photoUrls ??
+    []
+  ).forEach(
+    (
+      _photoUrl,
+      index,
+    ) => {
+      const metadata =
+        plant.photoMetadata?.[
+          index
+        ]
+
+      const photoDate =
+        metadata
+          ?.photoDate ??
+        plant.photoDates?.[
+          index
+        ]
+
+      if (
+        !photoDate
+      ) {
+        return
+      }
+
+      clues.push({
+        date:
+          photoDate,
+
+        summary:
+          getPhotoMemorySummary(
+            metadata?.title,
+            metadata?.notes,
+            metadata?.purpose,
+          ),
+
+        priority:
+          100000 +
+          index,
+      })
+    },
+  )
+
+
+  if (
+    clues.length ===
+    0
+  ) {
+    return undefined
+  }
+
+
+  return [
+    ...clues,
+  ].sort(
+    (
+      first,
+      second,
+    ) => {
+      /*
+       * First choose the genuinely newest
+       * calendar date.
+       */
+      const dateComparison =
+        second.date.localeCompare(
+          first.date,
+        )
+
+      if (
+        dateComparison !==
+        0
+      ) {
+        return dateComparison
+      }
+
+
+      /*
+       * Same date:
+       *
+       * later-created Journal Moment wins;
+       * Journal beats Harvest;
+       * Harvest beats direct Plant photo.
+       */
+      return (
+        second.priority -
+        first.priority
+      )
+    },
+  )[0]
+}
 
 /* =======================================
    PLANT SETUP IDS
@@ -711,6 +1441,8 @@ function buildPlantSearchDocument(
   const plantEvents =
     events.filter(
       event =>
+        event.plantStoryIds.length ===
+          0 ||
         event.plantStoryIds.includes(
           plant.id,
         ),
@@ -908,14 +1640,24 @@ function buildPlantSearchDocument(
     )
 
 
+  const latestMemoryClue =
+    getLatestPlantMemoryClue(
+      plant,
+      plantEvents,
+      plantHarvests,
+      growingPlaces,
+      products,
+    )
+
+
   const latestActivityDate =
+    latestMemoryClue?.date ??
     getLatestDate(
       [
         plant.plantedDate,
         plant.sownDate,
         plant.plantedOutDate,
         plant.enteredDate,
-        plant.updatedAt,
         plant.completedAt,
 
         ...(
@@ -929,38 +1671,6 @@ function buildPlantSearchDocument(
         ).map(
           metadata =>
             metadata?.photoDate,
-        ),
-
-        ...plantEvents.map(
-          event =>
-            event.date,
-        ),
-
-        ...plantEvents.flatMap(
-          event =>
-            (
-              event.photoMetadata ??
-              []
-            ).map(
-              metadata =>
-                metadata?.photoDate,
-            ),
-        ),
-
-        ...plantHarvests.map(
-          harvest =>
-            harvest.date,
-        ),
-
-        ...plantHarvests.flatMap(
-          harvest =>
-            (
-              harvest.photoMetadata ??
-              []
-            ).map(
-              metadata =>
-                metadata?.photoDate,
-            ),
         ),
 
         ...(
@@ -1065,6 +1775,9 @@ function buildPlantSearchDocument(
       ),
 
     latestActivityDate,
+
+    latestActivitySummary:
+      latestMemoryClue?.summary,
 
     thumbnailPhotoUrl:
       getPlantThumbnailPhotoUrl(
@@ -1451,7 +2164,6 @@ function buildSmartComparisonSuggestions(
 /* =======================================
    PLANTS PAGE
 ======================================= */
-
 export default function Plants({
   plants,
   growingPlaces,
@@ -1535,8 +2247,18 @@ export default function Plants({
     setSelectedStartMethods,
   ] =
     useState<string[]>(
-      savedBrowserState.selectedStartMethods ??
-        [],
+      (
+        savedBrowserState.selectedStartMethods ??
+        []
+      ).map(
+        value =>
+          value ===
+            value.toLocaleLowerCase()
+            ? formatBuiltInStartMethodLabel(
+                value,
+              )
+            : value,
+      ),
     )
 
 
@@ -2547,7 +3269,7 @@ export default function Plants({
         )}
 
 
-{!compareMode &&
+        {!compareMode &&
           smartComparisonSuggestions.length >
             0 && (
             <details className="sprig-smart-comparisons sprig-smart-collapsible">
@@ -2967,6 +3689,9 @@ export default function Plants({
                             latestActivityDate={
                               document?.latestActivityDate
                             }
+                            latestActivitySummary={
+                              document?.latestActivitySummary
+                            }
                             thumbnailPhotoUrl={
                               document?.thumbnailPhotoUrl
                             }
@@ -3034,6 +3759,9 @@ export default function Plants({
                       latestActivityDate={
                         document?.latestActivityDate
                       }
+                      latestActivitySummary={
+                        document?.latestActivitySummary
+                      }
                       thumbnailPhotoUrl={
                         document?.thumbnailPhotoUrl
                       }
@@ -3061,21 +3789,17 @@ export default function Plants({
         )}
 
 
-        {!compareMode &&
-          visiblePlants.length >
-            8 && (
-            <div className="plant-back-to-top">
-              <button
-                type="button"
-                className="text-button"
-                onClick={
-                  backToTop
-                }
-              >
-                ↑ Back to the top
-              </button>
-            </div>
-          )}
+        <div className="plant-back-to-top">
+          <button
+            type="button"
+            className="text-button"
+            onClick={
+              backToTop
+            }
+          >
+            ↑ Back to top
+          </button>
+        </div>
 
 
         {compareMode &&
