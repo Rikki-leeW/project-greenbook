@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { useNavigationScroll } from '../../hooks/useNavigationScroll';
+
 import Library from '../../pages/Library';
 import GrowingRecipes from '../../pages/GrowingRecipes';
 import GrowingRecipeDetail from '../../pages/GrowingRecipeDetail';
@@ -246,7 +248,7 @@ export default function AppLibrary({
 
   const [
     currentView,
-    setCurrentView,
+    setCurrentViewState,
   ] = useState<LibraryView>(
     initialRecipeId
       ? 'recipe-detail'
@@ -258,6 +260,13 @@ export default function AppLibrary({
               initialView,
             ),
   );
+
+  const scrollAfterNavigation = useNavigationScroll();
+
+  function setCurrentView(view: LibraryView) {
+    setCurrentViewState(view);
+    scrollAfterNavigation(0);
+  }
 
   const [
     growingCategory,
@@ -475,7 +484,7 @@ export default function AppLibrary({
         );
       }
 
-      setCurrentView('recipe-detail');
+      setCurrentViewState('recipe-detail');
       return;
     }
 
@@ -486,7 +495,7 @@ export default function AppLibrary({
         initialIngredientId,
       );
       setSelectedProductId(null);
-      setCurrentView(
+      setCurrentViewState(
         'ingredient-detail',
       );
       return;
@@ -499,7 +508,7 @@ export default function AppLibrary({
       setSelectedProductId(
         initialProductId,
       );
-      setCurrentView('product-detail');
+      setCurrentViewState('product-detail');
       return;
     }
 
@@ -520,13 +529,13 @@ export default function AppLibrary({
           ),
         );
 
-        setCurrentView(
+        setCurrentViewState(
           'growing-recipes',
         );
         return;
       }
 
-      setCurrentView(initialView);
+      setCurrentViewState(initialView);
     }
   }, [
     initialRecipeId,

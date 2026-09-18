@@ -3,6 +3,8 @@ import {
   useState,
 } from 'react';
 
+import { useNavigationScroll } from './hooks/useNavigationScroll';
+
 import './css/App.css';
 import './css/sprig-print.css';
 
@@ -161,6 +163,9 @@ interface SprigJourneyState {
 
   label:
     string;
+
+  scrollY:
+    number;
 }
 
 
@@ -599,7 +604,7 @@ function App() {
 
   const [
     activePage,
-    setActivePage,
+    setActivePageState,
   ] =
     useState<
       AppPage
@@ -1172,7 +1177,26 @@ function App() {
 
       label:
         getCurrentJourneyLabel(),
+
+      scrollY:
+        window.scrollY,
     };
+  }
+
+
+  /* =======================================
+     NAVIGATION SCROLL
+
+     Forward navigation begins at the top.
+     Journey Back restores the gardener's
+     previous reading position.
+  ======================================= */
+
+  const scrollAfterNavigation = useNavigationScroll();
+
+  function setActivePage(page: AppPage) {
+    setActivePageState(page);
+    if (page !== activePage) scrollAfterNavigation(0);
   }
 
 
@@ -1190,6 +1214,11 @@ function App() {
         ...history,
         current,
       ],
+    );
+
+
+    scrollAfterNavigation(
+      0,
     );
   }
 
@@ -1396,6 +1425,11 @@ function App() {
         fallbackPage,
       );
 
+
+      scrollAfterNavigation(
+        0,
+      );
+
       return;
     }
 
@@ -1411,6 +1445,11 @@ function App() {
 
     restoreJourneyState(
       previous,
+    );
+
+
+    scrollAfterNavigation(
+      previous.scrollY,
     );
   }
 
@@ -1661,6 +1700,15 @@ function App() {
     setActivePage(
       page,
     );
+
+
+    if (
+      !isSameDestination
+    ) {
+      scrollAfterNavigation(
+        0,
+      );
+    }
   }
 
 
@@ -3895,6 +3943,26 @@ function App() {
     }
 
 
+    /*
+     * New shared Moments can carry a separate
+     * before → after transition for every
+     * affected Plant Story.
+     *
+     * Older Moments do not have this array,
+     * so the original singular event fields
+     * remain the compatibility fallback.
+     */
+    const plantTransition =
+      event
+        .plantGrowingTransitions
+        ?.find(
+          transition =>
+            transition
+              .plantStoryId ===
+            plant.id,
+        );
+
+
     const changesPlace =
       Boolean(
         isMoved,
@@ -3926,8 +3994,12 @@ function App() {
 
     const nextPlaceId =
       changesPlace
-        ? event
-            .toGrowingPlaceId
+        ? (
+            plantTransition
+              ?.toGrowingPlaceId ??
+            event
+              .toGrowingPlaceId
+          )
         : plant
             .currentGrowingPlaceId;
 
@@ -3942,6 +4014,8 @@ function App() {
       changesSetup
         ? [
             ...(
+              plantTransition
+                ?.toGrowingSetupIds ??
               event
                 .toGrowingSetupIds ??
               []
@@ -3979,6 +4053,33 @@ function App() {
     }
 
 
+    /*
+     * Prefer the event's preserved before-state.
+     *
+     * This matters for a shared Moment because
+     * several Plant Stories may have started in
+     * different Growing Places or Growing Setups.
+     *
+     * For older events, current Plant Story state
+     * remains the safe compatibility fallback.
+     */
+    const previousPlaceId =
+      plantTransition
+        ?.fromGrowingPlaceId ??
+      event
+        .fromGrowingPlaceId ??
+      plant
+        .currentGrowingPlaceId;
+
+
+    const transitionPreviousSetupIds =
+      plantTransition
+        ?.fromGrowingSetupIds ??
+      event
+        .fromGrowingSetupIds ??
+      currentSetupIds;
+
+
     const previousPlaceIds =
       Array.from(
         new Set(
@@ -3990,8 +4091,7 @@ function App() {
             ),
 
             placeActuallyChanged
-              ? plant
-                  .currentGrowingPlaceId
+              ? previousPlaceId
               : undefined,
           ].filter(
             (
@@ -4017,7 +4117,7 @@ function App() {
 
             ...(
               setupActuallyChanged
-                ? currentSetupIds
+                ? transitionPreviousSetupIds
                 : []
             ),
           ],
@@ -4054,6 +4154,30 @@ function App() {
       );
 
 
+    const transplantDescription =
+      event.transplantKind ===
+        'potted-up'
+        ? 'Potted up or changed container.'
+        : event.transplantKind ===
+            'container-to-ground'
+          ? 'Transplanted from a container into the ground or a garden bed.'
+          : event.transplantKind ===
+              'ground-to-container'
+            ? 'Transplanted from the ground or a garden bed into a container.'
+            : event.transplantKind ===
+                'place-to-place'
+              ? 'Transplanted into a different growing place.'
+              : event.transplantKind ===
+                    'other' &&
+                  event
+                    .customTransplantLabel
+                    ?.trim()
+                ? event
+                    .customTransplantLabel
+                    .trim()
+                : 'Growing conditions changed when this Plant Story was transplanted.';
+
+
     const nextHistoryEntry = {
       id:
         `${plant.id}-growing-history-${event.id}`,
@@ -4077,9 +4201,29 @@ function App() {
 
       notes:
         isTransplanted
-          ? 'Growing conditions changed when this Plant Story was transplanted.'
+          ? transplantDescription
           : 'Growing Place changed when this Plant Story was moved.',
     };
+
+
+    /*
+     * A real transplant is also a genuine
+     * harvest-timing milestone.
+     *
+     * Only timing explicitly waiting for
+     * planted-out is resolved here. Timing
+     * anchored to sowing, planting, purchase,
+     * another event or a custom date is left
+     * untouched.
+     */
+    const shouldResolvePlantedOutTiming =
+      Boolean(
+        isTransplanted,
+      ) &&
+      plant
+        .harvestTimingReference
+        ?.sourceType ===
+        'planted-out';
 
 
     return {
@@ -4108,12 +4252,31 @@ function App() {
         nextHistoryEntry,
       ],
 
+      plantedOutDate:
+        shouldResolvePlantedOutTiming
+          ? (
+              plant.plantedOutDate ??
+              event.date
+            )
+          : plant.plantedOutDate,
+
+      harvestTimingReference:
+        shouldResolvePlantedOutTiming
+          ? {
+              sourceType:
+                'garden-event',
+
+              eventId:
+                event.id,
+            }
+          : plant
+              .harvestTimingReference,
+
       updatedAt:
         new Date()
           .toISOString(),
     };
   }
-
 
   /* =======================================
      ADD EVENT
@@ -5494,14 +5657,30 @@ function App() {
 
 
         {isAddHarvestOpen && (
-          <AddHarvestForm
-            plants={
-              gardenData.plantStories
-            }
+      <AddHarvestForm
+      plants={
+        gardenData.plantStories
+      }
+    
+      growingPlaces={
+        gardenData.growingPlaces
+      }
+    
+      events={
+        gardenData.events
+      }
+    
+      harvests={
+        gardenData.harvests
+      }
+    
+      products={
+        gardenData.products ??
+        []
+      }
+      
 
-            growingPlaces={
-              gardenData.growingPlaces
-            }
+ 
 
             harvest={
               harvestEditorRecord
@@ -5653,6 +5832,13 @@ function App() {
             products={
               gardenData.products ??
               []
+            }
+            onAddProduct={
+              handleAddProduct
+            }
+            
+            onAddPurchase={
+              handleAddPurchase
             }
 
             eventToEdit={
@@ -6070,6 +6256,13 @@ function App() {
                 gardenData.products ??
                 []
               }
+              onAddProduct={
+                handleAddProduct
+              }
+              
+              onAddPurchase={
+                handleAddPurchase
+              }
 
               onAddEvent={
                 newEvent =>
@@ -6103,13 +6296,28 @@ function App() {
 
         {isAddHarvestOpen && (
           <AddHarvestForm
-            plants={
-              gardenData.plantStories
-            }
+          plants={
+            gardenData.plantStories
+          }
+        
+          growingPlaces={
+            gardenData.growingPlaces
+          }
+        
+          events={
+            gardenData.events
+          }
+        
+          harvests={
+            gardenData.harvests
+          }
+        
+          products={
+            gardenData.products ??
+            []
+          }
 
-            growingPlaces={
-              gardenData.growingPlaces
-            }
+  
 
             harvest={
               harvestEditorRecord
@@ -6318,6 +6526,13 @@ if (
             products={
               gardenData.products ??
               []
+            }
+            onAddProduct={
+              handleAddProduct
+            }
+            
+            onAddPurchase={
+              handleAddPurchase
             }
 
             onAddEvent={
@@ -6862,15 +7077,29 @@ if (
 
 
         {isAddHarvestOpen && (
-          <AddHarvestForm
-            plants={
-              gardenData.plantStories
-            }
+         <AddHarvestForm
+         plants={
+           gardenData.plantStories
+         }
+       
+         growingPlaces={
+           gardenData.growingPlaces
+         }
+       
+         events={
+           gardenData.events
+         }
+       
+         harvests={
+           gardenData.harvests
+         }
+       
+         products={
+           gardenData.products ??
+           []
+         }
 
-            growingPlaces={
-              gardenData.growingPlaces
-            }
-
+   
             harvest={
               harvestEditorRecord
             }
@@ -7426,6 +7655,8 @@ if (
             planToRecord.kind ===
               'other'
           ) && (
+
+
             <AddEventForm
             plantId=""
 
@@ -7454,6 +7685,13 @@ if (
               gardenData.products ??
               []
             }
+            onAddProduct={
+              handleAddProduct
+            }
+            
+            onAddPurchase={
+              handleAddPurchase
+            }
 
             planToRecord={
               planToRecord
@@ -7479,14 +7717,29 @@ if (
         {isAddHarvestOpen &&
           planToRecord?.kind ===
             'harvest' && (
-          <AddHarvestForm
-            plants={
-              gardenData.plantStories
-            }
+              <AddHarvestForm
+              plants={
+                gardenData.plantStories
+              }
+            
+              growingPlaces={
+                gardenData.growingPlaces
+              }
+            
+              events={
+                gardenData.events
+              }
+            
+              harvests={
+                gardenData.harvests
+              }
+            
+              products={
+                gardenData.products ??
+                []
+              }
 
-            growingPlaces={
-              gardenData.growingPlaces
-            }
+
 
             harvest={
               null
@@ -7937,6 +8190,13 @@ if (
           products={
             gardenData.products ??
             []
+          }
+          onAddProduct={
+            handleAddProduct
+          }
+          
+          onAddPurchase={
+            handleAddPurchase
           }
 
           onAddEvent={

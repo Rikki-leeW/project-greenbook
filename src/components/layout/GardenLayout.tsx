@@ -74,43 +74,7 @@ export default function GardenLayout({
           )
         }
         aria-label="Open Sprig Satchel"
-        style={{
-          position:
-            'fixed',
-
-          top:
-            '14px',
-
-          right:
-            '14px',
-
-          zIndex:
-            4000,
-
-          padding:
-            '9px 12px',
-
-          border:
-            '1px solid rgba(50, 75, 50, 0.24)',
-
-          borderRadius:
-            '10px',
-
-          background:
-            '#fffdf7',
-
-          color:
-            '#304a32',
-
-          fontWeight:
-            800,
-
-          cursor:
-            'pointer',
-
-          boxShadow:
-            '0 5px 14px rgba(35, 55, 35, 0.12)',
-        }}
+        className="garden-satchel-toggle"
       >
         ☰ Satchel
       </button>
@@ -120,14 +84,9 @@ export default function GardenLayout({
           PAGE
       ======================================= */}
 
-      <main
-        style={{
-          paddingBottom:
-            '74px',
-        }}
-      >
+      <div className="garden-layout-content">
         {children}
-      </main>
+      </div>
 
 
       {/* =======================================

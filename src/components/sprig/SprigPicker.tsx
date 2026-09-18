@@ -606,7 +606,7 @@ export default function SprigPicker<
                     )
                   }
                 >
-                  ＋ {customOptionLabel}
+                  ï¼‹ {customOptionLabel}
                 </button>
               ) : (
                 <div className="sprig-picker-custom-entry">

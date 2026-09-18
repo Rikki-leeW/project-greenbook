@@ -1,0 +1,453 @@
+/* =========================================================
+   PLANT STORY CARD
+   VISUAL REFINEMENT LABORATORY
+
+   Plant-specific styling stays in plantcard.css.
+   Delete this whole block if the treatment is rejected.
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   CARD SURFACE
+--------------------------------------------------------- */
+
+.plant-card-button {
+  position: relative;
+
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 14px 15px;
+
+  border: 1px solid rgba(72, 92, 67, 0.14);
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 254, 249, 0.98),
+      rgba(250, 247, 237, 0.94)
+    );
+
+  color: #344c39;
+  text-align: left;
+
+  box-shadow:
+    0 5px 14px rgba(48, 74, 50, 0.055);
+
+  cursor: pointer;
+
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+
+.plant-card-button:hover {
+  transform: translateY(-1px);
+
+  border-color: rgba(72, 101, 65, 0.28);
+
+  background:
+    linear-gradient(
+      145deg,
+      #fffef9,
+      #fbf8ef
+    );
+
+  box-shadow:
+    0 9px 20px rgba(48, 74, 50, 0.085);
+}
+
+
+.plant-card-button:focus-visible {
+  outline: 3px solid rgba(82, 112, 71, 0.18);
+  outline-offset: 2px;
+}
+
+
+/* ---------------------------------------------------------
+   MAIN CONTENT
+--------------------------------------------------------- */
+
+.plant-card-content {
+  display: block;
+
+  flex: 1 1 auto;
+
+  min-width: 0;
+}
+
+
+.plant-card-main {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+
+/* ---------------------------------------------------------
+   NAME + AGE
+
+   Keep them together, but give the age enough separation
+   that it reads as context rather than part of the name.
+--------------------------------------------------------- */
+
+.plant-card-heading-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  gap: 3px 7px;
+
+  min-width: 0;
+}
+
+
+.plant-card-title {
+  min-width: 0;
+
+  color: #304f35;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.18;
+
+  overflow-wrap: anywhere;
+}
+
+
+.plant-card-age {
+  flex: 0 0 auto;
+
+  color: #74806f;
+
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.2;
+
+  white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   STORY CONTEXT
+--------------------------------------------------------- */
+
+.plant-card-details {
+  display: grid;
+
+  gap: 4px;
+
+  min-width: 0;
+
+  margin-top: 6px;
+
+  color: #657062;
+
+  font-size: 0.76rem;
+  line-height: 1.34;
+}
+
+
+.plant-card-planted-line,
+.plant-card-latest-activity {
+  display: block;
+
+  min-width: 0;
+
+  margin: 0;
+
+  overflow-wrap: anywhere;
+}
+
+
+.plant-card-planted-line strong,
+.plant-card-latest-activity strong {
+  color: #49644b;
+
+  font-weight: 700;
+}
+
+
+.plant-card-separator {
+  display: inline-block;
+
+  margin: 0 5px;
+
+  color: #a0a99a;
+}
+
+
+.plant-card-latest-date {
+  color: #7b8477;
+
+  white-space: nowrap;
+}
+
+
+/* Latest activity is useful, but quieter than identity */
+
+.plant-card-latest-activity {
+  color: #737c70;
+}
+
+
+/* ---------------------------------------------------------
+   RICH PLANTS-PAGE DETAILS
+
+   These should read as useful story context, not as
+   miniature grey dashboard boxes.
+--------------------------------------------------------- */
+
+.plant-card-rich-details {
+  display: grid;
+
+  gap: 4px;
+
+  min-width: 0;
+
+  margin-top: 8px;
+  padding-top: 7px;
+
+  border-top: 1px solid rgba(72, 92, 67, 0.09);
+}
+
+
+.plant-card-rich-detail {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  gap: 3px 6px;
+
+  min-width: 0;
+
+  color: #687367;
+
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+
+.plant-card-rich-label {
+  color: #506650;
+
+  font-weight: 700;
+}
+
+
+.plant-card-rich-value {
+  min-width: 0;
+
+  color: #737c70;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   STATUS + OPEN STORY
+--------------------------------------------------------- */
+
+.plant-card-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 6px 9px;
+
+  min-width: 0;
+
+  margin-top: 9px;
+}
+
+
+.plant-card .status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  max-width: 100%;
+
+  padding: 4px 8px;
+
+  border: 1px solid rgba(72, 101, 65, 0.12);
+  border-radius: 999px;
+
+  background: #e8efe2;
+  color: #496449;
+
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+
+.plant-card .plant-status-finished {
+  border-color: rgba(112, 108, 92, 0.1);
+
+  background: rgba(231, 227, 214, 0.68);
+  color: #777266;
+}
+
+
+.plant-card .open-story {
+  margin: 0;
+
+  color: #527047;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+
+/* ---------------------------------------------------------
+   PHOTOGRAPH
+--------------------------------------------------------- */
+
+@media (max-width: 620px) {
+  .plant-card-thumbnail {
+    flex-basis: 72px;
+    width: 72px;
+    height: 72px;
+
+    border-radius: 12px;
+  }
+}
+
+
+.plant-card-thumbnail img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+
+/* ---------------------------------------------------------
+   SELECTION / COMPARISON
+
+   Selected cards should still look like Plant Stories,
+   just clearly selected.
+--------------------------------------------------------- */
+
+.plant-card-compare-selected {
+  border-color: rgba(82, 112, 71, 0.48);
+
+  background:
+    linear-gradient(
+      145deg,
+      #edf4e7,
+      #e5efdd
+    );
+
+  box-shadow:
+    0 6px 16px rgba(48, 74, 50, 0.09);
+}
+
+
+/* ---------------------------------------------------------
+   PHONE
+
+   Preserve information without crushing everything into
+   tiny type.
+--------------------------------------------------------- */
+
+@media (max-width: 620px) {
+
+  .plant-card-button {
+    gap: 10px;
+
+    padding: 12px 13px;
+
+    border-radius: 15px;
+  }
+
+
+  .plant-card-title {
+    font-size: 0.94rem;
+  }
+
+
+  .plant-card-age {
+    font-size: 0.72rem;
+  }
+
+
+  .plant-card-details {
+    margin-top: 5px;
+
+    font-size: 0.73rem;
+  }
+
+
+  .plant-card-rich-details {
+    margin-top: 7px;
+    padding-top: 6px;
+  }
+
+
+  .plant-card-rich-detail {
+    font-size: 0.71rem;
+  }
+
+
+  .plant-card-thumbnail {
+    flex-basis: 58px;
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 11px;
+  }
+
+
+  .plant-card-actions {
+    margin-top: 8px;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   VERY SMALL PHONE
+
+   Only here do we let the photograph become smaller.
+--------------------------------------------------------- */
+
+@media (max-width: 390px) {
+
+  .plant-card-button {
+    gap: 8px;
+
+    padding: 11px 12px;
+  }
+
+
+  .plant-card-thumbnail {
+    flex-basis: 72px;
+    width: 72px;
+    height: 72px;
+  }
+
+}

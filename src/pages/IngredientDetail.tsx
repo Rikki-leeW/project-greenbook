@@ -1,4 +1,6 @@
-import GardenLayout from '../components/layout/GardenLayout';
+
+import { BackToTop } from '../components/layout/GardenPage';
+import DetailPageTemplate from '../components/templates/DetailPageTemplate'
 import RecordActions from '../components/common/RecordActions';
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 import type { AppPage } from '../types/navigation';
@@ -348,25 +350,7 @@ export default function IngredientDetail({
           ),
       );
 
-  function backToTop() {
-    const prefersReducedMotion =
-      window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches;
 
-    document
-      .getElementById(
-        'ingredient-detail-top',
-      )
-      ?.scrollIntoView({
-        behavior:
-          prefersReducedMotion
-            ? 'auto'
-            : 'smooth',
-
-        block: 'start',
-      });
-  }
 
   function handleRate() {
     if (!onSetRating) {
@@ -415,45 +399,33 @@ export default function IngredientDetail({
   }
 
   return (
-    <GardenLayout
+    <DetailPageTemplate
       activePage="library"
-      onNavigate={
-        onNavigate
+      onNavigate={onNavigate}
+      className="journal-page"
+      as="div"
+      pageId="ingredient-detail-top"
+      journeyBackLabel={
+        backLabel
+          ? `Back to ${backLabel}`
+          : null
       }
+      onJourneyBack={
+        onBackToOrigin
+      }
+      homeLabel="Growing Home"
+      onHome={
+        onBack
+      }
+      navigationAriaLabel="Ingredient navigation"
+    
+      eyebrow={<>Garden Ingredient</>}
+      title={<>{ingredient.name}</>}
+      intro={<>{categoryLabel}</>}
     >
-      <div
-        className="journal-page"
-        id="ingredient-detail-top"
-      >
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Garden Ingredient
-            </p>
-
-            <h1>
-              {ingredient.name}
-            </h1>
-
-            <p className="journal-intro">
-              {categoryLabel}
-            </p>
-          </div>
-        </header>
+        
 
         <RecordActions
-          onBack={
-            onBack
-          }
-          backLabel="Growing Home"
-          contextualBackLabel={
-            backLabel
-              ? `Back to ${backLabel}`
-              : undefined
-          }
-          onContextualBack={
-            onBackToOrigin
-          }
           onEdit={
             onEdit
           }
@@ -805,18 +777,8 @@ export default function IngredientDetail({
           </article>
         </section>
 
-        <div className="growing-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={
-              backToTop
-            }
-          >
-            ↑ Back to the top
-          </button>
-        </div>
-      </div>
-    </GardenLayout>
+        <BackToTop targetId="ingredient-detail-top" label="Back to the top" />
+      </DetailPageTemplate>
   );
 }
+

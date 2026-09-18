@@ -5,7 +5,10 @@ import {
 } from 'react'
 
 import PlantCard from '../components/cards/PlantCard'
-import GardenLayout from '../components/layout/GardenLayout'
+import MainPageTemplate from '../components/templates/MainPageTemplate'
+import {
+  getPlantStoryCardContext,
+} from '../utils/plantStoryContext'
 
 import type {
   GardenEvent,
@@ -137,18 +140,6 @@ interface PlantSearchDocument {
 
   searchText:
     string
-}
-
-
-interface PlantPhotoCandidate {
-  photoUrl:
-    string
-
-  date:
-    string
-
-  priority:
-    number
 }
 
 
@@ -289,718 +280,21 @@ function getLatestDate(
   )
 }
 
+
 /* =======================================
-   LATEST PLANT MEMORY
+   SHARED PLANT STORY CONTEXT
 ======================================= */
 
-interface PlantMemoryClue {
-  date: string
-  summary: string
-  priority: number
-}
+/*
+ * Plant Story identity and latest-memory
+ * presentation are derived centrally.
+ *
+ * Harvest and Plants now read the same
+ * garden evidence instead of maintaining
+ * separate interpretations of what the
+ * gardener most recently recorded.
+ */
 
-
-function cleanMemoryText(
-  value:
-    string | undefined,
-): string {
-  return (
-    value ??
-    ''
-  )
-    .replace(
-      /\s+/g,
-      ' ',
-    )
-    .trim()
-}
-
-
-function shortenMemoryText(
-  value:
-    string,
-  maxLength =
-    74,
-): string {
-  if (
-    value.length <=
-    maxLength
-  ) {
-    return value
-  }
-
-  return `${
-    value
-      .slice(
-        0,
-        maxLength - 1,
-      )
-      .trimEnd()
-  }…`
-}
-
-
-function formatEventTypeLabel(
-  type:
-    GardenEvent['type'],
-): string {
-  switch (
-    type
-  ) {
-    case 'observation':
-      return 'Observed'
-
-    case 'watered':
-      return 'Watered'
-
-    case 'fed':
-      return 'Fertilised'
-
-    case 'sprouted':
-      return 'Sprouted'
-
-    case 'pruned':
-      return 'Pruned'
-
-    case 'treated':
-      return 'Treated'
-
-    case 'moved':
-      return 'Moved'
-
-    case 'transplanted':
-      return 'Transplanted'
-
-    case 'hilled':
-      return 'Hilled'
-
-    case 'weather':
-      return 'Weather'
-
-    case 'photo':
-      return 'Photograph'
-
-    case 'note':
-      return 'Note'
-
-    case 'harvest':
-      return 'Harvest'
-
-    case 'planted':
-      return 'Planted'
-
-    default:
-      return 'Garden moment'
-  }
-}
-
-
-function getEventMemorySummary(
-  event:
-    GardenEvent,
-
-  growingPlaces:
-    GrowingPlace[],
-
-  products:
-    GardenProduct[],
-): string {
-  const activityTypes =
-    event.activityTypes
-      ?.length
-      ? event.activityTypes
-      : [
-          event.type,
-        ]
-
-
-  const activityLabel =
-    activityTypes
-      .map(
-        activity =>
-          formatEventTypeLabel(
-            activity,
-          ),
-      )
-      .join(
-        ' + ',
-      )
-
-
-  const title =
-    cleanMemoryText(
-      event.title,
-    )
-
-
-  const note =
-    cleanMemoryText(
-      event.notes,
-    )
-
-
-  const treatmentReason =
-    cleanMemoryText(
-      event.treatmentReason,
-    )
-
-
-  const productText =
-    cleanMemoryText(
-      event.productUsed,
-    )
-
-
-  const genericTitles = [
-    activityLabel
-      .toLocaleLowerCase(),
-
-    'garden moment',
-
-    'adding a moment',
-
-    'add a moment',
-
-    'journal entry',
-
-    'adding this page',
-
-    'new journal entry',
-  ]
-
-
-  const titleIsUseful =
-    Boolean(
-      title,
-    ) &&
-    !genericTitles.includes(
-      title
-        .toLocaleLowerCase(),
-    )
-
-
-  if (
-    titleIsUseful
-  ) {
-    return shortenMemoryText(
-      `${activityLabel} · ${title}`,
-    )
-  }
-
-
-  if (
-    activityTypes.includes(
-      'treated',
-    ) &&
-    treatmentReason
-  ) {
-    return shortenMemoryText(
-      `Treated · ${treatmentReason}`,
-    )
-  }
-
-
-  if (
-    note
-  ) {
-    return shortenMemoryText(
-      `${activityLabel} · ${note}`,
-    )
-  }
-
-
-  const linkedProductNames =
-    (
-      event.productIds ??
-      []
-    )
-      .map(
-        productId =>
-          products.find(
-            product =>
-              product.id ===
-              productId,
-          )?.name,
-      )
-      .filter(
-        (
-          name,
-        ): name is string =>
-          Boolean(
-            name,
-          ),
-      )
-
-
-  if (
-    linkedProductNames.length >
-    0
-  ) {
-    return shortenMemoryText(
-      `${activityLabel} · ${
-        linkedProductNames.join(
-          ' · ',
-        )
-      }`,
-    )
-  }
-
-
-  if (
-    productText
-  ) {
-    return shortenMemoryText(
-      `${activityLabel} · ${productText}`,
-    )
-  }
-
-
-  const photoContext =
-    (
-      event.photoMetadata ??
-      []
-    )
-      .map(
-        metadata => {
-          if (
-            !metadata
-          ) {
-            return ''
-          }
-
-
-          const photoTitle =
-            cleanMemoryText(
-              metadata.title,
-            )
-
-
-          if (
-            photoTitle
-          ) {
-            return photoTitle
-          }
-
-
-          const photoNotes =
-            cleanMemoryText(
-              metadata.notes,
-            )
-
-
-          if (
-            photoNotes
-          ) {
-            return photoNotes
-          }
-
-
-          if (
-            metadata.purpose
-          ) {
-            return metadata.purpose
-              .replaceAll(
-                '-',
-                ' ',
-              )
-              .replace(
-                /\b\w/g,
-                letter =>
-                  letter.toUpperCase(),
-              )
-          }
-
-
-          return ''
-        },
-      )
-      .find(
-        Boolean,
-      )
-
-
-  if (
-    photoContext
-  ) {
-    return shortenMemoryText(
-      `${activityLabel} · ${photoContext}`,
-    )
-  }
-
-
-  const placeNames =
-    (
-      event.growingPlaceIds ??
-      []
-    )
-      .map(
-        placeId =>
-          growingPlaces.find(
-            place =>
-              place.id ===
-              placeId,
-          )?.name,
-      )
-      .filter(
-        (
-          name,
-        ): name is string =>
-          Boolean(
-            name,
-          ),
-      )
-
-
-  if (
-    placeNames.length >
-    0
-  ) {
-    return shortenMemoryText(
-      `${activityLabel} · ${
-        placeNames.join(
-          ' · ',
-        )
-      }`,
-    )
-  }
-
-
-  return activityLabel
-}
-
-
-function getHarvestMemorySummary(
-  harvest:
-    HarvestRecord,
-): string {
-  const details:
-    string[] = []
-
-
-  if (
-    harvest.count !==
-    undefined
-  ) {
-    details.push(
-      `${harvest.count} ${
-        harvest.count ===
-        1
-          ? 'item'
-          : 'items'
-      }`,
-    )
-  }
-
-
-  if (
-    harvest.measurementAmount !==
-    undefined
-  ) {
-    const measurementUnit =
-      harvest.customMeasurementUnitLabel ??
-      harvest.measurementUnit
-
-    details.push(
-      measurementUnit
-        ? `${harvest.measurementAmount} ${
-            measurementUnit
-              .replaceAll(
-                '-',
-                ' ',
-              )
-          }`
-        : String(
-            harvest.measurementAmount,
-          ),
-    )
-  }
-
-
-  if (
-    harvest.quality
-  ) {
-    details.push(
-      harvest.quality
-        .charAt(
-          0,
-        )
-        .toUpperCase() +
-      harvest.quality
-        .slice(
-          1,
-        ),
-    )
-  }
-
-
-  const notes =
-    cleanMemoryText(
-      harvest.notes,
-    )
-
-
-  if (
-    details.length ===
-      0 &&
-    notes
-  ) {
-    details.push(
-      notes,
-    )
-  }
-
-
-  return shortenMemoryText(
-    details.length >
-      0
-      ? `Harvest · ${
-          details.join(
-            ' · ',
-          )
-        }`
-      : 'Harvest',
-  )
-}
-
-
-function getPhotoMemorySummary(
-  title:
-    string | undefined,
-
-  notes:
-    string | undefined,
-
-  purpose:
-    string | undefined,
-): string {
-  const titleText =
-    cleanMemoryText(
-      title,
-    )
-
-
-  if (
-    titleText
-  ) {
-    return shortenMemoryText(
-      `Photograph · ${titleText}`,
-    )
-  }
-
-
-  const notesText =
-    cleanMemoryText(
-      notes,
-    )
-
-
-  if (
-    notesText
-  ) {
-    return shortenMemoryText(
-      `Photograph · ${notesText}`,
-    )
-  }
-
-
-  if (
-    purpose
-  ) {
-    return `Photograph · ${
-      purpose
-        .replaceAll(
-          '-',
-          ' ',
-        )
-        .replace(
-          /\b\w/g,
-          letter =>
-            letter.toUpperCase(),
-        )
-    }`
-  }
-
-
-  return 'Photograph'
-}
-
-
-function getLatestPlantMemoryClue(
-  plant:
-    PlantStory,
-
-  plantEvents:
-    GardenEvent[],
-
-  plantHarvests:
-    HarvestRecord[],
-
-  growingPlaces:
-    GrowingPlace[],
-
-  products:
-    GardenProduct[],
-): PlantMemoryClue | undefined {
-  const clues:
-    PlantMemoryClue[] =
-    []
-
-
-  /*
-   * Journal Moments are appended to the
-   * garden event collection when they are
-   * created.
-   *
-   * plantEvents preserves that order.
-   *
-   * So, when several Moments share the same
-   * calendar date, the later array position
-   * is the later-created Moment.
-   */
-  plantEvents.forEach(
-    (
-      event,
-      index,
-    ) => {
-      clues.push({
-        date:
-          event.date,
-
-        summary:
-          getEventMemorySummary(
-            event,
-            growingPlaces,
-            products,
-          ),
-
-        /*
-         * Journal wins over Harvest/photo
-         * on an exact same-date tie.
-         *
-         * Within Journal, later-created
-         * Moments win.
-         */
-        priority:
-          300000 +
-          index,
-      })
-    },
-  )
-
-
-  plantHarvests.forEach(
-    (
-      harvest,
-      index,
-    ) => {
-      clues.push({
-        date:
-          harvest.date,
-
-        summary:
-          getHarvestMemorySummary(
-            harvest,
-          ),
-
-        priority:
-          200000 +
-          index,
-      })
-    },
-  )
-
-
-  ;(
-    plant.photoUrls ??
-    []
-  ).forEach(
-    (
-      _photoUrl,
-      index,
-    ) => {
-      const metadata =
-        plant.photoMetadata?.[
-          index
-        ]
-
-      const photoDate =
-        metadata
-          ?.photoDate ??
-        plant.photoDates?.[
-          index
-        ]
-
-      if (
-        !photoDate
-      ) {
-        return
-      }
-
-      clues.push({
-        date:
-          photoDate,
-
-        summary:
-          getPhotoMemorySummary(
-            metadata?.title,
-            metadata?.notes,
-            metadata?.purpose,
-          ),
-
-        priority:
-          100000 +
-          index,
-      })
-    },
-  )
-
-
-  if (
-    clues.length ===
-    0
-  ) {
-    return undefined
-  }
-
-
-  return [
-    ...clues,
-  ].sort(
-    (
-      first,
-      second,
-    ) => {
-      /*
-       * First choose the genuinely newest
-       * calendar date.
-       */
-      const dateComparison =
-        second.date.localeCompare(
-          first.date,
-        )
-
-      if (
-        dateComparison !==
-        0
-      ) {
-        return dateComparison
-      }
-
-
-      /*
-       * Same date:
-       *
-       * later-created Journal Moment wins;
-       * Journal beats Harvest;
-       * Harvest beats direct Plant photo.
-       */
-      return (
-        second.priority -
-        first.priority
-      )
-    },
-  )[0]
-}
 
 /* =======================================
    PLANT SETUP IDS
@@ -1203,212 +497,6 @@ function getGrowingSetupSearchWords(
 
 
   return words
-}
-
-
-/* =======================================
-   PHOTO DATE
-======================================= */
-
-function getPhotoDate(
-  metadataDate:
-    string | undefined,
-
-  legacyDate:
-    string | undefined,
-
-  fallback:
-    string,
-): string {
-  return (
-    metadataDate ??
-    legacyDate ??
-    fallback
-  )
-}
-
-
-/* =======================================
-   PLANT THUMBNAIL
-======================================= */
-
-function getPlantThumbnailPhotoUrl(
-  plant:
-    PlantStory,
-
-  plantEvents:
-    GardenEvent[],
-
-  plantHarvests:
-    HarvestRecord[],
-): string | undefined {
-  const candidates:
-    PlantPhotoCandidate[] =
-    []
-
-
-  for (
-    let index = 0;
-    index <
-    (
-      plant.photoUrls ??
-      []
-    ).length;
-    index += 1
-  ) {
-    const photoUrl =
-      plant.photoUrls?.[
-        index
-      ]
-
-    if (
-      !photoUrl
-    ) {
-      continue
-    }
-
-    candidates.push({
-      photoUrl,
-
-      date:
-        getPhotoDate(
-          plant.photoMetadata?.[
-            index
-          ]?.photoDate,
-          plant.photoDates?.[
-            index
-          ],
-          plant.updatedAt ??
-            plant.plantedDate,
-        ),
-
-      priority:
-        3,
-    })
-  }
-
-
-  for (
-    const event
-    of plantEvents
-  ) {
-    for (
-      let index = 0;
-      index <
-      (
-        event.photoUrls ??
-        []
-      ).length;
-      index += 1
-    ) {
-      const photoUrl =
-        event.photoUrls?.[
-          index
-        ]
-
-      if (
-        !photoUrl
-      ) {
-        continue
-      }
-
-      candidates.push({
-        photoUrl,
-
-        date:
-          getPhotoDate(
-            event.photoMetadata?.[
-              index
-            ]?.photoDate,
-            undefined,
-            event.date,
-          ),
-
-        priority:
-          2,
-      })
-    }
-  }
-
-
-  for (
-    const harvest
-    of plantHarvests
-  ) {
-    for (
-      let index = 0;
-      index <
-      (
-        harvest.photoUrls ??
-        []
-      ).length;
-      index += 1
-    ) {
-      const photoUrl =
-        harvest.photoUrls?.[
-          index
-        ]
-
-      if (
-        !photoUrl
-      ) {
-        continue
-      }
-
-      candidates.push({
-        photoUrl,
-
-        date:
-          getPhotoDate(
-            harvest.photoMetadata?.[
-              index
-            ]?.photoDate,
-            undefined,
-            harvest.date,
-          ),
-
-        priority:
-          1,
-      })
-    }
-  }
-
-
-  if (
-    candidates.length ===
-    0
-  ) {
-    return undefined
-  }
-
-
-  candidates.sort(
-    (
-      first,
-      second,
-    ) => {
-      const dateDifference =
-        second.date.localeCompare(
-          first.date,
-        )
-
-      if (
-        dateDifference !==
-        0
-      ) {
-        return dateDifference
-      }
-
-      return (
-        second.priority -
-        first.priority
-      )
-    },
-  )
-
-
-  return candidates[0]
-    .photoUrl
 }
 
 
@@ -1640,18 +728,18 @@ function buildPlantSearchDocument(
     )
 
 
-  const latestMemoryClue =
-    getLatestPlantMemoryClue(
+  const cardContext =
+    getPlantStoryCardContext(
       plant,
-      plantEvents,
-      plantHarvests,
+      events,
+      harvests,
       growingPlaces,
       products,
     )
 
 
   const latestActivityDate =
-    latestMemoryClue?.date ??
+    cardContext.latestActivityDate ??
     getLatestDate(
       [
         plant.plantedDate,
@@ -1777,14 +865,10 @@ function buildPlantSearchDocument(
     latestActivityDate,
 
     latestActivitySummary:
-      latestMemoryClue?.summary,
+      cardContext.latestActivitySummary,
 
     thumbnailPhotoUrl:
-      getPlantThumbnailPhotoUrl(
-        plant,
-        plantEvents,
-        plantHarvests,
-      ),
+      cardContext.thumbnailPhotoUrl,
 
     searchText:
       normaliseSearchText(
@@ -1793,6 +877,400 @@ function buildPlantSearchDocument(
         ),
       ),
   }
+}
+
+
+/* =======================================
+   EXPECTED HARVEST / PRODUCTION
+======================================= */
+
+interface PlantExpectedTimingDisplay {
+  label: string
+  value: string
+}
+
+
+function addDaysToPlantDate(
+  date:
+    string,
+
+  days:
+    number,
+): Date | undefined {
+  const parsed =
+    new Date(
+      `${date}T00:00:00`,
+    )
+
+  if (
+    Number.isNaN(
+      parsed.getTime(),
+    )
+  ) {
+    return undefined
+  }
+
+  parsed.setDate(
+    parsed.getDate() +
+      days,
+  )
+
+  return parsed
+}
+
+
+function formatPlantTimingDate(
+  date:
+    Date | undefined,
+): string | undefined {
+  if (
+    !date
+  ) {
+    return undefined
+  }
+
+  return new Intl.DateTimeFormat(
+    'en-AU',
+    {
+      day: 'numeric',
+      month: 'short',
+    },
+  ).format(
+    date,
+  )
+}
+
+
+function getHarvestTimingReferenceDate(
+  plant:
+    PlantStory,
+
+  events:
+    GardenEvent[],
+): string | undefined {
+  const reference =
+    plant.harvestTimingReference
+
+  if (
+    !reference ||
+    reference.sourceType ===
+      'planted'
+  ) {
+    return plant.plantedDate
+  }
+
+  if (
+    reference.sourceType ===
+    'sown'
+  ) {
+    return plant.sownDate
+  }
+
+  if (
+    reference.sourceType ===
+    'planted-out'
+  ) {
+    return plant.plantedOutDate
+  }
+
+  if (
+    reference.sourceType ===
+      'garden-event'
+  ) {
+    if (
+      !reference.eventId
+    ) {
+      return undefined
+    }
+
+    return events.find(
+      event =>
+        event.id ===
+        reference.eventId,
+    )?.date
+  }
+
+  if (
+    reference.sourceType ===
+      'custom-date'
+  ) {
+    return reference.customDate
+  }
+
+  /*
+   * A purchased reference does not currently
+   * have its own canonical date on PlantStory.
+   * Do not quietly substitute plantedDate and
+   * pretend Sprig knows when the plant was
+   * purchased.
+   */
+  return undefined
+}
+
+
+function formatExpectedDateRange(
+  start:
+    Date | undefined,
+
+  end:
+    Date | undefined,
+): string | undefined {
+  const startText =
+    formatPlantTimingDate(
+      start,
+    )
+
+  const endText =
+    formatPlantTimingDate(
+      end,
+    )
+
+  if (
+    startText &&
+    endText
+  ) {
+    if (
+      startText ===
+      endText
+    ) {
+      return startText
+    }
+
+    return `${startText} – ${endText}`
+  }
+
+  return (
+    startText ??
+    endText
+  )
+}
+
+
+function formatProductionDuration(
+  plant:
+    PlantStory,
+): string | undefined {
+  const minimumDays =
+    plant.expectedProductionDaysMin
+
+  const maximumDays =
+    plant.expectedProductionDaysMax
+
+  if (
+    minimumDays === undefined &&
+    maximumDays === undefined
+  ) {
+    return undefined
+  }
+
+  const unit =
+    plant.productionDurationInputUnit ??
+    'weeks'
+
+  const divisor =
+    unit === 'days'
+      ? 1
+      : unit === 'weeks'
+        ? 7
+        : 30.44
+
+  function formatValue(
+    days:
+      number | undefined,
+  ): string | undefined {
+    if (
+      days === undefined
+    ) {
+      return undefined
+    }
+
+    const converted =
+      days /
+      divisor
+
+    const rounded =
+      Math.round(
+        converted *
+        10,
+      ) /
+      10
+
+    return Number.isInteger(
+      rounded,
+    )
+      ? String(
+          rounded,
+        )
+      : rounded.toFixed(
+          1,
+        )
+  }
+
+  const minimum =
+    formatValue(
+      minimumDays,
+    )
+
+  const maximum =
+    formatValue(
+      maximumDays,
+    )
+
+  let amount:
+    string | undefined
+
+  if (
+    minimum &&
+    maximum
+  ) {
+    amount =
+      minimum === maximum
+        ? minimum
+        : `${minimum}–${maximum}`
+  } else {
+    amount =
+      minimum ??
+      maximum
+  }
+
+  if (
+    !amount
+  ) {
+    return undefined
+  }
+
+  return `~${amount} ${unit}`
+}
+
+
+function getPlantExpectedTimingDetails(
+  plant:
+    PlantStory,
+
+  events:
+    GardenEvent[],
+): PlantExpectedTimingDisplay[] {
+  const hasExpectedTiming =
+    plant.expectedHarvestDaysMin !==
+      undefined ||
+    plant.expectedHarvestDaysMax !==
+      undefined
+
+  if (
+    !hasExpectedTiming
+  ) {
+    return []
+  }
+
+  const referenceDate =
+    getHarvestTimingReferenceDate(
+      plant,
+      events,
+    )
+
+  if (
+    !referenceDate
+  ) {
+    /*
+     * The duration is known, but the milestone
+     * it counts from has not happened or is not
+     * recorded yet. Do not fabricate a calendar
+     * date on the Plant card.
+     */
+    return []
+  }
+
+  const expectedStart =
+    plant.expectedHarvestDaysMin !==
+      undefined
+      ? addDaysToPlantDate(
+          referenceDate,
+          plant.expectedHarvestDaysMin,
+        )
+      : undefined
+
+  const expectedEnd =
+    plant.expectedHarvestDaysMax !==
+      undefined
+      ? addDaysToPlantDate(
+          referenceDate,
+          plant.expectedHarvestDaysMax,
+        )
+      : undefined
+
+  const expectedRange =
+    formatExpectedDateRange(
+      expectedStart,
+      expectedEnd,
+    )
+
+  if (
+    !expectedRange
+  ) {
+    return []
+  }
+
+  if (
+    plant.harvestTimingMode ===
+    'production-start'
+  ) {
+    const details:
+      PlantExpectedTimingDisplay[] = [
+        {
+          label:
+            'Expected from',
+          value:
+            expectedRange,
+        },
+      ]
+
+    const productionDuration =
+      formatProductionDuration(
+        plant,
+      )
+
+    if (
+      productionDuration
+    ) {
+      details.push({
+        label:
+          'Produces',
+        value:
+          productionDuration,
+      })
+    }
+
+    return details
+  }
+
+  if (
+    plant.harvestTimingMode ===
+    'maturity-window'
+  ) {
+    return [
+      {
+        label:
+          'Harvest window',
+        value:
+          expectedRange,
+      },
+    ]
+  }
+
+  /*
+   * Legacy Plant Stories pre-date the semantic
+   * distinction between maturity and first
+   * production. Keep their useful expectation
+   * visible without falsely classifying it.
+   */
+  return [
+    {
+      label:
+        'Expected harvest',
+      value:
+        expectedRange,
+    },
+  ]
 }
 
 
@@ -2164,6 +1642,7 @@ function buildSmartComparisonSuggestions(
 /* =======================================
    PLANTS PAGE
 ======================================= */
+
 export default function Plants({
   plants,
   growingPlaces,
@@ -2517,8 +1996,7 @@ export default function Plants({
   function toggleFilter(
     family:
       PlantFilterFamily,
-
-    value:
+      value:
       string,
   ) {
     const toggleValue = (
@@ -2807,7 +2285,8 @@ export default function Plants({
               case 'recently-planted':
               default:
                 return second.plantedDate.localeCompare(
-                  first.plantedDate,
+                  firstDocument?.plant.plantedDate ??
+                    first.plantedDate,
                 )
             }
           },
@@ -2981,63 +2460,6 @@ export default function Plants({
   }
 
 
-  function chooseSmartComparison(
-    plantIds:
-      string[],
-  ) {
-    const usablePlantIds =
-      plantIds
-        .filter(
-          plantId =>
-            plants.some(
-              plant =>
-                plant.id ===
-                plantId,
-            ),
-        )
-        .slice(
-          0,
-          MAX_COMPARE_PLANTS,
-        )
-
-    if (
-      usablePlantIds.length <
-      2
-    ) {
-      return
-    }
-
-    const containsCompleted =
-      usablePlantIds.some(
-        plantId =>
-          plants.some(
-            plant =>
-              plant.id ===
-                plantId &&
-              plant.status ===
-                'finished',
-          ),
-      )
-
-    setStoryView(
-      containsCompleted
-        ? 'completed'
-        : 'active',
-    )
-
-    setSelectedPlantIds(
-      usablePlantIds,
-    )
-
-    setCompareMode(
-      true,
-    )
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
-  }
 
 
   const selectedPlants =
@@ -3060,516 +2482,180 @@ export default function Plants({
       )
 
 
-  /* =======================================
-     BACK TO TOP
-  ======================================= */
-
-  function backToTop() {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
-  }
 
 
-  /* =======================================
-     FILTER GROUP
-  ======================================= */
-
-  function renderFilterGroup(
-    title:
-      string,
-
-    family:
-      PlantFilterFamily,
-
-    options:
-      string[],
-
-    selected:
-      string[],
-  ) {
-    if (
-      options.length ===
-      0
-    ) {
-      return null
-    }
-
-
-    return (
-      <fieldset className="plant-filter-group">
-        <legend>
-          {title}
-        </legend>
-
-        <div className="plant-filter-options">
-          {options.map(
-            option => (
-              <label
-                className="plant-filter-option"
-                key={
-                  `${family}-${option}`
-                }
-              >
-                <input
-                  type="checkbox"
-                  checked={
-                    selected.includes(
-                      option,
-                    )
-                  }
-                  onChange={() =>
-                    toggleFilter(
-                      family,
-                      option,
-                    )
-                  }
-                />
-
-                <span>
-                  {option}
-                </span>
-              </label>
-            ),
-          )}
-        </div>
-      </fieldset>
-    )
-  }
 
 
   return (
-    <GardenLayout
+    <MainPageTemplate
       activePage="plants"
       onNavigate={
-        onNavigate
+      onNavigate
+      }
+      pageId="plants-page-top"
+      journeyBackLabel="My Garden"
+      onJourneyBack={() =>
+      onNavigate(
+      'gate',
+      )
+      }
+      eyebrow="My Garden"
+      title="Growing stories"
+      intro={
+      storyView ===
+      'completed'
+      ? 'The growing stories you have finished and kept as part of your garden history.'
+      : 'The plants and growing stories that are part of your garden now.'
+      }
+      headerActions={
+      <>
+      <button
+      type="button"
+      className="journal-add-button"
+      onClick={
+      onAddPlant
+      }
+      >
+      + Add Plant
+      </button>
+      
+      <button
+      type="button"
+      className="text-button"
+      onClick={
+      toggleCompareMode
+      }
+      >
+      {compareMode
+      ? 'Cancel comparison'
+      : 'Compare'}
+      </button>
+      </>
       }
     >
-      <div className="garden-page">
-
-        <header className="garden-header">
-          <div>
-            <p className="app-name">
-              Sprig
-            </p>
-
-            <h1 className="garden-title">
-              {storyView ===
-              'completed'
-                ? 'Completed stories'
-                : 'Growing stories'}
-            </h1>
-
-            <p className="garden-subtitle">
-              {compareMode
-                ? 'Choose two to six growing stories to look at together.'
-                : storyView ===
-                  'completed'
-                  ? 'Finished chapters kept as part of the garden’s history.'
-                  : 'Every plant has its own chapter.'}
-            </p>
-          </div>
-
-
-          <div className="plant-page-actions">
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={
-                toggleCompareMode
-              }
-            >
-              {compareMode
-                ? 'Cancel comparison'
-                : '↔ Compare'}
-            </button>
-
-            {!compareMode &&
+  
+  
+        <div className="plant-story-view-tabs">
+          <button
+            type="button"
+            className={
               storyView ===
-                'active' && (
-                <button
-                  type="button"
-                  className="journal-add-button"
-                  onClick={
-                    onAddPlant
-                  }
-                >
-                  🌱 Add a plant
-                </button>
-              )}
-          </div>
-        </header>
-
-
-        {!compareMode && (
-          <nav
-            className="plant-story-view-navigation"
-            aria-label="Plant Story history"
+              'active'
+                ? 'plant-story-view-tab plant-story-view-tab--active'
+                : 'plant-story-view-tab'
+            }
+            onClick={() =>
+              changeStoryView(
+                'active',
+              )
+            }
           >
-            <button
-              type="button"
-              className={
-                storyView ===
-                'active'
-                  ? 'plant-story-view-button active'
-                  : 'plant-story-view-button'
+            Growing now
+            <span>
+              {
+                activePlants.length
               }
-              onClick={() =>
-                changeStoryView(
-                  'active',
-                )
+            </span>
+          </button>
+  
+          <button
+            type="button"
+            className={
+              storyView ===
+              'completed'
+                ? 'plant-story-view-tab plant-story-view-tab--active'
+                : 'plant-story-view-tab'
+            }
+            onClick={() =>
+              changeStoryView(
+                'completed',
+              )
+            }
+          >
+            Completed
+            <span>
+              {
+                completedPlants.length
               }
-            >
-              <span>
-                <strong>
-                  Growing now
-                </strong>
-
-                <small>
-                  {activePlants.length}{' '}
-                  {activePlants.length ===
-                  1
-                    ? 'active story'
-                    : 'active stories'}
-                </small>
-              </span>
-            </button>
-
-
-            <button
-              type="button"
-              className={
-                storyView ===
-                'completed'
-                  ? 'plant-story-view-button active'
-                  : 'plant-story-view-button'
-              }
-              onClick={() =>
-                changeStoryView(
-                  'completed',
-                )
-              }
-            >
-              <span>
-                <strong>
-                  Completed stories
-                </strong>
-
-                <small>
-                  {completedPlants.length}{' '}
-                  {completedPlants.length ===
-                  1
-                    ? 'finished story'
-                    : 'finished stories'}
-                </small>
-              </span>
-            </button>
-          </nav>
-        )}
-
-
-        {!compareMode &&
-          smartComparisonSuggestions.length >
-            0 && (
-            <details className="sprig-smart-comparisons sprig-smart-collapsible">
-              <summary className="sprig-smart-summary">
-                <div className="sprig-smart-summary-copy">
-                  <span
-                    className="sprig-smart-summary-mark"
-                    aria-hidden="true"
-                  >
-                    🌱
-                  </span>
-
-                  <div>
-                    <p className="section-label">
-                      Sprig Smart
-                    </p>
-
-                    <h2>
-                      Sprig noticed something
-                    </h2>
-
-                    <p>
-                      {smartComparisonSuggestions.length}{' '}
-                      {smartComparisonSuggestions.length ===
-                      1
-                        ? 'useful comparison'
-                        : 'useful comparisons'}{' '}
-                      in your growing stories
-                    </p>
-                  </div>
-                </div>
-
-                <span className="sprig-smart-summary-action">
-                  <span className="sprig-smart-summary-open">
-                    See what Sprig noticed
-                  </span>
-
-                  <span className="sprig-smart-summary-close">
-                    Hide what Sprig noticed
-                  </span>
-
-                  <span
-                    className="sprig-smart-summary-chevron"
-                    aria-hidden="true"
-                  >
-                    ›
-                  </span>
-                </span>
-              </summary>
-
-
-              <div className="sprig-smart-expanded">
-                <div className="sprig-smart-expanded-heading">
-                  <div>
-                    <p className="section-label">
-                      Sprig Smart
-                    </p>
-
-                    <h2>
-                      Stories worth looking at together
-                    </h2>
-                  </div>
-                </div>
-
-                <p className="form-whisper sprig-smart-intro">
-                  Sprig has found growing stories
-                  with enough shared history to
-                  make a comparison useful.
-                </p>
-
-
-                <div className="sprig-smart-comparison-list">
-                  {smartComparisonSuggestions.map(
-                    suggestion => (
-                      <article
-                        className="sprig-smart-comparison-card"
-                        key={
-                          suggestion.id
-                        }
-                      >
-                        <div className="sprig-smart-comparison-main">
-                          <div>
-                            <p className="sprig-smart-comparison-crop">
-                              {suggestion.cropLabel}
-                            </p>
-
-                            <h3>
-                              {suggestion.title}
-                            </h3>
-                          </div>
-
-                          <div className="sprig-smart-reasons">
-                            {suggestion.reasons.map(
-                              reason => (
-                                <span
-                                  key={
-                                    `${suggestion.id}-${reason}`
-                                  }
-                                >
-                                  {reason}
-                                </span>
-                              ),
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="sprig-smart-comparison-actions">
-                          <button
-                            type="button"
-                            className="secondary-button"
-                            onClick={() =>
-                              chooseSmartComparison(
-                                suggestion.plantIds,
-                              )
-                            }
-                          >
-                            Choose stories
-                          </button>
-
-                          <button
-                            type="button"
-                            className="text-button"
-                            onClick={() =>
-                              beginSmartComparison(
-                                suggestion.plantIds,
-                              )
-                            }
-                          >
-                            Compare now
-                          </button>
-                        </div>
-                      </article>
-                    ),
-                  )}
-                </div>
-
-
-                <div className="sprig-smart-collapse-footer">
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={
-                      event => {
-                        const details =
-                          event.currentTarget.closest(
-                            'details',
-                          )
-
-                        if (
-                          details instanceof
-                          HTMLDetailsElement
-                        ) {
-                          details.open =
-                            false
-
-                          details.scrollIntoView({
-                            behavior:
-                              'smooth',
-
-                            block:
-                              'nearest',
-                          })
-                        }
-                      }
-                    }
-                  >
-                    ↑ Hide Sprig Smart
-                  </button>
-                </div>
-              </div>
-            </details>
-          )}
-
-
-        {compareMode && (
-          <section className="plant-compare-guidance">
-            <p>
-              <strong>
-                {selectedPlantIds.length}{' '}
-                of{' '}
-                {MAX_COMPARE_PLANTS}{' '}
-                selected
-              </strong>
-            </p>
-
-            <p className="form-whisper">
-              Choose the plants whose
-              growth, photographs,
-              harvests and garden
-              histories you want Sprig
-              to place side by side.
-            </p>
-          </section>
-        )}
-
-
+            </span>
+          </button>
+        </div>
+  
+  
         {!compareMode && (
-          <div className="plant-browser-layout">
-
-            <aside className="plant-browser-tools">
-              <div className="plant-browser-tools-heading">
-                <div>
-                  <p className="section-label">
-                    Find a story
-                  </p>
-
-                  <h2>
-                    Search your plants
-                  </h2>
-                </div>
-
-                {(activeFilterCount >
-                  0 ||
-                  searchQuery) && (
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={
-                      clearFilters
+          <>
+            <section className="plant-browser-controls">
+              <div className="plant-browser-search-row">
+                <label className="plant-browser-search">
+                  <span className="section-label">
+                    Find a growing story
+                  </span>
+  
+                  <input
+                    type="search"
+                    value={
+                      searchQuery
+                    }
+                    placeholder="Search plants, varieties, places, recipes, notes..."
+                    onChange={
+                      event =>
+                        setSearchQuery(
+                          event.target.value,
+                        )
+                    }
+                  />
+                </label>
+  
+                <label className="plant-browser-sort">
+                  <span className="section-label">
+                    Sort
+                  </span>
+  
+                  <select
+                    value={
+                      sortBy
+                    }
+                    onChange={
+                      event =>
+                        setSortBy(
+                          event.target.value as PlantSort,
+                        )
                     }
                   >
-                    Clear
-                  </button>
-                )}
+                    <option value="newest-activity">
+                      Newest activity
+                    </option>
+  
+                    <option value="recently-planted">
+                      Recently planted
+                    </option>
+  
+                    <option value="oldest-planted">
+                      Oldest planted
+                    </option>
+  
+                    <option value="plant-az">
+                      Plant A–Z
+                    </option>
+  
+                    <option value="variety-az">
+                      Variety A–Z
+                    </option>
+  
+                    <option value="growing-place-az">
+                      Growing Place A–Z
+                    </option>
+                  </select>
+                </label>
               </div>
-
-
-              <label className="plant-search-field">
-                <span className="plant-tool-label">
-                  Search
+  
+  
+              <div className="plant-browser-age-unit">
+                <span className="section-label">
+                  Show age in
                 </span>
-
-                <input
-                  type="search"
-                  value={
-                    searchQuery
-                  }
-                  onChange={
-                    event =>
-                      setSearchQuery(
-                        event.target.value,
-                      )
-                  }
-                  placeholder="Plant, place, recipe, harvest, note..."
-                />
-              </label>
-
-
-              <label className="plant-sort-field">
-                <span className="plant-tool-label">
-                  Order by
-                </span>
-
-                <select
-                  value={
-                    sortBy
-                  }
-                  onChange={
-                    event =>
-                      setSortBy(
-                        event.target.value as PlantSort,
-                      )
-                  }
-                >
-                  <option value="recently-planted">
-                    Recently planted
-                  </option>
-
-                  <option value="oldest-planted">
-                    Oldest planted
-                  </option>
-
-                  <option value="plant-az">
-                    Plant A–Z
-                  </option>
-
-                  <option value="variety-az">
-                    Variety A–Z
-                  </option>
-
-                  <option value="growing-place-az">
-                    Growing Place A–Z
-                  </option>
-
-                  <option value="newest-activity">
-                    Newest activity
-                  </option>
-                </select>
-              </label>
-
-
-              <fieldset className="plant-filter-group">
-                <legend>
-                  Show plant age in
-                </legend>
-
-                <div
-                  className="plant-browser-age-control"
-                  aria-label="Plant age display"
-                >
+  
+                <div className="plant-browser-age-buttons">
                   {(
                     [
                       'days',
@@ -3579,164 +2665,353 @@ export default function Plants({
                   ).map(
                     unit => (
                       <button
-                        type="button"
                         key={
                           unit
                         }
+                        type="button"
                         className={
                           ageUnit ===
                           unit
-                            ? 'selected'
-                            : ''
+                            ? 'plant-filter-chip plant-filter-chip--selected'
+                            : 'plant-filter-chip'
                         }
                         onClick={() =>
                           setAgeUnit(
                             unit,
                           )
                         }
-                        aria-pressed={
-                          ageUnit ===
+                      >
+                        {
                           unit
                         }
-                      >
-                        {unit ===
-                        'days'
-                          ? 'Days'
-                          : unit ===
-                            'weeks'
-                            ? 'Weeks'
-                            : 'Months'}
                       </button>
                     ),
                   )}
                 </div>
-              </fieldset>
-
-
-              {renderFilterGroup(
-                'Started as',
-                'start-method',
-                startMethodOptions,
-                selectedStartMethods,
-              )}
-
-
-              {renderFilterGroup(
-                'Growing Place',
-                'growing-place',
-                growingPlaceOptions,
-                selectedGrowingPlaces,
-              )}
-
-
-              {renderFilterGroup(
-                'Growing Recipe',
-                'growing-setup',
-                growingSetupOptions,
-                selectedGrowingSetups,
-              )}
-            </aside>
-
-
-            <main className="plant-browser-results">
-              <div className="plant-results-heading">
-                <p>
-                  <strong>
-                    {visiblePlants.length}
-                  </strong>{' '}
-                  {visiblePlants.length ===
-                  1
-                    ? 'story'
-                    : 'stories'}
-                </p>
-
-                {activeFilterCount >
-                  0 && (
-                  <p className="plant-active-filter-note">
-                    {activeFilterCount}{' '}
-                    {activeFilterCount ===
-                    1
-                      ? 'filter'
-                      : 'filters'}{' '}
-                    active
-                  </p>
-                )}
               </div>
-
-
-              <section className="dashboard-section">
-                <div className="plant-grid">
-                  {visiblePlants.length >
-                  0 ? (
-                    visiblePlants.map(
-                      plant => {
-                        const document =
-                          searchDocumentByPlantId.get(
-                            plant.id,
-                          )
-
-                        return (
-                          <PlantCard
-                            key={
-                              plant.id
-                            }
-                            plant={
-                              plant
-                            }
-                            growingPlaceName={
-                              document?.growingPlaceName
-                            }
-                            latestActivityDate={
-                              document?.latestActivityDate
-                            }
-                            latestActivitySummary={
-                              document?.latestActivitySummary
-                            }
-                            thumbnailPhotoUrl={
-                              document?.thumbnailPhotoUrl
-                            }
-                            ageUnit={
-                              ageUnit
-                            }
-                            onOpen={
-                              onOpenPlant
-                            }
-                          />
-                        )
-                      },
-                    )
-                  ) : (
-                    <div className="plant-browser-empty">
-                      <h2>
-                        No stories match
-                      </h2>
-
-                      <p>
-                        Try another word or
-                        loosen one of the
-                        filters.
-                      </p>
-
-                      <button
-                        type="button"
-                        className="text-button"
-                        onClick={
-                          clearFilters
+  
+  
+              {startMethodOptions.length >
+                0 && (
+                <div className="plant-filter-group">
+                  <span className="section-label">
+                    Started as
+                  </span>
+  
+                  <div className="plant-filter-options">
+                    {startMethodOptions.map(
+                      option => (
+                        <button
+                          key={
+                            option
+                          }
+                          type="button"
+                          className={
+                            selectedStartMethods.includes(
+                              option,
+                            )
+                              ? 'plant-filter-chip plant-filter-chip--selected'
+                              : 'plant-filter-chip'
+                          }
+                          onClick={() =>
+                            toggleFilter(
+                              'start-method',
+                              option,
+                            )
+                          }
+                        >
+                          {
+                            option
+                          }
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
+  
+  
+              {growingPlaceOptions.length >
+                0 && (
+                <div className="plant-filter-group">
+                  <span className="section-label">
+                    Growing Place
+                  </span>
+  
+                  <div className="plant-filter-options">
+                    {growingPlaceOptions.map(
+                      option => (
+                        <button
+                          key={
+                            option
+                          }
+                          type="button"
+                          className={
+                            selectedGrowingPlaces.includes(
+                              option,
+                            )
+                              ? 'plant-filter-chip plant-filter-chip--selected'
+                              : 'plant-filter-chip'
+                          }
+                          onClick={() =>
+                            toggleFilter(
+                              'growing-place',
+                              option,
+                            )
+                          }
+                        >
+                          {
+                            option
+                          }
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
+  
+  
+              {growingSetupOptions.length >
+                0 && (
+                <div className="plant-filter-group">
+                  <span className="section-label">
+                    Growing Recipe
+                  </span>
+  
+                  <div className="plant-filter-options">
+                    {growingSetupOptions.map(
+                      option => (
+                        <button
+                          key={
+                            option
+                          }
+                          type="button"
+                          className={
+                            selectedGrowingSetups.includes(
+                              option,
+                            )
+                              ? 'plant-filter-chip plant-filter-chip--selected'
+                              : 'plant-filter-chip'
+                          }
+                          onClick={() =>
+                            toggleFilter(
+                              'growing-setup',
+                              option,
+                            )
+                          }
+                        >
+                          {
+                            option
+                          }
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
+  
+  
+              {(activeFilterCount >
+                0 ||
+                searchQuery.trim()) && (
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={
+                    clearFilters
+                  }
+                >
+                  Clear search and filters
+                </button>
+              )}
+            </section>
+  
+  
+            {smartComparisonSuggestions.length >
+              0 && (
+              <section className="dashboard-section plant-smart-comparisons">
+                <div className="section-heading">
+                  <div>
+                    <p className="section-label">
+                      Worth comparing
+                    </p>
+  
+                    <h2>
+                      Stories that may tell you something
+                    </h2>
+  
+                    <p>
+                      Garden of Mine has found groups of your
+                      own growing stories with useful
+                      differences to look at together.
+                    </p>
+                  </div>
+                </div>
+  
+                <div className="plant-smart-comparison-list">
+                  {smartComparisonSuggestions.map(
+                    suggestion => (
+                      <article
+                        key={
+                          suggestion.id
                         }
+                        className="plant-smart-comparison"
                       >
-                        Clear search and filters
-                      </button>
-                    </div>
+                        <div>
+                          <h3>
+                            {
+                              suggestion.title
+                            }
+                          </h3>
+  
+                          <p>
+                            {suggestion.reasons.join(
+                              ' · ',
+                            )}
+                          </p>
+                        </div>
+  
+                        <button
+                          type="button"
+                          className="text-button"
+                          onClick={() =>
+                            beginSmartComparison(
+                              suggestion.plantIds,
+                            )
+                          }
+                        >
+                          Compare these
+                        </button>
+                      </article>
+                    ),
                   )}
                 </div>
               </section>
-            </main>
-          </div>
+            )}
+  
+  
+            <section className="dashboard-section">
+              <div className="section-heading">
+                <div>
+                  <p className="section-label">
+                    {storyView ===
+                    'completed'
+                      ? 'Garden history'
+                      : 'In the garden'}
+                  </p>
+  
+                  <h2>
+                    {visiblePlants.length}{' '}
+                    {visiblePlants.length ===
+                    1
+                      ? 'story'
+                      : 'stories'}
+                  </h2>
+                </div>
+              </div>
+  
+  
+              <div className="plant-grid">
+                {visiblePlants.length >
+                0 ? (
+                  visiblePlants.map(
+                    plant => {
+                      const document =
+                        searchDocumentByPlantId.get(
+                          plant.id,
+                        )
+  
+                      const expectedTimingDetails =
+                        getPlantExpectedTimingDetails(
+                          plant,
+                          events,
+                        )
+  
+                      const richDetails = [
+                        ...expectedTimingDetails,
+                      ]
+  
+                      return (
+                        <PlantCard
+                          key={
+                            plant.id
+                          }
+                          plant={
+                            plant
+                          }
+                          growingPlaceName={
+                            document?.growingPlaceName
+                          }
+                          latestActivityDate={
+                            document?.latestActivityDate
+                          }
+                          latestActivitySummary={
+                            document?.latestActivitySummary
+                          }
+                          thumbnailPhotoUrl={
+                            document?.thumbnailPhotoUrl
+                          }
+                          ageUnit={
+                            ageUnit
+                          }
+                          richDetails={
+                            richDetails
+                          }
+                          onOpen={
+                            onOpenPlant
+                          }
+                        />
+                      )
+                    },
+                  )
+                ) : (
+                  <div className="plant-browser-empty">
+                    <h2>
+                      No stories match
+                    </h2>
+  
+                    <p>
+                      Try another word or
+                      loosen one of the
+                      filters.
+                    </p>
+  
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={
+                        clearFilters
+                      }
+                    >
+                      Clear search and filters
+                    </button>
+                  </div>
+                )}
+              </div>
+            </section>
+          </>
         )}
-
-
+  
+  
         {compareMode && (
           <section className="dashboard-section">
+            <div className="section-heading">
+              <div>
+                <p className="section-label">
+                  Compare
+                </p>
+  
+                <h2>
+                  Choose growing stories
+                </h2>
+  
+                <p>
+                  Choose two to six growing stories
+                  to look at together.
+                </p>
+              </div>
+            </div>
+  
             <div className="plant-grid">
               {storyViewPlants.map(
                 plant => {
@@ -3744,7 +3019,7 @@ export default function Plants({
                     searchDocumentByPlantId.get(
                       plant.id,
                     )
-
+  
                   return (
                     <PlantCard
                       key={
@@ -3787,21 +3062,8 @@ export default function Plants({
             </div>
           </section>
         )}
-
-
-        <div className="plant-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={
-              backToTop
-            }
-          >
-            ↑ Back to top
-          </button>
-        </div>
-
-
+  
+  
         {compareMode &&
           selectedPlantIds.length >
             0 && (
@@ -3813,7 +3075,7 @@ export default function Plants({
                 <p className="section-label">
                   Compare tray
                 </p>
-
+  
                 <strong>
                   {selectedPlantIds.length}{' '}
                   {selectedPlantIds.length ===
@@ -3822,7 +3084,7 @@ export default function Plants({
                     : 'stories'}{' '}
                   selected
                 </strong>
-
+  
                 <p className="form-whisper">
                   {selectedPlants
                     .map(
@@ -3834,7 +3096,7 @@ export default function Plants({
                     )}
                 </p>
               </div>
-
+  
               <button
                 type="button"
                 className="journal-add-button"
@@ -3857,7 +3119,8 @@ export default function Plants({
               </button>
             </aside>
           )}
-      </div>
-    </GardenLayout>
+      </MainPageTemplate>
   )
-}
+  }
+
+

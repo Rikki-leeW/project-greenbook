@@ -6,9 +6,7 @@ import {
 import type {
   CSSProperties,
 } from 'react';
-
-import GardenLayout from '../components/layout/GardenLayout';
-
+import MultiPageTemplate from '../components/templates/MultiPageTemplate'
 import type {
   GardenProduct,
   GrowingPlace,
@@ -54,32 +52,24 @@ type GrowingSort =
 
 
 interface GrowingPlacesProps {
-  gardenPlaces:
-    GrowingPlace[];
+  gardenPlaces: GrowingPlace[];
 
-  growingSetups:
-    GrowingSetup[];
+  growingSetups: GrowingSetup[];
 
-  ingredients:
-    Ingredient[];
+  ingredients: Ingredient[];
 
-  products:
-    GardenProduct[];
+  products: GardenProduct[];
 
-  section:
-    GrowingSection;
+  section: GrowingSection;
 
-  setupSection:
-    GrowingSetupSection;
+  setupSection: GrowingSetupSection;
 
   onSectionChange: (
-    section:
-      GrowingSection,
+    section: GrowingSection,
   ) => void;
 
   onSetupSectionChange: (
-    section:
-      GrowingSetupSection,
+    section: GrowingSetupSection,
   ) => void;
 
   journeyBackLabel?:
@@ -101,124 +91,85 @@ interface GrowingPlacesProps {
     () => void;
 
   onOpenPlace: (
-    growingPlaceId:
-      string,
+    growingPlaceId: string,
   ) => void;
 
   onOpenSetup: (
-    growingSetupId:
-      string,
+    growingSetupId: string,
   ) => void;
 
   onOpenIngredient: (
-    ingredientId:
-      string,
+    ingredientId: string,
   ) => void;
 
   onOpenProduct: (
-    productId:
-      string,
+    productId: string,
   ) => void;
 
   onOpenLibrary?: (
-    destination:
-      LibraryDestination,
+    destination: LibraryDestination,
   ) => void;
 
   onNavigate: (
-    page:
-      AppPage,
-
-    libraryView?:
-      LibraryDestination,
+    page: AppPage,
+    libraryView?: LibraryDestination,
   ) => void;
 }
 
 
 interface GrowingSectionDefinition {
-  id:
-    GrowingSection;
+  id: GrowingSection;
 
-  label:
-    string;
+  label: string;
 
-  eyebrow:
-    string;
+  eyebrow: string;
 
-  description:
-    string;
+  description: string;
 }
 
 
 interface GrowingSetupDefinition {
-  id:
-    Exclude<
-      GrowingSetupSection,
-      'overview'
-    >;
+  id: Exclude<
+    GrowingSetupSection,
+    'overview'
+  >;
 
-  label:
-    string;
+  label: string;
 
-  description:
-    string;
+  description: string;
 }
 
 
 const GROWING_SECTIONS:
   GrowingSectionDefinition[] = [
     {
-      id:
-        'places',
-
-      label:
-        'Growing Places',
-
-      eyebrow:
-        'Where it grows',
-
+      id: 'places',
+      label: 'Growing Places',
+      eyebrow: 'Where it grows',
       description:
         'The physical places around your garden.',
     },
 
     {
-      id:
-        'setups',
-
-      label:
-        'Growing Soils & Setups',
-
-      eyebrow:
-        'What it grows in',
-
+      id: 'setups',
+      label: 'Growing Soils & Setups',
+      eyebrow: 'What it grows in',
       description:
         'Soils, homemade recipes, bought mixes, systems and ground conditions.',
     },
 
     {
-      id:
-        'ingredients',
-
-      label:
-        'Ingredients',
-
-      eyebrow:
-        'What it is made from',
-
+      id: 'ingredients',
+      label: 'Ingredients',
+      eyebrow: 'What it is made from',
       description:
         'Reusable materials that become part of soils, mixes and growing setups.',
     },
 
     {
-      id:
-        'products',
-
-      label:
-        'Products',
-
-      eyebrow:
-        'What was bought',
-
+      id: 'products',
+      label: 'Products',
+      eyebrow: 'What was bought',
       description:
         'Commercial garden products and their history.',
     },
@@ -228,45 +179,29 @@ const GROWING_SECTIONS:
 const GROWING_SETUP_SECTIONS:
   GrowingSetupDefinition[] = [
     {
-      id:
-        'own-mix',
-
-      label:
-        'My Recipes',
-
+      id: 'own-mix',
+      label: 'My Recipes',
       description:
         'Growing mixes you make yourself.',
     },
 
     {
-      id:
-        'bought-mix',
-
-      label:
-        'Bought Mixes',
-
+      id: 'bought-mix',
+      label: 'Bought Mixes',
       description:
         'Commercial growing media bought ready to use.',
     },
 
     {
-      id:
-        'growing-system',
-
-      label:
-        'Growing Systems',
-
+      id: 'growing-system',
+      label: 'Growing Systems',
       description:
         'No-dig, wicking beds, hydroponics and other growing systems.',
     },
 
     {
-      id:
-        'ground-type',
-
-      label:
-        'Ground Types',
-
+      id: 'ground-type',
+      label: 'Ground Types',
       description:
         'Native soil, clay, loam and other straight-in-ground conditions.',
     },
@@ -278,8 +213,7 @@ const GROWING_SETUP_SECTIONS:
 ======================================= */
 
 function normaliseSearchText(
-  value:
-    string | undefined,
+  value: string | undefined,
 ): string {
   return (
     value ??
@@ -291,8 +225,7 @@ function normaliseSearchText(
 
 
 function uniqueText(
-  values:
-    string[],
+  values: string[],
 ): string[] {
   return Array.from(
     new Set(
@@ -310,8 +243,7 @@ function uniqueText(
 
 
 function formatLabel(
-  value:
-    string,
+  value: string,
 ): string {
   return value
     .replaceAll(
@@ -331,17 +263,14 @@ function formatLabel(
 ======================================= */
 
 function getGrowingPlaceKindLabel(
-  place:
-    GrowingPlace,
+  place: GrowingPlace,
 ): string {
   if (
     place.kind ===
       'other' &&
     place.customKindLabel
   ) {
-    return (
-      place.customKindLabel
-    );
+    return place.customKindLabel;
   }
 
 
@@ -356,8 +285,7 @@ function getGrowingPlaceKindLabel(
 ======================================= */
 
 function getGrowingSetupLabel(
-  setup:
-    GrowingSetup,
+  setup: GrowingSetup,
 ): string {
   switch (
     setup.category
@@ -385,19 +313,14 @@ function getGrowingSetupLabel(
 ======================================= */
 
 function getIngredientSubtitle(
-  ingredient:
-    Ingredient,
+  ingredient: Ingredient,
 ): string {
   if (
     ingredient.category ===
       'other' &&
-    ingredient
-      .customCategoryLabel
+    ingredient.customCategoryLabel
   ) {
-    return (
-      ingredient
-        .customCategoryLabel
-    );
+    return ingredient.customCategoryLabel;
   }
 
 
@@ -419,19 +342,14 @@ function getIngredientSubtitle(
 ======================================= */
 
 function getProductCategoryLabel(
-  product:
-    GardenProduct,
+  product: GardenProduct,
 ): string {
   if (
     product.category ===
       'other' &&
-    product
-      .customCategoryLabel
+    product.customCategoryLabel
   ) {
-    return (
-      product
-        .customCategoryLabel
-    );
+    return product.customCategoryLabel;
   }
 
 
@@ -449,8 +367,7 @@ function getProductCategoryLabel(
 
 
 function getProductSubtitle(
-  product:
-    GardenProduct,
+  product: GardenProduct,
 ): string {
   const category =
     getProductCategoryLabel(
@@ -474,8 +391,7 @@ function getProductSubtitle(
 ======================================= */
 
 function getSetupIngredientIds(
-  setup:
-    GrowingSetup,
+  setup: GrowingSetup,
 ): string[] {
   return uniqueText([
     ...(
@@ -501,8 +417,7 @@ function getSetupIngredientIds(
 
 
 function getSetupProductIds(
-  setup:
-    GrowingSetup,
+  setup: GrowingSetup,
 ): string[] {
   return uniqueText(
     (
@@ -523,8 +438,7 @@ function getSetupProductIds(
 
 
 function getSetupLinkedSetupIds(
-  setup:
-    GrowingSetup,
+  setup: GrowingSetup,
 ): string[] {
   return uniqueText(
     (
@@ -549,24 +463,30 @@ function getSetupLinkedSetupIds(
 ======================================= */
 
 function getGrowingPlaceSearchText(
-  place:
-    GrowingPlace,
+  place: GrowingPlace,
 ): string {
   return normaliseSearchText(
     [
       place.name,
+
       getGrowingPlaceKindLabel(
         place,
       ),
+
       place.kind,
+
       place.customKindLabel ??
         '',
+
       place.aspect ??
         '',
+
       place.sunlight ??
         '',
+
       place.shelter ??
         '',
+
       place.notes ??
         '',
     ].join(
@@ -577,17 +497,10 @@ function getGrowingPlaceSearchText(
 
 
 function getGrowingSetupSearchText(
-  setup:
-    GrowingSetup,
-
-  growingSetups:
-    GrowingSetup[],
-
-  ingredients:
-    Ingredient[],
-
-  products:
-    GardenProduct[],
+  setup: GrowingSetup,
+  growingSetups: GrowingSetup[],
+  ingredients: Ingredient[],
+  products: GardenProduct[],
 ): string {
   const ingredientWords =
     getSetupIngredientIds(
@@ -611,13 +524,17 @@ function getGrowingSetupSearchText(
 
         return [
           ingredient.name,
+
           getIngredientSubtitle(
             ingredient,
           ),
+
           ingredient.manufacturer ??
             '',
+
           ingredient.source ??
             '',
+
           ingredient.notes ??
             '',
         ];
@@ -647,13 +564,17 @@ function getGrowingSetupSearchText(
 
         return [
           product.name,
+
           product.brand ??
             '',
+
           product.productName ??
             '',
+
           getProductCategoryLabel(
             product,
           ),
+
           product.notes ??
             '',
         ];
@@ -683,13 +604,17 @@ function getGrowingSetupSearchText(
 
         return [
           linkedSetup.name,
+
           getGrowingSetupLabel(
             linkedSetup,
           ),
+
           linkedSetup.brand ??
             '',
+
           linkedSetup.productName ??
             '',
+
           linkedSetup.notes ??
             '',
         ];
@@ -700,22 +625,32 @@ function getGrowingSetupSearchText(
   return normaliseSearchText(
     [
       setup.name,
+
       getGrowingSetupLabel(
         setup,
       ),
+
       setup.category,
+
       setup.brand ??
         '',
+
       setup.productName ??
         '',
+
       setup.groundType ??
         '',
+
       setup.growingSystemType ??
         '',
+
       setup.notes ??
         '',
+
       ...ingredientWords,
+
       ...productWords,
+
       ...linkedSetupWords,
     ].join(
       ' ',
@@ -725,11 +660,8 @@ function getGrowingSetupSearchText(
 
 
 function getIngredientSearchText(
-  ingredient:
-    Ingredient,
-
-  growingSetups:
-    GrowingSetup[],
+  ingredient: Ingredient,
+  growingSetups: GrowingSetup[],
 ): string {
   const linkedSetupWords =
     growingSetups
@@ -744,9 +676,11 @@ function getIngredientSearchText(
       .flatMap(
         setup => [
           setup.name,
+
           getGrowingSetupLabel(
             setup,
           ),
+
           setup.notes ??
             '',
         ],
@@ -756,19 +690,26 @@ function getIngredientSearchText(
   return normaliseSearchText(
     [
       ingredient.name,
+
       getIngredientSubtitle(
         ingredient,
       ),
+
       ingredient.category ??
         '',
+
       ingredient.customCategoryLabel ??
         '',
+
       ingredient.manufacturer ??
         '',
+
       ingredient.source ??
         '',
+
       ingredient.notes ??
         '',
+
       ...linkedSetupWords,
     ].join(
       ' ',
@@ -778,11 +719,8 @@ function getIngredientSearchText(
 
 
 function getProductSearchText(
-  product:
-    GardenProduct,
-
-  growingSetups:
-    GrowingSetup[],
+  product: GardenProduct,
+  growingSetups: GrowingSetup[],
 ): string {
   const linkedSetupWords =
     growingSetups
@@ -797,9 +735,11 @@ function getProductSearchText(
       .flatMap(
         setup => [
           setup.name,
+
           getGrowingSetupLabel(
             setup,
           ),
+
           setup.notes ??
             '',
         ],
@@ -809,19 +749,26 @@ function getProductSearchText(
   return normaliseSearchText(
     [
       product.name,
+
       product.brand ??
         '',
+
       product.productName ??
         '',
+
       getProductCategoryLabel(
         product,
       ),
+
       product.category ??
         '',
+
       product.customCategoryLabel ??
         '',
+
       product.notes ??
         '',
+
       ...linkedSetupWords,
     ].join(
       ' ',
@@ -840,41 +787,33 @@ function getProductSearchText(
 
 const recordListStyle:
   CSSProperties = {
-    width:
-      '100%',
+    width: '100%',
   };
 
 
 const recordRowStyle:
   CSSProperties = {
-    width:
-      '100%',
+    width: '100%',
 
-    font:
-      'inherit',
+    font: 'inherit',
 
-    color:
-      'inherit',
+    color: 'inherit',
 
-    textAlign:
-      'left',
+    textAlign: 'left',
 
-    cursor:
-      'pointer',
+    cursor: 'pointer',
   };
 
 
 const rowTextStyle:
   CSSProperties = {
-    minWidth:
-      0,
+    minWidth: 0,
   };
 
 
 const rowTitleStyle:
   CSSProperties = {
-    display:
-      'block',
+    display: 'block',
   };
 
 
@@ -1208,9 +1147,9 @@ export default function GrowingPlaces({
             first,
             second,
           ) =>
-            first.localeCompare(
-              second,
-            ),
+              first.localeCompare(
+                second,
+              ),
         ),
       [
         activeIngredients,
@@ -1272,15 +1211,10 @@ export default function GrowingPlaces({
   ======================================= */
 
   function toggleFilter(
-    value:
-      string,
-
-    selected:
-      string[],
-
+    value: string,
+    selected: string[],
     setSelected: (
-      values:
-        string[],
+      values: string[],
     ) => void,
   ) {
     setSelected(
@@ -1305,8 +1239,7 @@ export default function GrowingPlaces({
   ======================================= */
 
   function toggleSetupKind(
-    value:
-      string,
+    value: string,
   ) {
     const next =
       selectedSetupKinds.includes(
@@ -1405,8 +1338,7 @@ export default function GrowingPlaces({
   ======================================= */
 
   function changeSection(
-    nextSection:
-      GrowingSection,
+    nextSection: GrowingSection,
   ) {
     setSearchQuery(
       '',
@@ -1735,593 +1667,517 @@ export default function GrowingPlaces({
         sortBy,
       ],
     );
-
-
-  /* =======================================
+      /* =======================================
      SEARCHED INGREDIENTS
   ======================================= */
 
   const visibleIngredients =
-    useMemo(
-      () => {
-        const query =
-          normaliseSearchText(
-            searchQuery,
-          );
+  useMemo(
+    () => {
+      const query =
+        normaliseSearchText(
+          searchQuery,
+        );
 
 
-        const filtered =
-          activeIngredients.filter(
-            ingredient => {
-              if (
-                query &&
-                !getIngredientSearchText(
-                  ingredient,
-                  growingSetups,
-                ).includes(
-                  query,
-                )
-              ) {
-                return false;
-              }
-
-
-              if (
-                selectedIngredientCategories.length >
-                  0 &&
-                !selectedIngredientCategories.includes(
-                  getIngredientSubtitle(
-                    ingredient,
-                  ),
-                )
-              ) {
-                return false;
-              }
-
-
-              if (
-                selectedIngredientManufacturers.length >
-                  0 &&
-                !selectedIngredientManufacturers.includes(
-                  ingredient.manufacturer ??
-                    '',
-                )
-              ) {
-                return false;
-              }
-
-
-              return true;
-            },
-          );
-
-
-        return [
-          ...filtered,
-        ].sort(
-          (
-            first,
-            second,
-          ) => {
+      const filtered =
+        activeIngredients.filter(
+          ingredient => {
             if (
-              sortBy ===
-              'name-za'
+              query &&
+              !getIngredientSearchText(
+                ingredient,
+                growingSetups,
+              ).includes(
+                query,
+              )
             ) {
-              return second.name.localeCompare(
-                first.name,
-              );
+              return false;
             }
 
 
             if (
-              sortBy ===
-              'kind-az'
-            ) {
-              return getIngredientSubtitle(
-                first,
-              ).localeCompare(
+              selectedIngredientCategories.length >
+                0 &&
+              !selectedIngredientCategories.includes(
                 getIngredientSubtitle(
-                  second,
+                  ingredient,
                 ),
-              );
+              )
+            ) {
+              return false;
             }
 
 
-            return first.name.localeCompare(
-              second.name,
-            );
+            if (
+              selectedIngredientManufacturers.length >
+                0 &&
+              !selectedIngredientManufacturers.includes(
+                ingredient.manufacturer ??
+                  '',
+              )
+            ) {
+              return false;
+            }
+
+
+            return true;
           },
         );
-      },
-      [
-        activeIngredients,
-        growingSetups,
-        searchQuery,
-        selectedIngredientCategories,
-        selectedIngredientManufacturers,
-        sortBy,
-      ],
-    );
 
 
-  /* =======================================
-     SEARCHED PRODUCTS
-  ======================================= */
+      return [
+        ...filtered,
+      ].sort(
+        (
+          first,
+          second,
+        ) => {
+          if (
+            sortBy ===
+            'name-za'
+          ) {
+            return second.name.localeCompare(
+              first.name,
+            );
+          }
 
-  const visibleProducts =
-    useMemo(
-      () => {
-        const query =
-          normaliseSearchText(
-            searchQuery,
+
+          if (
+            sortBy ===
+            'kind-az'
+          ) {
+            return getIngredientSubtitle(
+              first,
+            ).localeCompare(
+              getIngredientSubtitle(
+                second,
+              ),
+            );
+          }
+
+
+          return first.name.localeCompare(
+            second.name,
           );
+        },
+      );
+    },
+    [
+      activeIngredients,
+      growingSetups,
+      searchQuery,
+      selectedIngredientCategories,
+      selectedIngredientManufacturers,
+      sortBy,
+    ],
+  );
 
 
-        const filtered =
-          activeProducts.filter(
-            product => {
-              if (
-                query &&
-                !getProductSearchText(
-                  product,
-                  growingSetups,
-                ).includes(
-                  query,
-                )
-              ) {
-                return false;
-              }
+/* =======================================
+   SEARCHED PRODUCTS
+======================================= */
+
+const visibleProducts =
+  useMemo(
+    () => {
+      const query =
+        normaliseSearchText(
+          searchQuery,
+        );
 
 
-              if (
-                selectedProductCategories.length >
-                  0 &&
-                !selectedProductCategories.includes(
-                  getProductCategoryLabel(
-                    product,
-                  ),
-                )
-              ) {
-                return false;
-              }
-
-
-              if (
-                selectedProductBrands.length >
-                  0 &&
-                !selectedProductBrands.includes(
-                  product.brand ??
-                    '',
-                )
-              ) {
-                return false;
-              }
-
-
-              return true;
-            },
-          );
-
-
-        return [
-          ...filtered,
-        ].sort(
-          (
-            first,
-            second,
-          ) => {
+      const filtered =
+        activeProducts.filter(
+          product => {
             if (
-              sortBy ===
-              'name-za'
+              query &&
+              !getProductSearchText(
+                product,
+                growingSetups,
+              ).includes(
+                query,
+              )
             ) {
-              return second.name.localeCompare(
-                first.name,
-              );
+              return false;
             }
 
 
             if (
-              sortBy ===
-              'kind-az'
-            ) {
-              return getProductCategoryLabel(
-                first,
-              ).localeCompare(
+              selectedProductCategories.length >
+                0 &&
+              !selectedProductCategories.includes(
                 getProductCategoryLabel(
-                  second,
+                  product,
                 ),
-              );
+              )
+            ) {
+              return false;
             }
 
 
-            return first.name.localeCompare(
-              second.name,
-            );
+            if (
+              selectedProductBrands.length >
+                0 &&
+              !selectedProductBrands.includes(
+                product.brand ??
+                  '',
+              )
+            ) {
+              return false;
+            }
+
+
+            return true;
           },
         );
-      },
-      [
-        activeProducts,
-        growingSetups,
-        searchQuery,
-        selectedProductCategories,
-        selectedProductBrands,
-        sortBy,
-      ],
-    );
 
 
-  /* =======================================
-     ACTIVE FILTER COUNT
-  ======================================= */
+      return [
+        ...filtered,
+      ].sort(
+        (
+          first,
+          second,
+        ) => {
+          if (
+            sortBy ===
+            'name-za'
+          ) {
+            return second.name.localeCompare(
+              first.name,
+            );
+          }
 
-  const activeFilterCount =
-    section ===
-    'places'
-      ? selectedPlaceKinds.length
+
+          if (
+            sortBy ===
+            'kind-az'
+          ) {
+            return getProductCategoryLabel(
+              first,
+            ).localeCompare(
+              getProductCategoryLabel(
+                second,
+              ),
+            );
+          }
+
+
+          return first.name.localeCompare(
+            second.name,
+          );
+        },
+      );
+    },
+    [
+      activeProducts,
+      growingSetups,
+      searchQuery,
+      selectedProductCategories,
+      selectedProductBrands,
+      sortBy,
+    ],
+  );
+
+
+/* =======================================
+   ACTIVE FILTER COUNT
+======================================= */
+
+const activeFilterCount =
+  section ===
+  'places'
+    ? selectedPlaceKinds.length
+    : section ===
+      'setups'
+      ? selectedSetupKinds.length +
+        selectedSetupIngredients.length +
+        selectedSetupProducts.length
       : section ===
-        'setups'
-        ? selectedSetupKinds.length +
-          selectedSetupIngredients.length +
-          selectedSetupProducts.length
-        : section ===
-          'ingredients'
-          ? selectedIngredientCategories.length +
-            selectedIngredientManufacturers.length
-          : selectedProductCategories.length +
-            selectedProductBrands.length;
+        'ingredients'
+        ? selectedIngredientCategories.length +
+          selectedIngredientManufacturers.length
+        : selectedProductCategories.length +
+          selectedProductBrands.length;
 
 
-  /* =======================================
-     RESULT COUNT
-  ======================================= */
+/* =======================================
+   RESULT COUNT
+======================================= */
 
-  const resultCount =
-    section ===
-    'places'
-      ? visiblePlaces.length
+const resultCount =
+  section ===
+  'places'
+    ? visiblePlaces.length
+    : section ===
+      'setups'
+      ? visibleSetups.length
       : section ===
-        'setups'
-        ? visibleSetups.length
-        : section ===
-          'ingredients'
-          ? visibleIngredients.length
-          : visibleProducts.length;
+        'ingredients'
+        ? visibleIngredients.length
+        : visibleProducts.length;
 
 
-  /* =======================================
-     RECORD WORD
-  ======================================= */
+/* =======================================
+   RECORD WORD
+======================================= */
 
-  const resultWord =
-    section ===
-    'places'
+const resultWord =
+  section ===
+  'places'
+    ? resultCount ===
+      1
+      ? 'place'
+      : 'places'
+    : section ===
+      'setups'
       ? resultCount ===
         1
-        ? 'place'
-        : 'places'
+        ? 'soil or setup'
+        : 'soils & setups'
       : section ===
-        'setups'
+        'ingredients'
         ? resultCount ===
           1
-          ? 'soil or setup'
-          : 'soils & setups'
-        : section ===
-          'ingredients'
-          ? resultCount ===
-            1
-            ? 'ingredient'
-            : 'ingredients'
-          : resultCount ===
-            1
-            ? 'product'
-            : 'products';
+          ? 'ingredient'
+          : 'ingredients'
+        : resultCount ===
+          1
+          ? 'product'
+          : 'products';
 
 
-  /* =======================================
-     ADD ACTION
-  ======================================= */
+/* =======================================
+   ADD ACTION
+======================================= */
 
-  function handleAddCurrentRecord() {
+function handleAddCurrentRecord() {
+  if (
+    section ===
+    'places'
+  ) {
+    onAddPlace();
+
+    return;
+  }
+
+
+  if (
+    section ===
+    'setups'
+  ) {
+    onAddSetup();
+
+    return;
+  }
+
+
+  if (
+    section ===
+    'ingredients'
+  ) {
     if (
-      section ===
-      'places'
+      onAddIngredient
     ) {
-      onAddPlace();
-
-      return;
-    }
-
-
-    if (
-      section ===
-      'setups'
-    ) {
-      onAddSetup();
-
-      return;
-    }
-
-
-    if (
-      section ===
-      'ingredients'
-    ) {
-      if (
-        onAddIngredient
-      ) {
-        onAddIngredient();
-
-        return;
-      }
-
-
-      onOpenLibrary?.(
-        'ingredients',
-      );
-
-      return;
-    }
-
-
-    if (
-      onAddProduct
-    ) {
-      onAddProduct();
+      onAddIngredient();
 
       return;
     }
 
 
     onOpenLibrary?.(
-      'products',
+      'ingredients',
     );
+
+    return;
   }
 
 
-  function getAddButtonLabel():
-    string {
-    switch (
-      section
-    ) {
-      case 'places':
-        return '＋ Add a Growing Place';
-
-      case 'setups':
-        return '＋ Add Soil or Setup';
-
-      case 'ingredients':
-        return '＋ Add an Ingredient';
-
-      case 'products':
-        return '＋ Add a Product';
-
-      default:
-        return '＋ Add';
-    }
-  }
-
-
-  /* =======================================
-     FILTER GROUP
-  ======================================= */
-
-  function renderFilterGroup(
-    title:
-      string,
-
-    options:
-      string[],
-
-    selected:
-      string[],
-
-    onToggle: (
-      option:
-        string,
-    ) => void,
-
-    getLabel?: (
-      option:
-        string,
-    ) => string,
+  if (
+    onAddProduct
   ) {
-    if (
-      options.length ===
-      0
-    ) {
-      return null;
-    }
+    onAddProduct();
+
+    return;
+  }
 
 
-    return (
-      <fieldset className="growing-filter-group">
-        <legend>
-          {title}
-        </legend>
+  onOpenLibrary?.(
+    'products',
+  );
+}
 
-        <div className="growing-filter-options">
-          {options.map(
-            option => (
-              <label
-                className="growing-filter-option"
-                key={
-                  `${title}-${option}`
+
+function getAddButtonLabel():
+  string {
+  switch (
+    section
+  ) {
+    case 'places':
+      return '＋ Add a Growing Place';
+
+    case 'setups':
+      return '＋ Add Soil or Setup';
+
+    case 'ingredients':
+      return '＋ Add an Ingredient';
+
+    case 'products':
+      return '＋ Add a Product';
+
+    default:
+      return '＋ Add';
+  }
+}
+
+
+/* =======================================
+   FILTER GROUP
+======================================= */
+
+function renderFilterGroup(
+  title: string,
+  options: string[],
+  selected: string[],
+  onToggle: (
+    option: string,
+  ) => void,
+  getLabel?: (
+    option: string,
+  ) => string,
+) {
+  if (
+    options.length ===
+    0
+  ) {
+    return null;
+  }
+
+
+  return (
+    <fieldset className="growing-filter-group">
+      <legend>
+        {title}
+      </legend>
+
+      <div className="growing-filter-options">
+        {options.map(
+          option => (
+            <label
+              className="growing-filter-option"
+              key={
+                `${title}-${option}`
+              }
+            >
+              <input
+                type="checkbox"
+                checked={
+                  selected.includes(
+                    option,
+                  )
                 }
-              >
-                <input
-                  type="checkbox"
-                  checked={
-                    selected.includes(
+                onChange={() =>
+                  onToggle(
+                    option,
+                  )
+                }
+              />
+
+              <span>
+                {getLabel
+                  ? getLabel(
                       option,
                     )
-                  }
-                  onChange={() =>
-                    onToggle(
-                      option,
-                    )
-                  }
-                />
-
-                <span>
-                  {getLabel
-                    ? getLabel(
-                        option,
-                      )
-                    : option}
-                </span>
-              </label>
-            ),
-          )}
-        </div>
-      </fieldset>
-    );
-  }
-
-
-  /* =======================================
-     SETUP KIND LABEL
-  ======================================= */
-
-  function getSetupKindFilterLabel(
-    value:
-      string,
-  ): string {
-    return (
-      GROWING_SETUP_SECTIONS.find(
-        item =>
-          item.id ===
-          value,
-      )?.label ??
-      formatLabel(
-        value,
-      )
-    );
-  }
-
-
-  /* =======================================
-     FILTER TOOLS
-  ======================================= */
-
-  function renderActiveFilters() {
-    if (
-      section ===
-      'places'
-    ) {
-      return renderFilterGroup(
-        'Place type',
-        placeKindOptions,
-        selectedPlaceKinds,
-        option =>
-          toggleFilter(
-            option,
-            selectedPlaceKinds,
-            setSelectedPlaceKinds,
+                  : option}
+              </span>
+            </label>
           ),
-      );
-    }
+        )}
+      </div>
+    </fieldset>
+  );
+}
 
 
-    if (
-      section ===
-      'setups'
-    ) {
-      return (
-        <>
-          {renderFilterGroup(
-            'What kind?',
-            setupKindOptions,
-            selectedSetupKinds,
-            toggleSetupKind,
-            getSetupKindFilterLabel,
-          )}
+/* =======================================
+   SETUP KIND LABEL
+======================================= */
 
-          {renderFilterGroup(
-            'Contains ingredient',
-            setupIngredientOptions,
-            selectedSetupIngredients,
-            option =>
-              toggleFilter(
-                option,
-                selectedSetupIngredients,
-                setSelectedSetupIngredients,
-              ),
-          )}
-
-          {renderFilterGroup(
-            'Contains product',
-            setupProductOptions,
-            selectedSetupProducts,
-            option =>
-              toggleFilter(
-                option,
-                selectedSetupProducts,
-                setSelectedSetupProducts,
-              ),
-          )}
-        </>
-      );
-    }
+function getSetupKindFilterLabel(
+  value: string,
+): string {
+  return (
+    GROWING_SETUP_SECTIONS.find(
+      item =>
+        item.id ===
+        value,
+    )?.label ??
+    formatLabel(
+      value,
+    )
+  );
+}
 
 
-    if (
-      section ===
-      'ingredients'
-    ) {
-      return (
-        <>
-          {renderFilterGroup(
-            'Ingredient type',
-            ingredientCategoryOptions,
-            selectedIngredientCategories,
-            option =>
-              toggleFilter(
-                option,
-                selectedIngredientCategories,
-                setSelectedIngredientCategories,
-              ),
-          )}
+/* =======================================
+   FILTER TOOLS
+======================================= */
 
-          {renderFilterGroup(
-            'Maker / source',
-            ingredientManufacturerOptions,
-            selectedIngredientManufacturers,
-            option =>
-              toggleFilter(
-                option,
-                selectedIngredientManufacturers,
-                setSelectedIngredientManufacturers,
-              ),
-          )}
-        </>
-      );
-    }
+function renderActiveFilters() {
+  if (
+    section ===
+    'places'
+  ) {
+    return renderFilterGroup(
+      'Place type',
+      placeKindOptions,
+      selectedPlaceKinds,
+      option =>
+        toggleFilter(
+          option,
+          selectedPlaceKinds,
+          setSelectedPlaceKinds,
+        ),
+    );
+  }
 
 
+  if (
+    section ===
+    'setups'
+  ) {
     return (
       <>
         {renderFilterGroup(
-          'Product type',
-          productCategoryOptions,
-          selectedProductCategories,
+          'What kind?',
+          setupKindOptions,
+          selectedSetupKinds,
+          toggleSetupKind,
+          getSetupKindFilterLabel,
+        )}
+
+        {renderFilterGroup(
+          'Contains ingredient',
+          setupIngredientOptions,
+          selectedSetupIngredients,
           option =>
             toggleFilter(
               option,
-              selectedProductCategories,
-              setSelectedProductCategories,
+              selectedSetupIngredients,
+              setSelectedSetupIngredients,
             ),
         )}
 
         {renderFilterGroup(
-          'Brand',
-          productBrandOptions,
-          selectedProductBrands,
+          'Contains product',
+          setupProductOptions,
+          selectedSetupProducts,
           option =>
             toggleFilter(
               option,
-              selectedProductBrands,
-              setSelectedProductBrands,
+              selectedSetupProducts,
+              setSelectedSetupProducts,
             ),
         )}
       </>
@@ -2329,60 +2185,208 @@ export default function GrowingPlaces({
   }
 
 
-  /* =======================================
-     RESULTS
-  ======================================= */
+  if (
+    section ===
+    'ingredients'
+  ) {
+    return (
+      <>
+        {renderFilterGroup(
+          'Ingredient type',
+          ingredientCategoryOptions,
+          selectedIngredientCategories,
+          option =>
+            toggleFilter(
+              option,
+              selectedIngredientCategories,
+              setSelectedIngredientCategories,
+            ),
+        )}
 
-  function renderResults() {
-    if (
-      resultCount ===
-      0
-    ) {
-      return (
-        <div className="growing-browser-empty">
-          <h2>
-            Nothing matches
-          </h2>
+        {renderFilterGroup(
+          'Maker / source',
+          ingredientManufacturerOptions,
+          selectedIngredientManufacturers,
+          option =>
+            toggleFilter(
+              option,
+              selectedIngredientManufacturers,
+              setSelectedIngredientManufacturers,
+            ),
+        )}
+      </>
+    );
+  }
 
-          <p>
-            Try another word or loosen
-            one of the filters.
-          </p>
 
-          {(searchQuery ||
-            activeFilterCount >
-              0) && (
+  return (
+    <>
+      {renderFilterGroup(
+        'Product type',
+        productCategoryOptions,
+        selectedProductCategories,
+        option =>
+          toggleFilter(
+            option,
+            selectedProductCategories,
+            setSelectedProductCategories,
+          ),
+      )}
+
+      {renderFilterGroup(
+        'Brand',
+        productBrandOptions,
+        selectedProductBrands,
+        option =>
+          toggleFilter(
+            option,
+            selectedProductBrands,
+            setSelectedProductBrands,
+          ),
+      )}
+    </>
+  );
+}
+
+
+/* =======================================
+   RESULTS
+======================================= */
+
+function renderResults() {
+  if (
+    resultCount ===
+    0
+  ) {
+    return (
+      <div className="growing-browser-empty">
+        <h2>
+          Nothing matches
+        </h2>
+
+        <p>
+          Try another word or loosen
+          one of the filters.
+        </p>
+
+        {(searchQuery ||
+          activeFilterCount >
+            0) && (
+          <button
+            type="button"
+            className="text-button"
+            onClick={
+              clearFilters
+            }
+          >
+            Clear search and filters
+          </button>
+        )}
+      </div>
+    );
+  }
+
+
+  if (
+    section ===
+    'places'
+  ) {
+    return (
+      <div
+        className="growing-index-list"
+        style={
+          recordListStyle
+        }
+      >
+        {visiblePlaces.map(
+          place => (
             <button
+              key={
+                place.id
+              }
               type="button"
-              className="text-button"
-              onClick={
-                clearFilters
+              className="growing-index-row"
+              style={
+                recordRowStyle
+              }
+              onClick={() =>
+                onOpenPlace(
+                  place.id,
+                )
               }
             >
-              Clear search and filters
+              <span
+                className="growing-index-row-copy"
+                style={
+                  rowTextStyle
+                }
+              >
+                <strong
+                  className="growing-index-row-title"
+                  style={
+                    rowTitleStyle
+                  }
+                >
+                  {place.name}
+                </strong>
+
+                <span className="growing-index-row-meta">
+                  {getGrowingPlaceKindLabel(
+                    place,
+                  )}
+
+                  {place.aspect
+                    ? ` · ${place.aspect}`
+                    : ''}
+
+                  {place.sunlight
+                    ? ` · ${place.sunlight}`
+                    : ''}
+                </span>
+              </span>
+
+              <span
+                aria-hidden="true"
+                className="growing-index-row-arrow"
+              >
+                →
+              </span>
             </button>
-          )}
-        </div>
-      );
-    }
+          ),
+        )}
+      </div>
+    );
+  }
 
 
-    if (
-      section ===
-      'places'
-    ) {
-      return (
-        <div
-          className="growing-index-list"
-          style={
-            recordListStyle
-          }
-        >
-          {visiblePlaces.map(
-            place => (
+  if (
+    section ===
+    'setups'
+  ) {
+    return (
+      <div
+        className="growing-index-list"
+        style={
+          recordListStyle
+        }
+      >
+        {visibleSetups.map(
+          setup => {
+            const ingredientCount =
+              getSetupIngredientIds(
+                setup,
+              ).length;
+
+            const productCount =
+              getSetupProductIds(
+                setup,
+              ).length;
+
+
+            return (
               <button
                 key={
-                  place.id
+                  setup.id
                 }
                 type="button"
                 className="growing-index-row"
@@ -2390,8 +2394,8 @@ export default function GrowingPlaces({
                   recordRowStyle
                 }
                 onClick={() =>
-                  onOpenPlace(
-                    place.id,
+                  onOpenSetup(
+                    setup.id,
                   )
                 }
               >
@@ -2407,20 +2411,36 @@ export default function GrowingPlaces({
                       rowTitleStyle
                     }
                   >
-                    {place.name}
+                    {setup.name}
                   </strong>
 
                   <span className="growing-index-row-meta">
-                    {getGrowingPlaceKindLabel(
-                      place,
+                    {getGrowingSetupLabel(
+                      setup,
                     )}
 
-                    {place.aspect
-                      ? ` · ${place.aspect}`
+                    {setup.brand
+                      ? ` · ${setup.brand}`
                       : ''}
 
-                    {place.sunlight
-                      ? ` · ${place.sunlight}`
+                    {ingredientCount >
+                    0
+                      ? ` · ${ingredientCount} ${
+                          ingredientCount ===
+                          1
+                            ? 'ingredient'
+                            : 'ingredients'
+                        }`
+                      : ''}
+
+                    {productCount >
+                    0
+                      ? ` · ${productCount} ${
+                          productCount ===
+                          1
+                            ? 'product'
+                            : 'products'
+                        }`
                       : ''}
                   </span>
                 </span>
@@ -2432,205 +2452,18 @@ export default function GrowingPlaces({
                   →
                 </span>
               </button>
-            ),
-          )}
-        </div>
-      );
-    }
+            );
+          },
+        )}
+      </div>
+    );
+  }
 
 
-    if (
-      section ===
-      'setups'
-    ) {
-      return (
-        <div
-          className="growing-index-list"
-          style={
-            recordListStyle
-          }
-        >
-          {visibleSetups.map(
-            setup => {
-              const ingredientCount =
-                getSetupIngredientIds(
-                  setup,
-                ).length;
-
-              const productCount =
-                getSetupProductIds(
-                  setup,
-                ).length;
-
-
-              return (
-                <button
-                  key={
-                    setup.id
-                  }
-                  type="button"
-                  className="growing-index-row"
-                  style={
-                    recordRowStyle
-                  }
-                  onClick={() =>
-                    onOpenSetup(
-                      setup.id,
-                    )
-                  }
-                >
-                  <span
-                    className="growing-index-row-copy"
-                    style={
-                      rowTextStyle
-                    }
-                  >
-                    <strong
-                      className="growing-index-row-title"
-                      style={
-                        rowTitleStyle
-                      }
-                    >
-                      {setup.name}
-                    </strong>
-
-                    <span className="growing-index-row-meta">
-                      {getGrowingSetupLabel(
-                        setup,
-                      )}
-
-                      {setup.brand
-                        ? ` · ${setup.brand}`
-                        : ''}
-
-                      {ingredientCount >
-                      0
-                        ? ` · ${ingredientCount} ${
-                            ingredientCount ===
-                            1
-                              ? 'ingredient'
-                              : 'ingredients'
-                          }`
-                        : ''}
-
-                      {productCount >
-                      0
-                        ? ` · ${productCount} ${
-                            productCount ===
-                            1
-                              ? 'product'
-                              : 'products'
-                          }`
-                        : ''}
-                    </span>
-                  </span>
-
-                  <span
-                    aria-hidden="true"
-                    className="growing-index-row-arrow"
-                  >
-                    →
-                  </span>
-                </button>
-              );
-            },
-          )}
-        </div>
-      );
-    }
-
-
-    if (
-      section ===
-      'ingredients'
-    ) {
-      return (
-        <div
-          className="growing-index-list"
-          style={
-            recordListStyle
-          }
-        >
-          {visibleIngredients.map(
-            ingredient => {
-              const usedByCount =
-                activeSetups.filter(
-                  setup =>
-                    getSetupIngredientIds(
-                      setup,
-                    ).includes(
-                      ingredient.id,
-                    ),
-                ).length;
-
-
-              return (
-                <button
-                  key={
-                    ingredient.id
-                  }
-                  type="button"
-                  className="growing-index-row"
-                  style={
-                    recordRowStyle
-                  }
-                  onClick={() =>
-                    onOpenIngredient(
-                      ingredient.id,
-                    )
-                  }
-                >
-                  <span
-                    className="growing-index-row-copy"
-                    style={
-                      rowTextStyle
-                    }
-                  >
-                    <strong
-                      className="growing-index-row-title"
-                      style={
-                        rowTitleStyle
-                      }
-                    >
-                      {ingredient.name}
-                    </strong>
-
-                    <span className="growing-index-row-meta">
-                      {getIngredientSubtitle(
-                        ingredient,
-                      )}
-
-                      {ingredient.manufacturer
-                        ? ` · ${ingredient.manufacturer}`
-                        : ''}
-
-                      {usedByCount >
-                      0
-                        ? ` · used in ${usedByCount} ${
-                            usedByCount ===
-                            1
-                              ? 'setup'
-                              : 'setups'
-                          }`
-                        : ''}
-                    </span>
-                  </span>
-
-                  <span
-                    aria-hidden="true"
-                    className="growing-index-row-arrow"
-                  >
-                    →
-                  </span>
-                </button>
-              );
-            },
-          )}
-        </div>
-      );
-    }
-
-
+  if (
+    section ===
+    'ingredients'
+  ) {
     return (
       <div
         className="growing-index-list"
@@ -2638,15 +2471,15 @@ export default function GrowingPlaces({
           recordListStyle
         }
       >
-        {visibleProducts.map(
-          product => {
+        {visibleIngredients.map(
+          ingredient => {
             const usedByCount =
               activeSetups.filter(
                 setup =>
-                  getSetupProductIds(
+                  getSetupIngredientIds(
                     setup,
                   ).includes(
-                    product.id,
+                    ingredient.id,
                   ),
               ).length;
 
@@ -2654,7 +2487,7 @@ export default function GrowingPlaces({
             return (
               <button
                 key={
-                  product.id
+                  ingredient.id
                 }
                 type="button"
                 className="growing-index-row"
@@ -2662,8 +2495,8 @@ export default function GrowingPlaces({
                   recordRowStyle
                 }
                 onClick={() =>
-                  onOpenProduct(
-                    product.id,
+                  onOpenIngredient(
+                    ingredient.id,
                   )
                 }
               >
@@ -2679,13 +2512,17 @@ export default function GrowingPlaces({
                       rowTitleStyle
                     }
                   >
-                    {product.name}
+                    {ingredient.name}
                   </strong>
 
                   <span className="growing-index-row-meta">
-                    {getProductSubtitle(
-                      product,
+                    {getIngredientSubtitle(
+                      ingredient,
                     )}
+
+                    {ingredient.manufacturer
+                      ? ` · ${ingredient.manufacturer}`
+                      : ''}
 
                     {usedByCount >
                     0
@@ -2714,318 +2551,346 @@ export default function GrowingPlaces({
   }
 
 
-  /* =======================================
-     BACK TO TOP
-  ======================================= */
-
-  function backToTop() {
-    window.scrollTo({
-      top:
-        0,
-
-      behavior:
-        'smooth',
-    });
-  }
-
-
   return (
-    <GardenLayout
-      activePage="growing-places"
-      onNavigate={
-        onNavigate
+    <div
+      className="growing-index-list"
+      style={
+        recordListStyle
       }
     >
-      <div className="garden-page growing-page">
-
-        {/* ===================================
-            JOURNEY BACK
-        =================================== */}
-
-        {journeyBackLabel &&
-          onJourneyBack && (
-            <div className="growing-journey-back">
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={
-                  onJourneyBack
-                }
-              >
-                ← Back to{' '}
-                {journeyBackLabel}
-              </button>
-            </div>
-          )}
+      {visibleProducts.map(
+        product => {
+          const usedByCount =
+            activeSetups.filter(
+              setup =>
+                getSetupProductIds(
+                  setup,
+                ).includes(
+                  product.id,
+                ),
+            ).length;
 
 
-        {/* ===================================
-            HEADER
-        =================================== */}
-
-        <header className="garden-header growing-header">
-          <div className="growing-header-copy">
-            <p className="app-name">
-              My Garden
-            </p>
-
-            <h1 className="garden-title">
-              Growing
-            </h1>
-
-            <p className="garden-subtitle">
-              Where the garden grows,
-              what surrounds the roots,
-              and the things that help
-              build it.
-            </p>
-          </div>
-
-
-          <div className="growing-page-actions">
+          return (
             <button
+              key={
+                product.id
+              }
               type="button"
-              className="journal-add-button"
-              onClick={
-                handleAddCurrentRecord
+              className="growing-index-row"
+              style={
+                recordRowStyle
+              }
+              onClick={() =>
+                onOpenProduct(
+                  product.id,
+                )
               }
             >
-              {getAddButtonLabel()}
-            </button>
-          </div>
-        </header>
-
-
-        {/* ===================================
-            FOUR SIBLING GROWING DESTINATIONS
-        =================================== */}
-
-        <nav
-          className="growing-section-navigation"
-          aria-label="Growing sections"
-        >
-          {GROWING_SECTIONS.map(
-            item => (
-              <button
-                key={
-                  item.id
-                }
-                type="button"
-                className={
-                  section ===
-                  item.id
-                    ? 'growing-section-button growing-section-button--active'
-                    : 'growing-section-button'
-                }
-                aria-current={
-                  section ===
-                  item.id
-                    ? 'page'
-                    : undefined
-                }
-                onClick={() =>
-                  changeSection(
-                    item.id,
-                  )
+              <span
+                className="growing-index-row-copy"
+                style={
+                  rowTextStyle
                 }
               >
-                <strong>
-                  {item.label}
-                </strong>
-
-                <small>
-                  {item.eyebrow}
-                </small>
-              </button>
-            ),
-          )}
-        </nav>
-
-
-        {/* ===================================
-            ACTIVE SECTION INTRO
-        =================================== */}
-
-        <section className="growing-section-intro">
-          <p className="section-label">
-            {activeSection.label}
-          </p>
-
-          <h2>
-            {activeSection.description}
-          </h2>
-        </section>
-
-
-        {/* ===================================
-            SEARCH / FILTER WORKSPACE
-        =================================== */}
-
-        <div className="growing-browser-layout">
-
-          <aside className="growing-browser-tools">
-
-            <div className="growing-browser-tools-heading">
-              <div>
-                <p className="section-label">
-                  Find
-                </p>
-
-                <h2>
-                  {section ===
-                  'places'
-                    ? 'Search Growing Places'
-                    : section ===
-                      'setups'
-                      ? 'Search Soils & Setups'
-                      : section ===
-                        'ingredients'
-                        ? 'Search Ingredients'
-                        : 'Search Products'}
-                </h2>
-              </div>
-
-
-              {(activeFilterCount >
-                0 ||
-                searchQuery) && (
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={
-                    clearFilters
+                <strong
+                  className="growing-index-row-title"
+                  style={
+                    rowTitleStyle
                   }
                 >
-                  Clear
-                </button>
-              )}
-            </div>
+                  {product.name}
+                </strong>
 
+                <span className="growing-index-row-meta">
+                  {getProductSubtitle(
+                    product,
+                  )}
 
-            <label className="growing-search-field">
-              <span className="growing-tool-label">
-                Search
+                  {usedByCount >
+                  0
+                    ? ` · used in ${usedByCount} ${
+                        usedByCount ===
+                        1
+                          ? 'setup'
+                          : 'setups'
+                      }`
+                    : ''}
+                </span>
               </span>
 
-              <input
-                type="search"
-                value={
-                  searchQuery
-                }
-                onChange={
-                  event =>
-                    setSearchQuery(
-                      event.target.value,
-                    )
-                }
-                placeholder={
-                  section ===
-                  'places'
-                    ? 'Name, type, aspect, sunlight, note...'
-                    : section ===
-                      'setups'
-                      ? 'Soil, recipe, ingredient, product, system, note...'
-                      : section ===
-                        'ingredients'
-                        ? 'Name, type, maker, setup, note...'
-                        : 'Name, brand, type, setup, note...'
-                }
-              />
-            </label>
-
-
-            <label className="growing-sort-field">
-              <span className="growing-tool-label">
-                Order by
-              </span>
-
-              <select
-                value={
-                  sortBy
-                }
-                onChange={
-                  event =>
-                    setSortBy(
-                      event.target.value as GrowingSort,
-                    )
-                }
+              <span
+                aria-hidden="true"
+                className="growing-index-row-arrow"
               >
-                <option value="name-az">
-                  Name A–Z
-                </option>
-
-                <option value="name-za">
-                  Name Z–A
-                </option>
-
-                <option value="kind-az">
-                  {section ===
-                  'places'
-                    ? 'Place type'
-                    : section ===
-                      'setups'
-                      ? 'Soil / setup kind'
-                      : section ===
-                        'ingredients'
-                        ? 'Ingredient type'
-                        : 'Product type'}
-                </option>
-              </select>
-            </label>
-
-
-            <div className="growing-filter-area">
-              {renderActiveFilters()}
-            </div>
-          </aside>
-
-
-          <main className="growing-browser-results">
-
-            <div className="growing-results-heading">
-              <p>
-                <strong>
-                  {resultCount}
-                </strong>{' '}
-                {resultWord}
-              </p>
-
-              {activeFilterCount >
-                0 && (
-                <p className="growing-active-filter-note">
-                  {activeFilterCount}{' '}
-                  {activeFilterCount ===
-                  1
-                    ? 'filter'
-                    : 'filters'}{' '}
-                  active
-                </p>
-              )}
-            </div>
-
-
-            {renderResults()}
-          </main>
-        </div>
-
-
-        {/* ===================================
-            BACK TO TOP
-        =================================== */}
-
-        <div className="growing-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={
-              backToTop
-            }
-          >
-            ↑ Back to the top
-          </button>
-        </div>
-
-      </div>
-    </GardenLayout>
+                →
+              </span>
+            </button>
+          );
+        },
+      )}
+    </div>
   );
 }
+
+
+return (
+  <MultiPageTemplate
+      activePage="growing-places"
+      onNavigate={
+      onNavigate
+      }
+      pageId="growing-page-top"
+      className="growing-page"
+      pageAs="div"
+      journeyBackLabel={
+      journeyBackLabel
+      }
+      onJourneyBack={
+      onJourneyBack
+      }
+      navigationAriaLabel="Growing navigation"
+      eyebrow="My Garden"
+      title="Growing"
+      intro={
+      <>
+      Where the garden grows,
+      what surrounds the roots,
+      and the things that help
+      build it.
+      </>
+      }
+      headerActions={
+      <button
+      type="button"
+      className="journal-add-button"
+      onClick={
+      handleAddCurrentRecord
+      }
+
+    >
+      {getAddButtonLabel()}
+      </button>
+      }
+        subNavigation={
+      <nav
+        className="growing-section-navigation"
+        aria-label="Growing sections"
+      >
+        {GROWING_SECTIONS.map(
+          item => (
+            <button
+              key={
+                item.id
+              }
+              type="button"
+              className={
+                section ===
+                item.id
+                  ? 'growing-section-button growing-section-button--active'
+                  : 'growing-section-button'
+              }
+              aria-current={
+                section ===
+                item.id
+                  ? 'page'
+                  : undefined
+              }
+              onClick={() =>
+                changeSection(
+                  item.id,
+                )
+              }
+            >
+              <strong>
+                {item.label}
+              </strong>
+
+              <small>
+                {item.eyebrow}
+              </small>
+            </button>
+          ),
+        )}
+      </nav>
+      }
+    >
+
+
+      {/* ===================================
+          ACTIVE GROWING DESTINATION
+      =================================== */}
+
+
+
+
+      {/* ===================================
+          ACTIVE SECTION INTRO
+      =================================== */}
+
+      <section className="growing-section-intro">
+        <p className="section-label">
+          {activeSection.label}
+        </p>
+
+        <h2>
+          {activeSection.description}
+        </h2>
+      </section>
+
+
+      {/* ===================================
+          SEARCH / FILTER WORKSPACE
+      =================================== */}
+
+      <div className="growing-browser-layout">
+        <aside className="growing-browser-tools">
+          <div className="growing-browser-tools-heading">
+            <div>
+              <p className="section-label">
+                Find
+              </p>
+
+              <h2>
+                {section ===
+                'places'
+                  ? 'Search Growing Places'
+                  : section ===
+                    'setups'
+                    ? 'Search Soils & Setups'
+                    : section ===
+                      'ingredients'
+                      ? 'Search Ingredients'
+                      : 'Search Products'}
+              </h2>
+            </div>
+
+
+            {(activeFilterCount >
+              0 ||
+              searchQuery) && (
+              <button
+                type="button"
+                className="text-button"
+                onClick={
+                  clearFilters
+                }
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+
+          <label className="growing-search-field">
+            <span className="growing-tool-label">
+              Search
+            </span>
+
+            <input
+              type="search"
+              value={
+                searchQuery
+              }
+              onChange={
+                event =>
+                  setSearchQuery(
+                    event.target.value,
+                  )
+              }
+              placeholder={
+                section ===
+                'places'
+                  ? 'Name, type, aspect, sunlight, note...'
+                  : section ===
+                    'setups'
+                    ? 'Soil, recipe, ingredient, product, system, note...'
+                    : section ===
+                      'ingredients'
+                      ? 'Name, type, maker, setup, note...'
+                      : 'Name, brand, type, setup, note...'
+              }
+            />
+          </label>
+
+
+          <label className="growing-sort-field">
+            <span className="growing-tool-label">
+              Order by
+            </span>
+
+            <select
+              value={
+                sortBy
+              }
+              onChange={
+                event =>
+                  setSortBy(
+                    event.target.value as GrowingSort,
+                  )
+              }
+            >
+              <option value="name-az">
+                Name A–Z
+              </option>
+
+              <option value="name-za">
+                Name Z–A
+              </option>
+
+              <option value="kind-az">
+                {section ===
+                'places'
+                  ? 'Place type'
+                  : section ===
+                    'setups'
+                    ? 'Soil / setup kind'
+                    : section ===
+                      'ingredients'
+                      ? 'Ingredient type'
+                      : 'Product type'}
+              </option>
+            </select>
+          </label>
+
+
+          <div className="growing-filter-area">
+            {renderActiveFilters()}
+          </div>
+        </aside>
+
+
+        <section className="growing-browser-results" aria-label="Growing Place results">
+          <div className="growing-results-heading">
+            <p>
+              <strong>
+                {resultCount}
+              </strong>{' '}
+              {resultWord}
+            </p>
+
+            {activeFilterCount >
+              0 && (
+              <p className="growing-active-filter-note">
+                {activeFilterCount}{' '}
+                {activeFilterCount ===
+                1
+                  ? 'filter'
+                  : 'filters'}{' '}
+                active
+              </p>
+            )}
+          </div>
+
+
+          {renderResults()}
+        </section>
+      </div>
+
+
+    </MultiPageTemplate>
+);
+}
+
+
+

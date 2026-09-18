@@ -1,5 +1,5 @@
-import GardenLayout from '../components/layout/GardenLayout'
 
+import MainPageTemplate from '../components/templates/MainPageTemplate'
 import type {
   PlantStory,
   SavedComparison,
@@ -175,58 +175,32 @@ export default function Comparisons({
 
 
   return (
-    <GardenLayout
+    <MainPageTemplate
       activePage="comparisons"
       onNavigate={
-        onNavigate
+      onNavigate
+      }
+      pageId="comparisons-top"
+      journeyBackLabel="Growing Stories"
+      onJourneyBack={
+      onBack
+      }
+      homeLabel="Plants Home"
+      onHome={() =>
+      onNavigate(
+      'plants',
+      )
+      }
+      navigationAriaLabel="Comparisons navigation"
+      eyebrow="My Garden"
+      title="Comparisons"
+      intro={
+      <>
+      Revisit growing stories
+      you have placed side by side.
+      </>
       }
     >
-      <main className="garden-page">
-
-        {/* =======================================
-            JOURNEY NAVIGATION
-        ======================================= */}
-
-<nav
-  className="detail-back-row"
-  aria-label="Comparisons navigation"
->
-  <button
-    type="button"
-    className="secondary-button"
-    onClick={
-      onBack
-    }
-  >
-    ← Back
-  </button>
-</nav>
-
-
-        {/* =======================================
-            HEADER
-        ======================================= */}
-
-        <header className="garden-header">
-
-          <div>
-
-            <p className="app-name">
-              Sprig
-            </p>
-
-            <h1 className="garden-title">
-              Comparisons
-            </h1>
-
-            <p className="garden-subtitle">
-              Revisit growing stories
-              you have placed side by side.
-            </p>
-
-          </div>
-
-        </header>
 
 
         {/* =======================================
@@ -234,11 +208,8 @@ export default function Comparisons({
         ======================================= */}
 
         <section className="dashboard-section">
-
           <div className="section-heading">
-
             <div>
-
               <p className="section-label">
                 Saved comparisons
               </p>
@@ -246,22 +217,17 @@ export default function Comparisons({
               <h2>
                 Stories worth another look
               </h2>
-
             </div>
-
           </div>
 
 
           {sortedComparisons.length >
           0 ? (
-
             <div className="saved-comparison-list">
-
               {sortedComparisons.map(
                 (
                   comparison,
                 ) => {
-
                   const comparisonPlants =
                     getComparisonPlants(
                       comparison,
@@ -300,7 +266,6 @@ export default function Comparisons({
                       onKeyDown={(
                         event,
                       ) => {
-
                         if (
                           event.key ===
                             'Enter' ||
@@ -313,7 +278,6 @@ export default function Comparisons({
                             comparison,
                           )
                         }
-
                       }}
                     >
 
@@ -322,9 +286,7 @@ export default function Comparisons({
                       ======================================= */}
 
                       <div className="saved-comparison-card-top">
-
                         <div>
-
                           <p className="section-label">
                             Comparison
                           </p>
@@ -334,7 +296,6 @@ export default function Comparisons({
                               comparison.name
                             }
                           </h3>
-
                         </div>
 
 
@@ -347,7 +308,6 @@ export default function Comparisons({
                             ? 'story'
                             : 'stories'}
                         </span>
-
                       </div>
 
 
@@ -357,17 +317,14 @@ export default function Comparisons({
 
                       {comparisonPhotoPlants.length >
                       0 && (
-
                         <div
                           className="saved-comparison-photo-strip"
                           aria-label="Plant Story photographs"
                         >
-
                           {comparisonPhotoPlants.map(
                             (
                               plant,
                             ) => {
-
                               const photoUrl =
                                 plant.photoUrls?.[0]
 
@@ -383,7 +340,6 @@ export default function Comparisons({
                                   key={`${comparison.id}-${plant.id}-preview`}
                                   className="saved-comparison-photo-preview"
                                 >
-
                                   <img
                                     src={
                                       photoUrl
@@ -396,12 +352,10 @@ export default function Comparisons({
                                       plant.displayName
                                     }
                                   </span>
-
                                 </div>
                               )
                             },
                           )}
-
                         </div>
                       )}
 
@@ -411,7 +365,6 @@ export default function Comparisons({
                       ======================================= */}
 
                       <p className="saved-comparison-plants">
-
                         {comparisonPlants.length >
                         0
                           ? comparisonPlants
@@ -425,7 +378,6 @@ export default function Comparisons({
                                 ' · ',
                               )
                           : 'No available Plant Stories are currently connected to this comparison.'}
-
                       </p>
 
 
@@ -434,7 +386,6 @@ export default function Comparisons({
                       ======================================= */}
 
                       <div className="saved-comparison-dates">
-
                         <span>
                           Saved{' '}
                           {formatDate(
@@ -451,7 +402,6 @@ export default function Comparisons({
                             )}
                           </span>
                         )}
-
                       </div>
 
 
@@ -460,14 +410,12 @@ export default function Comparisons({
                       ======================================= */}
 
                       <div className="saved-comparison-actions">
-
                         <button
                           type="button"
                           className="text-button"
                           onClick={(
                             event,
                           ) => {
-
                             event.stopPropagation()
 
 
@@ -489,7 +437,6 @@ export default function Comparisons({
                               comparison.id,
                               newName.trim(),
                             )
-
                           }}
                         >
                           Rename
@@ -502,13 +449,11 @@ export default function Comparisons({
                           onClick={(
                             event,
                           ) => {
-
                             event.stopPropagation()
 
                             onOpenComparison(
                               comparison,
                             )
-
                           }}
                         >
                           Open comparison →
@@ -521,7 +466,6 @@ export default function Comparisons({
                           onClick={(
                             event,
                           ) => {
-
                             event.stopPropagation()
 
 
@@ -541,25 +485,18 @@ export default function Comparisons({
                             onDeleteComparison(
                               comparison.id,
                             )
-
                           }}
                         >
                           Delete
                         </button>
-
                       </div>
-
                     </article>
                   )
                 },
               )}
-
             </div>
-
           ) : (
-
             <div className="journal-empty">
-
               <span>
                 📊
               </span>
@@ -586,13 +523,10 @@ export default function Comparisons({
               >
                 Go to Growing Stories →
               </button>
-
             </div>
           )}
-
         </section>
 
-      </main>
-    </GardenLayout>
+      </MainPageTemplate>
   )
 }

@@ -5,7 +5,8 @@ import {
   type FormEvent,
 } from 'react'
 
-import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
+import FormTemplate from '../templates/FormTemplate'
+
 
 import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 
@@ -603,23 +604,7 @@ export default function AddGrowingPlaceForm({
       className="form-backdrop"
       role="presentation"
     >
-      <section
-        className="add-plant-panel chronicle-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="add-growing-place-title"
-      >
-        <img
-          className="chronicle-page-image"
-          src={
-            notebookEntryBackground
-          }
-          alt=""
-          aria-hidden="true"
-        />
-
-
-        <div className="chronicle-content">
+      <FormTemplate ariaLabelledBy="add-growing-place-title">
 
           <div className="form-heading">
             <div>
@@ -945,8 +930,7 @@ export default function AddGrowingPlaceForm({
             </div>
 
           </form>
-        </div>
-      </section>
+      </FormTemplate>
     </div>
   )
 }

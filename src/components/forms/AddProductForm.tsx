@@ -5,7 +5,8 @@ import {
   type FormEvent,
 } from 'react'
 
-import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
+import FormTemplate from '../templates/FormTemplate'
+
 
 import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 import PurchaseDetailsSection from '../purchases/PurchaseDetailsSection'
@@ -1161,23 +1162,7 @@ export default function AddProductForm({
       className="form-backdrop"
       role="presentation"
     >
-      <section
-        className="add-plant-panel chronicle-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="add-product-title"
-      >
-        <img
-          className="chronicle-page-image"
-          src={
-            notebookEntryBackground
-          }
-          alt=""
-          aria-hidden="true"
-        />
-
-
-        <div className="chronicle-content">
+      <FormTemplate ariaLabelledBy="add-product-title">
           <div className="form-heading">
             <h2 id="add-product-title">
               {getHeading()}
@@ -1652,8 +1637,7 @@ export default function AddProductForm({
               </button>
             </div>
           </form>
-        </div>
-      </section>
+      </FormTemplate>
     </div>
   )
 }

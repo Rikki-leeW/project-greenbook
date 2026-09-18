@@ -4,7 +4,7 @@ import {
   useState,
 } from 'react'
 
-import GardenLayout from '../components/layout/GardenLayout'
+import MainPageTemplate from '../components/templates/MainPageTemplate'
 
 import type {
   AppPage,
@@ -438,7 +438,8 @@ export default function GrowingRecipes({
 
 
                 if (
-                  ratingDifference !== 0
+                  ratingDifference !==
+                  0
                 ) {
                   return ratingDifference
                 }
@@ -463,9 +464,11 @@ export default function GrowingRecipes({
             const searchable =
               [
                 recipe.name,
+
                 getCategoryLabel(
                   recipe,
                 ),
+
                 recipe.brand,
                 recipe.productName,
                 recipe.groundType,
@@ -536,108 +539,69 @@ export default function GrowingRecipes({
       : '+ Add Growing Setup'
 
 
-  function backToTop() {
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-
-    document.getElementById('growing-recipes-top')?.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      block: 'start',
-    })
-  }
-
-
   return (
-    <GardenLayout
+    <MainPageTemplate
       activePage="library"
-      onNavigate={
-        onNavigate
+      onNavigate={onNavigate}
+      pageId="growing-recipes-top"
+      className="journal-page"
+      journeyBackLabel={
+        showArchivedStatus
+          ? undefined
+          : 'Growing'
       }
-    >
-      <div className="journal-page" id="growing-recipes-top">
-
-        {!showArchivedStatus && (
-          <div
-            style={{
-              display:
-                'flex',
-
-              gap:
-                '0.65rem',
-
-              flexWrap:
-                'wrap',
-
-              marginBottom:
-                '1rem',
-            }}
-          >
-            <button
-              type="button"
-              className="record-action-button"
-              onClick={
-                () =>
-                  onNavigate(
-                    'growing-places',
-                  )
-              }
-            >
-              ← Growing Home
-            </button>
-          </div>
-        )}
-
-
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Growing · What
-            </p>
-
-            <h1>
-              {visibleTitle}
-            </h1>
-
-            <p className="journal-intro">
-              {visibleIntro}
-            </p>
-          </div>
-
-
+      onJourneyBack={
+        showArchivedStatus
+          ? undefined
+          : () =>
+              onNavigate(
+                'growing-places',
+              )
+      }
+      homeLabel={
+        showArchivedStatus
+          ? undefined
+          : 'Growing Home'
+      }
+      onHome={
+        showArchivedStatus
+          ? undefined
+          : () =>
+              onNavigate(
+                'growing-places',
+              )
+      }
+      navigationAriaLabel="Growing recipes navigation"
+      eyebrow="Growing · What"
+      title={visibleTitle}
+      intro={visibleIntro}
+      headerActions={
+        <>
           {!showArchivedStatus && (
             <button
               type="button"
               className="journal-add-button"
-              onClick={
-                onAddRecipe
-              }
+              onClick={onAddRecipe}
             >
               {createLabel}
             </button>
           )}
 
-
           {showArchivedStatus &&
             onShowArchived && (
-            <button
-              type="button"
-              className="journal-add-button"
-              onClick={
-                onShowArchived
-              }
-            >
-              {
-                resolvedArchivedButtonLabel
-              }
-            </button>
-          )}
-        </header>
-
-
+              <button
+                type="button"
+                className="journal-add-button"
+                onClick={onShowArchived}
+              >
+                {resolvedArchivedButtonLabel}
+              </button>
+            )}
+        </>
+      }
+    >
         {!showArchivedStatus && (
           <section className="story-section">
-
             <p className="section-label">
               Browse by kind
             </p>
@@ -666,11 +630,10 @@ export default function GrowingRecipes({
             >
               <button
                 type="button"
-                onClick={
-                  () =>
-                    chooseCategory(
-                      'all',
-                    )
+                onClick={() =>
+                  chooseCategory(
+                    'all',
+                  )
                 }
                 style={{
                   flex:
@@ -721,11 +684,10 @@ export default function GrowingRecipes({
                       category.id
                     }
                     type="button"
-                    onClick={
-                      () =>
-                        chooseCategory(
-                          category.id,
-                        )
+                    onClick={() =>
+                      chooseCategory(
+                        category.id,
+                      )
                     }
                     style={{
                       flex:
@@ -777,22 +739,22 @@ export default function GrowingRecipes({
         {!showArchivedStatus &&
           onShowArchived &&
           archivedCount >
-          0 && (
-          <section className="sprig-form-section">
-            <button
-              type="button"
-              className="record-action-button"
-              onClick={
-                onShowArchived
-              }
-            >
-              📦{' '}
-              {
-                resolvedArchivedButtonLabel
-              }
-            </button>
-          </section>
-        )}
+            0 && (
+            <section className="sprig-form-section">
+              <button
+                type="button"
+                className="record-action-button"
+                onClick={
+                  onShowArchived
+                }
+              >
+                📦{' '}
+                {
+                  resolvedArchivedButtonLabel
+                }
+              </button>
+            </section>
+          )}
 
 
         <section className="sprig-form-section">
@@ -821,7 +783,6 @@ export default function GrowingRecipes({
 
 
         <section>
-
           {filteredRecipes.length ===
             0 && (
             <div
@@ -849,16 +810,16 @@ export default function GrowingRecipes({
 
               {!showArchivedStatus &&
                 !searchTerm.trim() && (
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={
-                    onAddRecipe
-                  }
-                >
-                  {createLabel}
-                </button>
-              )}
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={
+                      onAddRecipe
+                    }
+                  >
+                    {createLabel}
+                  </button>
+                )}
             </div>
           )}
 
@@ -877,11 +838,10 @@ export default function GrowingRecipes({
                     recipe.id
                   }
                   type="button"
-                  onClick={
-                    () =>
-                      onOpenRecipe(
-                        recipe.id,
-                      )
+                  onClick={() =>
+                    onOpenRecipe(
+                      recipe.id,
+                    )
                   }
                   style={{
                     width:
@@ -1020,21 +980,7 @@ export default function GrowingRecipes({
               )
             },
           )}
-
         </section>
-
-
-        <div className="growing-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={backToTop}
-          >
-            ↑ Back to the top
-          </button>
-        </div>
-
-      </div>
-    </GardenLayout>
+    </MainPageTemplate>
   )
 }

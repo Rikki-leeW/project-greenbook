@@ -824,3 +824,50 @@
       min-height: 64px;
     }
   }
+/* GrowingPlaceDetail content details; common shell and controls have shared owners. */
+
+  .growing-place-detail-page .growing-place-detail-row {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.8fr) minmax(0, 1.4fr);
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgba(72, 71, 56, 0.16);
+  }
+
+  .growing-place-detail-page .growing-place-detail-row > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .growing-place-detail-page .growing-place-detail-actions,
+  .growing-place-detail-page .growing-place-export-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+
+  .growing-place-detail-page .growing-place-detail-actions {
+    margin: 0 0 1.5rem;
+  }
+
+  .growing-place-detail-page .growing-place-export-actions {
+    margin: 0 0 1.5rem;
+  }
+
+  @media (max-width: 620px) {
+    .growing-place-detail-page .growing-place-detail-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+
+    .growing-place-detail-page .growing-place-detail-row strong {
+      overflow-wrap: anywhere;
+    }
+  }
+
+  @media print {
+    .growing-place-detail-page .growing-place-detail-actions,
+    .growing-place-detail-page .growing-place-export-actions { display: none; }
+  }
+

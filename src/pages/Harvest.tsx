@@ -1,5 +1,5 @@
-import GardenLayout from '../components/layout/GardenLayout'
 
+import MainPageTemplate from '../components/templates/MainPageTemplate'
 import type {
   HarvestMeasurementUnit,
   HarvestRecord,
@@ -453,67 +453,43 @@ export default function Harvest({
     )
 
 
-  function backToTop() {
-    document
-      .getElementById(
-        'harvest-top',
-      )
-      ?.scrollIntoView({
-        behavior:
-          window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-          ).matches
-            ? 'auto'
-            : 'smooth',
-
-        block:
-          'start',
-      })
-  }
-
-
   return (
-    <GardenLayout
+    <MainPageTemplate
       activePage="harvest"
       onNavigate={
-        onNavigate
+      onNavigate
+      }
+      pageId="harvest-top"
+      className="journal-page"
+      journeyBackLabel="Chronicle"
+      onJourneyBack={() =>
+      onNavigate(
+      'calendar',
+      )
+      }
+      navigationAriaLabel="Harvest navigation"
+      eyebrow="Sprig's harvest ledger"
+      title="Harvest"
+      intro={
+      <>
+      The baskets, pickings and
+      plenty gathered from the
+      garden, remembered as whole
+      harvest stories.
+      </>
+      }
+      headerActions={
+      <button
+      type="button"
+      className="journal-add-button"
+      onClick={
+      onRecordHarvest
+      }
+      >
+      🧺 Gather a harvest
+      </button>
       }
     >
-      <div
-        className="journal-page"
-        id="harvest-top"
-      >
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Sprig&apos;s harvest ledger
-            </p>
-
-
-            <h1>
-              Harvest
-            </h1>
-
-
-            <p className="journal-intro">
-              The baskets, pickings and
-              plenty gathered from the
-              garden, remembered as whole
-              harvest stories.
-            </p>
-          </div>
-
-
-          <button
-            type="button"
-            className="journal-add-button"
-            onClick={
-              onRecordHarvest
-            }
-          >
-            🧺 Gather a harvest
-          </button>
-        </header>
 
 
         <section className="journal-list">
@@ -669,19 +645,8 @@ export default function Harvest({
           )}
         </section>
 
-
-        <div className="detail-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={
-              backToTop
-            }
-          >
-            ↑ Back to top
-          </button>
-        </div>
-      </div>
-    </GardenLayout>
+      </MainPageTemplate>
   )
 }
+
+

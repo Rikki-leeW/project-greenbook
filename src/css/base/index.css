@@ -28,7 +28,7 @@ body {
   overscroll-behavior: none;
 
   background-color: var(--parchment);
-  background-image: url('../images/backgrounds/woodland-frame.png');
+  background-image: url('../../images/backgrounds/woodland-frame.png');
   background-repeat: no-repeat;
   background-position: top center;
   background-size: cover;

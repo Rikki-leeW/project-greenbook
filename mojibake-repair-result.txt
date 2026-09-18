@@ -1,0 +1,61 @@
+
+==============================================
+ GARDEN OF MINE - MOJIBAKE REPAIR
+==============================================
+
+Files that will be repaired: 31
+Lines that will be repaired: 473
+
+Creating safety backup...
+
+Backup created: src\mojibake-backup-2026-09-16-184153
+
+Repairing source text...
+
+REPAIRED  components/forms/AddEventForm.tsx  (30 lines)
+REPAIRED  components/forms/AddHarvestForm.tsx  (5 lines)
+REPAIRED  components/forms/AddIngredientForm.tsx  (1 line)
+REPAIRED  components/forms/AddPlantForm.tsx  (8 lines)
+REPAIRED  components/forms/AddProductForm.tsx  (5 lines)
+REPAIRED  components/forms/AddRecipeForm.tsx  (3 lines)
+REPAIRED  components/photos/SprigPhotoPicker.tsx  (1 line)
+REPAIRED  pages/BackupRestore.tsx  (1 line)
+REPAIRED  pages/Calendar.tsx  (65 lines)
+REPAIRED  pages/Comparisons.tsx  (4 lines)
+REPAIRED  pages/GardenGallery.tsx  (16 lines)
+REPAIRED  pages/GardenKnowledge.tsx  (35 lines)
+REPAIRED  pages/GardenTrials.tsx  (18 lines)
+REPAIRED  pages/GlobalSearch.tsx  (7 lines)
+REPAIRED  pages/GrowingPlaceDetail.tsx  (7 lines)
+REPAIRED  pages/GrowingPlaces.tsx  (15 lines)
+REPAIRED  pages/GrowingRecipeDetail.tsx  (23 lines)
+REPAIRED  pages/GrowingRecipes.tsx  (4 lines)
+REPAIRED  pages/Harvest.tsx  (4 lines)
+REPAIRED  pages/HarvestDetail.tsx  (15 lines)
+REPAIRED  pages/IngredientDetail.tsx  (8 lines)
+REPAIRED  pages/Ingredients.tsx  (23 lines)
+REPAIRED  pages/Journal.tsx  (20 lines)
+REPAIRED  pages/JournalEntryDetail.tsx  (37 lines)
+REPAIRED  pages/Library.tsx  (6 lines)
+REPAIRED  pages/PlantComparison.tsx  (26 lines)
+REPAIRED  pages/PlantDetail.tsx  (28 lines)
+REPAIRED  pages/Plants.tsx  (7 lines)
+REPAIRED  pages/ProductDetail.tsx  (26 lines)
+REPAIRED  pages/Products.tsx  (19 lines)
+REPAIRED  pages/SprigSmart.tsx  (6 lines)
+
+----------------------------------------------
+ POST-REPAIR VERIFICATION
+----------------------------------------------
+
+PASS
+
+No suspicious mojibake remains in the scanned source.
+
+==============================================
+ REPAIR COMPLETE
+==============================================
+
+Safety backup: src\mojibake-backup-2026-09-16-184153
+
+Do not delete the backup until Garden of Mine has been validated.

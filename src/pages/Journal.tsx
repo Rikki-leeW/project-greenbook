@@ -1,5 +1,5 @@
-import GardenLayout from '../components/layout/GardenLayout'
 
+import MainPageTemplate from '../components/templates/MainPageTemplate'
 import type {
   GardenEvent,
   PlantStory,
@@ -233,69 +233,42 @@ export default function Journal({
     )
 
 
-  function backToTop() {
-    document
-      .getElementById(
-        'journal-top',
-      )
-      ?.scrollIntoView({
-        behavior:
-          window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-          ).matches
-            ? 'auto'
-            : 'smooth',
-
-        block:
-          'start',
-      })
-  }
-
-
   return (
-    <GardenLayout
+    <MainPageTemplate
       activePage="journal"
       onNavigate={
-        onNavigate
+      onNavigate
+      }
+      pageId="journal-top"
+      className="journal-page"
+      journeyBackLabel="Chronicle"
+      onJourneyBack={() =>
+      onNavigate(
+      'calendar',
+      )
+      }
+      navigationAriaLabel="Journal navigation"
+      eyebrow="Sprig's notebook"
+      title="Garden Journal"
+      intro={
+      <>
+      A gathering of rain, roots,
+      harvests, small victories and
+      things worth remembering.
+      </>
+      }
+      headerActions={
+      <button
+      type="button"
+      className="journal-add-button"
+      onClick={
+      onAddEntry
+      }
+      >
+      ✒️ Add an entry
+      </button>
       }
     >
-      <div
-        className="journal-page"
-        id="journal-top"
-      >
-
-        {/* =======================================
-            HEADER
-        ======================================= */}
-
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Sprig&apos;s notebook
-            </p>
-
-            <h1>
-              Garden Journal
-            </h1>
-
-            <p className="journal-intro">
-              A gathering of rain, roots,
-              harvests, small victories and
-              things worth remembering.
-            </p>
-          </div>
-
-
-          <button
-            type="button"
-            className="journal-add-button"
-            onClick={
-              onAddEntry
-            }
-          >
-            ✒️ Add an entry
-          </button>
-        </header>
 
 
         {/* =======================================
@@ -468,20 +441,8 @@ export default function Journal({
           )}
         </section>
 
-
-        <div className="detail-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={
-              backToTop
-            }
-          >
-            ↑ Back to top
-          </button>
-        </div>
-
-      </div>
-    </GardenLayout>
+      </MainPageTemplate>
   )
 }
+
+

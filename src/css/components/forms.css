@@ -491,126 +491,6 @@
 
 
 /* =======================================
-   INPUTS
-======================================= */
-
-.add-plant-form input,
-.add-plant-form select,
-.add-plant-form textarea {
-  box-sizing:
-    border-box;
-
-  width:
-    100%;
-
-  min-width:
-    0;
-
-  margin:
-    0;
-
-  border:
-    1px solid
-    rgba(
-      61,
-      82,
-      65,
-      0.24
-    );
-
-  border-radius:
-    10px;
-
-  outline:
-    none;
-
-  background:
-    #ffffff;
-
-  color:
-    #263c2c;
-
-  font:
-    inherit;
-
-  font-size:
-    1rem;
-
-  line-height:
-    1.4;
-
-  box-shadow:
-    none;
-}
-
-
-.add-plant-form input,
-.add-plant-form select {
-  min-height:
-    46px;
-
-  padding:
-    10px
-    12px;
-}
-
-
-.add-plant-form textarea {
-  min-height:
-    120px;
-
-  padding:
-    12px;
-
-  resize:
-    vertical;
-}
-
-
-.add-plant-form input:focus,
-.add-plant-form select:focus,
-.add-plant-form textarea:focus {
-  border-color:
-    #70866c;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(
-      112,
-      134,
-      108,
-      0.12
-    );
-}
-
-
-.add-plant-form input::placeholder,
-.add-plant-form textarea::placeholder {
-  color:
-    #7d897e;
-}
-
-
-/* =======================================
-   SELECTS
-======================================= */
-
-.add-plant-form select {
-  cursor:
-    pointer;
-}
-
-
-.add-plant-form option {
-  background:
-    #ffffff;
-
-  color:
-    #263c2c;
-}
-
-
-/* =======================================
    FORM ROWS
 ======================================= */
 
@@ -2311,7 +2191,15 @@ label {
 
 
 .plant-growing-quick-actions
-.secondary-button,
+.secondary-button {
+  min-height:
+    42px;
+
+  margin:
+    0;
+}
+
+
 .plant-growing-quick-actions
 .enter-button {
   min-height:
@@ -2338,30 +2226,7 @@ label {
 
   cursor:
     pointer;
-}
 
-
-.plant-growing-quick-actions
-.secondary-button {
-  border:
-    1px solid
-    rgba(
-      61,
-      82,
-      65,
-      0.19
-    );
-
-  background:
-    #ffffff;
-
-  color:
-    #405644;
-}
-
-
-.plant-growing-quick-actions
-.enter-button {
   border:
     1px solid
     #536f59;
@@ -2371,13 +2236,6 @@ label {
 
   color:
     #ffffff;
-}
-
-
-.plant-growing-quick-actions
-.secondary-button:hover {
-  background:
-    #f1f3eb;
 }
 
 
@@ -2582,60 +2440,14 @@ label.journal-photo-picker
    Keep this scoped so other forms retain
    their existing presentation.
 ======================================= */
-
 .add-plant-form
 > .sprig-form-section
 > .secondary-button {
   justify-self:
     start;
 
-  min-height:
-    40px;
-
   margin:
     0;
-
-  padding:
-    8px
-    12px;
-
-  border:
-    1px solid
-    rgba(
-      61,
-      82,
-      65,
-      0.18
-    );
-
-  border-radius:
-    10px;
-
-  background:
-    #ffffff;
-
-  color:
-    #405644;
-
-  font:
-    inherit;
-
-  font-size:
-    0.85rem;
-
-  font-weight:
-    700;
-
-  cursor:
-    pointer;
-}
-
-
-.add-plant-form
-> .sprig-form-section
-> .secondary-button:hover {
-  background:
-    #f1f3eb;
 }
 
 
@@ -2722,7 +2534,18 @@ label.journal-photo-picker
 
 
 .chronicle-page-actions
-.secondary-button,
+.secondary-button {
+  min-width:
+    0;
+
+  min-height:
+    46px;
+
+  margin:
+    0;
+}
+
+
 .chronicle-page-actions
 .enter-button {
   min-width:
@@ -2760,29 +2583,6 @@ label.journal-photo-picker
     pointer;
 }
 
-
-.chronicle-page-actions
-.secondary-button {
-  border:
-    1px solid
-    rgba(
-      61,
-      82,
-      65,
-      0.20
-    );
-
-  background:
-    #ffffff;
-
-  color:
-    #405644;
-
-  box-shadow:
-    none;
-}
-
-
 .chronicle-page-actions
 .enter-button {
   border:
@@ -2797,13 +2597,6 @@ label.journal-photo-picker
 
   box-shadow:
     none;
-}
-
-
-.chronicle-page-actions
-.secondary-button:hover {
-  background:
-    #f1f3eb;
 }
 
 
@@ -2875,7 +2668,18 @@ button:disabled {
 
 .add-plant-form
 .form-actions
-.secondary-button,
+.secondary-button {
+  min-width:
+    0;
+
+  min-height:
+    48px;
+
+  margin:
+    0;
+}
+
+
 .add-plant-form
 .form-actions
 .enter-button {
@@ -2911,27 +2715,6 @@ button:disabled {
     pointer;
 }
 
-
-.add-plant-form
-.form-actions
-.secondary-button {
-  border:
-    1px solid
-    rgba(
-      61,
-      82,
-      65,
-      0.20
-    );
-
-  background:
-    #ffffff;
-
-  color:
-    #405644;
-}
-
-
 .add-plant-form
 .form-actions
 .enter-button {
@@ -2944,14 +2727,6 @@ button:disabled {
 
   color:
     #ffffff;
-}
-
-
-.add-plant-form
-.form-actions
-.secondary-button:hover {
-  background:
-    #f1f3eb;
 }
 
 

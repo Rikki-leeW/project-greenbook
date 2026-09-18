@@ -5,7 +5,12 @@
 
 /* ---------- SECONDARY BUTTON ---------- */
 
-.secondary-button {
+.secondary-button,
+.garden-page-navigation-button,
+.garden-return-button,
+.sprig-gallery-secondary-button,
+.sprig-trial-secondary-button,
+.sprig-knowledge-secondary-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -45,7 +50,12 @@
     box-shadow 150ms ease;
 }
 
-.secondary-button:hover:not(:disabled) {
+.secondary-button:hover:not(:disabled),
+.garden-page-navigation-button:hover:not(:disabled),
+.garden-return-button:hover:not(:disabled),
+.sprig-gallery-secondary-button:hover:not(:disabled),
+.sprig-trial-secondary-button:hover:not(:disabled),
+.sprig-knowledge-secondary-button:hover:not(:disabled) {
   transform: translateY(-1px);
 
   border-color: rgba(73, 91, 66, 0.34);
@@ -56,22 +66,43 @@
     0 7px 16px rgba(52, 70, 48, 0.11);
 }
 
-.secondary-button:active:not(:disabled) {
+.secondary-button:active:not(:disabled),
+.garden-page-navigation-button:active:not(:disabled),
+.garden-return-button:active:not(:disabled),
+.sprig-gallery-secondary-button:active:not(:disabled),
+.sprig-trial-secondary-button:active:not(:disabled),
+.sprig-knowledge-secondary-button:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.secondary-button:disabled {
+.secondary-button:disabled,
+.garden-page-navigation-button:disabled,
+.garden-return-button:disabled,
+.sprig-gallery-secondary-button:disabled,
+.sprig-trial-secondary-button:disabled,
+.sprig-knowledge-secondary-button:disabled {
   opacity: 0.48;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 
+.secondary-button:focus-visible,
+.garden-page-navigation-button:focus-visible,
+.garden-return-button:focus-visible,
+.sprig-gallery-secondary-button:focus-visible,
+.sprig-trial-secondary-button:focus-visible,
+.sprig-knowledge-secondary-button:focus-visible {
+  outline: 3px solid rgba(82, 112, 71, 0.18);
+  outline-offset: 3px;
+}
+
+
 /* =======================================
    RECORD ACTIONS
 
-   Shared navigation, everyday actions,
-   favourites, archive and delete controls
+   Shared everyday actions, favourites,
+   archive, restore and delete controls
    used by saved detail records.
 ======================================= */
 
@@ -178,21 +209,6 @@
 }
 
 
-/* ---------- NAVIGATION ---------- */
-
-.record-action-back {
-  justify-self: start;
-
-  border-color: rgba(73, 91, 66, 0.16);
-
-  background: rgba(255, 250, 240, 0.68);
-
-  color: #52694d;
-}
-
-.record-action-contextual-back {
-  margin-bottom: -4px;
-}
 
 
 /* ---------- ARCHIVE ---------- */
@@ -262,10 +278,6 @@
     font-size: 0.80rem;
   }
 
-  .record-action-back {
-    width: fit-content;
-    max-width: 100%;
-  }
 }
 
 
@@ -286,9 +298,173 @@
     text-align: left;
   }
 
-  .record-action-back {
-    width: 100%;
-    justify-content: flex-start;
-    text-align: left;
-  }
+}
+
+/* =======================================
+   SHARED PRIMARY ACTION BUTTON
+
+   Green sibling of the canonical
+   record-action button.
+
+   buttons.css owns appearance.
+   Page CSS may own placement only.
+======================================= */
+
+.journal-add-button,
+.primary-button,
+.enter-button,
+.sprig-gallery-primary-button,
+.sprig-trial-primary-button,
+.sprig-trial-new-button,
+.sprig-knowledge-primary-button {
+  appearance: none;
+  -webkit-appearance: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 34px;
+  padding: 7px 12px;
+
+  border:
+    1px solid
+    rgba(63, 93, 62, 0.5);
+
+  border-radius: 11px;
+
+  background: #527047;
+  color: #fffaf0;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.15;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 3px 9px
+    rgba(52, 70, 48, 0.12);
+
+  transition:
+    transform 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+
+.journal-add-button:hover:not(:disabled),
+.primary-button:hover:not(:disabled),
+.enter-button:hover:not(:disabled),
+.sprig-gallery-primary-button:hover:not(:disabled),
+.sprig-trial-primary-button:hover:not(:disabled),
+.sprig-trial-new-button:hover:not(:disabled),
+.sprig-knowledge-primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color:
+    rgba(55, 82, 55, 0.68);
+
+  background: #45643f;
+
+  box-shadow:
+    0 5px 12px
+    rgba(52, 70, 48, 0.16);
+}
+
+
+.journal-add-button:active:not(:disabled),
+.primary-button:active:not(:disabled),
+.enter-button:active:not(:disabled),
+.sprig-gallery-primary-button:active:not(:disabled),
+.sprig-trial-primary-button:active:not(:disabled),
+.sprig-trial-new-button:active:not(:disabled),
+.sprig-knowledge-primary-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+
+.journal-add-button:focus-visible,
+.primary-button:focus-visible,
+.enter-button:focus-visible,
+.sprig-gallery-primary-button:focus-visible,
+.sprig-trial-primary-button:focus-visible,
+.sprig-trial-new-button:focus-visible,
+.sprig-knowledge-primary-button:focus-visible {
+  outline:
+    3px solid
+    rgba(82, 112, 71, 0.22);
+
+  outline-offset: 3px;
+}
+
+
+.journal-add-button:disabled,
+.primary-button:disabled,
+.enter-button:disabled,
+.sprig-gallery-primary-button:disabled,
+.sprig-trial-primary-button:disabled,
+.sprig-trial-new-button:disabled,
+.sprig-knowledge-primary-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------- DESTRUCTIVE ORDINARY ACTIONS ---------- */
+
+.sprig-gallery-danger-button,
+.sprig-trial-danger-button,
+.sprig-knowledge-danger-button {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  margin: 0;
+  padding: 9px 14px;
+  border: 1px solid rgba(130, 74, 65, 0.18);
+  border-radius: 11px;
+  background: rgba(255, 247, 242, 0.82);
+  color: #80564d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 11px rgba(52, 70, 48, 0.08);
+  transition: transform 150ms ease, background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.sprig-gallery-danger-button:hover:not(:disabled),
+.sprig-trial-danger-button:hover:not(:disabled),
+.sprig-knowledge-danger-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(130, 74, 65, 0.30);
+  background: rgba(255, 249, 245, 0.98);
+  box-shadow: 0 7px 16px rgba(52, 70, 48, 0.11);
+}
+.sprig-gallery-danger-button:focus-visible,
+.sprig-trial-danger-button:focus-visible,
+.sprig-knowledge-danger-button:focus-visible {
+  outline: 3px solid rgba(130, 74, 65, 0.18);
+  outline-offset: 3px;
+}
+.sprig-gallery-danger-button:disabled,
+.sprig-trial-danger-button:disabled,
+.sprig-knowledge-danger-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  box-shadow: none;
 }

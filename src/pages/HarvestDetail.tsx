@@ -1,9 +1,10 @@
 import {
     useState,
 } from 'react';
-
-import GardenLayout from '../components/layout/GardenLayout';
+import { BackToTop } from '../components/layout/GardenPage';
+import DetailPageTemplate from '../components/templates/DetailPageTemplate'
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
+import { escapeRtf, downloadBlob, printDocument } from '../utils/exportUtils';
 
 import type {
     HarvestMeasurementUnit,
@@ -646,170 +647,13 @@ function makeSafeFileName(
 }
 
 
-function escapeRtf(
-    value: string,
-): string {
-    return value
-        .replaceAll(
-            '\\',
-            '\\\\',
-        )
-        .replaceAll(
-            '{',
-            '\\{',
-        )
-        .replaceAll(
-            '}',
-            '\\}',
-        )
-        .replace(
-            /\r?\n/g,
-            '\\line ',
-        )
-        .replace(
-            /[^\x00-\x7F]/g,
-            character => {
-                const code =
-                    character.charCodeAt(
-                        0,
-                    );
-
-
-                const signedCode =
-                    code >
-                    32767
-                        ? code -
-                          65536
-                        : code;
-
-
-                return `\\u${signedCode}?`;
-            },
-        );
-}
 
 
 /* =======================================
    LOCAL PRESENTATION
 ======================================= */
 
-const styles = `
-    .harvest-detail-page .harvest-age-control {
-        margin: 0.7rem 0 1rem;
-    }
 
-    .harvest-detail-page .harvest-age-control-label {
-        display: block;
-        margin-bottom: 0.35rem;
-        color: #62705f;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
-
-    .harvest-detail-page .harvest-age-picker {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-    }
-
-    .harvest-detail-page .harvest-age-picker button {
-        width: auto;
-        min-height: 40px;
-        margin: 0;
-        padding: 0.4rem 0.7rem;
-        border: 1px solid rgba(82, 112, 71, 0.16);
-        border-radius: 999px;
-        background: rgba(255, 254, 249, 0.85);
-        color: #62705f;
-        font: inherit;
-        font-size: 0.76rem;
-        cursor: pointer;
-    }
-
-    .harvest-detail-page .harvest-age-picker button[aria-pressed="true"] {
-        background: #e2eed4;
-        border-color: rgba(82, 112, 71, 0.33);
-        color: #405e42;
-        font-weight: 700;
-    }
-
-    .harvest-detail-page .harvest-detail-list {
-        margin: 0.7rem 0;
-    }
-
-    .harvest-detail-page .harvest-detail-list > div {
-        display: grid;
-        grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.6fr);
-        gap: 0.2rem 0.8rem;
-        margin-top: 0.6rem;
-        line-height: 1.5;
-    }
-
-    .harvest-detail-page .harvest-detail-list dt {
-        color: #62705f;
-        font-size: 0.78rem;
-        font-weight: 700;
-    }
-
-    .harvest-detail-page .harvest-detail-list dd {
-        margin: 0;
-        min-width: 0;
-        overflow-wrap: anywhere;
-    }
-
-    .harvest-detail-page .harvest-dated-ages {
-        font-size: 0.85rem;
-        line-height: 1.5;
-    }
-
-    .harvest-detail-page .harvest-dated-ages .harvest-plant-age {
-        color: #52634b;
-    }
-
-    .harvest-detail-page .harvest-multiple-ages {
-        display: grid;
-        gap: 0.3rem;
-        margin-top: 0.3rem;
-    }
-
-    .harvest-detail-page .harvest-multiple-ages .text-button {
-        width: auto;
-        margin: 0;
-        padding: 0;
-        font: inherit;
-        text-align: left;
-        white-space: normal;
-    }
-
-    .harvest-detail-page .harvest-export-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.65rem;
-    }
-
-    .harvest-detail-page .detail-back-to-top {
-        display: flex;
-        justify-content: center;
-        padding: 1rem 0 2rem;
-    }
-
-    @media (max-width: 560px) {
-        .harvest-detail-page .harvest-detail-list > div {
-            grid-template-columns: minmax(0, 1fr);
-            gap: 0.1rem;
-        }
-    }
-
-    @media print {
-        .harvest-detail-page .sprig-detail-navigation,
-        .harvest-detail-page .harvest-age-control,
-        .harvest-detail-page .harvest-story-actions,
-        .harvest-detail-page .harvest-detail-actions,
-        .harvest-detail-page .detail-back-to-top {
-            display: none !important;
-        }
-    }
-`;
 
 
 /* =======================================
@@ -1159,7 +1003,7 @@ export default function HarvestDetail({
 
 
     function exportPdf() {
-        window.print();
+        printDocument();
     }
 
 
@@ -1303,7 +1147,10 @@ export default function HarvestDetail({
             `}`;
 
 
-        const blob =
+        downloadBlob(
+            `${makeSafeFileName(
+                plantNames,
+            )}-harvest-story.rtf`,
             new Blob(
                 [
                     rtf,
@@ -1312,171 +1159,24 @@ export default function HarvestDetail({
                     type:
                         'application/rtf',
                 },
-            );
-
-
-        const url =
-            URL.createObjectURL(
-                blob,
-            );
-
-
-        const link =
-            document.createElement(
-                'a',
-            );
-
-
-        link.href =
-            url;
-
-
-        link.download =
-            `${makeSafeFileName(
-                plantNames,
-            )}-harvest-story.rtf`;
-
-
-        document.body.appendChild(
-            link,
-        );
-
-
-        link.click();
-
-
-        link.remove();
-
-
-        window.setTimeout(
-            () => {
-                URL.revokeObjectURL(
-                    url,
-                );
-            },
-            0,
+            ),
         );
     }
 
 
-    function backToTop() {
-        document
-            .getElementById(
-                'harvest-detail-top',
-            )
-            ?.scrollIntoView({
-                behavior:
-                    window.matchMedia(
-                        '(prefers-reduced-motion: reduce)',
-                    ).matches
-                        ? 'auto'
-                        : 'smooth',
 
-                block:
-                    'start',
-            });
-    }
 
 
     return (
-        <GardenLayout
-            activePage="harvest"
-            onNavigate={
-                onNavigate
-            }
-        >
-            <main
-                className="journal-page harvest-detail-page"
-                id="harvest-detail-top"
-            >
-                <style>
-                    {styles}
-                </style>
-
-
-                <div
-                    className="sprig-detail-navigation"
-                    style={{
-                        display:
-                            'flex',
-
-                        flexWrap:
-                            'wrap',
-
-                        gap:
-                            '10px',
-
-                        marginBottom:
-                            '18px',
-                    }}
-                >
-                    {journeyBackLabel && (
-                        <button
-                            type="button"
-                            className="garden-return-button"
-                            onClick={
-                                onBack
-                            }
-                        >
-                            ← Back to{' '}
-                            {
-                                journeyBackLabel
-                            }
-                        </button>
-                    )}
-
-
-                    {journeyBackLabel !==
-                        'Harvests' && (
-                        <button
-                            type="button"
-                            className="garden-return-button"
-                            onClick={
-                                onOpenHarvests
-                            }
-                        >
-                            ← Harvests
-                        </button>
-                    )}
-                </div>
-
-
-                <header className="journal-header harvest-detail-header">
-                    <div>
-                        <p className="section-label">
-                            Harvest story
-                        </p>
-
-
-                        {matchingPlants.length ===
-                        1 ? (
-                            <h1>
-                                <button
-                                    type="button"
-                                    className="text-button"
-                                    onClick={() =>
-                                        onOpenPlant(
-                                            matchingPlants[0]
-                                                .id,
-                                        )
-                                    }
-                                >
-                                    {
-                                        plantNames
-                                    }
-                                </button>
-                            </h1>
-                        ) : (
-                            <h1>
-                                {
-                                    plantNames
-                                }
-                            </h1>
-                        )}
-
-
-                        <p className="journal-intro">
-                            {storyHarvests.length}{' '}
+        <DetailPageTemplate activePage="harvest" onNavigate={onNavigate} className="journal-page harvest-detail-page" as="main" pageId="harvest-detail-top"
+      eyebrow={<>Harvest story</>}
+      title={<>{matchingPlants.length === 1 ? (
+                <button type="button" className="text-button"
+                  onClick={() => onOpenPlant(matchingPlants[0].id)}>
+                  {plantNames}
+                </button>
+              ) : plantNames}</>}
+      intro={<>{storyHarvests.length}{' '}
 
                             {storyHarvests.length ===
                             1
@@ -1485,10 +1185,20 @@ export default function HarvestDetail({
 
                             {totalMeasurement
                                 ? ` · ${totalMeasurement} recorded`
-                                : ''}
-                        </p>
-                    </div>
-                </header>
+                                : ''}</>}
+      headerClassName="harvest-detail-header"
+      journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : null}
+      onJourneyBack={onBack}
+      homeLabel="Harvests"
+      onHome={onOpenHarvests}
+      navigationAriaLabel="Harvests record navigation"
+    >
+
+
+
+
+
+                
 
 
                 {matchingPlants.length >
@@ -1891,18 +1601,8 @@ export default function HarvestDetail({
                 </section>
 
 
-                <div className="detail-back-to-top">
-                    <button
-                        type="button"
-                        className="text-button"
-                        onClick={
-                            backToTop
-                        }
-                    >
-                        ↑ Back to top
-                    </button>
-                </div>
-            </main>
-        </GardenLayout>
+                <BackToTop targetId="harvest-detail-top" />
+            </DetailPageTemplate>
     );
 }
+

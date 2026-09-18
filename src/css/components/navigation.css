@@ -255,3 +255,11 @@
    visibility: hidden;
    pointer-events: none;
  }
+/* Fixed Satchel access belongs to the shared frame, not individual pages. */
+.garden-satchel-toggle {
+  position: fixed; top: 14px; right: 14px; z-index: 4000;
+  padding: 9px 12px; border: 1px solid rgba(50, 75, 50, 0.24);
+  border-radius: 10px; background: #fffdf7; color: #304a32;
+  font-weight: 800; cursor: pointer;
+  box-shadow: 0 5px 14px rgba(35, 55, 35, 0.12);
+}

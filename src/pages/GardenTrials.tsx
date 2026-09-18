@@ -4,9 +4,18 @@ import {
     useState,
 } from 'react';
 
-import GardenLayout from '../components/layout/GardenLayout';
+import MainPageTemplate from '../components/templates/MainPageTemplate';
+import DetailPageTemplate from '../components/templates/DetailPageTemplate';
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 import SprigPhotoPicker from '../components/photos/SprigPhotoPicker';
+
+import {
+    downloadBlob,
+    escapeRtf,
+    printDocument,
+    safeFileName,
+} from '../utils/exportUtils';
+
 
 import type {
     GardenData,
@@ -385,83 +394,8 @@ function addDurationToDate(
     return `${year}-${month}-${day}`;
 }
 
-function safeFileName(
-    value: string,
-): string {
-    return (
-        value
-            .trim()
-            .replace(
-                /[^a-z0-9]+/gi,
-                '-',
-            )
-            .replace(
-                /^-+|-+$/g,
-                '',
-            )
-            .toLowerCase() ||
-        'garden-trial'
-    );
-}
 
-function escapeRtf(
-    value: string,
-): string {
-    return value
-        .replace(
-            /\\/g,
-            '\\\\',
-        )
-        .replace(
-            /{/g,
-            '\\{',
-        )
-        .replace(
-            /}/g,
-            '\\}',
-        )
-        .replace(
-            /\r?\n/g,
-            '\\line ',
-        );
-}
 
-function downloadBlob(
-    filename: string,
-    blob: Blob,
-): void {
-    const url =
-        URL.createObjectURL(
-            blob,
-        );
-
-    const anchor =
-        document.createElement(
-            'a',
-        );
-
-    anchor.href =
-        url;
-
-    anchor.download =
-        filename;
-
-    document.body.appendChild(
-        anchor,
-    );
-
-    anchor.click();
-
-    anchor.remove();
-
-    window.setTimeout(
-        () =>
-            URL.revokeObjectURL(
-                url,
-            ),
-        1000,
-    );
-}
 
 function makeEmptyDraft(): TrialDraft {
     return {
@@ -1767,7 +1701,7 @@ ${body}
 }
 
 function printTrial(): void {
-    window.print();
+    printDocument();
 }
 
 function TrialEditor({
@@ -4078,72 +4012,42 @@ export default function GardenTrials({
             );
 
         return (
-            <GardenLayout
+            <DetailPageTemplate
                 activePage="garden-trials"
                 onNavigate={
                     onNavigate
                 }
+                as="main"
+                pageId="garden-trial-detail-top"
+                className="journal-page sprig-trials-page"
+                journeyBackLabel={
+                    journeyBackLabel
+                        ? `Back to ${journeyBackLabel}`
+                        : null
+                }
+                onJourneyBack={
+                    onJourneyBack
+                }
+                homeLabel="Garden Trials"
+                onHome={() => {
+                    setSelectedTrialId(
+                        null,
+                    );
+
+                    setEditingTrialId(
+                        null,
+                    );
+
+                    setEditorDraftOverride(
+                        null,
+                    );
+                }}
+                navigationAriaLabel="Garden Trial navigation"
+                eyebrow="Garden Trials"
+                title={selectedTrial.title}
+                intro={<>Started {formatDate(selectedTrial.startDate)}</>}
+                headerClassName="journal-header sprig-trials-header"
             >
-                <main className="journal-page sprig-trials-page">
-                    <header className="journal-header sprig-trials-header">
-                        <div>
-                            <p className="section-label">
-                                Garden Trials
-                            </p>
-
-                            <h1>
-                                {
-                                    selectedTrial.title
-                                }
-                            </h1>
-
-                            <p className="journal-intro">
-                                Started{' '}
-                                {formatDate(
-                                    selectedTrial.startDate,
-                                )}
-                            </p>
-                        </div>
-                    </header>
-
-                    <div className="sprig-trial-detail-toolbar">
-                        <button
-                            type="button"
-                            className="sprig-trial-text-button"
-                            onClick={() => {
-                                setSelectedTrialId(
-                                    null,
-                                );
-
-                                setEditingTrialId(
-                                    null,
-                                );
-
-                                setEditorDraftOverride(
-                                    null,
-                                );
-                            }}
-                        >
-                            ← Garden Trials
-                        </button>
-
-                        {journeyBackLabel &&
-                            onJourneyBack && (
-                                <button
-                                    type="button"
-                                    className="sprig-trial-text-button"
-                                    onClick={
-                                        onJourneyBack
-                                    }
-                                >
-                                    ← Back to{' '}
-                                    {
-                                        journeyBackLabel
-                                    }
-                                </button>
-                            )}
-                    </div>
-
                     {currentEditorDraft ? (
                         <TrialEditor
                             key={`${editingTrialId}-${editorSeed}`}
@@ -5179,52 +5083,23 @@ export default function GardenTrials({
                             evidencePhotos
                         }
                     />
-                </main>
-            </GardenLayout>
+            </DetailPageTemplate>
         );
     }
 
     return (
-        <GardenLayout
+        <MainPageTemplate
             activePage="garden-trials"
-            onNavigate={
-                onNavigate
-            }
+            onNavigate={onNavigate}
+            pageId="garden-trials-top"
+            className="journal-page sprig-trials-page"
+            journeyBackLabel={journeyBackLabel}
+            onJourneyBack={onJourneyBack}
+            navigationAriaLabel="Garden Trials navigation"
+            eyebrow="Garden Trials"
+            title="Questions worth testing"
+            intro="A Trial owns the question. Your real Sprig records keep owning what actually happened."
         >
-            <main className="journal-page sprig-trials-page">
-                <header className="journal-header sprig-trials-header">
-                    <div>
-                        <p className="section-label">
-                            Garden Trials
-                        </p>
-
-                        <h1>
-                            Questions worth testing
-                        </h1>
-
-                        <p className="journal-intro">
-                            A Trial owns the question. Your real Sprig records
-                            keep owning what actually happened.
-                        </p>
-                    </div>
-                </header>
-
-                {journeyBackLabel &&
-                    onJourneyBack && (
-                        <button
-                            type="button"
-                            className="sprig-trial-journey-back"
-                            onClick={
-                                onJourneyBack
-                            }
-                        >
-                            ← Back to{' '}
-                            {
-                                journeyBackLabel
-                            }
-                        </button>
-                    )}
-
                 {isCreating ? (
                     <TrialEditor
                         initialDraft={
@@ -5384,7 +5259,7 @@ export default function GardenTrials({
                         </div>
                     )}
                 </section>
-            </main>
-        </GardenLayout>
+        </MainPageTemplate>
     );
 }
+

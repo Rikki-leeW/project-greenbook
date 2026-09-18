@@ -1,835 +1,403 @@
 /* =======================================
-   SPRIG PHOTOGRAPHS
+   GARDEN OF MINE PHOTO SYSTEM
+
+   Components own meaning + behaviour.
+   This file owns shared photo appearance.
 ======================================= */
+
+/* =====================================================
+   EASY PHOTO CONTROLS
+===================================================== */
+
+:root {
+  --sprig-photo-editor-preview-height: 190px;
+  --sprig-photo-editor-preview-radius: 12px;
+
+  --sprig-photo-gallery-thumb-size: 108px;
+  --sprig-photo-gallery-thumb-radius: 10px;
+  --sprig-photo-gallery-gap: 10px;
+
+  --sprig-photo-thumbnail-fit: cover;
+  --sprig-photo-thumbnail-position: center;
+
+  --sprig-photo-viewer-max-width: 920px;
+  --sprig-photo-viewer-image-max-height: 72vh;
+  --sprig-photo-viewer-radius: 16px;
+}
 
 
 /* =====================================================
-   PHOTO PICKER
+   PHOTO PICKER / EDITING
 ===================================================== */
 
 .sprig-photo-picker {
-    display: grid;
-    flex: 0 0 auto;
-  
-    gap: 12px;
-  
-    width: 100%;
-    min-width: 0;
-  
-    margin: 0;
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.sprig-photo-picker-heading {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+}
+
+.sprig-photo-picker-title {
+  margin: 0;
+  color: #40553c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.sprig-photo-input {
+  display: none;
+}
+
+.sprig-photo-add-button {
+  justify-self: start;
+  max-width: 100%;
+  margin: 0;
+}
+
+.sprig-photo-add-button:disabled {
+  cursor: default;
+  opacity: 0.58;
+}
+
+.sprig-photo-error {
+  margin: 0;
+  color: #8b453e;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.sprig-photo-empty {
+  margin: 0;
+}
+
+
+/* ---------- EDITING PHOTO LIST ---------- */
+
+.sprig-photo-picker-list {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(min(100%, 260px), 1fr)
+    );
+  align-items: start;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+.sprig-photo-picker-item {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(78, 73, 55, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 250, 232, 0.38);
+  box-shadow: 0 3px 9px rgba(54, 62, 47, 0.06);
+}
+
+
+/* ---------- EDITING PREVIEW ---------- */
+
+.sprig-photo-picker-preview {
+  display: block;
+  width: 100%;
+  height: var(--sprig-photo-editor-preview-height);
+  object-fit: var(--sprig-photo-thumbnail-fit);
+  object-position: var(--sprig-photo-thumbnail-position);
+  border-radius: var(--sprig-photo-editor-preview-radius);
+  background: rgba(80, 85, 67, 0.08);
+}
+
+
+/* ---------- EDITING CONTEXT ---------- */
+
+.sprig-photo-picker-context {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sprig-photo-card-heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sprig-photo-date-time-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.sprig-photo-field,
+.sprig-photo-purpose-field,
+.sprig-photo-tags-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sprig-photo-field input,
+.sprig-photo-field textarea,
+.sprig-photo-tags-field input {
+  width: 100%;
+  min-width: 0;
+}
+
+.sprig-photo-field-note textarea {
+  resize: vertical;
+}
+
+.sprig-photo-purpose-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.sprig-photo-purpose-option {
+  min-width: 0;
+}
+
+.sprig-photo-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sprig-photo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.sprig-photo-remove-text {
+  justify-self: start;
+}
+
+
+/* =====================================================
+   DETAIL GALLERY THUMBNAILS
+===================================================== */
+
+.sprig-photo-gallery {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.sprig-photo-gallery-title {
+  margin: 0;
+}
+
+.sprig-photo-gallery-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, var(--sprig-photo-gallery-thumb-size));
+  gap: var(--sprig-photo-gallery-gap);
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+}
+
+.sprig-photo-gallery-entry {
+  display: grid;
+  gap: 7px;
+  width: var(--sprig-photo-gallery-thumb-size);
+  min-width: 0;
+}
+
+.sprig-photo-gallery-item {
+  width: var(--sprig-photo-gallery-thumb-size);
+  height: var(--sprig-photo-gallery-thumb-size);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(70, 79, 61, 0.18);
+  border-radius: var(--sprig-photo-gallery-thumb-radius);
+  background: transparent;
+  cursor: pointer;
+  box-shadow: 0 3px 9px rgba(54, 62, 47, 0.08);
+}
+
+.sprig-photo-gallery-thumbnail {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--sprig-photo-thumbnail-fit);
+  object-position: var(--sprig-photo-thumbnail-position);
+}
+
+
+/* ---------- THUMBNAIL CONTEXT ---------- */
+
+.sprig-photo-gallery-context {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sprig-photo-gallery-context-heading,
+.sprig-photo-gallery-context-detail {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.sprig-photo-gallery-context-heading {
+  color: #40553c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.sprig-photo-gallery-context-detail {
+  color: rgba(64, 85, 60, 0.78);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+
+/* =====================================================
+   FULL PHOTO VIEWER
+===================================================== */
+
+.sprig-photo-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  overflow-y: auto;
+  background: rgba(28, 34, 27, 0.78);
+}
+
+.sprig-photo-viewer-inner {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  width: min(100%, var(--sprig-photo-viewer-max-width));
+  max-height: calc(100dvh - 36px);
+  padding: 14px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 250, 232, 0.3);
+  border-radius: var(--sprig-photo-viewer-radius);
+  background: #fffaf0;
+  box-shadow: 0 20px 55px rgba(18, 24, 17, 0.32);
+}
+
+.sprig-photo-viewer-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: var(--sprig-photo-viewer-image-max-height);
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(50, 55, 44, 0.06);
+}
+
+.sprig-photo-viewer-close {
+  justify-self: end;
+}
+
+.sprig-photo-viewer-context {
+  display: grid;
+  gap: 7px;
+}
+
+.sprig-photo-viewer-context-heading,
+.sprig-photo-viewer-context-detail,
+.sprig-photo-viewer-age-copy {
+  margin: 0;
+}
+
+.sprig-photo-viewer-context-heading {
+  color: #40553c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sprig-photo-viewer-context-detail {
+  line-height: 1.5;
+}
+
+.sprig-photo-viewer-age {
+  display: grid;
+  gap: 3px;
+}
+
+.sprig-photo-viewer-context-action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sprig-photo-viewer-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sprig-photo-viewer-navigation p {
+  margin: 0;
+  text-align: center;
+}
+
+.sprig-photo-viewer-remove-action {
+  color: #8b453e;
+}
+
+.sprig-duration-unit-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+
+/* =====================================================
+   PHONE
+===================================================== */
+
+@media (max-width: 700px) {
+  :root {
+    --sprig-photo-editor-preview-height: 180px;
+    --sprig-photo-gallery-thumb-size: 100px;
+    --sprig-photo-gallery-gap: 8px;
+    --sprig-photo-viewer-image-max-height: 66vh;
   }
-  
-  
-  /* ---------- PICKER HEADING ---------- */
-  
-  .sprig-photo-picker-heading {
-    display: grid;
-  
-    gap: 5px;
-  
-    width: 100%;
-    min-width: 0;
+
+  .sprig-photo-picker-list {
+    grid-template-columns: minmax(0, 1fr);
   }
-  
-  .sprig-photo-picker-title {
-    margin: 0;
-  
-    color: #40553c;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-  
-    font-size: 1rem;
-    line-height: 1.3;
+
+  .sprig-photo-date-time-row {
+    grid-template-columns: minmax(0, 1fr);
   }
-  
-  
-  /*
-   * SprigPhotoPicker owns the real file input,
-   * but the gardener interacts with the
-   * notebook-style button instead.
-   */
-  .sprig-photo-input {
-    display: none;
-  }
-  
-  
-  /* ---------- ADD BUTTON ---------- */
-  
-  .sprig-photo-add-button {
-    justify-self: start;
-  
-    max-width: 100%;
-  
-    margin: 0;
-  }
-  
-  .sprig-photo-add-button:disabled {
-    cursor: default;
-    opacity: 0.58;
-  }
-  
-  
-  /* ---------- ERROR ---------- */
-  
-  .sprig-photo-error {
-    margin: 0;
-  
-    color: #8b453e;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-  
-    font-size: 0.88rem;
-    line-height: 1.45;
-  }
-  
-  
-  /* =====================================================
-     PHOTO PICKER PREVIEWS
-  ===================================================== */
-  
-  /*
-   * These are editing previews, not the finished
-   * Plant Story gallery.
-   *
-   * A photograph should never take over the
-   * Chronicle notebook merely because the
-   * original phone image is tall.
-   */
-  .sprig-photo-preview-grid {
-    display: grid;
-  
-    grid-template-columns:
-      repeat(
-        auto-fill,
-        minmax(
-          138px,
-          1fr
-        )
-      );
-  
-    align-items: start;
-  
-    gap: 12px;
-  
-    width: 100%;
-    min-width: 0;
-  }
-  
-  
-  /* ---------- ONE PREVIEW ---------- */
-  
-  .sprig-photo-preview {
-    display: grid;
-  
-    grid-template-rows:
-      auto
-      auto
-      auto;
-  
-    align-content: start;
-  
-    gap: 9px;
-  
-    min-width: 0;
-  
-    padding: 8px;
-  
-    overflow: hidden;
-  
-    border:
-      1px solid
-      rgba(
-        78,
-        73,
-        55,
-        0.16
-      );
-  
-    border-radius: 12px;
-  
-    background:
-      rgba(
-        255,
-        250,
-        232,
-        0.38
-      );
-  
-    box-shadow:
-      0 3px 9px
-      rgba(
-        54,
-        62,
-        47,
-        0.06
-      );
-  }
-  
-  
-  /* ---------- EDITING THUMBNAIL ---------- */
-  
-  .sprig-photo-thumbnail {
-    display: block;
-  
-    width: 100%;
-    height: 150px;
-  
-    margin: 0;
-  
-    object-fit: cover;
-    object-position: center;
-  
-    border-radius: 8px;
-  
-    background:
-      rgba(
-        80,
-        85,
-        69,
-        0.08
-      );
-  
-    box-shadow:
-      0 2px 7px
-      rgba(
-        43,
-        48,
-        37,
-        0.10
-      );
-  }
-  
-  
-  /* ---------- PHOTO DATE ---------- */
-  
-  .sprig-photo-date-field {
-    display: grid;
-  
-    gap: 6px;
-  
-    min-width: 0;
-  }
-  
-  .sprig-photo-date-field label {
-    display: grid;
-  
-    gap: 5px;
-  
-    min-width: 0;
-  }
-  
-  .sprig-photo-date-field input {
-    width: 100%;
-    min-width: 0;
-  }
-  
-  
-  /* ---------- REMOVE PHOTO ---------- */
-  
-  .sprig-photo-remove-button {
-    justify-self: stretch;
-  
-    width: 100%;
-  
-    min-height: 36px;
-  
-    margin: 0;
-  
-    padding:
-      7px
-      9px;
-  
-    font-size: 0.78rem;
-    line-height: 1.2;
-  
-    white-space: normal;
-  }
-  
-  
-  /* =====================================================
-     DETAIL PHOTO GALLERY
-  ===================================================== */
-  
-  .sprig-photo-gallery {
-    width: 100%;
-    min-width: 0;
-  }
-  
-  .sprig-photo-gallery-title {
-    margin:
-      0
-      0
-      12px;
-  
-    color: #40553c;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-  
-    font-size: 1rem;
-    line-height: 1.3;
-  }
-  
-  
-  /* ---------- THUMBNAIL ROW ---------- */
-  
-  .sprig-photo-gallery-grid {
-    display: flex;
-    flex-wrap: wrap;
-  
-    align-items: flex-start;
-  
-    gap: 11px;
-  
-    width: 100%;
-  }
-  
-  
-  /* ---------- THUMBNAIL BUTTON ---------- */
-  
-  .sprig-photo-gallery-item {
-    position: relative;
-  
-    display: block;
-  
-    flex:
-      0
-      0
-      108px;
-  
-    width: 108px;
-    height: 108px;
-  
-    margin: 0;
-    padding: 0;
-  
-    overflow: hidden;
-  
-    border:
-      1px solid
-      rgba(
-        78,
-        73,
-        55,
-        0.18
-      );
-  
-    border-radius: 10px;
-  
-    background:
-      rgba(
-        255,
-        252,
-        240,
-        0.72
-      );
-  
-    box-shadow:
-      0 3px 9px
-      rgba(
-        54,
-        62,
-        47,
-        0.08
-      );
-  
-    cursor: pointer;
-  
-    transform: none;
-  
-    transition:
-      transform 150ms ease,
-      box-shadow 150ms ease,
-      border-color 150ms ease;
-  }
-  
-  .sprig-photo-gallery-item:hover {
-    transform:
-      translateY(-2px);
-  
-    border-color:
-      rgba(
-        73,
-        92,
-        64,
-        0.34
-      );
-  
-    box-shadow:
-      0 6px 14px
-      rgba(
-        54,
-        62,
-        47,
-        0.13
-      );
-  }
-  
-  .sprig-photo-gallery-item:active {
-    transform:
-      translateY(0);
-  }
-  
-  .sprig-photo-gallery-item:focus-visible {
-    outline:
-      3px solid
-      rgba(
-        95,
-        112,
-        64,
-        0.32
-      );
-  
-    outline-offset: 3px;
-  }
-  
-  
-  /* ---------- THUMBNAIL IMAGE ---------- */
-  
-  .sprig-photo-gallery-thumbnail {
-    display: block;
-  
-    width: 100%;
-    height: 100%;
-  
-    object-fit: cover;
-    object-position: center;
-  
-    user-select: none;
-    pointer-events: none;
-  }
-  
-  
-  /* =====================================================
-     ENLARGED PHOTO VIEWER
-  ===================================================== */
-  
+
   .sprig-photo-viewer {
-    position: fixed;
-    inset: 0;
-  
-    z-index: 5000;
-  
-    display: flex;
-  
-    align-items: center;
-    justify-content: center;
-  
-    padding: 28px;
-  
-    background:
-      rgba(
-        28,
-        34,
-        27,
-        0.78
-      );
-  
-    backdrop-filter:
-      blur(6px);
-  
-    -webkit-backdrop-filter:
-      blur(6px);
-  
-    cursor: zoom-out;
+    padding: 10px;
   }
-  
-  
-  /* ---------- VIEWER CARD ---------- */
-  
+
   .sprig-photo-viewer-inner {
-    position: relative;
-  
-    display: flex;
-    flex-direction: column;
-  
-    align-items: center;
-  
-    gap: 14px;
-  
-    width:
-      min(
-        94vw,
-        1100px
-      );
-  
-    max-height: 92dvh;
-  
-    padding:
-      20px
-      20px
-      16px;
-  
-    border:
-      1px solid
-      rgba(
-        255,
-        252,
-        239,
-        0.28
-      );
-  
-    border-radius: 16px;
-  
-    background:
-      rgba(
-        247,
-        241,
-        222,
-        0.96
-      );
-  
-    box-shadow:
-      0 24px 70px
-      rgba(
-        17,
-        24,
-        18,
-        0.38
-      );
-  
-    cursor: default;
+    max-height: calc(100dvh - 20px);
+    padding: 10px;
   }
-  
-  
-  /* ---------- FULL IMAGE ---------- */
-  
-  .sprig-photo-viewer-image {
-    display: block;
-  
-    width: auto;
-    max-width: 100%;
-  
-    height: auto;
-  
-    max-height:
-      calc(
-        92dvh -
-        110px
-      );
-  
-    object-fit: contain;
-  
-    border-radius: 8px;
-  
-    box-shadow:
-      0 5px 18px
-      rgba(
-        43,
-        48,
-        37,
-        0.16
-      );
-  }
-  
-  
-  /* ---------- CLOSE BUTTON ---------- */
-  
-  .sprig-photo-viewer-close {
-    position: absolute;
-  
-    top: 8px;
-    right: 8px;
-  
-    z-index: 2;
-  
-    display: grid;
-  
-    place-items: center;
-  
-    width: 36px;
-    height: 36px;
-  
-    margin: 0;
-    padding: 0;
-  
-    border:
-      1px solid
-      rgba(
-        68,
-        79,
-        60,
-        0.18
-      );
-  
-    border-radius: 50%;
-  
-    background:
-      rgba(
-        255,
-        252,
-        239,
-        0.92
-      );
-  
-    color: #42563c;
-  
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
-  
-    font-size: 1.4rem;
-    line-height: 1;
-  
-    box-shadow:
-      0 3px 10px
-      rgba(
-        42,
-        51,
-        40,
-        0.12
-      );
-  
-    cursor: pointer;
-  }
-  
-  .sprig-photo-viewer-close:hover {
-    background: #fffdf5;
-  }
-  
-  .sprig-photo-viewer-close:focus-visible {
-    outline:
-      3px solid
-      rgba(
-        95,
-        112,
-        64,
-        0.36
-      );
-  
-    outline-offset: 2px;
-  }
-  
-  
-  /* ---------- PREVIOUS / NEXT ---------- */
-  
-  .sprig-photo-viewer-navigation {
-    display: flex;
-  
-    align-items: center;
-    justify-content: center;
-  
-    gap: 14px;
-  
-    width: 100%;
-  }
-  
-  .sprig-photo-viewer-navigation
-  .form-whisper {
-    min-width: 58px;
-  
-    margin: 0;
-  
-    text-align: center;
-  }
-  
-  
-  /* =====================================================
-     SMALL SCREENS
-  ===================================================== */
-  
-  @media (max-width: 620px) {
-  
-    /* ---------- PICKER ---------- */
-  
-    .sprig-photo-picker {
-      gap: 9px;
-    }
-  
-  
-    .sprig-photo-picker-heading {
-      gap: 3px;
-    }
-  
-  
-    .sprig-photo-picker-title {
-      font-size: 0.92rem;
-    }
-  
-  
-    /*
-     * Keep editing previews deliberately small
-     * inside the Chronicle notebook.
-     *
-     * They are confirmation thumbnails, not
-     * the place where the gardener views the
-     * photograph in full.
-     */
-    .sprig-photo-preview-grid {
-      grid-template-columns:
-        repeat(
-          2,
-          minmax(
-            0,
-            1fr
-          )
-        );
-  
-      gap: 8px;
-    }
-  
-  
-    .sprig-photo-preview {
-      gap: 6px;
-  
-      padding: 6px;
-  
-      border-radius: 9px;
-    }
-  
-  
-    .sprig-photo-thumbnail {
-      height: 96px;
-  
-      border-radius: 6px;
-    }
-  
-  
-    .sprig-photo-remove-button {
-      min-height: 32px;
-  
-      padding:
-        5px
-        6px;
-  
-      font-size: 0.7rem;
-    }
-  
-  
-    .sprig-photo-date-field {
-      gap: 4px;
-    }
-  
-  
-    .sprig-photo-date-field
-    .form-whisper {
-      font-size: 0.74rem;
-      line-height: 1.35;
-    }
-  
-  
-    /* ---------- FINISHED GALLERY ---------- */
-  
-    .sprig-photo-gallery-grid {
-      gap: 9px;
-    }
-  
-  
-    .sprig-photo-gallery-item {
-      flex-basis: 100px;
-  
-      width: 100px;
-      height: 100px;
-    }
-  
-  
-    /* ---------- VIEWER ---------- */
-  
-    .sprig-photo-viewer {
-      padding:
-        max(
-          14px,
-          env(
-            safe-area-inset-top
-          )
-        )
-        10px
-        max(
-          14px,
-          env(
-            safe-area-inset-bottom
-          )
-        );
-    }
-  
-  
-    .sprig-photo-viewer-inner {
-      width: 100%;
-  
-      max-height:
-        calc(
-          100dvh -
-          28px
-        );
-  
-      padding:
-        16px
-        12px
-        12px;
-  
-      border-radius: 13px;
-    }
-  
-  
-    .sprig-photo-viewer-image {
-      max-height:
-        calc(
-          100dvh -
-          130px
-        );
-    }
-  
-  
-    .sprig-photo-viewer-navigation {
-      gap: 8px;
-    }
-  
-  
-    .sprig-photo-viewer-navigation
-    .secondary-button {
-      padding:
-        8px
-        11px;
-  
-      font-size: 0.78rem;
-    }
-  }
-  
-  
-  /* =====================================================
-     VERY SMALL NOTEBOOK SCREENS
-  ===================================================== */
-  
-  @media (max-width: 390px) {
-  
-    .sprig-photo-preview-grid {
-      grid-template-columns:
-        repeat(
-          2,
-          minmax(
-            0,
-            1fr
-          )
-        );
-  
-      gap: 6px;
-    }
-  
-  
-    .sprig-photo-thumbnail {
-      height: 82px;
-    }
-  
-  
-    .sprig-photo-preview {
-      padding: 5px;
-    }
-  
-  
-    .sprig-photo-remove-button {
-      padding:
-        5px
-        4px;
-  
-      font-size: 0.66rem;
-    }
-  }
+}

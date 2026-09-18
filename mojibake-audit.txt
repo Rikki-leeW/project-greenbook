@@ -1,0 +1,1558 @@
+
+========================================
+ GARDEN OF MINE - MOJIBAKE AUDIT
+ READ ONLY - NO FILES WERE MODIFIED
+========================================
+
+Affected files: 31
+Suspicious lines: 473
+
+----------------------------------------
+ REPEATED SUSPICIOUS SEQUENCES
+----------------------------------------
+
+106x  Â·
+32x  â†’
+31x  ðŸŒ±
+21x  ðŸŒ¿
+18x  ðŸ§º
+17x  â˜…
+16x  â†
+14x  âœ“
+12x  ðŸª´
+12x  ðŸ“–
+10x  â˜†
+10x  ðŸ›’
+9x  ðŸ“¦
+8x  Ã—
+8x  â€º
+7x  â€¦
+7x  â†‘
+6x  ðŸ“·
+6x  âœ
+5x  ðŸ’§
+5x  ðŸ—‘
+4x  ðŸ©¹
+4x  ðŸŒ¾
+4x  ðŸ‚
+4x  â€
+4x  â€“Z
+3x  ðŸ‘€
+3x  âœ‚ï¸
+3x  ðŸ¥”
+3x  ðŸŒ¦ï¸
+3x  ðŸŒ³
+3x  âˆ’
+3x  ðŸ’¾
+3x  â—
+3x  â—‹
+3x  â—‡
+3x  ðŸ“
+3x  â†“
+3x  âœï¸
+3x  â€“$
+2x  â€™s
+2x  Ã¼gelkultur
+2x  â†—
+2x  âœŽ
+2x  ðŸ“…
+2x  â€¢
+2x  ðŸ“Š
+2x  ðŸ¦
+2x  ðŸ
+2x  ðŸ§ª
+2x  â€“
+2x  ðŸ“¸
+2x  ðŸ–¨
+2x  ðŸ“¤
+1x  ðŸ§´
+1x  ðŸ“Œ
+1x  â€œ
+1x  â€¹
+1x  ðŸ§®
+1x  â€œRecord
+1x  ðŸ”–
+1x  â€œFrom
+1x  ðŸ”Ž
+1x  â€“A
+1x  ðŸª¨
+1x  ðŸŒ¬ï¸
+1x  âš–ï¸
+1x  ðŸªµ
+1x  âœ’ï¸
+1x  ðŸŒ
+1x  ðŸ—‘ï¸
+1x  ðŸ§¾
+1x  ðŸ¡
+1x  ðŸª™
+1x  ðŸ“„
+1x  â€“80
+1x  â€”
+1x  ðŸ›
+1x  ðŸŒ°
+1x  ðŸ§½
+1x  â€œ$
+
+----------------------------------------
+ AFFECTED FILES
+----------------------------------------
+
+30 suspicious line(s)  components/forms/AddEventForm.tsx
+5 suspicious line(s)  components/forms/AddHarvestForm.tsx
+1 suspicious line(s)  components/forms/AddIngredientForm.tsx
+8 suspicious line(s)  components/forms/AddPlantForm.tsx
+5 suspicious line(s)  components/forms/AddProductForm.tsx
+3 suspicious line(s)  components/forms/AddRecipeForm.tsx
+1 suspicious line(s)  components/photos/SprigPhotoPicker.tsx
+1 suspicious line(s)  pages/BackupRestore.tsx
+65 suspicious line(s)  pages/Calendar.tsx
+4 suspicious line(s)  pages/Comparisons.tsx
+16 suspicious line(s)  pages/GardenGallery.tsx
+35 suspicious line(s)  pages/GardenKnowledge.tsx
+18 suspicious line(s)  pages/GardenTrials.tsx
+7 suspicious line(s)  pages/GlobalSearch.tsx
+7 suspicious line(s)  pages/GrowingPlaceDetail.tsx
+15 suspicious line(s)  pages/GrowingPlaces.tsx
+23 suspicious line(s)  pages/GrowingRecipeDetail.tsx
+4 suspicious line(s)  pages/GrowingRecipes.tsx
+4 suspicious line(s)  pages/Harvest.tsx
+15 suspicious line(s)  pages/HarvestDetail.tsx
+8 suspicious line(s)  pages/IngredientDetail.tsx
+23 suspicious line(s)  pages/Ingredients.tsx
+20 suspicious line(s)  pages/Journal.tsx
+37 suspicious line(s)  pages/JournalEntryDetail.tsx
+6 suspicious line(s)  pages/Library.tsx
+26 suspicious line(s)  pages/PlantComparison.tsx
+28 suspicious line(s)  pages/PlantDetail.tsx
+7 suspicious line(s)  pages/Plants.tsx
+26 suspicious line(s)  pages/ProductDetail.tsx
+19 suspicious line(s)  pages/Products.tsx
+6 suspicious line(s)  pages/SprigSmart.tsx
+
+----------------------------------------
+ EXACT LOCATIONS
+----------------------------------------
+
+components/forms/AddEventForm.tsx:376
+  PLAN â†’ JOURNAL ACTIVITY
+
+components/forms/AddEventForm.tsx:414
+  PLAN â†’ PLANT SCOPE
+
+components/forms/AddEventForm.tsx:443
+  PLAN â†’ PLACE SCOPE
+
+components/forms/AddEventForm.tsx:472
+  EVENT â†’ PLANT SCOPE
+
+components/forms/AddEventForm.tsx:507
+  EVENT â†’ PLACE SCOPE
+
+components/forms/AddEventForm.tsx:667
+  return 'Container â†’ ground / bed';
+
+components/forms/AddEventForm.tsx:670
+  return 'Ground / bed â†’ container';
+
+components/forms/AddEventForm.tsx:1255
+  'ðŸ‘€',
+
+components/forms/AddEventForm.tsx:1263
+  'ðŸ’§',
+
+components/forms/AddEventForm.tsx:1271
+  'ðŸŒ¿',
+
+components/forms/AddEventForm.tsx:1279
+  'ðŸŒ±',
+
+components/forms/AddEventForm.tsx:1287
+  'âœ‚ï¸',
+
+components/forms/AddEventForm.tsx:1295
+  'ðŸ©¹',
+
+components/forms/AddEventForm.tsx:1303
+  'ðŸª´',
+
+components/forms/AddEventForm.tsx:1311
+  'ðŸŒ±',
+
+components/forms/AddEventForm.tsx:1319
+  'ðŸ¥”',
+
+components/forms/AddEventForm.tsx:1327
+  'ðŸŒ¦ï¸',
+
+components/forms/AddEventForm.tsx:1335
+  'ðŸ“·',
+
+components/forms/AddEventForm.tsx:1343
+  'ðŸ“–',
+
+components/forms/AddEventForm.tsx:2741
+  Ã—
+
+components/forms/AddEventForm.tsx:2779
+  âœ Change anything that needs correcting.
+
+components/forms/AddEventForm.tsx:2788
+  ðŸŒ± Adding to{' '}
+
+components/forms/AddEventForm.tsx:2882
+  ðŸ§º Record a Harvest
+
+components/forms/AddEventForm.tsx:3464
+  icon="ðŸŒ±"
+
+components/forms/AddEventForm.tsx:3478
+  icon="ðŸŒ¿"
+
+components/forms/AddEventForm.tsx:3492
+  icon="ðŸŒ³"
+
+components/forms/AddEventForm.tsx:3718
+  {' Â· '}
+
+components/forms/AddEventForm.tsx:3779
+  ' Â· ',
+
+components/forms/AddEventForm.tsx:4137
+  ? 'Saving changesâ€¦'
+
+components/forms/AddEventForm.tsx:4138
+  : 'Adding this pageâ€¦'
+
+components/forms/AddHarvestForm.tsx:1264
+  Ã—
+
+components/forms/AddHarvestForm.tsx:1302
+  ðŸ§º{' '}
+
+components/forms/AddHarvestForm.tsx:1305
+  : 'Tuck this gathering into Sprigâ€™s harvest story.'}
+
+components/forms/AddHarvestForm.tsx:1330
+  ðŸŒ¿{' '}
+
+components/forms/AddHarvestForm.tsx:2227
+  ? 'Savingâ€¦'
+
+components/forms/AddIngredientForm.tsx:1004
+  ðŸŒ¿ Keep the useful things
+
+components/forms/AddPlantForm.tsx:393
+  'HÃ¼gelkultur',
+
+components/forms/AddPlantForm.tsx:2733
+  Ã—
+
+components/forms/AddPlantForm.tsx:2991
+  ? 'âœ“ '
+
+components/forms/AddPlantForm.tsx:3054
+  ? 'âœ“'
+
+components/forms/AddPlantForm.tsx:3379
+  ? 'âˆ’'
+
+components/forms/AddPlantForm.tsx:3539
+  ? 'âœ“ '
+
+components/forms/AddPlantForm.tsx:3585
+  ? 'âœ“ '
+
+components/forms/AddPlantForm.tsx:3869
+  ? 'âœ“ '
+
+components/forms/AddProductForm.tsx:1195
+  ðŸŒ¿ Keep the things bought for
+
+components/forms/AddProductForm.tsx:1446
+  ? 'â˜… Garden favourite'
+
+components/forms/AddProductForm.tsx:1447
+  : 'â˜† Mark as a favourite'}
+
+components/forms/AddProductForm.tsx:1507
+  ? 'â˜…'
+
+components/forms/AddProductForm.tsx:1508
+  : 'â˜†'}
+
+components/forms/AddRecipeForm.tsx:338
+  label: 'HÃ¼gelkultur',
+
+components/forms/AddRecipeForm.tsx:1618
+  Ã—
+
+components/forms/AddRecipeForm.tsx:1633
+  ðŸŒ± Keep the mixtures,
+
+components/photos/SprigPhotoPicker.tsx:1378
+  'âœ“ '}
+
+pages/BackupRestore.tsx:308
+  ðŸ’¾ Save a garden backup
+
+pages/Calendar.tsx:150
+  icon: 'â—',
+
+pages/Calendar.tsx:156
+  icon: 'â—‹',
+
+pages/Calendar.tsx:162
+  icon: 'â—‡',
+
+pages/Calendar.tsx:184
+  icon: 'ðŸŒ±',
+
+pages/Calendar.tsx:190
+  icon: 'ðŸª´',
+
+pages/Calendar.tsx:196
+  icon: 'ðŸŒ¿',
+
+pages/Calendar.tsx:202
+  icon: 'â†—',
+
+pages/Calendar.tsx:208
+  icon: 'ðŸŒ¾',
+
+pages/Calendar.tsx:214
+  icon: 'ðŸ§´',
+
+pages/Calendar.tsx:220
+  icon: 'ðŸ§º',
+
+pages/Calendar.tsx:226
+  icon: 'ðŸ›’',
+
+pages/Calendar.tsx:232
+  icon: 'ðŸ“Œ',
+
+pages/Calendar.tsx:238
+  icon: 'âœŽ',
+
+pages/Calendar.tsx:320
+  * App owns the Plan â†’ Reality destination.
+
+pages/Calendar.tsx:579
+  return `${plant.plantName} Â· ${plant.variety}`
+
+pages/Calendar.tsx:646
+  ' Â· ',
+
+pages/Calendar.tsx:767
+  return 'ðŸŒ±'
+
+pages/Calendar.tsx:771
+  return 'ðŸª´'
+
+pages/Calendar.tsx:774
+  return 'ðŸ‚'
+
+pages/Calendar.tsx:777
+  return 'ðŸ“·'
+
+pages/Calendar.tsx:782
+  return 'ðŸŒ¿'
+
+pages/Calendar.tsx:785
+  return 'ðŸ“–'
+
+pages/Calendar.tsx:789
+  return 'ðŸ§º'
+
+pages/Calendar.tsx:792
+  return 'ðŸ›’'
+
+pages/Calendar.tsx:795
+  return 'ðŸ“…'
+
+pages/Calendar.tsx:798
+  return 'â€¢'
+
+pages/Calendar.tsx:2222
+  PLAN â†’ REALITY
+
+pages/Calendar.tsx:2265
+  * Sow / Plant â†’ Plant Story
+
+pages/Calendar.tsx:2266
+  * Move / Feed / Treat / Task â†’ Journal
+
+pages/Calendar.tsx:2267
+  * Plant-out â†’ Journal + Growing Journey
+
+pages/Calendar.tsx:2268
+  * Harvest â†’ Harvest Record
+
+pages/Calendar.tsx:2269
+  * Buy â†’ Purchase Record
+
+pages/Calendar.tsx:3530
+  Â·
+
+pages/Calendar.tsx:3629
+  ðŸŒ±{' '}
+
+pages/Calendar.tsx:3671
+  ðŸª´{' '}
+
+pages/Calendar.tsx:3711
+  ðŸ§º{' '}
+
+pages/Calendar.tsx:3758
+  ðŸŒ±{' '}
+
+pages/Calendar.tsx:3784
+  ðŸ“–{' '}
+
+pages/Calendar.tsx:3808
+  ðŸ§º Harvest
+
+pages/Calendar.tsx:3831
+  ðŸ›’{' '}
+
+pages/Calendar.tsx:3940
+  placeholder="Search plants, journal notes, harvests, places, plansâ€¦"
+
+pages/Calendar.tsx:4083
+  Sprig could not find anything matching â€œ{cleanedSearchQuery}â€ in the Calendar layers currently showing.
+
+pages/Calendar.tsx:4131
+  â†’
+
+pages/Calendar.tsx:4162
+  â€¹
+
+pages/Calendar.tsx:4192
+  â€º
+
+pages/Calendar.tsx:4362
+  â—
+
+pages/Calendar.tsx:4368
+  â—‹
+
+pages/Calendar.tsx:4374
+  â—‡
+
+pages/Calendar.tsx:4454
+  ? 'â—'
+
+pages/Calendar.tsx:4457
+  ? 'â—‹'
+
+pages/Calendar.tsx:4458
+  : 'â—‡'}
+
+pages/Calendar.tsx:4517
+  ðŸ§®
+
+pages/Calendar.tsx:4616
+  ðŸ“…
+
+pages/Calendar.tsx:4710
+  Ã—
+
+pages/Calendar.tsx:4782
+  {' '}â†’{' '}
+
+pages/Calendar.tsx:4853
+  ðŸŒ± Open{' '}
+
+pages/Calendar.tsx:4895
+  ðŸ“– Open{' '}
+
+pages/Calendar.tsx:4935
+  ðŸ§º Open Harvest
+
+pages/Calendar.tsx:4974
+  ðŸ›’ Open{' '}
+
+pages/Calendar.tsx:5178
+  ðŸŒ±
+
+pages/Calendar.tsx:5211
+  ðŸª´
+
+pages/Calendar.tsx:5409
+  ðŸŒ±
+
+pages/Calendar.tsx:5499
+  ðŸª´
+
+pages/Calendar.tsx:5580
+  ðŸ§º
+
+pages/Calendar.tsx:5607
+  When you actually buy it, â€œRecord what happenedâ€
+
+pages/Comparisons.tsx:378
+  ' Â· ',
+
+pages/Comparisons.tsx:459
+  Open comparison â†’
+
+pages/Comparisons.tsx:501
+  ðŸ“Š
+
+pages/Comparisons.tsx:524
+  Go to Growing Stories â†’
+
+pages/GardenGallery.tsx:475
+  `${event.title} Â· ${formatDate(
+
+pages/GardenGallery.tsx:534
+  ) || 'Harvest'} Â· ${formatDate(
+
+pages/GardenGallery.tsx:683
+  `${purchase.itemName} Â· ${formatDate(
+
+pages/GardenGallery.tsx:759
+  ' Â· ',
+
+pages/GardenGallery.tsx:1105
+  ' Â· ',
+
+pages/GardenGallery.tsx:1503
+  ' Â· ',
+
+pages/GardenGallery.tsx:1679
+  `Trial observation Â· ${formatDate(
+
+pages/GardenGallery.tsx:1746
+  ' Â· ',
+
+pages/GardenGallery.tsx:3033
+  {option.group} Â· {option.label}
+
+pages/GardenGallery.tsx:3035
+  ? ' Â· Already linked'
+
+pages/GardenGallery.tsx:3327
+  ? ` Â· ${item.photoTime}`
+
+pages/GardenGallery.tsx:3383
+  ? 'âœ“ Selected'
+
+pages/GardenGallery.tsx:3398
+  : 'Open source â€º'}
+
+pages/GardenGallery.tsx:3483
+  ? ` Â· ${item.subtitle}`
+
+pages/GardenGallery.tsx:3529
+  Ã—
+
+pages/GardenGallery.tsx:3574
+  ? ` Â· ${viewerItem.photoTime}`
+
+pages/GardenKnowledge.tsx:236
+  'ðŸ“',
+
+pages/GardenKnowledge.tsx:250
+  'ðŸ“–',
+
+pages/GardenKnowledge.tsx:264
+  'ðŸŒ¿',
+
+pages/GardenKnowledge.tsx:278
+  'ðŸ”–',
+
+pages/GardenKnowledge.tsx:478
+  .trim()}â€¦`;
+
+pages/GardenKnowledge.tsx:669
+  ? `Harvest Â· ${plantNames.join(
+
+pages/GardenKnowledge.tsx:672
+  : `Harvest Â· ${formatDate(
+
+pages/GardenKnowledge.tsx:800
+  `${purchase.itemName} Â· ${formatDate(
+
+pages/GardenKnowledge.tsx:1129
+  `${plant.plantName} Â· ${plant.variety.trim()}`,
+
+pages/GardenKnowledge.tsx:1162
+  `${reference.plantName} Â· ${reference.variety.trim()}`,
+
+pages/GardenKnowledge.tsx:1184
+  'Â·',
+
+pages/GardenKnowledge.tsx:1359
+  'Â·',
+
+pages/GardenKnowledge.tsx:3563
+  â€º
+
+pages/GardenKnowledge.tsx:3579
+  Ã—
+
+pages/GardenKnowledge.tsx:3622
+  {' Â· '}
+
+pages/GardenKnowledge.tsx:4169
+  'Original imported note Â· preserved snapshot',
+
+pages/GardenKnowledge.tsx:4514
+  â† Garden Notes
+
+pages/GardenKnowledge.tsx:4614
+  optional Â· type your own or reuse one
+
+pages/GardenKnowledge.tsx:4844
+  ? 'âˆ’'
+
+pages/GardenKnowledge.tsx:4937
+  optional Â· type your own or reuse one
+
+pages/GardenKnowledge.tsx:5237
+  â† Tips & Sources
+
+pages/GardenKnowledge.tsx:5386
+  optional Â· type your own or reuse one
+
+pages/GardenKnowledge.tsx:5609
+  Open source â†—
+
+pages/GardenKnowledge.tsx:5711
+  ? 'âˆ’'
+
+pages/GardenKnowledge.tsx:5820
+  optional Â· type your own or reuse one
+
+pages/GardenKnowledge.tsx:6084
+  ? `${source.category} Â· ${getSourceKindLabel(
+
+pages/GardenKnowledge.tsx:6149
+  'Â·',
+
+pages/GardenKnowledge.tsx:6262
+  â† Garden Almanac
+
+pages/GardenKnowledge.tsx:6314
+  Sprig Smart â€º
+
+pages/GardenKnowledge.tsx:6340
+  {' Â· '}
+
+pages/GardenKnowledge.tsx:6422
+  Harvest Â·{' '}
+
+pages/GardenKnowledge.tsx:6613
+  here as â€œFrom your gardenâ€, with the
+
+pages/GardenKnowledge.tsx:6650
+  Sprig Smart â€º
+
+pages/GardenKnowledge.tsx:6679
+  {' Â· '}
+
+pages/GardenKnowledge.tsx:6796
+  Open this garden thread â€º
+
+pages/GardenTrials.tsx:691
+  `${event.title} Â· ${formatDate(
+
+pages/GardenTrials.tsx:747
+  )} Â· ${formatDate(
+
+pages/GardenTrials.tsx:750
+  : `Harvest Â· ${formatDate(
+
+pages/GardenTrials.tsx:924
+  `${purchase.itemName} Â· ${formatDate(
+
+pages/GardenTrials.tsx:994
+  ' Â· ',
+
+pages/GardenTrials.tsx:1610
+  `â€¢ ${getRelationshipLabel(
+
+pages/GardenTrials.tsx:2050
+  optional Â· editable
+
+pages/GardenTrials.tsx:2973
+  ? ` Â· ${formatDate(
+
+pages/GardenTrials.tsx:4133
+  â† Garden Trials
+
+pages/GardenTrials.tsx:4145
+  â† Back to{' '}
+
+pages/GardenTrials.tsx:4459
+  ? ` Â· ${formatDate(
+
+pages/GardenTrials.tsx:4465
+  : ' Â· Date not recorded'}
+
+pages/GardenTrials.tsx:4569
+  â€º
+
+pages/GardenTrials.tsx:4583
+  Ã—
+
+pages/GardenTrials.tsx:4667
+  Â·{' '}
+
+pages/GardenTrials.tsx:4956
+  Â·{' '}
+
+pages/GardenTrials.tsx:5236
+  â† Back to{' '}
+
+pages/GardenTrials.tsx:5388
+  ðŸ“·{' '}
+
+pages/GlobalSearch.tsx:50
+  *      â†“
+
+pages/GlobalSearch.tsx:52
+  *      â†“
+
+pages/GlobalSearch.tsx:54
+  *      â†“
+
+pages/GlobalSearch.tsx:118
+  CALENDAR SOURCE â†’ SEARCH SOURCE
+
+pages/GlobalSearch.tsx:665
+  ðŸ”Ž
+
+pages/GlobalSearch.tsx:989
+  Â·
+
+pages/GlobalSearch.tsx:1050
+  â€º
+
+pages/GrowingPlaceDetail.tsx:747
+  â†{' '}
+
+pages/GrowingPlaceDetail.tsx:775
+  Growing Â· Place
+
+pages/GrowingPlaceDetail.tsx:807
+  âœŽ Edit Place
+
+pages/GrowingPlaceDetail.tsx:1012
+  â†’
+
+pages/GrowingPlaceDetail.tsx:1113
+  â†’
+
+pages/GrowingPlaceDetail.tsx:1197
+  â†’
+
+pages/GrowingPlaceDetail.tsx:1219
+  â†‘ Back to top
+
+pages/GrowingPlaces.tsx:381
+  return `${product.brand} Â· ${category}`;
+
+pages/GrowingPlaces.tsx:2339
+  ? ` Â· ${place.aspect}`
+
+pages/GrowingPlaces.tsx:2343
+  ? ` Â· ${place.sunlight}`
+
+pages/GrowingPlaces.tsx:2352
+  â†’
+
+pages/GrowingPlaces.tsx:2423
+  ? ` Â· ${setup.brand}`
+
+pages/GrowingPlaces.tsx:2428
+  ? ` Â· ${ingredientCount} ${
+
+pages/GrowingPlaces.tsx:2438
+  ? ` Â· ${productCount} ${
+
+pages/GrowingPlaces.tsx:2452
+  â†’
+
+pages/GrowingPlaces.tsx:2524
+  ? ` Â· ${ingredient.manufacturer}`
+
+pages/GrowingPlaces.tsx:2529
+  ? ` Â· used in ${usedByCount} ${
+
+pages/GrowingPlaces.tsx:2543
+  â†’
+
+pages/GrowingPlaces.tsx:2612
+  ? ` Â· used in ${usedByCount} ${
+
+pages/GrowingPlaces.tsx:2626
+  â†’
+
+pages/GrowingPlaces.tsx:2830
+  Name Aâ€“Z
+
+pages/GrowingPlaces.tsx:2834
+  Name Zâ€“A
+
+pages/GrowingRecipeDetail.tsx:211
+  return pieces.join(' Â· ');
+
+pages/GrowingRecipeDetail.tsx:480
+  â˜… Garden Favourite
+
+pages/GrowingRecipeDetail.tsx:486
+  ðŸ“¦ Resting in Sprig&apos;s archive
+
+pages/GrowingRecipeDetail.tsx:524
+  ðŸŒ± Restore this {recordNoun}
+
+pages/GrowingRecipeDetail.tsx:612
+  ? 'â˜…'
+
+pages/GrowingRecipeDetail.tsx:613
+  : 'â˜†'}
+
+pages/GrowingRecipeDetail.tsx:659
+  {'â˜…'.repeat(recipe.rating)}{' '}
+
+pages/GrowingRecipeDetail.tsx:665
+  <p>â˜… Garden Favourite</p>
+
+pages/GrowingRecipeDetail.tsx:669
+  <p>ðŸ“¦ Archived</p>
+
+pages/GrowingRecipeDetail.tsx:736
+  {' Â· '}
+
+pages/GrowingRecipeDetail.tsx:743
+  {' Â· '}
+
+pages/GrowingRecipeDetail.tsx:750
+  {' Â· '}
+
+pages/GrowingRecipeDetail.tsx:771
+  âœï¸ Edit purchase
+
+pages/GrowingRecipeDetail.tsx:847
+  ðŸŒ¿ {item.ingredient.name}
+
+pages/GrowingRecipeDetail.tsx:851
+  {' Â· '}
+
+pages/GrowingRecipeDetail.tsx:887
+  ðŸ§º {item.product.name}
+
+pages/GrowingRecipeDetail.tsx:891
+  {' Â· '}
+
+pages/GrowingRecipeDetail.tsx:898
+  {' Â· '}
+
+pages/GrowingRecipeDetail.tsx:936
+  ðŸŒ± {item.growingSetup.name}
+
+pages/GrowingRecipeDetail.tsx:940
+  {' Â· '}
+
+pages/GrowingRecipeDetail.tsx:1001
+  ðŸŒ± {plant.displayName}
+
+pages/GrowingRecipeDetail.tsx:1040
+  ðŸŒ¿ {linkedSetup.name}
+
+pages/GrowingRecipeDetail.tsx:1141
+  â†‘ Back to the top
+
+pages/GrowingRecipes.tsx:279
+  return 'â˜…'.repeat(
+
+pages/GrowingRecipes.tsx:751
+  ðŸ“¦{' '}
+
+pages/GrowingRecipes.tsx:921
+  ? 'â˜… '
+
+pages/GrowingRecipes.tsx:977
+  â†’
+
+pages/Harvest.tsx:489
+  ðŸ§º Gather a harvest
+
+pages/Harvest.tsx:524
+  ðŸ§º
+
+pages/Harvest.tsx:532
+  ðŸŒ±{' '}
+
+pages/Harvest.tsx:620
+  ðŸ§º
+
+pages/HarvestDetail.tsx:382
+  ' Â· ',
+
+pages/HarvestDetail.tsx:941
+  {' Â· '}
+
+pages/HarvestDetail.tsx:976
+  {' Â· '}
+
+pages/HarvestDetail.tsx:1133
+  ' Â· ',
+
+pages/HarvestDetail.tsx:1233
+  ' Â· ',
+
+pages/HarvestDetail.tsx:1411
+  â† Back to{' '}
+
+pages/HarvestDetail.tsx:1428
+  â† Harvests
+
+pages/HarvestDetail.tsx:1477
+  ? ` Â· ${totalMeasurement} recorded`
+
+pages/HarvestDetail.tsx:1543
+  ðŸ§º Record another harvest
+
+pages/HarvestDetail.tsx:1574
+  ðŸŒ¾
+
+pages/HarvestDetail.tsx:1680
+  ðŸŒ±{' '}
+
+pages/HarvestDetail.tsx:1717
+  ðŸ§º
+
+pages/HarvestDetail.tsx:1861
+  âœ Edit
+
+pages/HarvestDetail.tsx:1874
+  ðŸ—‘ Delete
+
+pages/HarvestDetail.tsx:1892
+  â†‘ Back to top
+
+pages/IngredientDetail.tsx:287
+  return parts.join(' Â· ');
+
+pages/IngredientDetail.tsx:551
+  'â˜…'.repeat(
+
+pages/IngredientDetail.tsx:556
+  'â˜†'.repeat(
+
+pages/IngredientDetail.tsx:569
+  â˜… Garden Favourite
+
+pages/IngredientDetail.tsx:668
+  ? ' Â· Archived'
+
+pages/IngredientDetail.tsx:745
+  âœ Edit purchase
+
+pages/IngredientDetail.tsx:769
+  ðŸ›’ Bought this again
+
+pages/IngredientDetail.tsx:808
+  â†‘ Back to the top
+
+pages/Ingredients.tsx:138
+  return 'ðŸ‚'
+
+pages/Ingredients.tsx:141
+  return 'ðŸŒ¾'
+
+pages/Ingredients.tsx:144
+  return 'ðŸŒ¿'
+
+pages/Ingredients.tsx:147
+  return 'ðŸª¨'
+
+pages/Ingredients.tsx:150
+  return 'ðŸŒ¬ï¸'
+
+pages/Ingredients.tsx:153
+  return 'ðŸ’§'
+
+pages/Ingredients.tsx:156
+  return 'ðŸª´'
+
+pages/Ingredients.tsx:159
+  return 'ðŸŒ±'
+
+pages/Ingredients.tsx:162
+  return 'ðŸ¦ '
+
+pages/Ingredients.tsx:165
+  return 'âš–ï¸'
+
+pages/Ingredients.tsx:168
+  return 'ðŸªµ'
+
+pages/Ingredients.tsx:171
+  return 'ðŸª´'
+
+pages/Ingredients.tsx:174
+  return 'ðŸ'
+
+pages/Ingredients.tsx:177
+  return 'ðŸŒ¾'
+
+pages/Ingredients.tsx:180
+  return 'ðŸŒ¿'
+
+pages/Ingredients.tsx:439
+  â† {archivedButtonLabel}
+
+pages/Ingredients.tsx:450
+  ðŸ“¦ Archived Ingredients{' '}
+
+pages/Ingredients.tsx:493
+  ðŸŒ¿
+
+pages/Ingredients.tsx:559
+  ðŸ“¦ Archived
+
+pages/Ingredients.tsx:567
+  â˜… Garden Favourite
+
+pages/Ingredients.tsx:587
+  {'â˜…'.repeat(
+
+pages/Ingredients.tsx:591
+  {'â˜†'.repeat(
+
+pages/Ingredients.tsx:639
+  ðŸ“·{' '}
+
+pages/Journal.tsx:45
+  return 'ðŸŒ±'
+
+pages/Journal.tsx:52
+  return 'ðŸŒ¿'
+
+pages/Journal.tsx:59
+  return 'ðŸ’§'
+
+pages/Journal.tsx:66
+  return 'ðŸ§ª'
+
+pages/Journal.tsx:73
+  return 'ðŸª´'
+
+pages/Journal.tsx:80
+  return 'ðŸŒ±'
+
+pages/Journal.tsx:87
+  return 'ðŸ¥”'
+
+pages/Journal.tsx:94
+  return 'âœ‚ï¸'
+
+pages/Journal.tsx:101
+  return 'ðŸ©¹'
+
+pages/Journal.tsx:108
+  return 'ðŸŒ¦ï¸'
+
+pages/Journal.tsx:115
+  return 'ðŸ“·'
+
+pages/Journal.tsx:122
+  return 'ðŸ§º'
+
+pages/Journal.tsx:129
+  return 'ðŸ‘€'
+
+pages/Journal.tsx:136
+  return 'ðŸ“–'
+
+pages/Journal.tsx:139
+  return 'ðŸ“'
+
+pages/Journal.tsx:268
+  âœ’ï¸ Add an entry
+
+pages/Journal.tsx:338
+  ? 'ðŸŒ From the wider garden'
+
+pages/Journal.tsx:339
+  : `ðŸŒ± From ${getPlantNames(
+
+pages/Journal.tsx:385
+  ðŸ—‘ï¸
+
+pages/Journal.tsx:420
+  ðŸ“–
+
+pages/JournalEntryDetail.tsx:268
+  return 'ðŸŒ±';
+
+pages/JournalEntryDetail.tsx:271
+  return 'ðŸŒ¿';
+
+pages/JournalEntryDetail.tsx:274
+  return 'ðŸ’§';
+
+pages/JournalEntryDetail.tsx:277
+  return 'ðŸ§ª';
+
+pages/JournalEntryDetail.tsx:280
+  return 'ðŸª´';
+
+pages/JournalEntryDetail.tsx:283
+  return 'ðŸŒ±';
+
+pages/JournalEntryDetail.tsx:286
+  return 'ðŸ¥”';
+
+pages/JournalEntryDetail.tsx:289
+  return 'âœ‚ï¸';
+
+pages/JournalEntryDetail.tsx:292
+  return 'ðŸ©¹';
+
+pages/JournalEntryDetail.tsx:295
+  return 'ðŸŒ¦ï¸';
+
+pages/JournalEntryDetail.tsx:298
+  return 'ðŸ‘€';
+
+pages/JournalEntryDetail.tsx:301
+  return 'ðŸ“·';
+
+pages/JournalEntryDetail.tsx:304
+  return 'ðŸ§º';
+
+pages/JournalEntryDetail.tsx:307
+  return 'ðŸ“–';
+
+pages/JournalEntryDetail.tsx:310
+  return 'ðŸ“';
+
+pages/JournalEntryDetail.tsx:329
+  return 'Container â†’ ground / garden bed';
+
+pages/JournalEntryDetail.tsx:332
+  return 'Ground / garden bed â†’ container';
+
+pages/JournalEntryDetail.tsx:954
+  ' Â· ',
+
+pages/JournalEntryDetail.tsx:1049
+  ? `${product.name} Â· ${product.brand}`
+
+pages/JournalEntryDetail.tsx:1223
+  ' Â· ',
+
+pages/JournalEntryDetail.tsx:1351
+  â† Back to{' '}
+
+pages/JournalEntryDetail.tsx:1368
+  ðŸ“– Journal
+
+pages/JournalEntryDetail.tsx:1407
+  {' Â· '}
+
+pages/JournalEntryDetail.tsx:1483
+  âœ Edit Journal Entry
+
+pages/JournalEntryDetail.tsx:1494
+  ðŸ—‘ Delete Journal Entry
+
+pages/JournalEntryDetail.tsx:1570
+  ðŸŒ³ All Plants
+
+pages/JournalEntryDetail.tsx:1603
+  ðŸŒ±{' '}
+
+pages/JournalEntryDetail.tsx:1610
+  {' Â· '}
+
+pages/JournalEntryDetail.tsx:1664
+  ðŸŒ³ The whole garden
+
+pages/JournalEntryDetail.tsx:1685
+  ðŸŒ¿{' '}
+
+pages/JournalEntryDetail.tsx:1718
+  ðŸŒ± {
+
+pages/JournalEntryDetail.tsx:1784
+  ðŸŒ±{' '}
+
+pages/JournalEntryDetail.tsx:1790
+  'ðŸŒ± Plant Story'
+
+pages/JournalEntryDetail.tsx:1822
+  â†’
+
+pages/JournalEntryDetail.tsx:1937
+  ðŸŒ¿{' '}
+
+pages/JournalEntryDetail.tsx:1944
+  {' Â· '}
+
+pages/JournalEntryDetail.tsx:2027
+  â†‘ Back to top
+
+pages/Library.tsx:109
+  ðŸŒ¿
+
+pages/Library.tsx:141
+  ðŸ›’
+
+pages/Library.tsx:189
+  ðŸ§¾
+
+pages/Library.tsx:214
+  ðŸ“¦
+
+pages/Library.tsx:238
+  ðŸ¡
+
+pages/Library.tsx:263
+  ðŸª™
+
+pages/PlantComparison.tsx:458
+  )} Â· ${formatDays(
+
+pages/PlantComparison.tsx:754
+  ' Â· ',
+
+pages/PlantComparison.tsx:802
+  ' Â· ',
+
+pages/PlantComparison.tsx:847
+  ' Â· ',
+
+pages/PlantComparison.tsx:997
+  )} â†’ ${
+
+pages/PlantComparison.tsx:1052
+  )} Â· ${placeName}`
+
+pages/PlantComparison.tsx:1078
+  ? `Current Â· ${currentPlace.name}`
+
+pages/PlantComparison.tsx:1128
+  )} Â· ${setupName}`
+
+pages/PlantComparison.tsx:1154
+  ? `Current Â· ${currentSetup.name}`
+
+pages/PlantComparison.tsx:1255
+  ? `${name} Â· ${measurement}`
+
+pages/PlantComparison.tsx:1353
+  ? `${product.name} Â· ${product.brand}`
+
+pages/PlantComparison.tsx:1435
+  ' Â· ',
+
+pages/PlantComparison.tsx:1444
+  ' Â· ',
+
+pages/PlantComparison.tsx:1453
+  ' Â· ',
+
+pages/PlantComparison.tsx:1479
+  ' Â· ',
+
+pages/PlantComparison.tsx:4081
+  â† {backLabel}
+
+pages/PlantComparison.tsx:4099
+  âœï¸ Edit comparison
+
+pages/PlantComparison.tsx:4111
+  ? 'ðŸ’¾ Save changes'
+
+pages/PlantComparison.tsx:4112
+  : 'ðŸ’¾ Save comparison'}
+
+pages/PlantComparison.tsx:4123
+  ðŸ“„ Export PDF
+
+pages/PlantComparison.tsx:4134
+  ðŸ“Š Export XLSX
+
+pages/PlantComparison.tsx:4172
+  Sprig Smart â†’
+
+pages/PlantComparison.tsx:4284
+  ? `${evidence.label} Â· ${evidence.detail}`
+
+pages/PlantComparison.tsx:4363
+  ? 'âœ“ Show everything'
+
+pages/PlantComparison.tsx:4399
+  ? `âœ“ ${option.label}`
+
+pages/PlantComparison.tsx:5507
+  {' Â· '}
+
+pages/PlantDetail.tsx:982
+  * If the gardener says "60â€“80 days from transplanting" and
+
+pages/PlantDetail.tsx:1071
+  )}â€“${formatDuration(
+
+pages/PlantDetail.tsx:1105
+  return start === end ? start : `${start} â€“ ${end}`;
+
+pages/PlantDetail.tsx:1136
+  )}â€“${formatDuration(
+
+pages/PlantDetail.tsx:1981
+  ðŸ“¦ Resting in Sprig&apos;s archive
+
+pages/PlantDetail.tsx:1998
+  â† Back to {journeyBackLabel}
+
+pages/PlantDetail.tsx:2008
+  â† Plants
+
+pages/PlantDetail.tsx:2017
+  âœ Edit
+
+pages/PlantDetail.tsx:2035
+  : 'â˜† Favourite'}
+
+pages/PlantDetail.tsx:2043
+  ðŸ“¸ Add photographs
+
+pages/PlantDetail.tsx:2057
+  : 'ðŸ“¦ Archive'}
+
+pages/PlantDetail.tsx:2065
+  ðŸ–¨ Print
+
+pages/PlantDetail.tsx:2073
+  ðŸ“¤ Export
+
+pages/PlantDetail.tsx:2081
+  ðŸ—‘ Delete
+
+pages/PlantDetail.tsx:2089
+  ðŸ§º Add a harvest
+
+pages/PlantDetail.tsx:2097
+  ðŸ“– Add a moment
+
+pages/PlantDetail.tsx:2111
+  : 'ðŸ‚ Complete story'}
+
+pages/PlantDetail.tsx:2449
+  {plant.displayName} â€” Harvest Story
+
+pages/PlantDetail.tsx:2718
+  ðŸ§º Harvest {plant.displayName}
+
+pages/PlantDetail.tsx:3378
+  â†‘ Back to top
+
+pages/PlantDetail.tsx:3511
+  ? 'âœ“ '
+
+pages/PlantDetail.tsx:3531
+  ? 'âœ“ '
+
+pages/PlantDetail.tsx:3532
+  : 'ðŸª´ '}
+
+pages/PlantDetail.tsx:3554
+  ? 'âœ“ '
+
+pages/PlantDetail.tsx:3555
+  : 'ðŸŒ¿ '}
+
+pages/PlantDetail.tsx:3576
+  âœ“ Planted out · Date not recorded yet ·
+
+pages/PlantDetail.tsx:3597
+  ? 'âœ“ '
+
+pages/PlantDetail.tsx:3598
+  : 'ðŸ“– '}
+
+pages/Plants.tsx:1039
+  return `${startText} â€“ ${endText}`
+
+pages/Plants.tsx:1129
+  : `${minimum}â€“${maximum}`
+
+pages/Plants.tsx:2638
+  Plant Aâ€“Z
+
+pages/Plants.tsx:2642
+  Variety Aâ€“Z
+
+pages/Plants.tsx:2646
+  Growing Place Aâ€“Z
+
+pages/Plants.tsx:2869
+  ' Â· ',
+
+pages/Plants.tsx:3095
+  ' Â· ',
+
+pages/ProductDetail.tsx:349
+  â† Back to {backLabel}
+
+pages/ProductDetail.tsx:360
+  â† Growing Home
+
+pages/ProductDetail.tsx:372
+  âœï¸ Edit Product
+
+pages/ProductDetail.tsx:384
+  ðŸŒ± Create a variation
+
+pages/ProductDetail.tsx:403
+  ? 'â˜… Remove from favourites'
+
+pages/ProductDetail.tsx:404
+  : 'â˜† Add to favourites'
+
+pages/ProductDetail.tsx:417
+  ðŸ“¸ Add photographs
+
+pages/ProductDetail.tsx:428
+  ðŸ–¨ Print
+
+pages/ProductDetail.tsx:438
+  ðŸ“¤ Export
+
+pages/ProductDetail.tsx:449
+  ðŸ“– Add a note
+
+pages/ProductDetail.tsx:470
+  ðŸŒ± Restore
+
+pages/ProductDetail.tsx:481
+  ðŸ“¦ Archive
+
+pages/ProductDetail.tsx:494
+  ðŸ—‘ Delete permanently
+
+pages/ProductDetail.tsx:526
+  ? 'â˜… Garden favourite'
+
+pages/ProductDetail.tsx:527
+  : 'â˜† Mark as a favourite'
+
+pages/ProductDetail.tsx:569
+  ? 'â˜…'
+
+pages/ProductDetail.tsx:570
+  : 'â˜†'
+
+pages/ProductDetail.tsx:755
+  {' Â· '}
+
+pages/ProductDetail.tsx:765
+  ? ` Â· ${purchase.supplier}`
+
+pages/ProductDetail.tsx:771
+  ? ` Â· ${quantity}`
+
+pages/ProductDetail.tsx:777
+  ? ` Â· ${packageSize} package`
+
+pages/ProductDetail.tsx:783
+  ? ` Â· ${purchase.notes}`
+
+pages/ProductDetail.tsx:798
+  âœ Edit purchase information
+
+pages/ProductDetail.tsx:822
+  ðŸ›’ Bought this again
+
+pages/ProductDetail.tsx:885
+  ðŸ—‘ Permanently Delete Product
+
+pages/ProductDetail.tsx:899
+  â†‘ Back to the top
+
+pages/Products.tsx:104
+  return 'ðŸŒ±'
+
+pages/Products.tsx:107
+  return 'ðŸ‚'
+
+pages/Products.tsx:110
+  return 'ðŸ’§'
+
+pages/Products.tsx:113
+  return 'ðŸ›'
+
+pages/Products.tsx:116
+  return 'ðŸ©¹'
+
+pages/Products.tsx:119
+  return 'ðŸŒ¿'
+
+pages/Products.tsx:122
+  return 'ðŸ¦ '
+
+pages/Products.tsx:125
+  return 'ðŸŒ±'
+
+pages/Products.tsx:128
+  return 'ðŸŒ¿'
+
+pages/Products.tsx:131
+  return 'ðŸª´'
+
+pages/Products.tsx:134
+  return 'ðŸ'
+
+pages/Products.tsx:137
+  return 'ðŸŒ°'
+
+pages/Products.tsx:140
+  return 'ðŸ§½'
+
+pages/Products.tsx:143
+  return 'ðŸ›’'
+
+pages/Products.tsx:146
+  return 'ðŸ›’'
+
+pages/Products.tsx:470
+  ðŸ›’
+
+pages/Products.tsx:528
+  â˜… Garden Favourite
+
+pages/Products.tsx:550
+  {'â˜…'.repeat(
+
+pages/Products.tsx:554
+  {'â˜†'.repeat(
+
+pages/SprigSmart.tsx:610
+  ? ` Â· ${evidence.detail}`
+
+pages/SprigSmart.tsx:901
+  `Search: â€œ${searchQuery.trim()}â€`,
+
+pages/SprigSmart.tsx:935
+  ' Â· ',
+
+pages/SprigSmart.tsx:1056
+  ? 'Preparing DOCXâ€¦'
+
+pages/SprigSmart.tsx:1228
+  placeholder="Search potato, aphids, Royal Blue, harvestâ€¦"
+
+pages/SprigSmart.tsx:1338
+  ? ' from Sprigâ€™s curated view.'
+
+========================================
+ AUDIT COMPLETE
+ NO FILES WERE MODIFIED
+========================================

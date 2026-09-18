@@ -372,6 +372,28 @@ export type PlantHarvestTimingUnit =
   | 'weeks'
   | 'months';
 
+/*
+ * What the gardener's expected timing means.
+ *
+ * maturity-window:
+ * A finite crop is expected to be ready
+ * somewhere within the recorded range.
+ *
+ * production-start:
+ * The recorded range describes when an
+ * ongoing producer is expected to begin
+ * producing. Its productive life may then
+ * continue beyond that range.
+ *
+ * Existing Plant Stories without this field
+ * remain valid and are treated as legacy
+ * harvest timing until the gardener edits
+ * or confirms them.
+ */
+export type PlantHarvestTimingMode =
+  | 'maturity-window'
+  | 'production-start';
+
 export interface PlantGrowingHistoryEntry {
   id: string;
   startedDate: string;
@@ -512,9 +534,38 @@ export interface PlantStory {
     SprigPhotoMetadata | undefined
   >;
 
+  /*
+   * Expected timing is stored as normalized
+   * days so Garden of Mine can calculate and
+   * compare it consistently.
+   *
+   * harvestTimingMode records what those
+   * numbers actually mean. This prevents an
+   * expected start of cucumber production
+   * being misrepresented as the cucumber's
+   * entire harvest window.
+   */
   expectedHarvestDaysMin?: number;
   expectedHarvestDaysMax?: number;
   harvestTimingInputUnit?: PlantHarvestTimingUnit;
+  harvestTimingMode?: PlantHarvestTimingMode;
+
+  /*
+   * Optional expected productive duration.
+   *
+   * This belongs primarily to ongoing
+   * producers. It is deliberately optional:
+   * the gardener should not have to invent
+   * an answer merely to create a Plant Story.
+   *
+   * Like expected harvest timing, the stored
+   * value is normalized to days while the
+   * input unit preserves how the gardener
+   * naturally entered it.
+   */
+  expectedProductionDaysMin?: number;
+  expectedProductionDaysMax?: number;
+  productionDurationInputUnit?: PlantHarvestTimingUnit;
 
   harvestTimingReference?: {
     sourceType:
@@ -576,6 +627,21 @@ export type GardenEventGrowingChange =
   | 'growing-place'
   | 'growing-setup'
   | 'both';
+
+export type GardenEventTransplantKind =
+  | 'potted-up'
+  | 'container-to-ground'
+  | 'ground-to-container'
+  | 'place-to-place'
+  | 'other';
+
+export interface GardenEventPlantGrowingTransition {
+  plantStoryId: string;
+  fromGrowingPlaceId?: string;
+  toGrowingPlaceId?: string;
+  fromGrowingSetupIds?: string[];
+  toGrowingSetupIds?: string[];
+}
 
 export interface GardenEvent {
   id: string;
@@ -639,6 +705,29 @@ export interface GardenEvent {
 
   fromGrowingSetupIds?: string[];
   toGrowingSetupIds?: string[];
+
+  /*
+   * The gardener's real-world description of
+   * the transplant. This is recorded rather
+   * than inferred later from relationship IDs.
+   */
+  transplantKind?: GardenEventTransplantKind;
+  customTransplantLabel?: string;
+
+  /*
+   * Per-Plant Story before → after provenance.
+   *
+   * A shared Moment may affect Plant Stories
+   * that began in different places or setups.
+   * These transitions preserve each story's
+   * own starting context while keeping the
+   * intervention as one historical Moment.
+   *
+   * The singular fields above remain for
+   * backwards compatibility and for older
+   * single-Plant Moments.
+   */
+  plantGrowingTransitions?: GardenEventPlantGrowingTransition[];
 
   plantScope?: PlantScope;
   plantStoryIds: string[];

@@ -1,5 +1,8 @@
-import GardenLayout from '../components/layout/GardenLayout';
+
+import { BackToTop } from '../components/layout/GardenPage';
+import DetailPageTemplate from '../components/templates/DetailPageTemplate'
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
+import { downloadJson, printDocument, safeFileName } from '../utils/exportUtils';
 import type {
   GardenProduct,
   GardenProductCategory,
@@ -212,28 +215,10 @@ export default function ProductDetail({
           ),
       );
 
-  function backToTop() {
-    const prefersReducedMotion =
-      window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches;
 
-    document
-      .getElementById(
-        'product-detail-top',
-      )
-      ?.scrollIntoView({
-        behavior:
-          prefersReducedMotion
-            ? 'auto'
-            : 'smooth',
-
-        block: 'start',
-      });
-  }
 
   function printProduct() {
-    window.print();
+    printDocument();
   }
 
   function exportProduct() {
@@ -243,131 +228,39 @@ export default function ProductDetail({
         productPurchases,
     };
 
-    const blob =
-      new Blob(
-        [
-          JSON.stringify(
-            exportRecord,
-            null,
-            2,
-          ),
-        ],
-        {
-          type:
-            'application/json',
-        },
-      );
-
-    const url =
-      URL.createObjectURL(
-        blob,
-      );
-
-    const link =
-      document.createElement(
-        'a',
-      );
-
-    const safeName =
-      product.name
-        .trim()
-        .toLowerCase()
-        .replace(
-          /[^a-z0-9]+/g,
-          '-',
-        )
-        .replace(
-          /^-|-$/g,
-          '',
-        );
-
-    link.href =
-      url;
-
-    link.download =
-      `${
-        safeName ||
-        'sprig-product'
-      }.json`;
-
-    document.body.appendChild(
-      link,
-    );
-
-    link.click();
-
-    link.remove();
-
-    URL.revokeObjectURL(
-      url,
+    downloadJson(
+      `${safeFileName(
+        product.name,
+        'sprig-product',
+      )}.json`,
+      exportRecord,
     );
   }
 
   return (
-    <GardenLayout
-      activePage="library"
-      onNavigate={
-        onNavigate
-      }
-    >
-      <div
-        className="journal-page"
-        id="product-detail-top"
-      >
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Garden Product
-            </p>
-
-            <h1>
-              {product.name}
-            </h1>
-
-            <p className="journal-intro">
-              {
+    <DetailPageTemplate activePage="library" onNavigate={onNavigate} className="journal-page" as="div" pageId="product-detail-top"
+      eyebrow={<>Garden Product</>}
+      title={<>{product.name}</>}
+      intro={<>{
                 getProductCategoryLabel(
                   product,
                 )
-              }
-            </p>
-
-            {product.isArchived && (
-              <p className="form-whisper">
-                This Product is resting safely
-                in Sprig&apos;s archive.
-              </p>
-            )}
-          </div>
-        </header>
+              }</>}
+      headerAfterIntro={product.isArchived && (
+        <p className="form-whisper">This Product is resting safely in Sprig&apos;s archive.</p>
+      )}
+      journeyBackLabel={backLabel ? `Back to ${backLabel}` : null}
+      onJourneyBack={onBackToOrigin}
+      homeLabel="Growing Home"
+      onHome={onBack}
+      navigationAriaLabel="Product navigation"
+    >
+        
 
         <section
           className="record-actions"
           aria-label="Product actions"
         >
-          {onBackToOrigin &&
-            backLabel && (
-            <button
-              type="button"
-              className="record-action-button record-action-back record-action-contextual-back"
-              onClick={
-                onBackToOrigin
-              }
-            >
-              ← Back to {backLabel}
-            </button>
-          )}
-
-          <button
-            type="button"
-            className="record-action-button record-action-back"
-            onClick={
-              onBack
-            }
-          >
-            ← Growing Home
-          </button>
-
           <div className="record-actions-primary">
             {onEdit && (
               <button
@@ -896,18 +789,8 @@ export default function ProductDetail({
           </article>
         </section>
 
-        <div className="growing-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={
-              backToTop
-            }
-          >
-            ↑ Back to the top
-          </button>
-        </div>
-      </div>
-    </GardenLayout>
+        <BackToTop targetId="product-detail-top" label="Back to the top" />
+      </DetailPageTemplate>
   );
 }
+

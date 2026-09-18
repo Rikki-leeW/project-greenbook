@@ -10,6 +10,10 @@ import {
   processSprigPhotos,
 } from '../../utils/photoUtils'
 
+import {
+  createSprigPhotoId,
+} from '../../utils/photoEvidence'
+
 import type {
   SprigPhotoMetadata,
   SprigPhotoPurpose,
@@ -895,6 +899,12 @@ export default function SprigPhotoPicker({
             index,
           ):
             SprigPhotoMetadata => ({
+            photoId:
+              createSprigPhotoId(),
+
+            photoUrl:
+              photo.photoUrl,
+
             photoDate:
               newDates[
                 index

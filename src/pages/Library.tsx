@@ -1,5 +1,5 @@
-import GardenLayout from '../components/layout/GardenLayout'
 
+import MainPageTemplate from '../components/templates/MainPageTemplate'
 import type {
   AppPage,
 } from '../types/navigation'
@@ -49,144 +49,61 @@ export default function Library({
 
 
   return (
-    <GardenLayout
+    <MainPageTemplate
       activePage="library"
-      onNavigate={onNavigate}
+      onNavigate={
+      onNavigate
+      }
+      pageId="library-top"
+      className="library-page"
+      journeyBackLabel="My Garden"
+      onJourneyBack={() =>
+      onNavigate(
+      'plants',
+      )
+      }
+      navigationAriaLabel="Garden Library navigation"
+      eyebrow="Garden Stores"
+      title="Garden Library"
+      intro={
+      <>
+      The useful things the garden
+      keeps close at hand, from
+      ingredients and products to
+      the records that support them.
+      </>
+      }
+      headerActions={
+      onAddNote ? (
+      <button
+      type="button"
+      className="journal-add-button"
+      onClick={
+      onAddNote
+      }
+      >
+      + Add a note
+      </button>
+      ) : undefined
+      }
     >
-      <div className="journal-page">
-
-        {/* =======================================
-            LIBRARY HEADER
-        ======================================= */}
-
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Sprig&apos;s bookshelf
-            </p>
-
-            <h1>
-              Garden Library
-            </h1>
-
-            <p className="journal-intro">
-              Reusable garden things,
-              references and records that can
-              be linked into stories throughout
-              Sprig.
-            </p>
-
-            <p className="form-whisper">
-              Growing Places and what plants
-              grow in now have their own home
-              under Growing.
-            </p>
-          </div>
 
 
-          {onAddNote && (
-            <button
-              type="button"
-              className="journal-add-button"
-              onClick={onAddNote}
-            >
-              ✒️ Add a note
-            </button>
-          )}
-        </header>
-
-
-        {/* =======================================
-            GROWING DOORWAY
-        ======================================= */}
-
-        <section className="story-section">
-
+        <section className="library-section">
           <div className="section-heading">
             <div>
               <p className="section-label">
-                Looking for growing records?
+                Growing materials
               </p>
 
               <h2>
-                Growing has its own home
+                What the garden keeps on its shelves
               </h2>
-
-              <p>
-                Growing Places, My Recipes,
-                Bought Mixes, Growing Systems
-                and Ground Types now live
-                together under Growing.
-              </p>
-            </div>
-          </div>
-
-
-          <article className="library-book">
-            <div className="library-book-icon">
-              🪴
-            </div>
-
-            <p className="section-label">
-              Growing
-            </p>
-
-            <h2>
-              Where it grows and what it grows in
-            </h2>
-
-            <p>
-              Open Growing to see locations and
-              growing setups together without
-              mixing their meanings.
-            </p>
-
-            <button
-              type="button"
-              className="journal-add-button"
-              onClick={() =>
-                onNavigate(
-                  'growing-places',
-                )
-              }
-            >
-              Open Growing
-            </button>
-          </article>
-        </section>
-
-
-        {/* =======================================
-            REUSABLE LIBRARY RECORDS
-        ======================================= */}
-
-        <section className="story-section">
-
-          <div className="section-heading">
-            <div>
-              <p className="section-label">
-                Reusable records
-              </p>
-
-              <h2>
-                Garden building blocks
-              </h2>
-
-              <p>
-                These are things Sprig can
-                remember once and link wherever
-                they are used.
-              </p>
             </div>
           </div>
 
 
           <section className="library-grid">
-
-            {/* =======================================
-                INGREDIENTS
-            ======================================= */}
-
             <article className="library-book">
               <div className="library-book-icon">
                 🌿
@@ -197,14 +114,14 @@ export default function Library({
               </p>
 
               <h2>
-                The building blocks
+                Ingredients
               </h2>
 
               <p>
-                Compost, manure, perlite, coir,
-                amendments and other materials
-                that can become part of a
-                growing recipe.
+                Compost, manure, minerals,
+                amendments and other reusable
+                things that become part of the
+                garden.
               </p>
 
               <button
@@ -219,10 +136,6 @@ export default function Library({
             </article>
 
 
-            {/* =======================================
-                PRODUCTS
-            ======================================= */}
-
             <article className="library-book">
               <div className="library-book-icon">
                 🛒
@@ -233,15 +146,13 @@ export default function Library({
               </p>
 
               <h2>
-                Bought for the garden
+                Products
               </h2>
 
               <p>
-                Commercial fertilisers,
-                treatments, amendments and
-                other products remembered with
-                their brands and purchase
-                history.
+                Bought garden products,
+                remembered with their makers,
+                purpose and history.
               </p>
 
               <button
@@ -254,125 +165,25 @@ export default function Library({
                 Open Products
               </button>
             </article>
-
           </section>
         </section>
 
 
-        {/* =======================================
-            FUTURE LIBRARY SHELVES
-        ======================================= */}
-
-        <section className="story-section">
-
+        <section className="library-section">
           <div className="section-heading">
             <div>
               <p className="section-label">
-                Shelves still growing
+                Garden Stores
               </p>
 
               <h2>
-                More reusable garden memory
+                Purchases and supplies
               </h2>
             </div>
           </div>
 
 
           <section className="library-grid">
-
-            {/* =======================================
-                VARIETIES
-            ======================================= */}
-
-            <article className="library-book">
-              <div className="library-book-icon">
-                🌾
-              </div>
-
-              <p className="section-label">
-                Varieties
-              </p>
-
-              <h2>
-                Names worth remembering
-              </h2>
-
-              <p>
-                Reusable variety information
-                connected to Plant Reference
-                and individual Plant Stories.
-              </p>
-
-              <span className="library-coming-soon">
-                The seed labels are being gathered
-              </span>
-            </article>
-
-
-            {/* =======================================
-                SUPPLIERS
-            ======================================= */}
-
-            <article className="library-book">
-              <div className="library-book-icon">
-                🏪
-              </div>
-
-              <p className="section-label">
-                Suppliers
-              </p>
-
-              <h2>
-                Where things came from
-              </h2>
-
-              <p>
-                Nurseries, garden centres,
-                local growers, hardware stores
-                and other sources worth
-                remembering.
-              </p>
-
-              <span className="library-coming-soon">
-                A little address book is coming
-              </span>
-            </article>
-
-
-            {/* =======================================
-                SEED COLLECTION
-            ======================================= */}
-
-            <article className="library-book">
-              <div className="library-book-icon">
-                🌰
-              </div>
-
-              <p className="section-label">
-                Seed Collection
-              </p>
-
-              <h2>
-                What is waiting to grow
-              </h2>
-
-              <p>
-                Bought seed, saved seed,
-                packets, sources, varieties
-                and what remains ready for
-                another planting.
-              </p>
-
-              <span className="library-coming-soon">
-                The seed drawer is still being sorted
-              </span>
-            </article>
-
-
-            {/* =======================================
-                PURCHASES
-            ======================================= */}
-
             <article className="library-book">
               <div className="library-book-icon">
                 🧾
@@ -383,13 +194,13 @@ export default function Library({
               </p>
 
               <h2>
-                What came into the garden
+                Purchases
               </h2>
 
               <p>
-                Purchase history, suppliers,
-                quantities and changing prices
-                across the garden.
+                What came into the garden,
+                where it came from and what
+                it cost.
               </p>
 
               <span className="library-coming-soon">
@@ -397,10 +208,83 @@ export default function Library({
               </span>
             </article>
 
+
+            <article className="library-book">
+              <div className="library-book-icon">
+                📦
+              </div>
+
+              <p className="section-label">
+                Supplies
+              </p>
+
+              <h2>
+                Supplies
+              </h2>
+
+              <p>
+                The useful stock the garden
+                has on hand.
+              </p>
+
+              <span className="library-coming-soon">
+                The shelves are being counted
+              </span>
+            </article>
+
+
+            <article className="library-book">
+              <div className="library-book-icon">
+                🏡
+              </div>
+
+              <p className="section-label">
+                Suppliers
+              </p>
+
+              <h2>
+                Suppliers
+              </h2>
+
+              <p>
+                Nurseries, shops and other
+                places that have supplied
+                the garden.
+              </p>
+
+              <span className="library-coming-soon">
+                The addresses are being gathered
+              </span>
+            </article>
+
+
+            <article className="library-book">
+              <div className="library-book-icon">
+                🪙
+              </div>
+
+              <p className="section-label">
+                Costs
+              </p>
+
+              <h2>
+                Costs & Allocations
+              </h2>
+
+              <p>
+                Where garden spending belongs
+                and what it helped grow.
+              </p>
+
+              <span className="library-coming-soon">
+                The receipts are being tucked together
+              </span>
+            </article>
           </section>
         </section>
 
-      </div>
-    </GardenLayout>
+      </MainPageTemplate>
   )
 }
+
+

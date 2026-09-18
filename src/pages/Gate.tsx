@@ -2,11 +2,10 @@ import {
   useMemo,
 } from 'react'
 
-import GardenLayout from '../components/layout/GardenLayout'
+import FunctionPageTemplate from '../components/templates/FunctionPageTemplate'
 
 import sprigWave from '../images/sprig/sprig-wave.png'
 
-import woodlandFrame from '../images/backgrounds/woodland-frame.png'
 
 import type {
   GardenData,
@@ -725,50 +724,26 @@ export default function Gate({
 
 
   return (
-    <GardenLayout
+    <FunctionPageTemplate
       activePage="gate"
-      onNavigate={
-        onNavigate
+      onNavigate={onNavigate}
+      pageId="garden-today-top"
+      pageAs="div"
+      className="gate-page sprig-today-page"
+      headerClassName="sprig-today-header"
+      eyebrow="Garden of Mine"
+      title={`${getGreeting()}, Rikki.`}
+      showBackToTop={false}
+      headerActions={
+        <button
+          type="button"
+          className="keeper-avatar sprig-today-avatar"
+          aria-label="Sprig"
+        >
+          <img src={sprigWave} alt="" aria-hidden="true" />
+        </button>
       }
     >
-      <div
-        className="garden-page gate-page sprig-today-page"
-        style={{
-          backgroundImage:
-            `url(${woodlandFrame})`,
-        }}
-      >
-        {/* =====================================
-            HERO
-        ====================================== */}
-
-        <header className="garden-header sprig-today-header">
-          <div>
-            <p className="app-name">
-              Garden of Mine
-            </p>
-
-            <h1 className="garden-title">
-              {getGreeting()}, Rikki.
-            </h1>
-          </div>
-
-          <button
-            type="button"
-            className="keeper-avatar sprig-today-avatar"
-            aria-label="Sprig"
-          >
-            <img
-              src={
-                sprigWave
-              }
-              alt=""
-              aria-hidden="true"
-            />
-          </button>
-        </header>
-
-
         {/* =====================================
             QUICK ACTIONS
         ====================================== */}
@@ -1447,7 +1422,6 @@ export default function Gate({
             </section>
           )
         }
-      </div>
-    </GardenLayout>
+    </FunctionPageTemplate>
   )
 }

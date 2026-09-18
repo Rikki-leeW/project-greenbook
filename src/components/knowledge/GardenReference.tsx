@@ -13,6 +13,8 @@ import type {
     SprigPhotoMetadata,
 } from '../../types';
 
+import { escapeRtfParagraph as escapeRtf, downloadBlob } from '../../utils/exportUtils';
+
 interface GardenReferenceProps {
     gardenData: GardenData;
     initialRecordId?: string | null;
@@ -709,66 +711,6 @@ function escapeHtml(
         );
 }
 
-function escapeRtf(
-    value: string,
-): string {
-    let result =
-        '';
-
-    for (
-        const character
-        of value
-    ) {
-        if (
-            character ===
-            '\\'
-        ) {
-            result +=
-                '\\\\';
-        }
-        else if (
-            character ===
-            '{'
-        ) {
-            result +=
-                '\\{';
-        }
-        else if (
-            character ===
-            '}'
-        ) {
-            result +=
-                '\\}';
-        }
-        else if (
-            character ===
-            '\n'
-        ) {
-            result +=
-                '\\par\n';
-        }
-        else {
-            const code =
-                character.charCodeAt(
-                    0,
-                );
-
-            result +=
-                code >
-                127
-                    ? `\\u${
-                          code >
-                          32767
-                              ? code -
-                                65536
-                              : code
-                      }?`
-                    : character;
-        }
-    }
-
-    return result;
-}
 
 function getExportFilePart(
     value: string,
@@ -980,7 +922,10 @@ function downloadRtf(
         `${body}` +
         `}`;
 
-    const blob =
+    downloadBlob(
+        `${getExportFilePart(
+            title,
+        )}.rtf`,
         new Blob(
             [
                 rtf,
@@ -989,36 +934,7 @@ function downloadRtf(
                 type:
                     'application/rtf;charset=utf-8',
             },
-        );
-
-    const url =
-        URL.createObjectURL(
-            blob,
-        );
-
-    const anchor =
-        document.createElement(
-            'a',
-        );
-
-    anchor.href =
-        url;
-
-    anchor.download =
-        `${getExportFilePart(
-            title,
-        )}.rtf`;
-
-    document.body.appendChild(
-        anchor,
-    );
-
-    anchor.click();
-
-    anchor.remove();
-
-    URL.revokeObjectURL(
-        url,
+        ),
     );
 }
 

@@ -1824,7 +1824,7 @@
   
   @media print {
   
-    @page {
+    @page sprig-comparison {
       size:
         landscape;
   
@@ -1833,36 +1833,8 @@
     }
   
   
-    html,
-    body {
-      margin:
-        0;
-  
-      padding:
-        0;
-  
-      background:
-        #ffffff;
-    }
-  
-  
-    body:has(.sprig-comparison-report)
-    * {
-      visibility:
-        hidden;
-    }
-
-
-    body:has(.sprig-comparison-report)
-    .sprig-comparison-report,
-    body:has(.sprig-comparison-report)
-    .sprig-comparison-report * {
-      visibility:
-        visible;
-    }
-  
-  
     .sprig-comparison-report {
+      page: sprig-comparison;
       position:
         absolute;
   
@@ -1890,10 +1862,9 @@
        HIDE APP CONTROLS
     ======================================= */
   
-    .sprig-comparison-report
-    .plant-record-actions {
-      display:
-        none !important;
+    .sprig-comparison-report .sprig-comparison-lens-picker,
+    .sprig-comparison-report .plant-comparison-intelligence-link {
+      display: none !important;
     }
   
   
@@ -2067,56 +2038,12 @@
        PHOTOGRAPHS
     ======================================= */
   
-    .sprig-photo-gallery-grid {
-      break-inside:
-        avoid;
-  
-      page-break-inside:
-        avoid;
-    }
-  
-  
-    .sprig-photo-gallery-item {
-      break-inside:
-        avoid;
-  
-      page-break-inside:
-        avoid;
-    }
-  
-  
-    .sprig-photo-gallery-thumbnail {
-      max-width:
-        100%;
-  
-      height:
-        auto;
-  
-      break-inside:
-        avoid;
-  
-      page-break-inside:
-        avoid;
-    }
-  
-  
     .sprig-comparison-photo-group {
       break-inside:
         avoid;
   
       page-break-inside:
         avoid;
-    }
-  
-  
-    /*
-     * Interactive enlarged-photo viewer
-     * never belongs in the exported report.
-     */
-  
-    .sprig-photo-viewer {
-      display:
-        none !important;
     }
   
   

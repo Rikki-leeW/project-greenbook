@@ -1,0 +1,1917 @@
+
+==============================================
+ GARDEN OF MINE - MOJIBAKE REPAIR PREVIEW
+==============================================
+
+ DRY RUN ONLY
+ NO SOURCE FILES WERE MODIFIED
+
+Files with proposed repairs: 31
+Lines with proposed repairs: 473
+Lines still needing review: 0
+
+----------------------------------------------
+ PROPOSED REPAIRS
+----------------------------------------------
+
+components/forms/AddEventForm.tsx:376
+BEFORE: PLAN â†’ JOURNAL ACTIVITY
+AFTER:  PLAN → JOURNAL ACTIVITY
+
+components/forms/AddEventForm.tsx:414
+BEFORE: PLAN â†’ PLANT SCOPE
+AFTER:  PLAN → PLANT SCOPE
+
+components/forms/AddEventForm.tsx:443
+BEFORE: PLAN â†’ PLACE SCOPE
+AFTER:  PLAN → PLACE SCOPE
+
+components/forms/AddEventForm.tsx:472
+BEFORE: EVENT â†’ PLANT SCOPE
+AFTER:  EVENT → PLANT SCOPE
+
+components/forms/AddEventForm.tsx:507
+BEFORE: EVENT â†’ PLACE SCOPE
+AFTER:  EVENT → PLACE SCOPE
+
+components/forms/AddEventForm.tsx:667
+BEFORE: return 'Container â†’ ground / bed';
+AFTER:  return 'Container → ground / bed';
+
+components/forms/AddEventForm.tsx:670
+BEFORE: return 'Ground / bed â†’ container';
+AFTER:  return 'Ground / bed → container';
+
+components/forms/AddEventForm.tsx:1255
+BEFORE: 'ðŸ‘€',
+AFTER:  '👀',
+
+components/forms/AddEventForm.tsx:1263
+BEFORE: 'ðŸ’§',
+AFTER:  '💧',
+
+components/forms/AddEventForm.tsx:1271
+BEFORE: 'ðŸŒ¿',
+AFTER:  '🌿',
+
+components/forms/AddEventForm.tsx:1279
+BEFORE: 'ðŸŒ±',
+AFTER:  '🌱',
+
+components/forms/AddEventForm.tsx:1287
+BEFORE: 'âœ‚ï¸',
+AFTER:  '✂️',
+
+components/forms/AddEventForm.tsx:1295
+BEFORE: 'ðŸ©¹',
+AFTER:  '🩹',
+
+components/forms/AddEventForm.tsx:1303
+BEFORE: 'ðŸª´',
+AFTER:  '🪴',
+
+components/forms/AddEventForm.tsx:1311
+BEFORE: 'ðŸŒ±',
+AFTER:  '🌱',
+
+components/forms/AddEventForm.tsx:1319
+BEFORE: 'ðŸ¥”',
+AFTER:  '🥔',
+
+components/forms/AddEventForm.tsx:1327
+BEFORE: 'ðŸŒ¦ï¸',
+AFTER:  '🌦️',
+
+components/forms/AddEventForm.tsx:1335
+BEFORE: 'ðŸ“·',
+AFTER:  '📷',
+
+components/forms/AddEventForm.tsx:1343
+BEFORE: 'ðŸ“–',
+AFTER:  '📖',
+
+components/forms/AddEventForm.tsx:2741
+BEFORE: Ã—
+AFTER:  ×
+
+components/forms/AddEventForm.tsx:2779
+BEFORE: âœ Change anything that needs correcting.
+AFTER:  ✏ Change anything that needs correcting.
+
+components/forms/AddEventForm.tsx:2788
+BEFORE: ðŸŒ± Adding to{' '}
+AFTER:  🌱 Adding to{' '}
+
+components/forms/AddEventForm.tsx:2882
+BEFORE: ðŸ§º Record a Harvest
+AFTER:  🧺 Record a Harvest
+
+components/forms/AddEventForm.tsx:3464
+BEFORE: icon="ðŸŒ±"
+AFTER:  icon="🌱"
+
+components/forms/AddEventForm.tsx:3478
+BEFORE: icon="ðŸŒ¿"
+AFTER:  icon="🌿"
+
+components/forms/AddEventForm.tsx:3492
+BEFORE: icon="ðŸŒ³"
+AFTER:  icon="🌳"
+
+components/forms/AddEventForm.tsx:3718
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+components/forms/AddEventForm.tsx:3779
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+components/forms/AddEventForm.tsx:4137
+BEFORE: ? 'Saving changesâ€¦'
+AFTER:  ? 'Saving changes…'
+
+components/forms/AddEventForm.tsx:4138
+BEFORE: : 'Adding this pageâ€¦'
+AFTER:  : 'Adding this page…'
+
+components/forms/AddHarvestForm.tsx:1264
+BEFORE: Ã—
+AFTER:  ×
+
+components/forms/AddHarvestForm.tsx:1302
+BEFORE: ðŸ§º{' '}
+AFTER:  🧺{' '}
+
+components/forms/AddHarvestForm.tsx:1305
+BEFORE: : 'Tuck this gathering into Sprigâ€™s harvest story.'}
+AFTER:  : 'Tuck this gathering into Sprig’s harvest story.'}
+
+components/forms/AddHarvestForm.tsx:1330
+BEFORE: ðŸŒ¿{' '}
+AFTER:  🌿{' '}
+
+components/forms/AddHarvestForm.tsx:2227
+BEFORE: ? 'Savingâ€¦'
+AFTER:  ? 'Saving…'
+
+components/forms/AddIngredientForm.tsx:1004
+BEFORE: ðŸŒ¿ Keep the useful things
+AFTER:  🌿 Keep the useful things
+
+components/forms/AddPlantForm.tsx:393
+BEFORE: 'HÃ¼gelkultur',
+AFTER:  'Hügelkultur',
+
+components/forms/AddPlantForm.tsx:2733
+BEFORE: Ã—
+AFTER:  ×
+
+components/forms/AddPlantForm.tsx:2991
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+components/forms/AddPlantForm.tsx:3054
+BEFORE: ? 'âœ“'
+AFTER:  ? '✓'
+
+components/forms/AddPlantForm.tsx:3379
+BEFORE: ? 'âˆ’'
+AFTER:  ? '−'
+
+components/forms/AddPlantForm.tsx:3539
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+components/forms/AddPlantForm.tsx:3585
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+components/forms/AddPlantForm.tsx:3869
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+components/forms/AddProductForm.tsx:1195
+BEFORE: ðŸŒ¿ Keep the things bought for
+AFTER:  🌿 Keep the things bought for
+
+components/forms/AddProductForm.tsx:1446
+BEFORE: ? 'â˜… Garden favourite'
+AFTER:  ? '★ Garden favourite'
+
+components/forms/AddProductForm.tsx:1447
+BEFORE: : 'â˜† Mark as a favourite'}
+AFTER:  : '☆ Mark as a favourite'}
+
+components/forms/AddProductForm.tsx:1507
+BEFORE: ? 'â˜…'
+AFTER:  ? '★'
+
+components/forms/AddProductForm.tsx:1508
+BEFORE: : 'â˜†'}
+AFTER:  : '☆'}
+
+components/forms/AddRecipeForm.tsx:338
+BEFORE: label: 'HÃ¼gelkultur',
+AFTER:  label: 'Hügelkultur',
+
+components/forms/AddRecipeForm.tsx:1618
+BEFORE: Ã—
+AFTER:  ×
+
+components/forms/AddRecipeForm.tsx:1633
+BEFORE: ðŸŒ± Keep the mixtures,
+AFTER:  🌱 Keep the mixtures,
+
+components/photos/SprigPhotoPicker.tsx:1378
+BEFORE: 'âœ“ '}
+AFTER:  '✓ '}
+
+pages/BackupRestore.tsx:308
+BEFORE: ðŸ’¾ Save a garden backup
+AFTER:  💾 Save a garden backup
+
+pages/Calendar.tsx:150
+BEFORE: icon: 'â—',
+AFTER:  icon: '●',
+
+pages/Calendar.tsx:156
+BEFORE: icon: 'â—‹',
+AFTER:  icon: '○',
+
+pages/Calendar.tsx:162
+BEFORE: icon: 'â—‡',
+AFTER:  icon: '◇',
+
+pages/Calendar.tsx:184
+BEFORE: icon: 'ðŸŒ±',
+AFTER:  icon: '🌱',
+
+pages/Calendar.tsx:190
+BEFORE: icon: 'ðŸª´',
+AFTER:  icon: '🪴',
+
+pages/Calendar.tsx:196
+BEFORE: icon: 'ðŸŒ¿',
+AFTER:  icon: '🌿',
+
+pages/Calendar.tsx:202
+BEFORE: icon: 'â†—',
+AFTER:  icon: '↗',
+
+pages/Calendar.tsx:208
+BEFORE: icon: 'ðŸŒ¾',
+AFTER:  icon: '🌾',
+
+pages/Calendar.tsx:214
+BEFORE: icon: 'ðŸ§´',
+AFTER:  icon: '🧴',
+
+pages/Calendar.tsx:220
+BEFORE: icon: 'ðŸ§º',
+AFTER:  icon: '🧺',
+
+pages/Calendar.tsx:226
+BEFORE: icon: 'ðŸ›’',
+AFTER:  icon: '🛒',
+
+pages/Calendar.tsx:232
+BEFORE: icon: 'ðŸ“Œ',
+AFTER:  icon: '📌',
+
+pages/Calendar.tsx:238
+BEFORE: icon: 'âœŽ',
+AFTER:  icon: '✎',
+
+pages/Calendar.tsx:320
+BEFORE: * App owns the Plan â†’ Reality destination.
+AFTER:  * App owns the Plan → Reality destination.
+
+pages/Calendar.tsx:579
+BEFORE: return `${plant.plantName} Â· ${plant.variety}`
+AFTER:  return `${plant.plantName} · ${plant.variety}`
+
+pages/Calendar.tsx:646
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/Calendar.tsx:767
+BEFORE: return 'ðŸŒ±'
+AFTER:  return '🌱'
+
+pages/Calendar.tsx:771
+BEFORE: return 'ðŸª´'
+AFTER:  return '🪴'
+
+pages/Calendar.tsx:774
+BEFORE: return 'ðŸ‚'
+AFTER:  return '🍂'
+
+pages/Calendar.tsx:777
+BEFORE: return 'ðŸ“·'
+AFTER:  return '📷'
+
+pages/Calendar.tsx:782
+BEFORE: return 'ðŸŒ¿'
+AFTER:  return '🌿'
+
+pages/Calendar.tsx:785
+BEFORE: return 'ðŸ“–'
+AFTER:  return '📖'
+
+pages/Calendar.tsx:789
+BEFORE: return 'ðŸ§º'
+AFTER:  return '🧺'
+
+pages/Calendar.tsx:792
+BEFORE: return 'ðŸ›’'
+AFTER:  return '🛒'
+
+pages/Calendar.tsx:795
+BEFORE: return 'ðŸ“…'
+AFTER:  return '📅'
+
+pages/Calendar.tsx:798
+BEFORE: return 'â€¢'
+AFTER:  return '•'
+
+pages/Calendar.tsx:2222
+BEFORE: PLAN â†’ REALITY
+AFTER:  PLAN → REALITY
+
+pages/Calendar.tsx:2265
+BEFORE: * Sow / Plant â†’ Plant Story
+AFTER:  * Sow / Plant → Plant Story
+
+pages/Calendar.tsx:2266
+BEFORE: * Move / Feed / Treat / Task â†’ Journal
+AFTER:  * Move / Feed / Treat / Task → Journal
+
+pages/Calendar.tsx:2267
+BEFORE: * Plant-out â†’ Journal + Growing Journey
+AFTER:  * Plant-out → Journal + Growing Journey
+
+pages/Calendar.tsx:2268
+BEFORE: * Harvest â†’ Harvest Record
+AFTER:  * Harvest → Harvest Record
+
+pages/Calendar.tsx:2269
+BEFORE: * Buy â†’ Purchase Record
+AFTER:  * Buy → Purchase Record
+
+pages/Calendar.tsx:3530
+BEFORE: Â·
+AFTER:  ·
+
+pages/Calendar.tsx:3629
+BEFORE: ðŸŒ±{' '}
+AFTER:  🌱{' '}
+
+pages/Calendar.tsx:3671
+BEFORE: ðŸª´{' '}
+AFTER:  🪴{' '}
+
+pages/Calendar.tsx:3711
+BEFORE: ðŸ§º{' '}
+AFTER:  🧺{' '}
+
+pages/Calendar.tsx:3758
+BEFORE: ðŸŒ±{' '}
+AFTER:  🌱{' '}
+
+pages/Calendar.tsx:3784
+BEFORE: ðŸ“–{' '}
+AFTER:  📖{' '}
+
+pages/Calendar.tsx:3808
+BEFORE: ðŸ§º Harvest
+AFTER:  🧺 Harvest
+
+pages/Calendar.tsx:3831
+BEFORE: ðŸ›’{' '}
+AFTER:  🛒{' '}
+
+pages/Calendar.tsx:3940
+BEFORE: placeholder="Search plants, journal notes, harvests, places, plansâ€¦"
+AFTER:  placeholder="Search plants, journal notes, harvests, places, plans…"
+
+pages/Calendar.tsx:4083
+BEFORE: Sprig could not find anything matching â€œ{cleanedSearchQuery}â€ in the Calendar layers currently showing.
+AFTER:  Sprig could not find anything matching “{cleanedSearchQuery}” in the Calendar layers currently showing.
+
+pages/Calendar.tsx:4131
+BEFORE: â†’
+AFTER:  →
+
+pages/Calendar.tsx:4162
+BEFORE: â€¹
+AFTER:  ‹
+
+pages/Calendar.tsx:4192
+BEFORE: â€º
+AFTER:  ›
+
+pages/Calendar.tsx:4362
+BEFORE: â—
+AFTER:  ●
+
+pages/Calendar.tsx:4368
+BEFORE: â—‹
+AFTER:  ○
+
+pages/Calendar.tsx:4374
+BEFORE: â—‡
+AFTER:  ◇
+
+pages/Calendar.tsx:4454
+BEFORE: ? 'â—'
+AFTER:  ? '●'
+
+pages/Calendar.tsx:4457
+BEFORE: ? 'â—‹'
+AFTER:  ? '○'
+
+pages/Calendar.tsx:4458
+BEFORE: : 'â—‡'}
+AFTER:  : '◇'}
+
+pages/Calendar.tsx:4517
+BEFORE: ðŸ§®
+AFTER:  🧮
+
+pages/Calendar.tsx:4616
+BEFORE: ðŸ“…
+AFTER:  📅
+
+pages/Calendar.tsx:4710
+BEFORE: Ã—
+AFTER:  ×
+
+pages/Calendar.tsx:4782
+BEFORE: {' '}â†’{' '}
+AFTER:  {' '}→{' '}
+
+pages/Calendar.tsx:4853
+BEFORE: ðŸŒ± Open{' '}
+AFTER:  🌱 Open{' '}
+
+pages/Calendar.tsx:4895
+BEFORE: ðŸ“– Open{' '}
+AFTER:  📖 Open{' '}
+
+pages/Calendar.tsx:4935
+BEFORE: ðŸ§º Open Harvest
+AFTER:  🧺 Open Harvest
+
+pages/Calendar.tsx:4974
+BEFORE: ðŸ›’ Open{' '}
+AFTER:  🛒 Open{' '}
+
+pages/Calendar.tsx:5178
+BEFORE: ðŸŒ±
+AFTER:  🌱
+
+pages/Calendar.tsx:5211
+BEFORE: ðŸª´
+AFTER:  🪴
+
+pages/Calendar.tsx:5409
+BEFORE: ðŸŒ±
+AFTER:  🌱
+
+pages/Calendar.tsx:5499
+BEFORE: ðŸª´
+AFTER:  🪴
+
+pages/Calendar.tsx:5580
+BEFORE: ðŸ§º
+AFTER:  🧺
+
+pages/Calendar.tsx:5607
+BEFORE: When you actually buy it, â€œRecord what happenedâ€
+AFTER:  When you actually buy it, “Record what happened”
+
+pages/Comparisons.tsx:378
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/Comparisons.tsx:459
+BEFORE: Open comparison â†’
+AFTER:  Open comparison →
+
+pages/Comparisons.tsx:501
+BEFORE: ðŸ“Š
+AFTER:  📊
+
+pages/Comparisons.tsx:524
+BEFORE: Go to Growing Stories â†’
+AFTER:  Go to Growing Stories →
+
+pages/GardenGallery.tsx:475
+BEFORE: `${event.title} Â· ${formatDate(
+AFTER:  `${event.title} · ${formatDate(
+
+pages/GardenGallery.tsx:534
+BEFORE: ) || 'Harvest'} Â· ${formatDate(
+AFTER:  ) || 'Harvest'} · ${formatDate(
+
+pages/GardenGallery.tsx:683
+BEFORE: `${purchase.itemName} Â· ${formatDate(
+AFTER:  `${purchase.itemName} · ${formatDate(
+
+pages/GardenGallery.tsx:759
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/GardenGallery.tsx:1105
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/GardenGallery.tsx:1503
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/GardenGallery.tsx:1679
+BEFORE: `Trial observation Â· ${formatDate(
+AFTER:  `Trial observation · ${formatDate(
+
+pages/GardenGallery.tsx:1746
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/GardenGallery.tsx:3033
+BEFORE: {option.group} Â· {option.label}
+AFTER:  {option.group} · {option.label}
+
+pages/GardenGallery.tsx:3035
+BEFORE: ? ' Â· Already linked'
+AFTER:  ? ' · Already linked'
+
+pages/GardenGallery.tsx:3327
+BEFORE: ? ` Â· ${item.photoTime}`
+AFTER:  ? ` · ${item.photoTime}`
+
+pages/GardenGallery.tsx:3383
+BEFORE: ? 'âœ“ Selected'
+AFTER:  ? '✓ Selected'
+
+pages/GardenGallery.tsx:3398
+BEFORE: : 'Open source â€º'}
+AFTER:  : 'Open source ›'}
+
+pages/GardenGallery.tsx:3483
+BEFORE: ? ` Â· ${item.subtitle}`
+AFTER:  ? ` · ${item.subtitle}`
+
+pages/GardenGallery.tsx:3529
+BEFORE: Ã—
+AFTER:  ×
+
+pages/GardenGallery.tsx:3574
+BEFORE: ? ` Â· ${viewerItem.photoTime}`
+AFTER:  ? ` · ${viewerItem.photoTime}`
+
+pages/GardenKnowledge.tsx:236
+BEFORE: 'ðŸ“',
+AFTER:  '📝',
+
+pages/GardenKnowledge.tsx:250
+BEFORE: 'ðŸ“–',
+AFTER:  '📖',
+
+pages/GardenKnowledge.tsx:264
+BEFORE: 'ðŸŒ¿',
+AFTER:  '🌿',
+
+pages/GardenKnowledge.tsx:278
+BEFORE: 'ðŸ”–',
+AFTER:  '🔖',
+
+pages/GardenKnowledge.tsx:478
+BEFORE: .trim()}â€¦`;
+AFTER:  .trim()}…`;
+
+pages/GardenKnowledge.tsx:669
+BEFORE: ? `Harvest Â· ${plantNames.join(
+AFTER:  ? `Harvest · ${plantNames.join(
+
+pages/GardenKnowledge.tsx:672
+BEFORE: : `Harvest Â· ${formatDate(
+AFTER:  : `Harvest · ${formatDate(
+
+pages/GardenKnowledge.tsx:800
+BEFORE: `${purchase.itemName} Â· ${formatDate(
+AFTER:  `${purchase.itemName} · ${formatDate(
+
+pages/GardenKnowledge.tsx:1129
+BEFORE: `${plant.plantName} Â· ${plant.variety.trim()}`,
+AFTER:  `${plant.plantName} · ${plant.variety.trim()}`,
+
+pages/GardenKnowledge.tsx:1162
+BEFORE: `${reference.plantName} Â· ${reference.variety.trim()}`,
+AFTER:  `${reference.plantName} · ${reference.variety.trim()}`,
+
+pages/GardenKnowledge.tsx:1184
+BEFORE: 'Â·',
+AFTER:  '·',
+
+pages/GardenKnowledge.tsx:1359
+BEFORE: 'Â·',
+AFTER:  '·',
+
+pages/GardenKnowledge.tsx:3563
+BEFORE: â€º
+AFTER:  ›
+
+pages/GardenKnowledge.tsx:3579
+BEFORE: Ã—
+AFTER:  ×
+
+pages/GardenKnowledge.tsx:3622
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GardenKnowledge.tsx:4169
+BEFORE: 'Original imported note Â· preserved snapshot',
+AFTER:  'Original imported note · preserved snapshot',
+
+pages/GardenKnowledge.tsx:4514
+BEFORE: â† Garden Notes
+AFTER:  ← Garden Notes
+
+pages/GardenKnowledge.tsx:4614
+BEFORE: optional Â· type your own or reuse one
+AFTER:  optional · type your own or reuse one
+
+pages/GardenKnowledge.tsx:4844
+BEFORE: ? 'âˆ’'
+AFTER:  ? '−'
+
+pages/GardenKnowledge.tsx:4937
+BEFORE: optional Â· type your own or reuse one
+AFTER:  optional · type your own or reuse one
+
+pages/GardenKnowledge.tsx:5237
+BEFORE: â† Tips & Sources
+AFTER:  ← Tips & Sources
+
+pages/GardenKnowledge.tsx:5386
+BEFORE: optional Â· type your own or reuse one
+AFTER:  optional · type your own or reuse one
+
+pages/GardenKnowledge.tsx:5609
+BEFORE: Open source â†—
+AFTER:  Open source ↗
+
+pages/GardenKnowledge.tsx:5711
+BEFORE: ? 'âˆ’'
+AFTER:  ? '−'
+
+pages/GardenKnowledge.tsx:5820
+BEFORE: optional Â· type your own or reuse one
+AFTER:  optional · type your own or reuse one
+
+pages/GardenKnowledge.tsx:6084
+BEFORE: ? `${source.category} Â· ${getSourceKindLabel(
+AFTER:  ? `${source.category} · ${getSourceKindLabel(
+
+pages/GardenKnowledge.tsx:6149
+BEFORE: 'Â·',
+AFTER:  '·',
+
+pages/GardenKnowledge.tsx:6262
+BEFORE: â† Garden Almanac
+AFTER:  ← Garden Almanac
+
+pages/GardenKnowledge.tsx:6314
+BEFORE: Sprig Smart â€º
+AFTER:  Sprig Smart ›
+
+pages/GardenKnowledge.tsx:6340
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GardenKnowledge.tsx:6422
+BEFORE: Harvest Â·{' '}
+AFTER:  Harvest ·{' '}
+
+pages/GardenKnowledge.tsx:6613
+BEFORE: here as â€œFrom your gardenâ€, with the
+AFTER:  here as “From your garden”, with the
+
+pages/GardenKnowledge.tsx:6650
+BEFORE: Sprig Smart â€º
+AFTER:  Sprig Smart ›
+
+pages/GardenKnowledge.tsx:6679
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GardenKnowledge.tsx:6796
+BEFORE: Open this garden thread â€º
+AFTER:  Open this garden thread ›
+
+pages/GardenTrials.tsx:691
+BEFORE: `${event.title} Â· ${formatDate(
+AFTER:  `${event.title} · ${formatDate(
+
+pages/GardenTrials.tsx:747
+BEFORE: )} Â· ${formatDate(
+AFTER:  )} · ${formatDate(
+
+pages/GardenTrials.tsx:750
+BEFORE: : `Harvest Â· ${formatDate(
+AFTER:  : `Harvest · ${formatDate(
+
+pages/GardenTrials.tsx:924
+BEFORE: `${purchase.itemName} Â· ${formatDate(
+AFTER:  `${purchase.itemName} · ${formatDate(
+
+pages/GardenTrials.tsx:994
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/GardenTrials.tsx:1610
+BEFORE: `â€¢ ${getRelationshipLabel(
+AFTER:  `• ${getRelationshipLabel(
+
+pages/GardenTrials.tsx:2050
+BEFORE: optional Â· editable
+AFTER:  optional · editable
+
+pages/GardenTrials.tsx:2973
+BEFORE: ? ` Â· ${formatDate(
+AFTER:  ? ` · ${formatDate(
+
+pages/GardenTrials.tsx:4133
+BEFORE: â† Garden Trials
+AFTER:  ← Garden Trials
+
+pages/GardenTrials.tsx:4145
+BEFORE: â† Back to{' '}
+AFTER:  ← Back to{' '}
+
+pages/GardenTrials.tsx:4459
+BEFORE: ? ` Â· ${formatDate(
+AFTER:  ? ` · ${formatDate(
+
+pages/GardenTrials.tsx:4465
+BEFORE: : ' Â· Date not recorded'}
+AFTER:  : ' · Date not recorded'}
+
+pages/GardenTrials.tsx:4569
+BEFORE: â€º
+AFTER:  ›
+
+pages/GardenTrials.tsx:4583
+BEFORE: Ã—
+AFTER:  ×
+
+pages/GardenTrials.tsx:4667
+BEFORE: Â·{' '}
+AFTER:  ·{' '}
+
+pages/GardenTrials.tsx:4956
+BEFORE: Â·{' '}
+AFTER:  ·{' '}
+
+pages/GardenTrials.tsx:5236
+BEFORE: â† Back to{' '}
+AFTER:  ← Back to{' '}
+
+pages/GardenTrials.tsx:5388
+BEFORE: ðŸ“·{' '}
+AFTER:  📷{' '}
+
+pages/GlobalSearch.tsx:50
+BEFORE: *      â†“
+AFTER:  *      ↓
+
+pages/GlobalSearch.tsx:52
+BEFORE: *      â†“
+AFTER:  *      ↓
+
+pages/GlobalSearch.tsx:54
+BEFORE: *      â†“
+AFTER:  *      ↓
+
+pages/GlobalSearch.tsx:118
+BEFORE: CALENDAR SOURCE â†’ SEARCH SOURCE
+AFTER:  CALENDAR SOURCE → SEARCH SOURCE
+
+pages/GlobalSearch.tsx:665
+BEFORE: ðŸ”Ž
+AFTER:  🔎
+
+pages/GlobalSearch.tsx:989
+BEFORE: Â·
+AFTER:  ·
+
+pages/GlobalSearch.tsx:1050
+BEFORE: â€º
+AFTER:  ›
+
+pages/GrowingPlaceDetail.tsx:747
+BEFORE: â†{' '}
+AFTER:  ←{' '}
+
+pages/GrowingPlaceDetail.tsx:775
+BEFORE: Growing Â· Place
+AFTER:  Growing · Place
+
+pages/GrowingPlaceDetail.tsx:807
+BEFORE: âœŽ Edit Place
+AFTER:  ✎ Edit Place
+
+pages/GrowingPlaceDetail.tsx:1012
+BEFORE: â†’
+AFTER:  →
+
+pages/GrowingPlaceDetail.tsx:1113
+BEFORE: â†’
+AFTER:  →
+
+pages/GrowingPlaceDetail.tsx:1197
+BEFORE: â†’
+AFTER:  →
+
+pages/GrowingPlaceDetail.tsx:1219
+BEFORE: â†‘ Back to top
+AFTER:  ↑ Back to top
+
+pages/GrowingPlaces.tsx:381
+BEFORE: return `${product.brand} Â· ${category}`;
+AFTER:  return `${product.brand} · ${category}`;
+
+pages/GrowingPlaces.tsx:2339
+BEFORE: ? ` Â· ${place.aspect}`
+AFTER:  ? ` · ${place.aspect}`
+
+pages/GrowingPlaces.tsx:2343
+BEFORE: ? ` Â· ${place.sunlight}`
+AFTER:  ? ` · ${place.sunlight}`
+
+pages/GrowingPlaces.tsx:2352
+BEFORE: â†’
+AFTER:  →
+
+pages/GrowingPlaces.tsx:2423
+BEFORE: ? ` Â· ${setup.brand}`
+AFTER:  ? ` · ${setup.brand}`
+
+pages/GrowingPlaces.tsx:2428
+BEFORE: ? ` Â· ${ingredientCount} ${
+AFTER:  ? ` · ${ingredientCount} ${
+
+pages/GrowingPlaces.tsx:2438
+BEFORE: ? ` Â· ${productCount} ${
+AFTER:  ? ` · ${productCount} ${
+
+pages/GrowingPlaces.tsx:2452
+BEFORE: â†’
+AFTER:  →
+
+pages/GrowingPlaces.tsx:2524
+BEFORE: ? ` Â· ${ingredient.manufacturer}`
+AFTER:  ? ` · ${ingredient.manufacturer}`
+
+pages/GrowingPlaces.tsx:2529
+BEFORE: ? ` Â· used in ${usedByCount} ${
+AFTER:  ? ` · used in ${usedByCount} ${
+
+pages/GrowingPlaces.tsx:2543
+BEFORE: â†’
+AFTER:  →
+
+pages/GrowingPlaces.tsx:2612
+BEFORE: ? ` Â· used in ${usedByCount} ${
+AFTER:  ? ` · used in ${usedByCount} ${
+
+pages/GrowingPlaces.tsx:2626
+BEFORE: â†’
+AFTER:  →
+
+pages/GrowingPlaces.tsx:2830
+BEFORE: Name Aâ€“Z
+AFTER:  Name A–Z
+
+pages/GrowingPlaces.tsx:2834
+BEFORE: Name Zâ€“A
+AFTER:  Name Z–A
+
+pages/GrowingRecipeDetail.tsx:211
+BEFORE: return pieces.join(' Â· ');
+AFTER:  return pieces.join(' · ');
+
+pages/GrowingRecipeDetail.tsx:480
+BEFORE: â˜… Garden Favourite
+AFTER:  ★ Garden Favourite
+
+pages/GrowingRecipeDetail.tsx:486
+BEFORE: ðŸ“¦ Resting in Sprig&apos;s archive
+AFTER:  📦 Resting in Sprig&apos;s archive
+
+pages/GrowingRecipeDetail.tsx:524
+BEFORE: ðŸŒ± Restore this {recordNoun}
+AFTER:  🌱 Restore this {recordNoun}
+
+pages/GrowingRecipeDetail.tsx:612
+BEFORE: ? 'â˜…'
+AFTER:  ? '★'
+
+pages/GrowingRecipeDetail.tsx:613
+BEFORE: : 'â˜†'}
+AFTER:  : '☆'}
+
+pages/GrowingRecipeDetail.tsx:659
+BEFORE: {'â˜…'.repeat(recipe.rating)}{' '}
+AFTER:  {'★'.repeat(recipe.rating)}{' '}
+
+pages/GrowingRecipeDetail.tsx:665
+BEFORE: <p>â˜… Garden Favourite</p>
+AFTER:  <p>★ Garden Favourite</p>
+
+pages/GrowingRecipeDetail.tsx:669
+BEFORE: <p>ðŸ“¦ Archived</p>
+AFTER:  <p>📦 Archived</p>
+
+pages/GrowingRecipeDetail.tsx:736
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GrowingRecipeDetail.tsx:743
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GrowingRecipeDetail.tsx:750
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GrowingRecipeDetail.tsx:771
+BEFORE: âœï¸ Edit purchase
+AFTER:  ✏️ Edit purchase
+
+pages/GrowingRecipeDetail.tsx:847
+BEFORE: ðŸŒ¿ {item.ingredient.name}
+AFTER:  🌿 {item.ingredient.name}
+
+pages/GrowingRecipeDetail.tsx:851
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GrowingRecipeDetail.tsx:887
+BEFORE: ðŸ§º {item.product.name}
+AFTER:  🧺 {item.product.name}
+
+pages/GrowingRecipeDetail.tsx:891
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GrowingRecipeDetail.tsx:898
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GrowingRecipeDetail.tsx:936
+BEFORE: ðŸŒ± {item.growingSetup.name}
+AFTER:  🌱 {item.growingSetup.name}
+
+pages/GrowingRecipeDetail.tsx:940
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/GrowingRecipeDetail.tsx:1001
+BEFORE: ðŸŒ± {plant.displayName}
+AFTER:  🌱 {plant.displayName}
+
+pages/GrowingRecipeDetail.tsx:1040
+BEFORE: ðŸŒ¿ {linkedSetup.name}
+AFTER:  🌿 {linkedSetup.name}
+
+pages/GrowingRecipeDetail.tsx:1141
+BEFORE: â†‘ Back to the top
+AFTER:  ↑ Back to the top
+
+pages/GrowingRecipes.tsx:279
+BEFORE: return 'â˜…'.repeat(
+AFTER:  return '★'.repeat(
+
+pages/GrowingRecipes.tsx:751
+BEFORE: ðŸ“¦{' '}
+AFTER:  📦{' '}
+
+pages/GrowingRecipes.tsx:921
+BEFORE: ? 'â˜… '
+AFTER:  ? '★ '
+
+pages/GrowingRecipes.tsx:977
+BEFORE: â†’
+AFTER:  →
+
+pages/Harvest.tsx:489
+BEFORE: ðŸ§º Gather a harvest
+AFTER:  🧺 Gather a harvest
+
+pages/Harvest.tsx:524
+BEFORE: ðŸ§º
+AFTER:  🧺
+
+pages/Harvest.tsx:532
+BEFORE: ðŸŒ±{' '}
+AFTER:  🌱{' '}
+
+pages/Harvest.tsx:620
+BEFORE: ðŸ§º
+AFTER:  🧺
+
+pages/HarvestDetail.tsx:382
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/HarvestDetail.tsx:941
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/HarvestDetail.tsx:976
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/HarvestDetail.tsx:1133
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/HarvestDetail.tsx:1233
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/HarvestDetail.tsx:1411
+BEFORE: â† Back to{' '}
+AFTER:  ← Back to{' '}
+
+pages/HarvestDetail.tsx:1428
+BEFORE: â† Harvests
+AFTER:  ← Harvests
+
+pages/HarvestDetail.tsx:1477
+BEFORE: ? ` Â· ${totalMeasurement} recorded`
+AFTER:  ? ` · ${totalMeasurement} recorded`
+
+pages/HarvestDetail.tsx:1543
+BEFORE: ðŸ§º Record another harvest
+AFTER:  🧺 Record another harvest
+
+pages/HarvestDetail.tsx:1574
+BEFORE: ðŸŒ¾
+AFTER:  🌾
+
+pages/HarvestDetail.tsx:1680
+BEFORE: ðŸŒ±{' '}
+AFTER:  🌱{' '}
+
+pages/HarvestDetail.tsx:1717
+BEFORE: ðŸ§º
+AFTER:  🧺
+
+pages/HarvestDetail.tsx:1861
+BEFORE: âœ Edit
+AFTER:  ✏ Edit
+
+pages/HarvestDetail.tsx:1874
+BEFORE: ðŸ—‘ Delete
+AFTER:  🗑 Delete
+
+pages/HarvestDetail.tsx:1892
+BEFORE: â†‘ Back to top
+AFTER:  ↑ Back to top
+
+pages/IngredientDetail.tsx:287
+BEFORE: return parts.join(' Â· ');
+AFTER:  return parts.join(' · ');
+
+pages/IngredientDetail.tsx:551
+BEFORE: 'â˜…'.repeat(
+AFTER:  '★'.repeat(
+
+pages/IngredientDetail.tsx:556
+BEFORE: 'â˜†'.repeat(
+AFTER:  '☆'.repeat(
+
+pages/IngredientDetail.tsx:569
+BEFORE: â˜… Garden Favourite
+AFTER:  ★ Garden Favourite
+
+pages/IngredientDetail.tsx:668
+BEFORE: ? ' Â· Archived'
+AFTER:  ? ' · Archived'
+
+pages/IngredientDetail.tsx:745
+BEFORE: âœ Edit purchase
+AFTER:  ✏ Edit purchase
+
+pages/IngredientDetail.tsx:769
+BEFORE: ðŸ›’ Bought this again
+AFTER:  🛒 Bought this again
+
+pages/IngredientDetail.tsx:808
+BEFORE: â†‘ Back to the top
+AFTER:  ↑ Back to the top
+
+pages/Ingredients.tsx:138
+BEFORE: return 'ðŸ‚'
+AFTER:  return '🍂'
+
+pages/Ingredients.tsx:141
+BEFORE: return 'ðŸŒ¾'
+AFTER:  return '🌾'
+
+pages/Ingredients.tsx:144
+BEFORE: return 'ðŸŒ¿'
+AFTER:  return '🌿'
+
+pages/Ingredients.tsx:147
+BEFORE: return 'ðŸª¨'
+AFTER:  return '🪨'
+
+pages/Ingredients.tsx:150
+BEFORE: return 'ðŸŒ¬ï¸'
+AFTER:  return '🌬️'
+
+pages/Ingredients.tsx:153
+BEFORE: return 'ðŸ’§'
+AFTER:  return '💧'
+
+pages/Ingredients.tsx:156
+BEFORE: return 'ðŸª´'
+AFTER:  return '🪴'
+
+pages/Ingredients.tsx:159
+BEFORE: return 'ðŸŒ±'
+AFTER:  return '🌱'
+
+pages/Ingredients.tsx:162
+BEFORE: return 'ðŸ¦ '
+AFTER:  return '🦠'
+
+pages/Ingredients.tsx:165
+BEFORE: return 'âš–ï¸'
+AFTER:  return '⚖️'
+
+pages/Ingredients.tsx:168
+BEFORE: return 'ðŸªµ'
+AFTER:  return '🪵'
+
+pages/Ingredients.tsx:171
+BEFORE: return 'ðŸª´'
+AFTER:  return '🪴'
+
+pages/Ingredients.tsx:174
+BEFORE: return 'ðŸ'
+AFTER:  return '🍁'
+
+pages/Ingredients.tsx:177
+BEFORE: return 'ðŸŒ¾'
+AFTER:  return '🌾'
+
+pages/Ingredients.tsx:180
+BEFORE: return 'ðŸŒ¿'
+AFTER:  return '🌿'
+
+pages/Ingredients.tsx:439
+BEFORE: â† {archivedButtonLabel}
+AFTER:  ← {archivedButtonLabel}
+
+pages/Ingredients.tsx:450
+BEFORE: ðŸ“¦ Archived Ingredients{' '}
+AFTER:  📦 Archived Ingredients{' '}
+
+pages/Ingredients.tsx:493
+BEFORE: ðŸŒ¿
+AFTER:  🌿
+
+pages/Ingredients.tsx:559
+BEFORE: ðŸ“¦ Archived
+AFTER:  📦 Archived
+
+pages/Ingredients.tsx:567
+BEFORE: â˜… Garden Favourite
+AFTER:  ★ Garden Favourite
+
+pages/Ingredients.tsx:587
+BEFORE: {'â˜…'.repeat(
+AFTER:  {'★'.repeat(
+
+pages/Ingredients.tsx:591
+BEFORE: {'â˜†'.repeat(
+AFTER:  {'☆'.repeat(
+
+pages/Ingredients.tsx:639
+BEFORE: ðŸ“·{' '}
+AFTER:  📷{' '}
+
+pages/Journal.tsx:45
+BEFORE: return 'ðŸŒ±'
+AFTER:  return '🌱'
+
+pages/Journal.tsx:52
+BEFORE: return 'ðŸŒ¿'
+AFTER:  return '🌿'
+
+pages/Journal.tsx:59
+BEFORE: return 'ðŸ’§'
+AFTER:  return '💧'
+
+pages/Journal.tsx:66
+BEFORE: return 'ðŸ§ª'
+AFTER:  return '🧪'
+
+pages/Journal.tsx:73
+BEFORE: return 'ðŸª´'
+AFTER:  return '🪴'
+
+pages/Journal.tsx:80
+BEFORE: return 'ðŸŒ±'
+AFTER:  return '🌱'
+
+pages/Journal.tsx:87
+BEFORE: return 'ðŸ¥”'
+AFTER:  return '🥔'
+
+pages/Journal.tsx:94
+BEFORE: return 'âœ‚ï¸'
+AFTER:  return '✂️'
+
+pages/Journal.tsx:101
+BEFORE: return 'ðŸ©¹'
+AFTER:  return '🩹'
+
+pages/Journal.tsx:108
+BEFORE: return 'ðŸŒ¦ï¸'
+AFTER:  return '🌦️'
+
+pages/Journal.tsx:115
+BEFORE: return 'ðŸ“·'
+AFTER:  return '📷'
+
+pages/Journal.tsx:122
+BEFORE: return 'ðŸ§º'
+AFTER:  return '🧺'
+
+pages/Journal.tsx:129
+BEFORE: return 'ðŸ‘€'
+AFTER:  return '👀'
+
+pages/Journal.tsx:136
+BEFORE: return 'ðŸ“–'
+AFTER:  return '📖'
+
+pages/Journal.tsx:139
+BEFORE: return 'ðŸ“'
+AFTER:  return '📝'
+
+pages/Journal.tsx:268
+BEFORE: âœ’ï¸ Add an entry
+AFTER:  ✒️ Add an entry
+
+pages/Journal.tsx:338
+BEFORE: ? 'ðŸŒ From the wider garden'
+AFTER:  ? '🌍 From the wider garden'
+
+pages/Journal.tsx:339
+BEFORE: : `ðŸŒ± From ${getPlantNames(
+AFTER:  : `🌱 From ${getPlantNames(
+
+pages/Journal.tsx:385
+BEFORE: ðŸ—‘ï¸
+AFTER:  🗑️
+
+pages/Journal.tsx:420
+BEFORE: ðŸ“–
+AFTER:  📖
+
+pages/JournalEntryDetail.tsx:268
+BEFORE: return 'ðŸŒ±';
+AFTER:  return '🌱';
+
+pages/JournalEntryDetail.tsx:271
+BEFORE: return 'ðŸŒ¿';
+AFTER:  return '🌿';
+
+pages/JournalEntryDetail.tsx:274
+BEFORE: return 'ðŸ’§';
+AFTER:  return '💧';
+
+pages/JournalEntryDetail.tsx:277
+BEFORE: return 'ðŸ§ª';
+AFTER:  return '🧪';
+
+pages/JournalEntryDetail.tsx:280
+BEFORE: return 'ðŸª´';
+AFTER:  return '🪴';
+
+pages/JournalEntryDetail.tsx:283
+BEFORE: return 'ðŸŒ±';
+AFTER:  return '🌱';
+
+pages/JournalEntryDetail.tsx:286
+BEFORE: return 'ðŸ¥”';
+AFTER:  return '🥔';
+
+pages/JournalEntryDetail.tsx:289
+BEFORE: return 'âœ‚ï¸';
+AFTER:  return '✂️';
+
+pages/JournalEntryDetail.tsx:292
+BEFORE: return 'ðŸ©¹';
+AFTER:  return '🩹';
+
+pages/JournalEntryDetail.tsx:295
+BEFORE: return 'ðŸŒ¦ï¸';
+AFTER:  return '🌦️';
+
+pages/JournalEntryDetail.tsx:298
+BEFORE: return 'ðŸ‘€';
+AFTER:  return '👀';
+
+pages/JournalEntryDetail.tsx:301
+BEFORE: return 'ðŸ“·';
+AFTER:  return '📷';
+
+pages/JournalEntryDetail.tsx:304
+BEFORE: return 'ðŸ§º';
+AFTER:  return '🧺';
+
+pages/JournalEntryDetail.tsx:307
+BEFORE: return 'ðŸ“–';
+AFTER:  return '📖';
+
+pages/JournalEntryDetail.tsx:310
+BEFORE: return 'ðŸ“';
+AFTER:  return '📝';
+
+pages/JournalEntryDetail.tsx:329
+BEFORE: return 'Container â†’ ground / garden bed';
+AFTER:  return 'Container → ground / garden bed';
+
+pages/JournalEntryDetail.tsx:332
+BEFORE: return 'Ground / garden bed â†’ container';
+AFTER:  return 'Ground / garden bed → container';
+
+pages/JournalEntryDetail.tsx:954
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/JournalEntryDetail.tsx:1049
+BEFORE: ? `${product.name} Â· ${product.brand}`
+AFTER:  ? `${product.name} · ${product.brand}`
+
+pages/JournalEntryDetail.tsx:1223
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/JournalEntryDetail.tsx:1351
+BEFORE: â† Back to{' '}
+AFTER:  ← Back to{' '}
+
+pages/JournalEntryDetail.tsx:1368
+BEFORE: ðŸ“– Journal
+AFTER:  📖 Journal
+
+pages/JournalEntryDetail.tsx:1407
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/JournalEntryDetail.tsx:1483
+BEFORE: âœ Edit Journal Entry
+AFTER:  ✏ Edit Journal Entry
+
+pages/JournalEntryDetail.tsx:1494
+BEFORE: ðŸ—‘ Delete Journal Entry
+AFTER:  🗑 Delete Journal Entry
+
+pages/JournalEntryDetail.tsx:1570
+BEFORE: ðŸŒ³ All Plants
+AFTER:  🌳 All Plants
+
+pages/JournalEntryDetail.tsx:1603
+BEFORE: ðŸŒ±{' '}
+AFTER:  🌱{' '}
+
+pages/JournalEntryDetail.tsx:1610
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/JournalEntryDetail.tsx:1664
+BEFORE: ðŸŒ³ The whole garden
+AFTER:  🌳 The whole garden
+
+pages/JournalEntryDetail.tsx:1685
+BEFORE: ðŸŒ¿{' '}
+AFTER:  🌿{' '}
+
+pages/JournalEntryDetail.tsx:1718
+BEFORE: ðŸŒ± {
+AFTER:  🌱 {
+
+pages/JournalEntryDetail.tsx:1784
+BEFORE: ðŸŒ±{' '}
+AFTER:  🌱{' '}
+
+pages/JournalEntryDetail.tsx:1790
+BEFORE: 'ðŸŒ± Plant Story'
+AFTER:  '🌱 Plant Story'
+
+pages/JournalEntryDetail.tsx:1822
+BEFORE: â†’
+AFTER:  →
+
+pages/JournalEntryDetail.tsx:1937
+BEFORE: ðŸŒ¿{' '}
+AFTER:  🌿{' '}
+
+pages/JournalEntryDetail.tsx:1944
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/JournalEntryDetail.tsx:2027
+BEFORE: â†‘ Back to top
+AFTER:  ↑ Back to top
+
+pages/Library.tsx:109
+BEFORE: ðŸŒ¿
+AFTER:  🌿
+
+pages/Library.tsx:141
+BEFORE: ðŸ›’
+AFTER:  🛒
+
+pages/Library.tsx:189
+BEFORE: ðŸ§¾
+AFTER:  🧾
+
+pages/Library.tsx:214
+BEFORE: ðŸ“¦
+AFTER:  📦
+
+pages/Library.tsx:238
+BEFORE: ðŸ¡
+AFTER:  🏡
+
+pages/Library.tsx:263
+BEFORE: ðŸª™
+AFTER:  🪙
+
+pages/PlantComparison.tsx:458
+BEFORE: )} Â· ${formatDays(
+AFTER:  )} · ${formatDays(
+
+pages/PlantComparison.tsx:754
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/PlantComparison.tsx:802
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/PlantComparison.tsx:847
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/PlantComparison.tsx:997
+BEFORE: )} â†’ ${
+AFTER:  )} → ${
+
+pages/PlantComparison.tsx:1052
+BEFORE: )} Â· ${placeName}`
+AFTER:  )} · ${placeName}`
+
+pages/PlantComparison.tsx:1078
+BEFORE: ? `Current Â· ${currentPlace.name}`
+AFTER:  ? `Current · ${currentPlace.name}`
+
+pages/PlantComparison.tsx:1128
+BEFORE: )} Â· ${setupName}`
+AFTER:  )} · ${setupName}`
+
+pages/PlantComparison.tsx:1154
+BEFORE: ? `Current Â· ${currentSetup.name}`
+AFTER:  ? `Current · ${currentSetup.name}`
+
+pages/PlantComparison.tsx:1255
+BEFORE: ? `${name} Â· ${measurement}`
+AFTER:  ? `${name} · ${measurement}`
+
+pages/PlantComparison.tsx:1353
+BEFORE: ? `${product.name} Â· ${product.brand}`
+AFTER:  ? `${product.name} · ${product.brand}`
+
+pages/PlantComparison.tsx:1435
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/PlantComparison.tsx:1444
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/PlantComparison.tsx:1453
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/PlantComparison.tsx:1479
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/PlantComparison.tsx:4081
+BEFORE: â† {backLabel}
+AFTER:  ← {backLabel}
+
+pages/PlantComparison.tsx:4099
+BEFORE: âœï¸ Edit comparison
+AFTER:  ✏️ Edit comparison
+
+pages/PlantComparison.tsx:4111
+BEFORE: ? 'ðŸ’¾ Save changes'
+AFTER:  ? '💾 Save changes'
+
+pages/PlantComparison.tsx:4112
+BEFORE: : 'ðŸ’¾ Save comparison'}
+AFTER:  : '💾 Save comparison'}
+
+pages/PlantComparison.tsx:4123
+BEFORE: ðŸ“„ Export PDF
+AFTER:  📄 Export PDF
+
+pages/PlantComparison.tsx:4134
+BEFORE: ðŸ“Š Export XLSX
+AFTER:  📊 Export XLSX
+
+pages/PlantComparison.tsx:4172
+BEFORE: Sprig Smart â†’
+AFTER:  Sprig Smart →
+
+pages/PlantComparison.tsx:4284
+BEFORE: ? `${evidence.label} Â· ${evidence.detail}`
+AFTER:  ? `${evidence.label} · ${evidence.detail}`
+
+pages/PlantComparison.tsx:4363
+BEFORE: ? 'âœ“ Show everything'
+AFTER:  ? '✓ Show everything'
+
+pages/PlantComparison.tsx:4399
+BEFORE: ? `âœ“ ${option.label}`
+AFTER:  ? `✓ ${option.label}`
+
+pages/PlantComparison.tsx:5507
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/PlantDetail.tsx:982
+BEFORE: * If the gardener says "60â€“80 days from transplanting" and
+AFTER:  * If the gardener says "60–80 days from transplanting" and
+
+pages/PlantDetail.tsx:1071
+BEFORE: )}â€“${formatDuration(
+AFTER:  )}–${formatDuration(
+
+pages/PlantDetail.tsx:1105
+BEFORE: return start === end ? start : `${start} â€“ ${end}`;
+AFTER:  return start === end ? start : `${start} – ${end}`;
+
+pages/PlantDetail.tsx:1136
+BEFORE: )}â€“${formatDuration(
+AFTER:  )}–${formatDuration(
+
+pages/PlantDetail.tsx:1981
+BEFORE: ðŸ“¦ Resting in Sprig&apos;s archive
+AFTER:  📦 Resting in Sprig&apos;s archive
+
+pages/PlantDetail.tsx:1998
+BEFORE: â† Back to {journeyBackLabel}
+AFTER:  ← Back to {journeyBackLabel}
+
+pages/PlantDetail.tsx:2008
+BEFORE: â† Plants
+AFTER:  ← Plants
+
+pages/PlantDetail.tsx:2017
+BEFORE: âœ Edit
+AFTER:  ✏ Edit
+
+pages/PlantDetail.tsx:2035
+BEFORE: : 'â˜† Favourite'}
+AFTER:  : '☆ Favourite'}
+
+pages/PlantDetail.tsx:2043
+BEFORE: ðŸ“¸ Add photographs
+AFTER:  📸 Add photographs
+
+pages/PlantDetail.tsx:2057
+BEFORE: : 'ðŸ“¦ Archive'}
+AFTER:  : '📦 Archive'}
+
+pages/PlantDetail.tsx:2065
+BEFORE: ðŸ–¨ Print
+AFTER:  🖨 Print
+
+pages/PlantDetail.tsx:2073
+BEFORE: ðŸ“¤ Export
+AFTER:  📤 Export
+
+pages/PlantDetail.tsx:2081
+BEFORE: ðŸ—‘ Delete
+AFTER:  🗑 Delete
+
+pages/PlantDetail.tsx:2089
+BEFORE: ðŸ§º Add a harvest
+AFTER:  🧺 Add a harvest
+
+pages/PlantDetail.tsx:2097
+BEFORE: ðŸ“– Add a moment
+AFTER:  📖 Add a moment
+
+pages/PlantDetail.tsx:2111
+BEFORE: : 'ðŸ‚ Complete story'}
+AFTER:  : '🍂 Complete story'}
+
+pages/PlantDetail.tsx:2449
+BEFORE: {plant.displayName} â€” Harvest Story
+AFTER:  {plant.displayName} — Harvest Story
+
+pages/PlantDetail.tsx:2718
+BEFORE: ðŸ§º Harvest {plant.displayName}
+AFTER:  🧺 Harvest {plant.displayName}
+
+pages/PlantDetail.tsx:3378
+BEFORE: â†‘ Back to top
+AFTER:  ↑ Back to top
+
+pages/PlantDetail.tsx:3511
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+pages/PlantDetail.tsx:3531
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+pages/PlantDetail.tsx:3532
+BEFORE: : 'ðŸª´ '}
+AFTER:  : '🪴 '}
+
+pages/PlantDetail.tsx:3554
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+pages/PlantDetail.tsx:3555
+BEFORE: : 'ðŸŒ¿ '}
+AFTER:  : '🌿 '}
+
+pages/PlantDetail.tsx:3576
+BEFORE: âœ“ Planted out · Date not recorded yet ·
+AFTER:  ✓ Planted out · Date not recorded yet ·
+
+pages/PlantDetail.tsx:3597
+BEFORE: ? 'âœ“ '
+AFTER:  ? '✓ '
+
+pages/PlantDetail.tsx:3598
+BEFORE: : 'ðŸ“– '}
+AFTER:  : '📖 '}
+
+pages/Plants.tsx:1039
+BEFORE: return `${startText} â€“ ${endText}`
+AFTER:  return `${startText} – ${endText}`
+
+pages/Plants.tsx:1129
+BEFORE: : `${minimum}â€“${maximum}`
+AFTER:  : `${minimum}–${maximum}`
+
+pages/Plants.tsx:2638
+BEFORE: Plant Aâ€“Z
+AFTER:  Plant A–Z
+
+pages/Plants.tsx:2642
+BEFORE: Variety Aâ€“Z
+AFTER:  Variety A–Z
+
+pages/Plants.tsx:2646
+BEFORE: Growing Place Aâ€“Z
+AFTER:  Growing Place A–Z
+
+pages/Plants.tsx:2869
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/Plants.tsx:3095
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/ProductDetail.tsx:349
+BEFORE: â† Back to {backLabel}
+AFTER:  ← Back to {backLabel}
+
+pages/ProductDetail.tsx:360
+BEFORE: â† Growing Home
+AFTER:  ← Growing Home
+
+pages/ProductDetail.tsx:372
+BEFORE: âœï¸ Edit Product
+AFTER:  ✏️ Edit Product
+
+pages/ProductDetail.tsx:384
+BEFORE: ðŸŒ± Create a variation
+AFTER:  🌱 Create a variation
+
+pages/ProductDetail.tsx:403
+BEFORE: ? 'â˜… Remove from favourites'
+AFTER:  ? '★ Remove from favourites'
+
+pages/ProductDetail.tsx:404
+BEFORE: : 'â˜† Add to favourites'
+AFTER:  : '☆ Add to favourites'
+
+pages/ProductDetail.tsx:417
+BEFORE: ðŸ“¸ Add photographs
+AFTER:  📸 Add photographs
+
+pages/ProductDetail.tsx:428
+BEFORE: ðŸ–¨ Print
+AFTER:  🖨 Print
+
+pages/ProductDetail.tsx:438
+BEFORE: ðŸ“¤ Export
+AFTER:  📤 Export
+
+pages/ProductDetail.tsx:449
+BEFORE: ðŸ“– Add a note
+AFTER:  📖 Add a note
+
+pages/ProductDetail.tsx:470
+BEFORE: ðŸŒ± Restore
+AFTER:  🌱 Restore
+
+pages/ProductDetail.tsx:481
+BEFORE: ðŸ“¦ Archive
+AFTER:  📦 Archive
+
+pages/ProductDetail.tsx:494
+BEFORE: ðŸ—‘ Delete permanently
+AFTER:  🗑 Delete permanently
+
+pages/ProductDetail.tsx:526
+BEFORE: ? 'â˜… Garden favourite'
+AFTER:  ? '★ Garden favourite'
+
+pages/ProductDetail.tsx:527
+BEFORE: : 'â˜† Mark as a favourite'
+AFTER:  : '☆ Mark as a favourite'
+
+pages/ProductDetail.tsx:569
+BEFORE: ? 'â˜…'
+AFTER:  ? '★'
+
+pages/ProductDetail.tsx:570
+BEFORE: : 'â˜†'
+AFTER:  : '☆'
+
+pages/ProductDetail.tsx:755
+BEFORE: {' Â· '}
+AFTER:  {' · '}
+
+pages/ProductDetail.tsx:765
+BEFORE: ? ` Â· ${purchase.supplier}`
+AFTER:  ? ` · ${purchase.supplier}`
+
+pages/ProductDetail.tsx:771
+BEFORE: ? ` Â· ${quantity}`
+AFTER:  ? ` · ${quantity}`
+
+pages/ProductDetail.tsx:777
+BEFORE: ? ` Â· ${packageSize} package`
+AFTER:  ? ` · ${packageSize} package`
+
+pages/ProductDetail.tsx:783
+BEFORE: ? ` Â· ${purchase.notes}`
+AFTER:  ? ` · ${purchase.notes}`
+
+pages/ProductDetail.tsx:798
+BEFORE: âœ Edit purchase information
+AFTER:  ✏ Edit purchase information
+
+pages/ProductDetail.tsx:822
+BEFORE: ðŸ›’ Bought this again
+AFTER:  🛒 Bought this again
+
+pages/ProductDetail.tsx:885
+BEFORE: ðŸ—‘ Permanently Delete Product
+AFTER:  🗑 Permanently Delete Product
+
+pages/ProductDetail.tsx:899
+BEFORE: â†‘ Back to the top
+AFTER:  ↑ Back to the top
+
+pages/Products.tsx:104
+BEFORE: return 'ðŸŒ±'
+AFTER:  return '🌱'
+
+pages/Products.tsx:107
+BEFORE: return 'ðŸ‚'
+AFTER:  return '🍂'
+
+pages/Products.tsx:110
+BEFORE: return 'ðŸ’§'
+AFTER:  return '💧'
+
+pages/Products.tsx:113
+BEFORE: return 'ðŸ›'
+AFTER:  return '🐛'
+
+pages/Products.tsx:116
+BEFORE: return 'ðŸ©¹'
+AFTER:  return '🩹'
+
+pages/Products.tsx:119
+BEFORE: return 'ðŸŒ¿'
+AFTER:  return '🌿'
+
+pages/Products.tsx:122
+BEFORE: return 'ðŸ¦ '
+AFTER:  return '🦠'
+
+pages/Products.tsx:125
+BEFORE: return 'ðŸŒ±'
+AFTER:  return '🌱'
+
+pages/Products.tsx:128
+BEFORE: return 'ðŸŒ¿'
+AFTER:  return '🌿'
+
+pages/Products.tsx:131
+BEFORE: return 'ðŸª´'
+AFTER:  return '🪴'
+
+pages/Products.tsx:134
+BEFORE: return 'ðŸ'
+AFTER:  return '🍁'
+
+pages/Products.tsx:137
+BEFORE: return 'ðŸŒ°'
+AFTER:  return '🌰'
+
+pages/Products.tsx:140
+BEFORE: return 'ðŸ§½'
+AFTER:  return '🧽'
+
+pages/Products.tsx:143
+BEFORE: return 'ðŸ›’'
+AFTER:  return '🛒'
+
+pages/Products.tsx:146
+BEFORE: return 'ðŸ›’'
+AFTER:  return '🛒'
+
+pages/Products.tsx:470
+BEFORE: ðŸ›’
+AFTER:  🛒
+
+pages/Products.tsx:528
+BEFORE: â˜… Garden Favourite
+AFTER:  ★ Garden Favourite
+
+pages/Products.tsx:550
+BEFORE: {'â˜…'.repeat(
+AFTER:  {'★'.repeat(
+
+pages/Products.tsx:554
+BEFORE: {'â˜†'.repeat(
+AFTER:  {'☆'.repeat(
+
+pages/SprigSmart.tsx:610
+BEFORE: ? ` Â· ${evidence.detail}`
+AFTER:  ? ` · ${evidence.detail}`
+
+pages/SprigSmart.tsx:901
+BEFORE: `Search: â€œ${searchQuery.trim()}â€`,
+AFTER:  `Search: “${searchQuery.trim()}”`,
+
+pages/SprigSmart.tsx:935
+BEFORE: ' Â· ',
+AFTER:  ' · ',
+
+pages/SprigSmart.tsx:1056
+BEFORE: ? 'Preparing DOCXâ€¦'
+AFTER:  ? 'Preparing DOCX…'
+
+pages/SprigSmart.tsx:1228
+BEFORE: placeholder="Search potato, aphids, Royal Blue, harvestâ€¦"
+AFTER:  placeholder="Search potato, aphids, Royal Blue, harvest…"
+
+pages/SprigSmart.tsx:1338
+BEFORE: ? ' from Sprigâ€™s curated view.'
+AFTER:  ? ' from Sprig’s curated view.'
+
+----------------------------------------------
+ STILL SUSPICIOUS AFTER AUTOMATIC PREVIEW
+----------------------------------------------
+
+None.
+==============================================
+ PREVIEW COMPLETE
+ NO SOURCE FILES WERE MODIFIED
+==============================================

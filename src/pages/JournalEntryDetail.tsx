@@ -1,9 +1,10 @@
 import {
     useState,
 } from 'react';
-
-import GardenLayout from '../components/layout/GardenLayout';
+import { BackToTop } from '../components/layout/GardenPage';
+import DetailPageTemplate from '../components/templates/DetailPageTemplate'
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
+import { escapeRtf, downloadBlob, printDocument } from '../utils/exportUtils';
 
 import type {
     GardenEvent,
@@ -314,6 +315,75 @@ function getEventEmoji(
 
 
 /* =======================================
+   TRANSPLANT / MOVE LABELS
+======================================= */
+
+function getTransplantKindLabel(
+    event: GardenEvent,
+): string | undefined {
+    switch (
+        event.transplantKind
+    ) {
+        case 'potted-up':
+            return 'Potted up / changed container';
+
+        case 'container-to-ground':
+            return 'Container → ground / garden bed';
+
+        case 'ground-to-container':
+            return 'Ground / garden bed → container';
+
+        case 'place-to-place':
+            return 'Changed growing place';
+
+        case 'other':
+            return event
+                .customTransplantLabel
+                ?.trim() ||
+                'Other transplant';
+
+        default:
+            return undefined;
+    }
+}
+
+
+function hasMoveOrTransplant(
+    event: GardenEvent,
+): boolean {
+    const activityTypes =
+        event.activityTypes?.length
+            ? event.activityTypes
+            : [
+                event.type,
+            ];
+
+    return activityTypes.includes(
+        'moved',
+    ) ||
+        activityTypes.includes(
+            'transplanted',
+        );
+}
+
+
+function hasTransplant(
+    event: GardenEvent,
+): boolean {
+    const activityTypes =
+        event.activityTypes?.length
+            ? event.activityTypes
+            : [
+                event.type,
+            ];
+
+    return activityTypes.includes(
+        'transplanted',
+    );
+}
+
+
+/* =======================================
    EXPORT HELPERS
 ======================================= */
 
@@ -342,144 +412,9 @@ function makeSafeFileName(
 }
 
 
-function escapeRtf(
-    value: string,
-): string {
-    return value
-        .replaceAll(
-            '\\',
-            '\\\\',
-        )
-        .replaceAll(
-            '{',
-            '\\{',
-        )
-        .replaceAll(
-            '}',
-            '\\}',
-        )
-        .replace(
-            /\r?\n/g,
-            '\\line ',
-        )
-        .replace(
-            /[^\x00-\x7F]/g,
-            character => {
-                const code =
-                    character.charCodeAt(
-                        0,
-                    );
-
-                const signedCode =
-                    code >
-                    32767
-                        ? code -
-                          65536
-                        : code;
-
-                return `\\u${signedCode}?`;
-            },
-        );
-}
 
 
-const styles = `
-    .journal-entry-detail-page .journal-age-control {
-        margin: 0.7rem 0 1rem;
-    }
 
-    .journal-entry-detail-page .journal-age-control-label {
-        display: block;
-        margin-bottom: 0.35rem;
-        color: #62705f;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
-
-    .journal-entry-detail-page .journal-age-picker {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-    }
-
-    .journal-entry-detail-page .journal-age-picker button {
-        width: auto;
-        min-height: 40px;
-        margin: 0;
-        padding: 0.4rem 0.7rem;
-        border: 1px solid rgba(82, 112, 71, 0.16);
-        border-radius: 999px;
-        background: rgba(255, 254, 249, 0.85);
-        color: #62705f;
-        font: inherit;
-        font-size: 0.76rem;
-        cursor: pointer;
-    }
-
-    .journal-entry-detail-page .journal-age-picker button[aria-pressed="true"] {
-        background: #e2eed4;
-        border-color: rgba(82, 112, 71, 0.33);
-        color: #405e42;
-        font-weight: 700;
-    }
-
-    .journal-entry-detail-page .journal-linked-plant-list,
-    .journal-entry-detail-page .journal-linked-product-list,
-    .journal-entry-detail-page .journal-linked-place-list {
-        list-style: none;
-        margin: 0.6rem 0 0;
-        padding: 0;
-    }
-
-    .journal-entry-detail-page .journal-linked-plant-list li + li,
-    .journal-entry-detail-page .journal-linked-product-list li + li,
-    .journal-entry-detail-page .journal-linked-place-list li + li {
-        margin-top: 0.55rem;
-    }
-
-    .journal-entry-detail-page .journal-linked-plant-list .text-button,
-    .journal-entry-detail-page .journal-linked-product-list .text-button,
-    .journal-entry-detail-page .journal-linked-place-list .text-button {
-        width: auto;
-        margin: 0;
-        padding: 0.15rem 0;
-        text-align: left;
-        white-space: normal;
-    }
-
-    .journal-entry-detail-page .journal-linked-plant-age {
-        display: block;
-        margin-top: 0.1rem;
-        color: #52634b;
-        font-size: 0.84rem;
-        line-height: 1.5;
-    }
-
-    .journal-entry-detail-page .journal-free-text-product {
-        margin-top: 0.8rem;
-    }
-
-    .journal-entry-detail-page .detail-back-to-top {
-        display: flex;
-        justify-content: center;
-        padding: 1rem 0 2rem;
-    }
-
-    .journal-entry-detail-page .journal-export-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.65rem;
-    }
-
-    @media print {
-        .journal-entry-detail-page .sprig-detail-navigation,
-        .journal-entry-detail-page .journal-age-control,
-        .journal-entry-detail-page .plant-record-actions,
-        .journal-entry-detail-page .detail-back-to-top {
-            display: none !important;
-        }
-    }
-`;
 
 
 /* =======================================
@@ -564,6 +499,129 @@ export default function JournalEntryDetail({
             'all-plants' &&
         event.plantScope !==
             'category';
+
+
+    const isGrowingChange =
+        hasMoveOrTransplant(
+            event,
+        );
+
+
+    const isTransplant =
+        hasTransplant(
+            event,
+        );
+
+
+    const transplantKindLabel =
+        getTransplantKindLabel(
+            event,
+        );
+
+
+    const growingTransitions =
+        event
+            .plantGrowingTransitions
+            ?.length
+            ? event
+                .plantGrowingTransitions
+            : event
+                .plantStoryIds
+                .length ===
+                1 &&
+              (
+                  event.fromGrowingPlaceId ||
+                  event.toGrowingPlaceId ||
+                  event.fromGrowingSetupIds
+                      ?.length ||
+                  event.toGrowingSetupIds
+                      ?.length
+              )
+              ? [
+                    {
+                        plantStoryId:
+                            event
+                                .plantStoryIds[
+                                0
+                            ],
+
+                        fromGrowingPlaceId:
+                            event
+                                .fromGrowingPlaceId,
+
+                        toGrowingPlaceId:
+                            event
+                                .toGrowingPlaceId,
+
+                        fromGrowingSetupIds:
+                            event
+                                .fromGrowingSetupIds,
+
+                        toGrowingSetupIds:
+                            event
+                                .toGrowingSetupIds,
+                    },
+                ]
+              : [];
+
+
+    function getPlantById(
+        plantId: string,
+    ): PlantStory | undefined {
+        return plants.find(
+            plant =>
+                plant.id ===
+                plantId,
+        );
+    }
+
+
+    function getGrowingPlaceById(
+        growingPlaceId?: string,
+    ): GrowingPlace | undefined {
+        if (
+            !growingPlaceId
+        ) {
+            return undefined;
+        }
+
+        return growingPlaces.find(
+            place =>
+                place.id ===
+                growingPlaceId,
+        );
+    }
+
+
+    function didSetupChange(
+        fromIds?: string[],
+        toIds?: string[],
+    ): boolean {
+        const from =
+            Array.from(
+                new Set(
+                    fromIds ??
+                    [],
+                ),
+            );
+
+        const to =
+            Array.from(
+                new Set(
+                    toIds ??
+                    [],
+                ),
+            );
+
+        return from.length !==
+            to.length ||
+            from.some(
+                id =>
+                    !to.includes(
+                        id,
+                    ),
+            );
+    }
 
 
     const photoContexts =
@@ -717,7 +775,7 @@ export default function JournalEntryDetail({
 
 
     function exportPdf() {
-        window.print();
+        printDocument();
     }
 
 
@@ -808,6 +866,74 @@ export default function JournalEntryDetail({
         }
 
 
+        const transitionParts =
+            growingTransitions.map(
+                transition => {
+                    const plant =
+                        getPlantById(
+                            transition
+                                .plantStoryId,
+                        );
+
+                    const fromPlace =
+                        getGrowingPlaceById(
+                            transition
+                                .fromGrowingPlaceId,
+                        );
+
+                    const toPlace =
+                        getGrowingPlaceById(
+                            transition
+                                .toGrowingPlaceId,
+                        );
+
+                    const parts:
+                        string[] = [
+                            plant
+                                ?.displayName ||
+                                'Plant Story',
+                        ];
+
+
+                    if (
+                        fromPlace ||
+                        toPlace
+                    ) {
+                        parts.push(
+                            `${
+                                fromPlace
+                                    ?.name ||
+                                'Previous place not recorded'
+                            } -> ${
+                                toPlace
+                                    ?.name ||
+                                'New place not recorded'
+                            }`,
+                        );
+                    }
+
+
+                    if (
+                        didSetupChange(
+                            transition
+                                .fromGrowingSetupIds,
+                            transition
+                                .toGrowingSetupIds,
+                        )
+                    ) {
+                        parts.push(
+                            'Growing Setup changed',
+                        );
+                    }
+
+
+                    return parts.join(
+                        ': ',
+                    );
+                },
+            );
+
+
         const paragraphs = [
             `\\b ${escapeRtf(
                 event.title,
@@ -830,6 +956,61 @@ export default function JournalEntryDetail({
                 placeText,
             )}`,
         ];
+
+
+        if (
+            isGrowingChange
+        ) {
+            const growingChangeParts:
+                string[] = [];
+
+
+            if (
+                transplantKindLabel
+            ) {
+                growingChangeParts.push(
+                    transplantKindLabel,
+                );
+            }
+
+
+            if (
+                transitionParts.length >
+                0
+            ) {
+                growingChangeParts.push(
+                    ...transitionParts,
+                );
+            }
+
+
+            if (
+                growingChangeParts.length >
+                0
+            ) {
+                paragraphs.push(
+                    '',
+                    `\\b Growing change\\b0\\line ${escapeRtf(
+                        growingChangeParts.join(
+                            '\n',
+                        ),
+                    )}`,
+                );
+            }
+        }
+
+
+        if (
+            event.treatmentReason
+        ) {
+            paragraphs.push(
+                '',
+                `\\b Treatment reason\\b0\\line ${escapeRtf(
+                    event
+                        .treatmentReason,
+                )}`,
+            );
+        }
 
 
         if (
@@ -866,7 +1047,10 @@ export default function JournalEntryDetail({
             `}`;
 
 
-        const blob =
+        downloadBlob(
+            `${makeSafeFileName(
+                event.title,
+            )}.rtf`,
             new Blob(
                 [
                     rtf,
@@ -875,150 +1059,24 @@ export default function JournalEntryDetail({
                     type:
                         'application/rtf',
                 },
-            );
-
-
-        const url =
-            URL.createObjectURL(
-                blob,
-            );
-
-
-        const link =
-            document.createElement(
-                'a',
-            );
-
-
-        link.href =
-            url;
-
-        link.download =
-            `${makeSafeFileName(
-                event.title,
-            )}.rtf`;
-
-        document.body.appendChild(
-            link,
-        );
-
-        link.click();
-
-        link.remove();
-
-
-        window.setTimeout(
-            () => {
-                URL.revokeObjectURL(
-                    url,
-                );
-            },
-            0,
+            ),
         );
     }
 
 
-    function backToTop() {
-        document
-            .getElementById(
-                'journal-detail-top',
-            )
-            ?.scrollIntoView({
-                behavior:
-                    window.matchMedia(
-                        '(prefers-reduced-motion: reduce)',
-                    ).matches
-                        ? 'auto'
-                        : 'smooth',
 
-                block:
-                    'start',
-            });
-    }
 
 
     return (
-        <GardenLayout
-            activePage="journal"
-            onNavigate={
-                onNavigate
-            }
-        >
-            <div
-                className="journal-page journal-entry-detail-page"
-                id="journal-detail-top"
-            >
-                <style>
-                    {styles}
-                </style>
-
-
-                <div
-                    className="sprig-detail-navigation"
-                    style={{
-                        display:
-                            'flex',
-
-                        flexWrap:
-                            'wrap',
-
-                        gap:
-                            '10px',
-
-                        marginBottom:
-                            '18px',
-                    }}
-                >
-                    {journeyBackLabel && (
-                        <button
-                            type="button"
-                            className="garden-return-button"
-                            onClick={
-                                onBack
-                            }
-                        >
-                            ← Back to{' '}
-                            {
-                                journeyBackLabel
-                            }
-                        </button>
-                    )}
-
-
-                    {journeyBackLabel !==
-                        'Journal' && (
-                        <button
-                            type="button"
-                            className="garden-return-button"
-                            onClick={
-                                onOpenJournal
-                            }
-                        >
-                            📖 Journal
-                        </button>
-                    )}
-                </div>
-
-
-                <header className="journal-header">
-                    <div>
-                        <p className="section-label">
-                            {getEventEmoji(
+        <DetailPageTemplate activePage="journal" onNavigate={onNavigate} className="journal-page journal-entry-detail-page" as="div" pageId="journal-detail-top"
+      eyebrow={<>{getEventEmoji(
                                 event.type,
                             )}{' '}
-                            Journal page
-                        </p>
-
-
-                        <h1>
-                            {
+                            Journal page</>}
+      title={<>{
                                 event.title
-                            }
-                        </h1>
-
-
-                        <p className="journal-intro">
-                            <time
+                            }</>}
+      intro={<><time
                                 dateTime={
                                     event.date
                                 }
@@ -1041,10 +1099,19 @@ export default function JournalEntryDetail({
                                             durationUnit,
                                         )}
                                     </>
-                                )}
-                        </p>
-                    </div>
-                </header>
+                                )}</>}
+      journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : null}
+      onJourneyBack={onBack}
+      homeLabel="Journal"
+      onHome={onOpenJournal}
+      navigationAriaLabel="Journal record navigation"
+    >
+
+
+
+
+
+                
 
 
                 {linkedPlants.length >
@@ -1330,6 +1397,207 @@ export default function JournalEntryDetail({
                     </article>
 
 
+                    {isGrowingChange && (
+                        <article className="library-book">
+                            <p className="section-label">
+                                Growing change
+                            </p>
+
+                            <h2>
+                                What changed
+                            </h2>
+
+
+                            {isTransplant &&
+                                transplantKindLabel && (
+                                <p className="journal-change-summary">
+                                    🌱 {
+                                        transplantKindLabel
+                                    }
+                                </p>
+                            )}
+
+
+                            {growingTransitions.length >
+                            0 ? (
+                                <ul className="journal-transition-list">
+                                    {growingTransitions.map(
+                                        transition => {
+                                            const plant =
+                                                getPlantById(
+                                                    transition
+                                                        .plantStoryId,
+                                                );
+
+                                            const fromPlace =
+                                                getGrowingPlaceById(
+                                                    transition
+                                                        .fromGrowingPlaceId,
+                                                );
+
+                                            const toPlace =
+                                                getGrowingPlaceById(
+                                                    transition
+                                                        .toGrowingPlaceId,
+                                                );
+
+                                            const setupChanged =
+                                                didSetupChange(
+                                                    transition
+                                                        .fromGrowingSetupIds,
+                                                    transition
+                                                        .toGrowingSetupIds,
+                                                );
+
+                                            const hasPlaceTransition =
+                                                Boolean(
+                                                    transition
+                                                        .fromGrowingPlaceId ||
+                                                    transition
+                                                        .toGrowingPlaceId,
+                                                );
+
+
+                                            return (
+                                                <li
+                                                    key={
+                                                        transition
+                                                            .plantStoryId
+                                                    }
+                                                    className="journal-transition-item"
+                                                >
+                                                    <p className="journal-transition-plant">
+                                                        {plant ? (
+                                                            <button
+                                                                type="button"
+                                                                className="text-button"
+                                                                onClick={() =>
+                                                                    onOpenPlant(
+                                                                        plant.id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                🌱{' '}
+                                                                {
+                                                                    plant.displayName
+                                                                }
+                                                            </button>
+                                                        ) : (
+                                                            '🌱 Plant Story'
+                                                        )}
+                                                    </p>
+
+
+                                                    {hasPlaceTransition && (
+                                                        <p className="journal-transition-path">
+                                                            {fromPlace ? (
+                                                                <button
+                                                                    type="button"
+                                                                    className="text-button"
+                                                                    onClick={() =>
+                                                                        onOpenGrowingPlace(
+                                                                            fromPlace.id,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        fromPlace.name
+                                                                    }
+                                                                </button>
+                                                            ) : (
+                                                                <span>
+                                                                    Previous place
+                                                                    not recorded
+                                                                </span>
+                                                            )}
+
+                                                            <span
+                                                                className="journal-transition-arrow"
+                                                                aria-hidden="true"
+                                                            >
+                                                                →
+                                                            </span>
+
+                                                            {toPlace ? (
+                                                                <button
+                                                                    type="button"
+                                                                    className="text-button"
+                                                                    onClick={() =>
+                                                                        onOpenGrowingPlace(
+                                                                            toPlace.id,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        toPlace.name
+                                                                    }
+                                                                </button>
+                                                            ) : (
+                                                                <span>
+                                                                    New place
+                                                                    not recorded
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                    )}
+
+
+                                                    {setupChanged && (
+                                                        <p className="journal-transition-note">
+                                                            Growing Setup
+                                                            changed as part
+                                                            of this Moment.
+                                                        </p>
+                                                    )}
+
+
+                                                    {!hasPlaceTransition &&
+                                                        !setupChanged && (
+                                                        <p className="journal-transition-note">
+                                                            The growing
+                                                            change was
+                                                            recorded for
+                                                            this Plant Story.
+                                                        </p>
+                                                    )}
+                                                </li>
+                                            );
+                                        },
+                                    )}
+                                </ul>
+                            ) : (
+                                <p>
+                                    This Moment records a
+                                    growing change, but its
+                                    older record does not
+                                    contain separate
+                                    before-and-after context
+                                    for each Plant Story.
+                                </p>
+                            )}
+                        </article>
+                    )}
+
+
+                    {event.treatmentReason && (
+                        <article className="library-book">
+                            <p className="section-label">
+                                Treatment context
+                            </p>
+
+                            <h2>
+                                Why it was treated
+                            </h2>
+
+                            <p className="journal-treatment-reason">
+                                {
+                                    event.treatmentReason
+                                }
+                            </p>
+                        </article>
+                    )}
+
+
                     {(linkedProducts.length >
                         0 ||
                         event.productUsed) && (
@@ -1444,18 +1712,8 @@ export default function JournalEntryDetail({
                 </section>
 
 
-                <div className="detail-back-to-top">
-                    <button
-                        type="button"
-                        className="text-button"
-                        onClick={
-                            backToTop
-                        }
-                    >
-                        ↑ Back to top
-                    </button>
-                </div>
-            </div>
-        </GardenLayout>
+                <BackToTop targetId="journal-detail-top" />
+            </DetailPageTemplate>
     );
 }
+

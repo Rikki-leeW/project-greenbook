@@ -31,6 +31,7 @@ export default function SelectionCard({
       onClick={onClick}
       disabled={isDisabled}
       aria-pressed={isSelected}
+      aria-disabled={isDisabled}
       style={{
         backgroundImage: `url(${
           isSelected

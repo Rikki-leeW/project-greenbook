@@ -5,7 +5,8 @@ import {
   type FormEvent,
 } from 'react'
 
-import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
+import FormTemplate from '../templates/FormTemplate'
+
 
 import AddGrowingPlaceForm from './AddGrowingPlaceForm'
 
@@ -23,6 +24,7 @@ import type {
   Ingredient,
   PlantGrowingHistoryEntry,
   PlantHarvestTimingUnit,
+  PlantHarvestTimingMode,
   PlantOriginType,
   PlantStory,
   SeedlingFloweringState,
@@ -1121,6 +1123,30 @@ export default function AddPlantForm({
       initialTimingUnit,
     )
 
+  /*
+   * EXPECTED HARVEST / PRODUCTION MEANING
+   *
+   * Legacy Plant Stories may not yet have a
+   * mode. We leave those undefined while
+   * editing until the gardener chooses one.
+   *
+   * New Plant Stories default to a maturity
+   * window. The gardener can switch this to
+   * production-start for crops that continue
+   * producing after the first harvest.
+   */
+  const [
+    harvestTimingMode,
+    setHarvestTimingMode,
+  ] =
+    useState<
+      PlantHarvestTimingMode
+    >(
+      sourcePlant
+        ?.harvestTimingMode ??
+      'maturity-window',
+    )
+
   const sourceHarvestDaysMin =
     sourcePlant
       ?.expectedHarvestDaysMin ??
@@ -1157,6 +1183,45 @@ export default function AddPlantForm({
       ),
     )
 
+    const initialProductionTimingUnit:
+    PlantHarvestTimingUnit =
+    sourcePlant
+      ?.productionDurationInputUnit ??
+    'weeks'
+
+  const [
+    productionDurationInputUnit,
+    setProductionDurationInputUnit,
+  ] =
+    useState<
+      PlantHarvestTimingUnit
+    >(
+      initialProductionTimingUnit,
+    )
+
+  const [
+    expectedProductionMin,
+    setExpectedProductionMin,
+  ] =
+    useState(
+      convertDaysToDisplayValue(
+        sourcePlant
+          ?.expectedProductionDaysMin,
+        initialProductionTimingUnit,
+      ),
+    )
+
+  const [
+    expectedProductionMax,
+    setExpectedProductionMax,
+  ] =
+    useState(
+      convertDaysToDisplayValue(
+        sourcePlant
+          ?.expectedProductionDaysMax,
+        initialProductionTimingUnit,
+      ),
+    )
 
   /* =======================================
      NOTES
@@ -1401,6 +1466,48 @@ const formRef =
     )
 
     setHarvestTimingInputUnit(
+      nextUnit,
+    )
+  }
+
+  function handleProductionDurationUnitChange(
+    nextUnit:
+      PlantHarvestTimingUnit,
+  ) {
+    if (
+      nextUnit ===
+      productionDurationInputUnit
+    ) {
+      return
+    }
+
+    const minimumDays =
+      convertDisplayValueToDays(
+        expectedProductionMin,
+        productionDurationInputUnit,
+      )
+
+    const maximumDays =
+      convertDisplayValueToDays(
+        expectedProductionMax,
+        productionDurationInputUnit,
+      )
+
+    setExpectedProductionMin(
+      convertDaysToDisplayValue(
+        minimumDays,
+        nextUnit,
+      ),
+    )
+
+    setExpectedProductionMax(
+      convertDaysToDisplayValue(
+        maximumDays,
+        nextUnit,
+      ),
+    )
+
+    setProductionDurationInputUnit(
       nextUnit,
     )
   }
@@ -1692,7 +1799,29 @@ const formRef =
         undefined ||
       maximumHarvestDays !==
         undefined
-
+        const minimumProductionDays =
+        harvestTimingMode ===
+          'production-start'
+          ? convertDisplayValueToDays(
+              expectedProductionMin,
+              productionDurationInputUnit,
+            )
+          : undefined
+  
+      const maximumProductionDays =
+        harvestTimingMode ===
+          'production-start'
+          ? convertDisplayValueToDays(
+              expectedProductionMax,
+              productionDurationInputUnit,
+            )
+          : undefined
+  
+      const hasProductionDuration =
+        minimumProductionDays !==
+          undefined ||
+        maximumProductionDays !==
+          undefined
 
     const selectedGrowingPlaceId =
       currentGrowingPlaceId ||
@@ -2229,9 +2358,29 @@ const formRef =
         expectedHarvestDaysMax:
           maximumHarvestDays,
 
-        harvestTimingInputUnit:
+          harvestTimingInputUnit:
           hasHarvestTiming
             ? harvestTimingInputUnit
+            : undefined,
+
+        harvestTimingMode:
+          hasHarvestTiming
+            ? harvestTimingMode
+            : undefined,
+
+        expectedProductionDaysMin:
+          hasProductionDuration
+            ? minimumProductionDays
+            : undefined,
+
+        expectedProductionDaysMax:
+          hasProductionDuration
+            ? maximumProductionDays
+            : undefined,
+
+        productionDurationInputUnit:
+          hasProductionDuration
+            ? productionDurationInputUnit
             : undefined,
 
         harvestTimingReference:
@@ -2564,23 +2713,7 @@ const formRef =
 
   return (
     <div className="form-backdrop">
-      <section
-        className="add-plant-panel chronicle-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="add-plant-title"
-      >
-        <img
-          className="chronicle-page-image"
-          src={
-            notebookEntryBackground
-          }
-          alt=""
-          aria-hidden="true"
-        />
-
-
-        <div className="chronicle-content">
+      <FormTemplate ariaLabelledBy="add-plant-title">
           <h2
             id="add-plant-title"
             className="notebook-page-title"
@@ -3634,7 +3767,71 @@ const formRef =
                 Sprig can still keep the Plant
                 Story without a harvest estimate.
               </p>
+              <fieldset className="form-fieldset">
+                <legend>
+                  What are you estimating?
+                </legend>
 
+                <div className="choice-grid">
+                  <label className="choice-card">
+                    <input
+                      type="radio"
+                      name="harvest-timing-mode"
+                      value="production-start"
+                      checked={
+                        harvestTimingMode ===
+                        'production-start'
+                      }
+                      onChange={() =>
+                        setHarvestTimingMode(
+                          'production-start',
+                        )
+                      }
+                    />
+
+                    <span>
+                      <strong>
+                        When I can start harvesting
+                      </strong>
+
+                      <small>
+                        For plants that keep producing,
+                        such as tomatoes, cucumbers,
+                        zucchini, beans and many flowers.
+                      </small>
+                    </span>
+                  </label>
+
+                  <label className="choice-card">
+                    <input
+                      type="radio"
+                      name="harvest-timing-mode"
+                      value="maturity-window"
+                      checked={
+                        harvestTimingMode ===
+                        'maturity-window'
+                      }
+                      onChange={() =>
+                        setHarvestTimingMode(
+                          'maturity-window',
+                        )
+                      }
+                    />
+
+                    <span>
+                      <strong>
+                        When it should be ready to harvest
+                      </strong>
+
+                      <small>
+                        For crops with a useful maturity
+                        window, such as potatoes, onions,
+                        carrots and cabbage.
+                      </small>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
 
               <div
                 className="selection-card-grid harvest-timing-unit-grid"
@@ -3742,6 +3939,88 @@ const formRef =
                 while remembering how you chose
                 to enter it.
               </p>
+
+              {harvestTimingMode ===
+                'production-start' && (
+                <div className="form-section">
+                  <h4>
+                    How long might it keep producing?
+                  </h4>
+
+                  <p className="field-helper">
+                    Optional. This is the expected
+                    productive period, not the life of
+                    the Plant Story. Leave it blank if
+                    you do not know.
+                  </p>
+
+                  <div className="form-row">
+                    <label>
+                      Shortest
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={
+                          expectedProductionMin
+                        }
+                        onChange={
+                          event =>
+                            setExpectedProductionMin(
+                              event.target.value,
+                            )
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Longest
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={
+                          expectedProductionMax
+                        }
+                        onChange={
+                          event =>
+                            setExpectedProductionMax(
+                              event.target.value,
+                            )
+                        }
+                      />
+                    </label>
+
+                    <label>
+                      Unit
+                      <select
+                        value={
+                          productionDurationInputUnit
+                        }
+                        onChange={
+                          event =>
+                            handleProductionDurationUnitChange(
+                              event.target.value as
+                                PlantHarvestTimingUnit,
+                            )
+                        }
+                      >
+                        <option value="days">
+                          Days
+                        </option>
+
+                        <option value="weeks">
+                          Weeks
+                        </option>
+
+                        <option value="months">
+                          Months
+                        </option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              )}
             </section>
 
 
@@ -3865,8 +4144,7 @@ const formRef =
               </button>
             </div>
           </form>
-        </div>
-      </section>
+      </FormTemplate>
 
 
       {isAddGrowingPlaceOpen && (
@@ -3897,3 +4175,4 @@ const formRef =
     </div>
   )
 }
+

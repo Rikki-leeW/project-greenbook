@@ -4,13 +4,25 @@ import {
   type FormEvent,
 } from 'react'
 
+import FormTemplate from '../templates/FormTemplate'
+
+import PlantCard from '../cards/PlantCard'
 import SprigPicker from '../sprig/SprigPicker'
 import SprigPhotoPicker from '../photos/SprigPhotoPicker'
 
-import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
+
+import {
+  getPlantDisplayName,
+} from '../../utils/plantDisplayName'
+
+import {
+  getPlantStoryCardContext,
+} from '../../utils/plantStoryContext'
 
 import type {
+  GardenEvent,
   GardenPlan,
+  GardenProduct,
   GrowingPlace,
   HarvestMeasurementUnit,
   HarvestPlantOutcome,
@@ -26,6 +38,12 @@ interface AddHarvestFormProps {
   plants: PlantStory[]
 
   growingPlaces: GrowingPlace[]
+
+  events: GardenEvent[]
+
+  harvests: HarvestRecord[]
+
+  products: GardenProduct[]
 
   harvest?: HarvestRecord | null
 
@@ -361,7 +379,6 @@ function getStartingPhotoMetadata(
     harvest?.photoUrls ??
     []
 
-
   return photoUrls.map(
     (
       photoUrl,
@@ -373,7 +390,6 @@ function getStartingPhotoMetadata(
             index
           ]
 
-
       return {
         ...existing,
 
@@ -382,13 +398,6 @@ function getStartingPhotoMetadata(
             ?.photoUrl ??
           photoUrl,
 
-        /*
-         * Harvest photographs are strongly
-         * contextualised by the Harvest date.
-         *
-         * Older photographs use that as their
-         * starting photo date.
-         */
         photoDate:
           existing
             ?.photoDate ??
@@ -411,6 +420,9 @@ function getStartingPhotoMetadata(
 export default function AddHarvestForm({
   plants,
   growingPlaces,
+  events,
+  harvests,
+  products,
   harvest = null,
   initialPlantStoryIds = [],
   planToRecord,
@@ -420,11 +432,9 @@ export default function AddHarvestForm({
   const today =
     getTodayDate()
 
-
   const isEditing =
     harvest !==
     null
-
 
   const isRecordingPlan =
     !isEditing &&
@@ -432,14 +442,8 @@ export default function AddHarvestForm({
       planToRecord,
     )
 
-
-  /*
-   * Hard submission gate protects phone
-   * users from accidental double records.
-   */
   const isSubmittingRef =
     useRef(false)
-
 
   const [
     isSubmitting,
@@ -449,18 +453,11 @@ export default function AddHarvestForm({
       false,
     )
 
-
-  /*
-   * When a new Harvest is opened directly
-   * from one Plant Story, Sprig already knows
-   * the relationship.
-   */
   const isFixedPlantContext =
     !isEditing &&
     !isRecordingPlan &&
     initialPlantStoryIds.length ===
       1
-
 
   const startingPlantIds =
     isRecordingPlan
@@ -500,13 +497,44 @@ export default function AddHarvestForm({
       startingPlantIds,
     )
 
-
   const [
     isPlantPickerOpen,
     setIsPlantPickerOpen,
   ] =
     useState(
       true,
+    )
+
+  const [
+    plantSearch,
+    setPlantSearch,
+  ] =
+    useState(
+      '',
+    )
+
+  const [
+    plantCropFilter,
+    setPlantCropFilter,
+  ] =
+    useState(
+      'all',
+    )
+
+  const [
+    plantPlaceFilter,
+    setPlantPlaceFilter,
+  ] =
+    useState(
+      'all',
+    )
+
+  const [
+    plantStatusFilter,
+    setPlantStatusFilter,
+  ] =
+    useState(
+      'growing',
     )
 
 
@@ -525,7 +553,6 @@ export default function AddHarvestForm({
       harvest?.harvestType,
     )
 
-
   const [
     customHarvestTypeLabel,
     setCustomHarvestTypeLabel,
@@ -534,7 +561,6 @@ export default function AddHarvestForm({
       harvest?.customHarvestTypeLabel ??
       '',
     )
-
 
   const [
     isHarvestTypePickerOpen,
@@ -562,7 +588,6 @@ export default function AddHarvestForm({
         : '',
     )
 
-
   const [
     measurementAmount,
     setMeasurementAmount,
@@ -576,7 +601,6 @@ export default function AddHarvestForm({
         : '',
     )
 
-
   const [
     measurementUnit,
     setMeasurementUnit,
@@ -588,7 +612,6 @@ export default function AddHarvestForm({
       harvest?.measurementUnit,
     )
 
-
   const [
     customMeasurementUnitLabel,
     setCustomMeasurementUnitLabel,
@@ -597,7 +620,6 @@ export default function AddHarvestForm({
       harvest?.customMeasurementUnitLabel ??
       '',
     )
-
 
   const [
     isMeasurementPickerOpen,
@@ -623,7 +645,6 @@ export default function AddHarvestForm({
       harvest?.plantOutcome,
     )
 
-
   const [
     customPlantOutcomeLabel,
     setCustomPlantOutcomeLabel,
@@ -632,7 +653,6 @@ export default function AddHarvestForm({
       harvest?.customPlantOutcomeLabel ??
       '',
     )
-
 
   const [
     isPlantOutcomePickerOpen,
@@ -657,7 +677,6 @@ export default function AddHarvestForm({
     >(
       harvest?.quality,
     )
-
 
   const [
     isQualityPickerOpen,
@@ -700,7 +719,6 @@ export default function AddHarvestForm({
       ],
     )
 
-
   const [
     photoMetadata,
     setPhotoMetadata,
@@ -718,8 +736,32 @@ export default function AddHarvestForm({
 
 
   /* =======================================
-     PLANT OPTIONS
+     PLANT STORY FILTERS
   ======================================= */
+
+  const cropOptions =
+    Array.from(
+      new Set(
+        plants
+          .map(
+            plant =>
+              plant
+                .plantName
+                .trim(),
+          )
+          .filter(
+            Boolean,
+          ),
+      ),
+    ).sort(
+      (
+        first,
+        second,
+      ) =>
+        first.localeCompare(
+          second,
+        ),
+    )
 
   const sortedPlants =
     [
@@ -729,15 +771,48 @@ export default function AddHarvestForm({
         first,
         second,
       ) =>
-        first.displayName.localeCompare(
-          second.displayName,
-        ),
+        getPlantDisplayName(
+          first,
+        ).localeCompare(
+          getPlantDisplayName(
+            second,
+          ),
+        ) ||
+        new Date(
+          second.plantedDate,
+        ).getTime() -
+        new Date(
+          first.plantedDate,
+        ).getTime(),
     )
 
-
-  const plantOptions =
-    sortedPlants.map(
+  const filteredPlants =
+    sortedPlants.filter(
       plant => {
+        /*
+         * Keep already-selected stories visible.
+         * Filters should help find records, not
+         * make the gardener wonder where a
+         * selection disappeared to.
+         */
+        if (
+          plantStoryIds.includes(
+            plant.id,
+          )
+        ) {
+          return true
+        }
+
+        const displayName =
+          getPlantDisplayName(
+            plant,
+          ).toLocaleLowerCase()
+
+        const search =
+          plantSearch
+            .trim()
+            .toLocaleLowerCase()
+
         const growingPlace =
           growingPlaces.find(
             place =>
@@ -745,41 +820,66 @@ export default function AddHarvestForm({
               plant.currentGrowingPlaceId,
           )
 
-
-        return {
-          value:
-            plant.id,
-
-          label:
-            plant.displayName,
-
-          subtitle:
+        const matchesSearch =
+          !search ||
+          displayName.includes(
+            search,
+          ) ||
+          plant
+            .plantName
+            .toLocaleLowerCase()
+            .includes(
+              search,
+            ) ||
+          (
+            plant.variety ??
+            ''
+          )
+            .toLocaleLowerCase()
+            .includes(
+              search,
+            ) ||
+          (
             growingPlace
-              ? growingPlace.name
-              : 'No Growing Place',
+              ?.name ??
+            ''
+          )
+            .toLocaleLowerCase()
+            .includes(
+              search,
+            )
 
-          meta:
-            plant.plantedDate
-              ? `Planted ${new Date(
-                  `${plant.plantedDate}T00:00:00`,
-                ).toLocaleDateString(
-                  'en-AU',
-                  {
-                    day:
-                      'numeric',
+        const matchesCrop =
+          plantCropFilter ===
+            'all' ||
+          plant.plantName ===
+            plantCropFilter
 
-                    month:
-                      'short',
+        const matchesPlace =
+          plantPlaceFilter ===
+            'all' ||
+          (
+            plantPlaceFilter ===
+              'none'
+              ? !plant.currentGrowingPlaceId
+              : plant.currentGrowingPlaceId ===
+                  plantPlaceFilter
+          )
 
-                    year:
-                      'numeric',
-                  },
-                )}`
-              : undefined,
-        }
+        const matchesStatus =
+          plantStatusFilter ===
+            'all' ||
+          plant.status ===
+            plantStatusFilter
+
+        return (
+          matchesSearch &&
+          matchesCrop &&
+          matchesPlace &&
+          matchesStatus
+        )
       },
     )
-
 
   const fixedPlant =
     isFixedPlantContext
@@ -791,7 +891,6 @@ export default function AddHarvestForm({
             ],
         )
       : undefined
-
 
   const fixedPlantGrowingPlace =
     fixedPlant
@@ -838,7 +937,6 @@ export default function AddHarvestForm({
       value as
         HarvestType
 
-
     setHarvestType(
       current =>
         current ===
@@ -846,7 +944,6 @@ export default function AddHarvestForm({
           ? undefined
           : nextType,
     )
-
 
     if (
       nextType !==
@@ -856,7 +953,6 @@ export default function AddHarvestForm({
         '',
       )
     }
-
 
     setIsHarvestTypePickerOpen(
       false,
@@ -872,7 +968,6 @@ export default function AddHarvestForm({
       value as
         HarvestMeasurementUnit
 
-
     setMeasurementUnit(
       current =>
         current ===
@@ -880,7 +975,6 @@ export default function AddHarvestForm({
           ? undefined
           : nextUnit,
     )
-
 
     if (
       nextUnit !==
@@ -890,7 +984,6 @@ export default function AddHarvestForm({
         '',
       )
     }
-
 
     setIsMeasurementPickerOpen(
       false,
@@ -906,7 +999,6 @@ export default function AddHarvestForm({
       value as
         HarvestPlantOutcome
 
-
     setPlantOutcome(
       current =>
         current ===
@@ -914,7 +1006,6 @@ export default function AddHarvestForm({
           ? undefined
           : nextOutcome,
     )
-
 
     if (
       nextOutcome !==
@@ -924,7 +1015,6 @@ export default function AddHarvestForm({
         '',
       )
     }
-
 
     setIsPlantOutcomePickerOpen(
       false,
@@ -940,7 +1030,6 @@ export default function AddHarvestForm({
       value as
         HarvestQuality
 
-
     setQuality(
       current =>
         current ===
@@ -948,7 +1037,6 @@ export default function AddHarvestForm({
           ? undefined
           : nextQuality,
     )
-
 
     setIsQualityPickerOpen(
       false,
@@ -966,13 +1054,11 @@ export default function AddHarvestForm({
   ) {
     event.preventDefault()
 
-
     if (
       isSubmittingRef.current
     ) {
       return
     }
-
 
     if (
       plantStoryIds.length ===
@@ -985,14 +1071,12 @@ export default function AddHarvestForm({
       return
     }
 
-
     isSubmittingRef.current =
       true
 
     setIsSubmitting(
       true,
     )
-
 
     const numericCount =
       count.trim()
@@ -1001,14 +1085,12 @@ export default function AddHarvestForm({
           )
         : undefined
 
-
     const numericMeasurementAmount =
       measurementAmount.trim()
         ? Number(
             measurementAmount,
           )
         : undefined
-
 
     const savedPhotoMetadata =
       photoUrls.map(
@@ -1020,7 +1102,6 @@ export default function AddHarvestForm({
             photoMetadata[
               index
             ]
-
 
           return {
             ...metadata,
@@ -1042,7 +1123,6 @@ export default function AddHarvestForm({
           } satisfies SprigPhotoMetadata
         },
       )
-
 
     const savedHarvest:
       HarvestRecord = {
@@ -1136,7 +1216,6 @@ export default function AddHarvestForm({
             : undefined,
       }
 
-
     try {
       onSaveHarvest(
         savedHarvest,
@@ -1150,7 +1229,6 @@ export default function AddHarvestForm({
         error,
       )
 
-
       isSubmittingRef.current =
         false
 
@@ -1163,23 +1241,7 @@ export default function AddHarvestForm({
 
   return (
     <div className="form-backdrop">
-      <section
-        className="add-plant-panel chronicle-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="add-harvest-title"
-      >
-        <img
-          className="chronicle-page-image"
-          src={
-            notebookEntryBackground
-          }
-          alt=""
-          aria-hidden="true"
-        />
-
-
-        <div className="chronicle-content">
+      <FormTemplate ariaLabelledBy="add-harvest-title">
           <h2
             id="add-harvest-title"
             className="notebook-page-title"
@@ -1191,7 +1253,6 @@ export default function AddHarvestForm({
                 : 'Gather a Harvest'}
           </h2>
 
-
           <button
             type="button"
             className="close-button"
@@ -1202,7 +1263,6 @@ export default function AddHarvestForm({
           >
             ×
           </button>
-
 
           <form
             className="add-plant-form"
@@ -1259,8 +1319,10 @@ export default function AddHarvestForm({
 
                 <h3>
                   {fixedPlant
-                    ?.displayName ??
-                    'This Plant Story'}
+                    ? getPlantDisplayName(
+                        fixedPlant,
+                      )
+                    : 'This Plant Story'}
                 </h3>
 
                 {fixedPlantGrowingPlace && (
@@ -1277,36 +1339,498 @@ export default function AddHarvestForm({
                 </p>
               </section>
             ) : (
-              <section className="sprig-form-section">
-                <SprigPicker
-                  title="What did you gather from?"
-                  variant="label"
-                  emptySummary="Choose at least one Plant Story"
-                  options={
-                    plantOptions
-                  }
-                  selectedValues={
-                    plantStoryIds
-                  }
-                  isOpen={
-                    isPlantPickerOpen
-                  }
-                  onToggleOpen={() =>
-                    setIsPlantPickerOpen(
-                      current =>
-                        !current,
-                    )
-                  }
-                  onToggleValue={
-                    togglePlant
-                  }
-                />
+              <section
+                className="sprig-form-section"
+                style={{
+                  display:
+                    'block',
+                  width:
+                    '100%',
+                  minWidth:
+                    0,
+                }}
+              >
+                <div
+                  style={{
+                    display:
+                      'flex',
+                    alignItems:
+                      'flex-start',
+                    justifyContent:
+                      'space-between',
+                    gap:
+                      '12px',
+                    width:
+                      '100%',
+                    marginBottom:
+                      '10px',
+                  }}
+                >
+                  <div
+                    style={{
+                      minWidth:
+                        0,
+                    }}
+                  >
+                    <p
+                      className="section-label"
+                      style={{
+                        marginBottom:
+                          '3px',
+                      }}
+                    >
+                      Plant Stories
+                    </p>
 
-                <p className="form-whisper">
-                  Choose several plants when the
-                  harvest was gathered together and
-                  cannot sensibly be divided between
-                  them.
+                    <h3
+                      style={{
+                        margin:
+                          0,
+                      }}
+                    >
+                      What did you gather from?
+                    </h3>
+
+                    <p
+                      className="form-whisper"
+                      style={{
+                        marginTop:
+                          '5px',
+                        marginBottom:
+                          0,
+                      }}
+                    >
+                      {plantStoryIds.length >
+                      0
+                        ? `${plantStoryIds.length} ${
+                            plantStoryIds.length ===
+                            1
+                              ? 'Plant Story'
+                              : 'Plant Stories'
+                          } selected`
+                        : 'Choose at least one Plant Story.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() =>
+                      setIsPlantPickerOpen(
+                        current =>
+                          !current,
+                      )
+                    }
+                    aria-expanded={
+                      isPlantPickerOpen
+                    }
+                    style={{
+                      flexShrink:
+                        0,
+                    }}
+                  >
+                    {isPlantPickerOpen
+                      ? 'Hide'
+                      : 'Choose'}
+                  </button>
+                </div>
+
+                {isPlantPickerOpen && (
+                  <div
+                    style={{
+                      display:
+                        'block',
+                      width:
+                        '100%',
+                      minWidth:
+                        0,
+                    }}
+                  >
+                    <label
+                      style={{
+                        display:
+                          'block',
+                        width:
+                          '100%',
+                        marginBottom:
+                          '10px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          display:
+                            'block',
+                          marginBottom:
+                            '5px',
+                        }}
+                      >
+                        Find a Plant Story
+                      </span>
+
+                      <input
+                        type="search"
+                        value={
+                          plantSearch
+                        }
+                        onChange={(
+                          event,
+                        ) =>
+                          setPlantSearch(
+                            event.target.value,
+                          )
+                        }
+                        placeholder="Royal Blue, potato, west grass..."
+                        style={{
+                          display:
+                            'block',
+                          width:
+                            '100%',
+                          maxWidth:
+                            '100%',
+                          boxSizing:
+                            'border-box',
+                        }}
+                      />
+                    </label>
+
+                    <div
+                      style={{
+                        display:
+                          'grid',
+                        gridTemplateColumns:
+                          'repeat(auto-fit, minmax(120px, 1fr))',
+                        gap:
+                          '8px',
+                        width:
+                          '100%',
+                        marginBottom:
+                          '10px',
+                      }}
+                    >
+                      <label
+                        style={{
+                          display:
+                            'block',
+                          minWidth:
+                            0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            display:
+                              'block',
+                            marginBottom:
+                              '4px',
+                          }}
+                        >
+                          Crop
+                        </span>
+
+                        <select
+                          value={
+                            plantCropFilter
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            setPlantCropFilter(
+                              event.target.value,
+                            )
+                          }
+                          style={{
+                            width:
+                              '100%',
+                            maxWidth:
+                              '100%',
+                            boxSizing:
+                              'border-box',
+                          }}
+                        >
+                          <option value="all">
+                            All crops
+                          </option>
+
+                          {cropOptions.map(
+                            crop => (
+                              <option
+                                key={
+                                  crop
+                                }
+                                value={
+                                  crop
+                                }
+                              >
+                                {crop}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                      </label>
+
+                      <label
+                        style={{
+                          display:
+                            'block',
+                          minWidth:
+                            0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            display:
+                              'block',
+                            marginBottom:
+                              '4px',
+                          }}
+                        >
+                          Growing Place
+                        </span>
+
+                        <select
+                          value={
+                            plantPlaceFilter
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            setPlantPlaceFilter(
+                              event.target.value,
+                            )
+                          }
+                          style={{
+                            width:
+                              '100%',
+                            maxWidth:
+                              '100%',
+                            boxSizing:
+                              'border-box',
+                          }}
+                        >
+                          <option value="all">
+                            All places
+                          </option>
+
+                          {[
+                            ...growingPlaces,
+                          ]
+                            .sort(
+                              (
+                                first,
+                                second,
+                              ) =>
+                                first.name.localeCompare(
+                                  second.name,
+                                ),
+                            )
+                            .map(
+                              place => (
+                                <option
+                                  key={
+                                    place.id
+                                  }
+                                  value={
+                                    place.id
+                                  }
+                                >
+                                  {place.name}
+                                </option>
+                              ),
+                            )}
+
+                          <option value="none">
+                            No Growing Place
+                          </option>
+                        </select>
+                      </label>
+
+                      <label
+                        style={{
+                          display:
+                            'block',
+                          minWidth:
+                            0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            display:
+                              'block',
+                            marginBottom:
+                              '4px',
+                          }}
+                        >
+                          Status
+                        </span>
+
+                        <select
+                          value={
+                            plantStatusFilter
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            setPlantStatusFilter(
+                              event.target.value,
+                            )
+                          }
+                          style={{
+                            width:
+                              '100%',
+                            maxWidth:
+                              '100%',
+                            boxSizing:
+                              'border-box',
+                          }}
+                        >
+                          <option value="growing">
+                            Growing
+                          </option>
+
+                          <option value="finished">
+                            Finished
+                          </option>
+
+                          <option value="all">
+                            All stories
+                          </option>
+                        </select>
+                      </label>
+                    </div>
+
+                    {(plantSearch ||
+                      plantCropFilter !==
+                        'all' ||
+                      plantPlaceFilter !==
+                        'all' ||
+                      plantStatusFilter !==
+                        'growing') && (
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={() => {
+                          setPlantSearch(
+                            '',
+                          )
+
+                          setPlantCropFilter(
+                            'all',
+                          )
+
+                          setPlantPlaceFilter(
+                            'all',
+                          )
+
+                          setPlantStatusFilter(
+                            'growing',
+                          )
+                        }}
+                      >
+                        Clear filters
+                      </button>
+                    )}
+
+                    <p
+                      className="form-whisper"
+                      style={{
+                        marginTop:
+                          '8px',
+                        marginBottom:
+                          '8px',
+                      }}
+                    >
+                      {filteredPlants.length}{' '}
+                      {filteredPlants.length ===
+                      1
+                        ? 'Plant Story'
+                        : 'Plant Stories'}{' '}
+                      shown
+                    </p>
+
+                    {filteredPlants.length >
+                    0 ? (
+                      <div
+                        className="plant-story-picker-list"
+                        style={{
+                          display:
+                            'grid',
+                          gridTemplateColumns:
+                            'minmax(0, 1fr)',
+                          gap:
+                            '8px',
+                          width:
+                            '100%',
+                          minWidth:
+                            0,
+                        }}
+                      >
+                        {filteredPlants.map(
+                          plant => {
+                            const cardContext =
+                              getPlantStoryCardContext(
+                                plant,
+                                events,
+                                harvests,
+                                growingPlaces,
+                                products,
+                              )
+
+                            return (
+                              <PlantCard
+                                key={
+                                  plant.id
+                                }
+                                plant={
+                                  plant
+                                }
+                                growingPlaceName={
+                                  cardContext
+                                    .growingPlaceName
+                                }
+                                latestActivityDate={
+                                  cardContext
+                                    .latestActivityDate
+                                }
+                                latestActivitySummary={
+                                  cardContext
+                                    .latestActivitySummary
+                                }
+                                thumbnailPhotoUrl={
+                                  cardContext
+                                    .thumbnailPhotoUrl
+                                }
+                                selectionMode
+                                isSelected={
+                                  plantStoryIds.includes(
+                                    plant.id,
+                                  )
+                                }
+                                onToggleSelection={
+                                  togglePlant
+                                }
+                              />
+                            )
+                          },
+                        )}
+                      </div>
+                    ) : (
+                      <p className="form-whisper">
+                        No Plant Stories match those
+                        filters.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <p
+                  className="form-whisper"
+                  style={{
+                    marginTop:
+                      '10px',
+                  }}
+                >
+                  Choose several Plant Stories when
+                  one harvest was gathered across
+                  several plants.
                 </p>
               </section>
             )}
@@ -1377,7 +1901,6 @@ export default function AddHarvestForm({
                 }
               />
 
-
               {harvestType ===
                 'other' && (
                 <label>
@@ -1417,7 +1940,6 @@ export default function AddHarvestForm({
                 both pieces of information.
               </p>
 
-
               <div className="form-row">
                 <label>
                   Count
@@ -1440,7 +1962,6 @@ export default function AddHarvestForm({
                   />
                 </label>
 
-
                 <label>
                   Measurement
 
@@ -1462,7 +1983,6 @@ export default function AddHarvestForm({
                   />
                 </label>
               </div>
-
 
               <SprigPicker
                 title="Measurement unit"
@@ -1490,7 +2010,6 @@ export default function AddHarvestForm({
                   toggleMeasurementUnit
                 }
               />
-
 
               {measurementUnit ===
                 'other' && (
@@ -1547,7 +2066,6 @@ export default function AddHarvestForm({
                   togglePlantOutcome
                 }
               />
-
 
               {plantOutcome ===
                 'other' && (
@@ -1698,7 +2216,6 @@ export default function AddHarvestForm({
                 Leave it for now
               </button>
 
-
               <button
                 type="submit"
                 className="enter-button"
@@ -1714,8 +2231,8 @@ export default function AddHarvestForm({
               </button>
             </div>
           </form>
-        </div>
-      </section>
+      </FormTemplate>
     </div>
   )
 }
+

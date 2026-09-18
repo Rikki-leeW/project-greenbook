@@ -1,17 +1,7 @@
 interface RecordActionsProps {
   /* =======================================
-     CONTEXTUAL NAVIGATION
-  ======================================= */
-
-  contextualBackLabel?: string
-
-  onContextualBack?: () => void
-
-  /* =======================================
      STANDARD ACTIONS
   ======================================= */
-
-  onBack?: () => void
 
   onEdit?: () => void
 
@@ -39,8 +29,6 @@ interface RecordActionsProps {
      LABELS
   ======================================= */
 
-  backLabel?: string
-
   editLabel?: string
 
   duplicateLabel?: string
@@ -58,10 +46,6 @@ interface RecordActionsProps {
 
 
 export default function RecordActions({
-  contextualBackLabel,
-  onContextualBack,
-
-  onBack,
   onEdit,
   onDuplicate,
   onRate,
@@ -73,7 +57,6 @@ export default function RecordActions({
   isFavourite = false,
   rating,
 
-  backLabel = 'Back',
   editLabel = 'Edit',
   duplicateLabel = 'Create a variation',
   rateLabel = 'Rate',
@@ -98,37 +81,6 @@ export default function RecordActions({
 
   return (
     <div className="record-actions">
-
-      {/* =======================================
-          NAVIGATION
-      ======================================= */}
-
-      {onContextualBack &&
-        contextualBackLabel && (
-          <button
-            type="button"
-            className="record-action-button record-action-back record-action-contextual-back"
-            onClick={
-              onContextualBack
-            }
-          >
-            ← {contextualBackLabel}
-          </button>
-        )}
-
-
-      {onBack && (
-        <button
-          type="button"
-          className="record-action-button record-action-back"
-          onClick={
-            onBack
-          }
-        >
-          ← {backLabel}
-        </button>
-      )}
-
 
       {/* =======================================
           EVERYDAY ACTIONS

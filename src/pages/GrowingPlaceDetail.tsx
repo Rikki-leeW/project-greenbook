@@ -1,9 +1,9 @@
+import { BackToTop } from '../components/layout/GardenPage'
 import type {
   CSSProperties,
 } from 'react'
-
-import GardenLayout from '../components/layout/GardenLayout'
-
+import DetailPageTemplate from '../components/templates/DetailPageTemplate'
+import { escapeRtf, downloadBlob, printDocument } from '../utils/exportUtils'
 import type {
   GardenEvent,
   GrowingPlace,
@@ -184,48 +184,6 @@ function makeSafeFileName(
 }
 
 
-function escapeRtf(
-  value:
-    string,
-): string {
-  return value
-    .replaceAll(
-      '\\',
-      '\\\\',
-    )
-    .replaceAll(
-      '{',
-      '\\{',
-    )
-    .replaceAll(
-      '}',
-      '\\}',
-    )
-    .replace(
-      /\r?\n/g,
-      '\\line ',
-    )
-    .replace(
-      /[^\x00-\x7F]/g,
-      character => {
-        const code =
-          character.charCodeAt(
-            0,
-          )
-
-
-        const signedCode =
-          code >
-          32767
-            ? code -
-              65536
-            : code
-
-
-        return `\\u${signedCode}?`
-      },
-    )
-}
 
 
 /* =======================================
@@ -306,66 +264,7 @@ const relationshipArrowStyle:
    LOCAL PRESENTATION
 ======================================= */
 
-const styles = `
-  .growing-place-detail-page .growing-place-detail-row {
-    display: grid;
-    grid-template-columns: minmax(7.5rem, 0.8fr) minmax(0, 1.4fr);
-    gap: 1rem;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid rgba(72, 71, 56, 0.16);
-  }
 
-  .growing-place-detail-page .growing-place-detail-row > span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .growing-place-detail-page .growing-place-detail-navigation,
-  .growing-place-detail-page .growing-place-detail-actions,
-  .growing-place-detail-page .growing-place-export-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-  }
-
-  .growing-place-detail-page .growing-place-detail-navigation {
-    margin-bottom: 1rem;
-  }
-
-  .growing-place-detail-page .growing-place-detail-actions {
-    margin: 0 0 1.5rem;
-  }
-
-  .growing-place-detail-page .growing-place-export-actions {
-    margin: 0 0 1.5rem;
-  }
-
-  .growing-place-detail-page .detail-back-to-top {
-    display: flex;
-    justify-content: center;
-    padding: 1rem 0 2rem;
-  }
-
-  @media (max-width: 620px) {
-    .growing-place-detail-page .growing-place-detail-row {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.2rem;
-    }
-
-    .growing-place-detail-page .growing-place-detail-row strong {
-      overflow-wrap: anywhere;
-    }
-  }
-
-  @media print {
-    .growing-place-detail-page .growing-place-detail-navigation,
-    .growing-place-detail-page .growing-place-detail-actions,
-    .growing-place-detail-page .growing-place-export-actions,
-    .growing-place-detail-page .detail-back-to-top {
-      display: none !important;
-    }
-  }
-`;
 
 
 /* =======================================
@@ -507,7 +406,7 @@ export default function GrowingPlaceDetail({
   ======================================= */
 
   function exportPdf() {
-    window.print()
+    printDocument()
   }
 
 
@@ -648,7 +547,10 @@ export default function GrowingPlaceDetail({
       `}`
 
 
-    const blob =
+    downloadBlob(
+      `${makeSafeFileName(
+        growingPlace.name,
+      )}-growing-place.rtf`,
       new Blob(
         [
           rtf,
@@ -657,49 +559,7 @@ export default function GrowingPlaceDetail({
           type:
             'application/rtf',
         },
-      )
-
-
-    const url =
-      URL.createObjectURL(
-        blob,
-      )
-
-
-    const link =
-      document.createElement(
-        'a',
-      )
-
-
-    link.href =
-      url
-
-
-    link.download =
-      `${makeSafeFileName(
-        growingPlace.name,
-      )}-growing-place.rtf`
-
-
-    document.body.appendChild(
-      link,
-    )
-
-
-    link.click()
-
-
-    link.remove()
-
-
-    window.setTimeout(
-      () => {
-        URL.revokeObjectURL(
-          url,
-        )
-      },
-      0,
+      ),
     )
   }
 
@@ -708,99 +568,42 @@ export default function GrowingPlaceDetail({
      BACK TO TOP
   ======================================= */
 
-  function backToTop() {
-    document
-      .getElementById(
-        'growing-place-detail-top',
-      )
-      ?.scrollIntoView({
-        behavior:
-          window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-          ).matches
-            ? 'auto'
-            : 'smooth',
-
-        block:
-          'start',
-      })
-  }
 
 
   return (
-    <GardenLayout
+    <DetailPageTemplate
       activePage="growing-places"
-      onNavigate={
-        onNavigate
-      }
+      onNavigate={onNavigate}
+      className="garden-page growing-place-detail-page"
+      as="div"
+      pageId="growing-place-detail-top"
+      journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : 'Back'}
+      onJourneyBack={onBack}
+      homeLabel="Growing Home"
+      onHome={onOpenGrowingPlaces}
+      navigationAriaLabel="Growing Place navigation"
+    
+      eyebrow={<>Growing · Place</>}
+      title={<>{growingPlace.name}</>}
+      intro={<>{
+                getPlaceKindLabel(
+                  growingPlace,
+                )
+              }</>}
     >
-      <div
-        className="garden-page growing-place-detail-page"
-        id="growing-place-detail-top"
-      >
-        <style>
-          {styles}
-        </style>
 
 
         {/* ===================================
             NAVIGATION
         =================================== */}
 
-        <div className="growing-place-detail-navigation">
-          <button
-            type="button"
-            className="record-action-button"
-            onClick={
-              onBack
-            }
-          >
-            ←{' '}
-            {
-              journeyBackLabel
-                ? `Back to ${journeyBackLabel}`
-                : 'Back'
-            }
-          </button>
-
-
-          <button
-            type="button"
-            className="record-action-button"
-            onClick={
-              onOpenGrowingPlaces
-            }
-          >
-            Growing Home
-          </button>
-        </div>
 
 
         {/* ===================================
             HEADER
         =================================== */}
 
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Growing · Place
-            </p>
-
-
-            <h1>
-              {growingPlace.name}
-            </h1>
-
-
-            <p className="journal-intro">
-              {
-                getPlaceKindLabel(
-                  growingPlace,
-                )
-              }
-            </p>
-          </div>
-        </header>
+        
 
 
         {/* ===================================
@@ -1219,18 +1022,8 @@ export default function GrowingPlaceDetail({
             BACK TO TOP
         =================================== */}
 
-        <div className="detail-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={
-              backToTop
-            }
-          >
-            ↑ Back to top
-          </button>
-        </div>
-      </div>
-    </GardenLayout>
+        <BackToTop targetId="growing-place-detail-top" label="Back to top" />
+      </DetailPageTemplate>
   )
 }
+

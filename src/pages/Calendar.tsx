@@ -9,8 +9,8 @@ import {
     KeyboardEvent,
   } from 'react'
   
-  import GardenLayout from '../components/layout/GardenLayout'
   import GardenTimingCalculator from '../components/GardenTimingCalculator'
+  import FunctionPageTemplate from '../components/templates/FunctionPageTemplate'
   
   import '../css/calendar.css'
   
@@ -3853,55 +3853,39 @@ import {
   ======================================= */
 
   return (
-    <GardenLayout
+    <FunctionPageTemplate
       activePage="calendar"
-
-      onNavigate={
-        onNavigate
+      onNavigate={onNavigate}
+      pageId="sprig-calendar-top"
+      className="journal-page sprig-calendar-page"
+      journeyBackLabel="Today"
+      onJourneyBack={() =>
+        onNavigate(
+          'gate',
+        )
+      }
+      navigationAriaLabel="Calendar navigation"
+      eyebrow="Your garden through time"
+      title="Calendar"
+      intro={
+        <>
+          See what happened, what is happening now, and what may be waiting further along the path.
+        </>
+      }
+      headerActions={
+        <button
+          type="button"
+          className="sprig-calendar-today-button"
+          onClick={() =>
+            openPlanComposer(
+              selectedDate,
+            )
+          }
+        >
+          + Add a plan
+        </button>
       }
     >
-      <main
-  id="sprig-calendar-top"
-  className="journal-page sprig-calendar-page"
-  >
-
-        {/* =======================================
-            HEADER
-        ======================================= */}
-
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Your garden through time
-            </p>
-
-            <h1>
-              Calendar
-            </h1>
-
-            <p className="journal-intro">
-              See what happened,
-              what is happening now,
-              and what may be waiting
-              further along the path.
-            </p>
-
-
-            <button
-              type="button"
-
-              className="sprig-calendar-today-button"
-
-              onClick={() =>
-                openPlanComposer(
-                  selectedDate,
-                )
-              }
-            >
-              + Add a plan
-            </button>
-          </div>
-        </header>
 
 
         {/* =======================================
@@ -6008,10 +5992,10 @@ import {
           </div>
         )}
 
-      </main>
-    </GardenLayout>
+    </FunctionPageTemplate>
   )
 }
 
 
 export default Calendar
+

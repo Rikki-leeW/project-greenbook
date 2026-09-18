@@ -13,26 +13,6 @@
 }
 
 
-.plant-story-header {
-  margin-bottom: 34px;
-}
-
-
-.plant-story-header h1 {
-  margin: 8px 0 0;
-  font-size: clamp(2.8rem, 9vw, 5.4rem);
-  line-height: 0.98;
-}
-
-
-.story-personality {
-  margin: 14px 0 20px;
-  color: #756d5e;
-  font-size: 1.2rem;
-  font-style: italic;
-}
-
-
 .story-status-row {
   display: flex;
   flex-wrap: wrap;
@@ -486,3 +466,344 @@
     font-size: 0.76rem;
   }
 }
+
+/* Plant Story content details. Shared shell, header and controls live in components CSS. */
+
+    .plant-story-page .plant-detail-compact-card {
+        padding: 0.9rem 1rem;
+    }
+
+    .plant-story-page .plant-detail-beginning-date {
+        margin: 0.2rem 0;
+    }
+
+    .plant-story-page .plant-detail-beginning-age {
+        margin: 0;
+        color: #52634b;
+    }
+
+    .plant-story-page .plant-detail-age-control {
+        margin-top: 0.7rem;
+    }
+
+    .plant-story-page .plant-detail-age-control-label {
+        display: block;
+        margin-bottom: 0.35rem;
+        color: #62705f;
+        font-size: 0.73rem;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-age-control-help {
+        margin: 0.4rem 0 0;
+        color: #687364;
+        font-size: 0.73rem;
+        line-height: 1.45;
+    }
+
+    .plant-story-page .plant-detail-age-unit-picker {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .plant-story-page .plant-detail-age-unit-picker button {
+        width: auto;
+        min-width: 0;
+        min-height: 36px;
+        margin: 0;
+        padding: 0.4rem 0.7rem;
+        border: 1px solid rgba(82, 112, 71, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 254, 249, 0.85);
+        color: #62705f;
+        font: inherit;
+        font-size: 0.76rem;
+        font-weight: 650;
+        line-height: 1.2;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: none;
+    }
+
+    .plant-story-page .plant-detail-age-unit-picker button.selected {
+        border-color: rgba(82, 112, 71, 0.33);
+        background: rgba(226, 238, 212, 0.92);
+        color: #405e42;
+        font-weight: 750;
+    }
+
+    .plant-story-page .plant-detail-age-unit-picker button:focus-visible {
+        outline: 2px solid #627c50;
+        outline-offset: 3px;
+    }
+
+    .plant-story-page .plant-detail-grouped-facts {
+        margin: 0.85rem 0 0;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(66, 91, 57, 0.12);
+    }
+
+    .plant-story-page .plant-detail-grouped-facts > div + div {
+        margin-top: 0.85rem;
+    }
+
+    .plant-story-page .plant-detail-grouped-facts dt {
+        margin: 0 0 0.2rem;
+        color: #718168;
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .plant-story-page .plant-detail-grouped-facts dd {
+        margin: 0;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .plant-story-page .plant-detail-grouped-facts dd > strong {
+        color: #405841;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-fact-note {
+        display: block;
+        margin-top: 0.15rem;
+        color: #687364;
+        font-size: 0.82rem;
+        line-height: 1.45;
+    }
+
+    .plant-story-page .plant-detail-growing-facts {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    .plant-story-page .plant-detail-growing-facts > div + div {
+        padding-top: 0.8rem;
+        border-top: 1px solid rgba(66, 91, 57, 0.12);
+    }
+
+    .plant-story-page .plant-detail-growing-facts .text-button {
+        width: auto;
+        margin: 0;
+        padding: 0.2rem 0;
+        text-align: left;
+        white-space: normal;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-compact-intro {
+        margin: 0.15rem 0 0;
+        max-width: 42rem;
+    }
+
+    .plant-story-page .plant-detail-fact-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(7.5rem, 0.8fr) minmax(0, 1.7fr);
+        gap: 0.45rem 0.8rem;
+        align-items: start;
+        margin-top: 0.75rem;
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    .plant-story-page .plant-detail-fact-grid > * {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .plant-story-page .plant-detail-fact-grid > strong {
+        color: #52634b;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-fact-grid > .text-button {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        justify-self: start;
+        text-align: left;
+        white-space: normal;
+        font: inherit;
+        line-height: inherit;
+    }
+
+    .plant-story-page .plant-detail-actual-timing {
+        margin-top: 0.9rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid rgba(66, 91, 57, 0.12);
+    }
+
+    .plant-story-page .plant-detail-harvest-action {
+        margin-top: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(66, 91, 57, 0.12);
+    }
+
+    .plant-story-page .plant-detail-harvest-action button {
+        max-width: 100%;
+        white-space: normal;
+        text-align: left;
+    }
+
+    .plant-story-page .plant-detail-harvest-summary {
+        width: 100%;
+        margin-top: 0.75rem;
+        text-align: left;
+        cursor: pointer;
+        font: inherit;
+    }
+
+    .plant-story-page .plant-detail-harvest-summary h3 {
+        margin: 0.15rem 0;
+    }
+
+    .plant-story-page .plant-detail-harvest-summary > .form-whisper {
+        margin-top: 0.55rem;
+    }
+
+    .plant-story-page .sprig-photo-viewer-context-action {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 1.25rem;
+        margin-top: 0.35rem;
+    }
+
+    .plant-story-page .sprig-photo-viewer-context-action .text-button {
+        flex: 0 0 auto;
+        width: auto;
+        min-height: 40px;
+        margin: 0;
+        padding: 0.4rem 0;
+        white-space: normal;
+    }
+
+    .plant-story-page .sprig-photo-viewer-context-action
+    .sprig-photo-viewer-remove-action {
+        color: #856b60;
+        font-weight: 500;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .plant-story-page .sprig-photo-viewer-context-action
+    .sprig-photo-viewer-remove-action:hover {
+        color: #754f43;
+        text-decoration: underline;
+        text-underline-offset: 0.18rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-intro {
+        max-width: 44rem;
+        margin: 0.2rem 0 0;
+    }
+
+    .plant-story-page .plant-detail-intelligence-list {
+        display: grid;
+        gap: 0.8rem;
+        margin-top: 0.85rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-card {
+        border-left: 3px solid rgba(82, 112, 71, 0.34);
+    }
+
+    .plant-story-page .plant-detail-intelligence-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
+        margin-bottom: 0.35rem;
+        color: #687364;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-intelligence-card h3 {
+        margin: 0.15rem 0 0.4rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-details {
+        margin-top: 0.75rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid rgba(66, 91, 57, 0.12);
+    }
+
+    .plant-story-page .plant-detail-intelligence-details summary {
+        color: #52634b;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .plant-story-page .plant-detail-intelligence-evidence {
+        margin: 0.65rem 0 0;
+        padding-left: 1.1rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-evidence li + li {
+        margin-top: 0.4rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-evidence .text-button {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+        white-space: normal;
+        font: inherit;
+        font-weight: 700;
+    }
+
+    .plant-story-page .plant-detail-intelligence-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem 0.9rem;
+        margin-top: 0.75rem;
+    }
+
+    .plant-story-page .plant-detail-intelligence-actions .text-button {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 0.2rem 0;
+        white-space: normal;
+    }
+
+    @media (max-width: 560px) {
+        .plant-story-page .plant-detail-compact-card {
+            padding: 0.8rem 0.85rem;
+        }
+
+        .plant-story-page .plant-detail-fact-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.12rem;
+            font-size: 0.86rem;
+        }
+
+        .plant-story-page .plant-detail-fact-grid > strong {
+            margin-top: 0.55rem;
+            font-size: 0.72rem;
+        }
+
+        .plant-story-page .plant-detail-fact-grid > strong:first-child {
+            margin-top: 0;
+        }
+
+        .plant-story-page .plant-detail-age-unit-picker button {
+            min-height: 40px;
+            padding: 0.45rem 0.75rem;
+        }
+    }
+

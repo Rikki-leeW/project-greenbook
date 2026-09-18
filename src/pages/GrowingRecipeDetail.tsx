@@ -1,5 +1,6 @@
+import { BackToTop } from '../components/layout/GardenPage'
 import { useState } from 'react';
-import GardenLayout from '../components/layout/GardenLayout';
+import DetailPageTemplate from '../components/templates/DetailPageTemplate';
 import RecordActions from '../components/common/RecordActions';
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 import type { AppPage } from '../types/navigation';
@@ -448,51 +449,34 @@ export default function GrowingRecipeDetail({
     setIsRatingOpen(false);
   }
 
-  function backToTop() {
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-
-    document.getElementById('growing-recipe-detail-top')?.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      block: 'start',
-    });
-  }
 
   return (
-    <GardenLayout
+    <DetailPageTemplate
       activePage="library"
       onNavigate={onNavigate}
+      className="journal-page"
+      as="div"
+      pageId="growing-recipe-detail-top"
+      journeyBackLabel={
+        backLabel
+          ? `Back to ${backLabel}`
+          : null
+      }
+      onJourneyBack={onBackToOrigin}
+      homeLabel="Growing Home"
+      onHome={onBack}
+      navigationAriaLabel="Growing Recipe navigation"
+      eyebrow={recipe.isArchived ? `Archived ${recordHeading}` : recordHeading}
+      title={recipe.name}
+      intro={getRecipeCategoryLabel(recipe)}
+      headerClassName="journal-header"
+      headerAfterIntro={
+        <>
+          {recipe.isFavourite && <p className="section-label">★ Garden Favourite</p>}
+          {recipe.isArchived && <p className="section-label">📦 Resting in Sprig&apos;s archive</p>}
+        </>
+      }
     >
-      <div className="journal-page" id="growing-recipe-detail-top">
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              {recipe.isArchived
-                ? `Archived ${recordHeading}`
-                : recordHeading}
-            </p>
-
-            <h1>{recipe.name}</h1>
-
-            <p className="journal-intro">
-              {getRecipeCategoryLabel(recipe)}
-            </p>
-
-            {recipe.isFavourite && (
-              <p className="section-label">
-                ★ Garden Favourite
-              </p>
-            )}
-
-            {recipe.isArchived && (
-              <p className="section-label">
-                📦 Resting in Sprig&apos;s archive
-              </p>
-            )}
-          </div>
-        </header>
-
         {recipe.isArchived && (
           <section className="sprig-form-section">
             <p className="section-label">
@@ -532,13 +516,6 @@ export default function GrowingRecipeDetail({
         )}
 
         <RecordActions
-          contextualBackLabel={
-            backLabel
-              ? `Back to ${backLabel}`
-              : undefined
-          }
-          onContextualBack={onBackToOrigin}
-          backLabel="Growing Home"
           editLabel={`Edit ${recordHeading}`}
           duplicateLabel="Create a variation"
           rateLabel={
@@ -552,7 +529,6 @@ export default function GrowingRecipeDetail({
             recipe.isFavourite,
           )}
           rating={recipe.rating}
-          onBack={onBack}
           onEdit={onEdit}
           onDuplicate={onDuplicate}
           onRate={() =>
@@ -848,7 +824,7 @@ export default function GrowingRecipeDetail({
                                   )
                                 }
                               >
-                                🌿 {item.ingredient.name}
+                                ðŸŒ¿ {item.ingredient.name}
 
                                 {measurement && (
                                   <>
@@ -888,7 +864,7 @@ export default function GrowingRecipeDetail({
                                 )
                               }
                             >
-                              🧺 {item.product.name}
+                              ðŸ§º {item.product.name}
 
                               {item.product.brand && (
                                 <>
@@ -1041,7 +1017,7 @@ export default function GrowingRecipeDetail({
                           )
                         }
                       >
-                        🌿 {linkedSetup.name}
+                        ðŸŒ¿ {linkedSetup.name}
                       </button>
                     </li>
                   ),
@@ -1136,16 +1112,7 @@ export default function GrowingRecipeDetail({
           </article>
         </section>
 
-        <div className="growing-back-to-top">
-          <button
-            type="button"
-            className="text-button"
-            onClick={backToTop}
-          >
-            ↑ Back to the top
-          </button>
-        </div>
-      </div>
-    </GardenLayout>
+        <BackToTop targetId="growing-recipe-detail-top" label="Back to the top" />
+    </DetailPageTemplate>
   );
 }

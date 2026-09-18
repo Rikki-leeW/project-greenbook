@@ -4,10 +4,11 @@ import {
     useState,
 } from 'react';
 
-import GardenLayout from '../components/layout/GardenLayout';
+import MultiPageTemplate from '../components/templates/MultiPageTemplate';
 import GardenReference from '../components/knowledge/GardenReference';
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 import SprigPhotoPicker from '../components/photos/SprigPhotoPicker';
+import { escapeRtfParagraph as escapeRtf, downloadBlob } from '../utils/exportUtils';
 
 import type {
     AppPage,
@@ -1423,68 +1424,6 @@ function escapeHtml(
 }
 
 
-function escapeRtf(
-    value:
-        string,
-):
-    string {
-    let result =
-        '';
-
-    for (
-        const character
-        of value
-    ) {
-        if (
-            character ===
-            '\\'
-        ) {
-            result +=
-                '\\\\';
-        }
-        else if (
-            character ===
-            '{'
-        ) {
-            result +=
-                '\\{';
-        }
-        else if (
-            character ===
-            '}'
-        ) {
-            result +=
-                '\\}';
-        }
-        else if (
-            character ===
-            '\n'
-        ) {
-            result +=
-                '\\par\n';
-        }
-        else {
-            const code =
-                character.charCodeAt(
-                    0,
-                );
-
-            result +=
-                code >
-                127
-                    ? `\\u${
-                          code >
-                          32767
-                              ? code -
-                                65536
-                              : code
-                      }?`
-                    : character;
-        }
-    }
-
-    return result;
-}
 
 
 function downloadRtf(
@@ -1584,7 +1523,8 @@ function downloadRtf(
         body +
         '}';
 
-    const blob =
+    downloadBlob(
+        fileName,
         new Blob(
             [
                 rtf,
@@ -1593,34 +1533,7 @@ function downloadRtf(
                 type:
                     'application/rtf;charset=utf-8',
             },
-        );
-
-    const url =
-        URL.createObjectURL(
-            blob,
-        );
-
-    const anchor =
-        document.createElement(
-            'a',
-        );
-
-    anchor.href =
-        url;
-
-    anchor.download =
-        fileName;
-
-    document.body.appendChild(
-        anchor,
-    );
-
-    anchor.click();
-
-    anchor.remove();
-
-    URL.revokeObjectURL(
-        url,
+        ),
     );
 }
 
@@ -6885,7 +6798,7 @@ export default function GardenKnowledge({
 
 
     return (
-        <GardenLayout
+        <MultiPageTemplate
             activePage={
                 view ===
                 'notes'
@@ -6898,43 +6811,19 @@ export default function GardenKnowledge({
                         ? 'plant-reference'
                         : 'saved-sources'
             }
-            onNavigate={
-                onNavigate
-            }
+            onNavigate={onNavigate}
+            pageId="garden-knowledge-top"
+            pageAs="div"
+            className="sprig-knowledge-page"
+            headerClassName="sprig-knowledge-header"
+            journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : null}
+            onJourneyBack={onJourneyBack}
+            navigationAriaLabel="Garden Knowledge navigation"
+            eyebrow="Garden Knowledge"
+            title={getPageTitle()}
+            intro={getPageSubtitle()}
+            subNavigation={renderKnowledgeNavigation()}
         >
-            <div className="sprig-knowledge-page">
-                <header className="journal-header sprig-knowledge-header">
-                    <div>
-                        <p className="section-label">
-                            Garden Knowledge
-                        </p>
-
-                        <h1>
-                            {getPageTitle()}
-                        </h1>
-
-                        <p className="journal-intro">
-                            {getPageSubtitle()}
-                        </p>
-                    </div>
-                </header>
-
-                {journeyBackLabel &&
-                    onJourneyBack && (
-                    <button
-                        type="button"
-                        className="sprig-knowledge-text-button"
-                        onClick={
-                            onJourneyBack
-                        }
-                    >
-                        ← Back to{' '}
-                        {journeyBackLabel}
-                    </button>
-                )}
-
-                {renderKnowledgeNavigation()}
-
                 <datalist id="sprig-knowledge-categories">
                     {knowledgeCategories.map(
                         category => (
@@ -6994,7 +6883,6 @@ export default function GardenKnowledge({
                 {view ===
                     'sources' &&
                     renderSourcesView()}
-            </div>
-        </GardenLayout>
+        </MultiPageTemplate>
     );
 }

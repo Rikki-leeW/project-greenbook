@@ -1,6 +1,10 @@
 import type {
   PlantStory,
 } from '../../types'
+import {
+  getPlantDisplayName,
+} from '../../utils/plantDisplayName'
+import '../../css/cards/plantcard.css'
 
 
 type DurationDisplayUnit =
@@ -9,27 +13,52 @@ type DurationDisplayUnit =
   | 'months'
 
 
+export interface PlantCardRichDetail {
+  label: string
+  value: string
+}
+
+
 interface PlantCardProps {
   plant: PlantStory
-
   growingPlaceName?: string
-
   latestActivityDate?: string
-
   latestActivitySummary?: string
-
   thumbnailPhotoUrl?: string
-
   ageUnit?: DurationDisplayUnit
-
-  onOpen: (
+  onOpen?: (
     plantId: string,
   ) => void
 
+  /**
+   * Optional richer information for the
+   * Plants index.
+   *
+   * The shared card remains compact by
+   * default. Relationship pickers such as
+   * Harvest do not receive these details.
+   */
+  richDetails?: PlantCardRichDetail[]
+
+  /**
+   * Generic selection mode is used by
+   * relationship pickers such as Harvest.
+   *
+   * Selecting a Plant Story here must not
+   * navigate away from the current form.
+   */
+  selectionMode?: boolean
+  isSelected?: boolean
+  onToggleSelection?: (
+    plantId: string,
+  ) => void
+
+  /**
+   * Existing Plants comparison behaviour is
+   * deliberately preserved separately.
+   */
   compareMode?: boolean
-
   isSelectedForComparison?: boolean
-
   onToggleComparison?: (
     plantId: string,
   ) => void
@@ -122,9 +151,8 @@ function formatAge(
       weeks === 1
         ? 'week'
         : 'weeks'
-    } growing`
+    }`
   }
-
 
   if (
     unit ===
@@ -140,15 +168,14 @@ function formatAge(
       months === 1
         ? 'month'
         : 'months'
-    } growing`
+    }`
   }
-
 
   return `${daysGrowing} ${
     daysGrowing === 1
       ? 'day'
       : 'days'
-  } growing`
+  }`
 }
 
 
@@ -164,12 +191,15 @@ export default function PlantCard({
   thumbnailPhotoUrl,
   ageUnit = 'weeks',
   onOpen,
+  richDetails = [],
+  selectionMode = false,
+  isSelected = false,
+  onToggleSelection,
   compareMode = false,
   isSelectedForComparison = false,
   onToggleComparison,
 }: PlantCardProps) {
-
-  /*
+  /**
    * A completed Plant Story stops ageing
    * when its story ends.
    *
@@ -182,36 +212,112 @@ export default function PlantCard({
       ? plant.completedAt
       : undefined
 
-
   const daysGrowing =
     getDaysBetweenDates(
       plant.plantedDate,
       ageEndDate,
     )
 
-
-  const cropLabel =
-    plant.plantName.trim()
-
+  const displayName =
+    getPlantDisplayName(
+      plant,
+    )
 
   const locationLabel =
     growingPlaceName?.trim()
 
+  const hasLatestActivity =
+    Boolean(
+      latestActivityDate &&
+        (
+          latestActivitySummary ||
+          latestActivityDate !==
+            plant.plantedDate
+        ),
+    )
+
+  /*
+   * Rich Plants-index context is reading
+   * information, not selection information.
+   * Keep relationship and comparison cards
+   * deliberately compact.
+   */
+  const visibleRichDetails =
+    !selectionMode &&
+    !compareMode
+      ? richDetails.filter(
+          detail =>
+            Boolean(
+              detail.label.trim() &&
+              detail.value.trim(),
+            ),
+        )
+      : []
+
+  const selected =
+    selectionMode
+      ? isSelected
+      : compareMode
+        ? isSelectedForComparison
+        : false
+
 
   function handleCardClick() {
+    if (
+      selectionMode
+    ) {
+      onToggleSelection?.(
+        plant.id,
+      )
+      return
+    }
+
     if (
       compareMode
     ) {
       onToggleComparison?.(
         plant.id,
       )
-
       return
     }
 
-    onOpen(
+    onOpen?.(
       plant.id,
     )
+  }
+
+
+  function getAriaLabel():
+    string {
+    if (
+      selectionMode
+    ) {
+      return `${
+        isSelected
+          ? 'Remove'
+          : 'Select'
+      } ${displayName}${
+        isSelected
+          ? ' from this selection'
+          : ''
+      }`
+    }
+
+    if (
+      compareMode
+    ) {
+      return `${
+        isSelectedForComparison
+          ? 'Remove'
+          : 'Select'
+      } ${displayName} ${
+        isSelectedForComparison
+          ? 'from'
+          : 'for'
+      } comparison`
+    }
+
+    return `Open the story for ${displayName}`
   }
 
 
@@ -222,16 +328,20 @@ export default function PlantCard({
         'plant-card',
         'plant-card-button',
         'plant-card-compact',
-
         thumbnailPhotoUrl
           ? 'plant-card-with-thumbnail'
           : '',
-
+        visibleRichDetails.length >
+        0
+          ? 'plant-card-rich'
+          : '',
         compareMode
           ? 'plant-card-compare-mode'
           : '',
-
-        isSelectedForComparison
+        selectionMode
+          ? 'plant-card-selection-mode'
+          : '',
+        selected
           ? 'plant-card-compare-selected'
           : '',
       ]
@@ -245,40 +355,39 @@ export default function PlantCard({
         handleCardClick
       }
       aria-label={
-        compareMode
-          ? `${
-              isSelectedForComparison
-                ? 'Remove'
-                : 'Select'
-            } ${
-              plant.displayName
-            } ${
-              isSelectedForComparison
-                ? 'from'
-                : 'for'
-            } comparison`
-          : `Open the story for ${
-              plant.displayName
-            }`
+        getAriaLabel()
       }
       aria-pressed={
+        selectionMode ||
         compareMode
-          ? isSelectedForComparison
+          ? selected
           : undefined
       }
     >
-      <div className="plant-card-content">
+      <span className="plant-card-content">
+        <span className="plant-card-main">
+          <span className="plant-card-heading-row">
+            <span className="plant-card-title">
+              {displayName}
+            </span>
 
-        <div className="plant-card-compact-heading">
-          <div className="plant-card-compact-title">
-            <h3>
-              {plant.displayName}
-            </h3>
+            <span className="plant-card-age">
+              ·{' '}
+              {formatAge(
+                daysGrowing,
+                ageUnit,
+              )}
+            </span>
+          </span>
 
-            <p className="plant-card-identity">
-              <span>
-                {cropLabel}
-              </span>
+          <span className="plant-card-details">
+            <span className="plant-card-planted-line">
+              <strong>
+                Planted:
+              </strong>{' '}
+              {formatShortDate(
+                plant.plantedDate,
+              )}
 
               {locationLabel && (
                 <>
@@ -294,93 +403,104 @@ export default function PlantCard({
                   </span>
                 </>
               )}
-            </p>
-          </div>
+            </span>
 
+            {hasLatestActivity && (
+              <span className="plant-card-latest-activity">
+                <strong>
+                  Latest:
+                </strong>{' '}
 
-          <span
-            className={[
-              'status-pill',
-
-              plant.status ===
-                'finished'
-                ? 'plant-status-finished'
-                : '',
-            ]
-              .filter(
-                Boolean,
-              )
-              .join(
-                ' ',
-              )}
-          >
-            {compareMode
-              ? isSelectedForComparison
-                ? '✓ Selected'
-                : 'Select'
-              : plant.status}
-          </span>
-        </div>
-
-
-        <div className="plant-card-compact-meta">
-          <span>
-            Planted{' '}
-
-            {formatShortDate(
-              plant.plantedDate,
-            )}
-          </span>
-
-          <span
-            className="plant-card-separator"
-            aria-hidden="true"
-          >
-            ·
-          </span>
-
-          <strong>
-            {formatAge(
-              daysGrowing,
-              ageUnit,
-            )}
-          </strong>
-        </div>
-
-        {latestActivityDate &&
-  (
-    latestActivitySummary ||
-    latestActivityDate !==
-      plant.plantedDate
-  ) && (
-            <div className="plant-card-latest-activity">
-              <strong>
-                Latest ·{' '}
-                {formatShortDate(
-                  latestActivityDate,
+                {latestActivitySummary && (
+                  <span>
+                    {latestActivitySummary}
+                  </span>
                 )}
-              </strong>
 
-              {latestActivitySummary && (
-                <span>
-                  {' '}
-                  ·{' '}
-                  {latestActivitySummary}
-                </span>
+                {latestActivitySummary &&
+                  latestActivityDate && (
+                    <span
+                      className="plant-card-separator"
+                      aria-hidden="true"
+                    >
+                      ·
+                    </span>
+                  )}
+
+                {latestActivityDate && (
+                  <span className="plant-card-latest-date">
+                    {formatShortDate(
+                      latestActivityDate,
+                    )}
+                  </span>
+                )}
+              </span>
+            )}
+          </span>
+
+          {visibleRichDetails.length >
+            0 && (
+            <span className="plant-card-rich-details">
+              {visibleRichDetails.map(
+                detail => (
+                  <span
+                    key={`${detail.label}-${detail.value}`}
+                    className="plant-card-rich-detail"
+                  >
+                    <span className="plant-card-rich-label">
+                      {detail.label}
+                    </span>
+
+                    <span className="plant-card-rich-value">
+                      {detail.value}
+                    </span>
+                  </span>
+                ),
               )}
-            </div>
+            </span>
           )}
 
+          <span className="plant-card-actions">
+            <span
+              className={[
+                'status-pill',
+                plant.status ===
+                  'finished'
+                  ? 'plant-status-finished'
+                  : '',
+              ]
+                .filter(
+                  Boolean,
+                )
+                .join(
+                  ' ',
+                )}
+            >
+              {selectionMode
+                ? isSelected
+                  ? '✓ Selected'
+                  : 'Select'
+                : compareMode
+                  ? isSelectedForComparison
+                    ? '✓ Selected'
+                    : 'Select'
+                  : plant.status}
+            </span>
 
-        <span className="open-story">
-          {compareMode
-            ? isSelectedForComparison
-              ? 'Selected for comparison'
-              : 'Add to comparison'
-            : 'Open story →'}
+            <span className="open-story">
+              {selectionMode
+                ? isSelected
+                  ? 'Included in this harvest'
+                  : 'Add to this harvest'
+                : compareMode
+                  ? isSelectedForComparison
+                    ? 'Selected for comparison'
+                    : 'Add to comparison'
+                  : 'Open story →'}
+            </span>
+          </span>
         </span>
-      </div>
-
+      </span>
 
       {thumbnailPhotoUrl && (
         <span

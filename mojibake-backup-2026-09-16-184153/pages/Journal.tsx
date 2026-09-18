@@ -1,0 +1,448 @@
+
+import MainPageTemplate from '../components/templates/MainPageTemplate'
+import type {
+  GardenEvent,
+  PlantStory,
+} from '../types'
+
+import type {
+  AppPage,
+} from '../types/navigation'
+
+
+interface JournalProps {
+  events: GardenEvent[]
+
+  plants: PlantStory[]
+
+  onAddEntry: () => void
+
+  onOpenEntry: (
+    eventId: string,
+  ) => void
+
+  onDeleteEvent: (
+    eventId: string,
+  ) => void
+
+  onNavigate: (
+    page: AppPage,
+  ) => void
+}
+
+
+/* =======================================
+   EVENT EMOJI
+======================================= */
+
+function getEventEmoji(
+  type: GardenEvent['type'],
+): string {
+  if (
+    type ===
+    'planted'
+  ) {
+    return 'ðŸŒ±'
+  }
+
+  if (
+    type ===
+    'sprouted'
+  ) {
+    return 'ðŸŒ¿'
+  }
+
+  if (
+    type ===
+    'watered'
+  ) {
+    return 'ðŸ’§'
+  }
+
+  if (
+    type ===
+    'fed'
+  ) {
+    return 'ðŸ§ª'
+  }
+
+  if (
+    type ===
+    'moved'
+  ) {
+    return 'ðŸª´'
+  }
+
+  if (
+    type ===
+    'transplanted'
+  ) {
+    return 'ðŸŒ±'
+  }
+
+  if (
+    type ===
+    'hilled'
+  ) {
+    return 'ðŸ¥”'
+  }
+
+  if (
+    type ===
+    'pruned'
+  ) {
+    return 'âœ‚ï¸'
+  }
+
+  if (
+    type ===
+    'treated'
+  ) {
+    return 'ðŸ©¹'
+  }
+
+  if (
+    type ===
+    'weather'
+  ) {
+    return 'ðŸŒ¦ï¸'
+  }
+
+  if (
+    type ===
+    'photo'
+  ) {
+    return 'ðŸ“·'
+  }
+
+  if (
+    type ===
+    'harvest'
+  ) {
+    return 'ðŸ§º'
+  }
+
+  if (
+    type ===
+    'observation'
+  ) {
+    return 'ðŸ‘€'
+  }
+
+  if (
+    type ===
+    'note'
+  ) {
+    return 'ðŸ“–'
+  }
+
+  return 'ðŸ“'
+}
+
+
+/* =======================================
+   DATE
+======================================= */
+
+function formatDate(
+  date: string,
+): string {
+  return new Date(
+    `${date}T00:00:00`,
+  ).toLocaleDateString(
+    'en-AU',
+    {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    },
+  )
+}
+
+
+/* =======================================
+   PLANT NAMES
+======================================= */
+
+function getPlantNames(
+  event: GardenEvent,
+  plants: PlantStory[],
+): string {
+  if (
+    event.plantStoryIds.length ===
+    0
+  ) {
+    return 'The wider garden'
+  }
+
+
+  const matchingPlants =
+    plants.filter(
+      plant =>
+        event.plantStoryIds.includes(
+          plant.id,
+        ),
+    )
+
+
+  if (
+    matchingPlants.length ===
+    0
+  ) {
+    return 'A plant story'
+  }
+
+
+  return matchingPlants
+    .map(
+      plant =>
+        plant.displayName,
+    )
+    .join(
+      ', ',
+    )
+}
+
+
+/* =======================================
+   JOURNAL
+======================================= */
+
+export default function Journal({
+  events,
+  plants,
+  onAddEntry,
+  onOpenEntry,
+  onDeleteEvent,
+  onNavigate,
+}: JournalProps) {
+  const sortedEvents =
+    [
+      ...events,
+    ].sort(
+      (
+        first,
+        second,
+      ) =>
+        new Date(
+          second.date,
+        ).getTime() -
+        new Date(
+          first.date,
+        ).getTime(),
+    )
+
+
+  return (
+    <MainPageTemplate
+      activePage="journal"
+      onNavigate={
+      onNavigate
+      }
+      pageId="journal-top"
+      className="journal-page"
+      journeyBackLabel="Chronicle"
+      onJourneyBack={() =>
+      onNavigate(
+      'calendar',
+      )
+      }
+      navigationAriaLabel="Journal navigation"
+      eyebrow="Sprig's notebook"
+      title="Garden Journal"
+      intro={
+      <>
+      A gathering of rain, roots,
+      harvests, small victories and
+      things worth remembering.
+      </>
+      }
+      headerActions={
+      <button
+      type="button"
+      className="journal-add-button"
+      onClick={
+      onAddEntry
+      }
+      >
+      âœ’ï¸ Add an entry
+      </button>
+      }
+    >
+
+
+        {/* =======================================
+            JOURNAL ENTRIES
+        ======================================= */}
+
+        <section className="journal-list">
+          {sortedEvents.length >
+          0 ? (
+            sortedEvents.map(
+              event => {
+                const isGardenEntry =
+                  event.plantStoryIds.length ===
+                  0
+
+
+                return (
+                  <article
+                    key={
+                      event.id
+                    }
+                    className="journal-entry journal-entry-clickable"
+                    role="button"
+                    tabIndex={
+                      0
+                    }
+                    onClick={() =>
+                      onOpenEntry(
+                        event.id,
+                      )
+                    }
+                    onKeyDown={(
+                      keyboardEvent,
+                    ) => {
+                      if (
+                        keyboardEvent.key ===
+                          'Enter' ||
+                        keyboardEvent.key ===
+                          ' '
+                      ) {
+                        keyboardEvent.preventDefault()
+
+                        onOpenEntry(
+                          event.id,
+                        )
+                      }
+                    }}
+                  >
+                    <div className="journal-entry-marker">
+                      {getEventEmoji(
+                        event.type,
+                      )}
+                    </div>
+
+
+                    <div className="journal-entry-content">
+                      <div className="journal-entry-top">
+                        <div>
+                          <p
+                            className={
+                              isGardenEntry
+                                ? 'journal-entry-source garden-source'
+                                : 'journal-entry-source plant-source'
+                            }
+                          >
+                            {isGardenEntry
+                              ? 'ðŸŒ From the wider garden'
+                              : `ðŸŒ± From ${getPlantNames(
+                                  event,
+                                  plants,
+                                )}`}
+                          </p>
+
+
+                          <time>
+                            {formatDate(
+                              event.date,
+                            )}
+                          </time>
+                        </div>
+
+
+                        <button
+                          type="button"
+                          className="journal-delete-button"
+                          onClick={(
+                            clickEvent,
+                          ) => {
+                            /*
+                             * Prevent deleting a page
+                             * from also opening it.
+                             */
+                            clickEvent.stopPropagation()
+
+
+                            const confirmed =
+                              window.confirm(
+                                'Remove this page from the garden journal?',
+                              )
+
+
+                            if (
+                              confirmed
+                            ) {
+                              onDeleteEvent(
+                                event.id,
+                              )
+                            }
+                          }}
+                          aria-label={
+                            `Delete ${event.title}`
+                          }
+                        >
+                          ðŸ—‘ï¸
+                        </button>
+                      </div>
+
+
+                      <h2>
+                        {event.title}
+                      </h2>
+
+
+                      {event.productUsed && (
+                        <p className="journal-product">
+                          Garden provisions:{' '}
+                          {
+                            event.productUsed
+                          }
+                        </p>
+                      )}
+
+
+                      {event.notes && (
+                        <p className="journal-notes">
+                          {
+                            event.notes
+                          }
+                        </p>
+                      )}
+                    </div>
+                  </article>
+                )
+              },
+            )
+          ) : (
+            <div className="journal-empty">
+              <span>
+                ðŸ“–
+              </span>
+
+              <h2>
+                The pages are still quiet
+              </h2>
+
+              <p>
+                Sprig has not recorded anything yet.
+              </p>
+
+              <button
+                type="button"
+                className="text-button"
+                onClick={
+                  onAddEntry
+                }
+              >
+                Write the first entry
+              </button>
+            </div>
+          )}
+        </section>
+
+      </MainPageTemplate>
+  )
+}
+
+

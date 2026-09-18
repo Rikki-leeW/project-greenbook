@@ -11,6 +11,14 @@
 @import './pages/plant-detail.css';
 @import './pages/welcome.css';
 
+/*
+ * Garden of Mine's final shared presentation
+ * layer deliberately comes after legacy and
+ * page CSS so generic controls look the same
+ * throughout the application.
+ */
+@import url('./components/uniform-controls.css');
+
 :root {
   color: #2f4734;
   background: #f7f0df;
@@ -100,35 +108,11 @@ h1 {
   line-height: 0.98;
 }
 
-.enter-button:focus-visible,
-.text-button:focus-visible,
-.quick-action:focus-visible,
-.nav-item:focus-visible,
-.keeper-avatar:focus-visible,
-.secondary-button:focus-visible,
-.close-button:focus-visible,
-.back-button:focus-visible {
-  outline: 3px solid rgba(155, 122, 58, 0.34);
-  outline-offset: 3px;
-}
-
 .garden-return-button {
   display: block;
   margin: 24px auto 0;
-  padding: 10px 16px;
-  border: 1px solid rgba(48, 74, 50, 0.2);
-  border-radius: 999px;
-  color: #304a32;
-  background: rgba(255, 253, 247, 0.88);
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(48, 74, 50, 0.08);
 }
 
-.garden-return-button:hover {
-  background: #fffdf7;
-  transform: translateY(-1px);
-}
 .plant-story-page .garden-return-button {
   margin-left: 0;
   margin-right: 0;

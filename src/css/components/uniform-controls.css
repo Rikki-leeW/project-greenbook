@@ -1,0 +1,1284 @@
+/* =======================================
+   GARDEN OF MINE
+   UNIFORM INTERACTIVE CONTROLS
+
+   One visual language for everyday
+   buttons, form fields, selectors,
+   segmented choices and filter controls.
+
+   Page CSS may control layout.
+   This file controls appearance.
+======================================= */
+
+
+/* =======================================
+   SHARED CONTROL TOKENS
+======================================= */
+
+:root {
+  --gom-control-bg: rgba(255, 253, 247, 0.96);
+  --gom-control-bg-hover: rgba(255, 255, 251, 0.99);
+  --gom-control-bg-selected: #e4eddc;
+
+  --gom-control-border: rgba(65, 88, 58, 0.18);
+  --gom-control-border-hover: rgba(65, 88, 58, 0.32);
+  --gom-control-border-selected: rgba(63, 93, 57, 0.48);
+
+  --gom-control-text: #304a32;
+  --gom-control-muted: #687267;
+
+  --gom-primary: #527047;
+  --gom-primary-hover: #45643f;
+  --gom-primary-deep: #3f5d3e;
+
+  --gom-control-radius: 14px;
+  --gom-pill-radius: 999px;
+
+  --gom-control-shadow:
+    0 4px 12px rgba(48, 74, 50, 0.055);
+
+  --gom-control-shadow-hover:
+    0 7px 18px rgba(48, 74, 50, 0.09);
+
+  --gom-focus-ring:
+    0 0 0 3px rgba(82, 112, 71, 0.13);
+}
+
+
+/* =======================================
+   REMOVE NATIVE CONTROL PERSONALITY
+
+   Browsers should not decide what
+   Garden of Mine looks like.
+======================================= */
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+select {
+  color: var(--gom-control-text);
+}
+
+input,
+select,
+textarea {
+  accent-color: var(--gom-primary);
+}
+
+
+/* =======================================
+   TEXT / SEARCH / NUMBER / DATE FIELDS
+
+   Shared fields inside forms and canonical pages ensure
+   Add Plant, Journal, Harvest, Growing
+   Places, Recipes, Products etc all
+   inherit the same field language.
+======================================= */
+
+:is(form, .garden-page, .journal-page)
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+:is(form, .garden-page, .journal-page)
+select,
+:is(form, .garden-page, .journal-page)
+textarea,
+.sprig-paper-panel
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+.sprig-paper-panel
+select,
+.sprig-paper-panel
+textarea {
+  box-sizing: border-box;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+
+  border:
+    1px solid
+    var(--gom-control-border);
+
+  border-radius:
+    var(--gom-control-radius);
+
+  outline: none;
+
+  background:
+    var(--gom-control-bg);
+
+  color:
+    var(--gom-control-text);
+
+  font: inherit;
+
+  line-height: 1.35;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    var(--gom-control-shadow);
+
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+
+:is(form, .garden-page, .journal-page)
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+:is(form, .garden-page, .journal-page)
+select,
+.sprig-paper-panel
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+.sprig-paper-panel
+select {
+  min-height: 46px;
+
+  padding:
+    10px
+    13px;
+}
+
+
+:is(form, .garden-page, .journal-page)
+textarea,
+.sprig-paper-panel
+textarea {
+  min-height: 108px;
+
+  padding:
+    12px
+    13px;
+
+  resize: vertical;
+}
+
+
+:is(form, .garden-page, .journal-page)
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']):hover,
+:is(form, .garden-page, .journal-page)
+select:hover,
+:is(form, .garden-page, .journal-page)
+textarea:hover,
+.sprig-paper-panel
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']):hover,
+.sprig-paper-panel
+select:hover,
+.sprig-paper-panel
+textarea:hover {
+  border-color:
+    var(--gom-control-border-hover);
+
+  background:
+    var(--gom-control-bg-hover);
+}
+
+
+:is(form, .garden-page, .journal-page)
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']):focus,
+:is(form, .garden-page, .journal-page)
+select:focus,
+:is(form, .garden-page, .journal-page)
+textarea:focus,
+.sprig-paper-panel
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']):focus,
+.sprig-paper-panel
+select:focus,
+.sprig-paper-panel
+textarea:focus {
+  border-color:
+    rgba(63, 93, 57, 0.48);
+
+  background:
+    #fffef9;
+
+  box-shadow:
+    var(--gom-focus-ring);
+}
+
+
+:is(form, .garden-page, .journal-page)
+input::placeholder,
+:is(form, .garden-page, .journal-page)
+textarea::placeholder,
+.sprig-paper-panel
+input::placeholder,
+.sprig-paper-panel
+textarea::placeholder {
+  color:
+    rgba(70, 84, 67, 0.56);
+
+  opacity: 1;
+}
+
+
+/* =======================================
+   SELECTS
+
+   Give the CLOSED control Garden of Mine
+   styling rather than browser styling.
+======================================= */
+
+:is(form, .garden-page, .journal-page) select,
+.sprig-paper-panel select,
+.plant-browser-sort select,
+.growing-sort-field select {
+  appearance: none;
+  -webkit-appearance: none;
+
+  padding-right: 42px;
+
+  cursor: pointer;
+
+  background-color:
+    var(--gom-control-bg);
+
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent 50%,
+      #52694d 50%
+    ),
+    linear-gradient(
+      135deg,
+      #52694d 50%,
+      transparent 50%
+    );
+
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+
+  background-size:
+    5px 5px,
+    5px 5px;
+
+  background-repeat:
+    no-repeat;
+}
+
+
+:is(form, .garden-page, .journal-page) select:focus,
+.sprig-paper-panel select:focus,
+.plant-browser-sort select:focus,
+.growing-sort-field select:focus {
+  background-color:
+    #fffef9;
+}
+
+
+/*
+ * Browser / OS popup menus have limited
+ * styling support, but use Garden colours
+ * wherever the platform permits it.
+ */
+
+select option {
+  background:
+    #fffdf7;
+
+  color:
+    #304a32;
+}
+
+
+/* =======================================
+   CHECKBOXES + RADIO BUTTONS
+
+   This kills the giant blue browser
+   targets without requiring markup
+   changes throughout the app.
+======================================= */
+
+form
+input[type='checkbox'],
+form
+input[type='radio'],
+.sprig-paper-panel
+input[type='checkbox'],
+.sprig-paper-panel
+input[type='radio'] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  position: relative;
+
+  flex:
+    0 0 auto;
+
+  width:
+    19px;
+
+  height:
+    19px;
+
+  min-width:
+    19px;
+
+  min-height:
+    19px;
+
+  margin:
+    1px
+    0;
+
+  padding:
+    0;
+
+  border:
+    1.5px solid
+    rgba(65, 88, 58, 0.38);
+
+  background:
+    rgba(255, 253, 247, 0.98);
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    inset 0 1px 1px rgba(48, 74, 50, 0.04);
+
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+
+form
+input[type='radio'],
+.sprig-paper-panel
+input[type='radio'] {
+  border-radius:
+    50%;
+}
+
+
+form
+input[type='checkbox'],
+.sprig-paper-panel
+input[type='checkbox'] {
+  border-radius:
+    6px;
+}
+
+
+form
+input[type='radio']:checked,
+.sprig-paper-panel
+input[type='radio']:checked {
+  border-color:
+    var(--gom-primary);
+
+  background:
+    radial-gradient(
+      circle,
+      var(--gom-primary) 0 4px,
+      #fffdf7 5px 100%
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(82, 112, 71, 0.09);
+}
+
+
+form
+input[type='checkbox']:checked,
+.sprig-paper-panel
+input[type='checkbox']:checked {
+  border-color:
+    var(--gom-primary);
+
+  background:
+    var(--gom-primary);
+}
+
+
+form
+input[type='checkbox']:checked::after,
+.sprig-paper-panel
+input[type='checkbox']:checked::after {
+  content:
+    "";
+
+  position:
+    absolute;
+
+  left:
+    5px;
+
+  top:
+    2px;
+
+  width:
+    5px;
+
+  height:
+    9px;
+
+  border:
+    solid
+    #fffdf7;
+
+  border-width:
+    0
+    2px
+    2px
+    0;
+
+  transform:
+    rotate(45deg);
+}
+
+
+form
+input[type='radio']:focus-visible,
+form
+input[type='checkbox']:focus-visible,
+.sprig-paper-panel
+input[type='radio']:focus-visible,
+.sprig-paper-panel
+input[type='checkbox']:focus-visible {
+  outline:
+    none;
+
+  box-shadow:
+    var(--gom-focus-ring);
+}
+
+
+/* =======================================
+   PRIMARY ACTIONS
+
+   Rounded botanical buttons.
+======================================= */
+
+.enter-button,
+.primary-button,
+.sprig-gallery-primary-button,
+.sprig-trial-primary-button {
+  appearance:
+    none;
+
+  -webkit-appearance:
+    none;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  min-height:
+    44px;
+
+  padding:
+    11px
+    18px;
+
+  border:
+    1px solid
+    rgba(52, 80, 48, 0.22);
+
+  border-radius:
+    var(--gom-pill-radius);
+
+  background:
+    linear-gradient(
+      180deg,
+      #5f8053 0%,
+      #4d7046 100%
+    );
+
+  color:
+    #fffdf7;
+
+  font:
+    inherit;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.2;
+
+  text-align:
+    center;
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    0 7px 17px
+    rgba(48, 74, 50, 0.16),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.14);
+
+  transition:
+    transform 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+
+.enter-button:hover:not(:disabled),
+.primary-button:hover:not(:disabled),
+.sprig-gallery-primary-button:hover:not(:disabled),
+.sprig-trial-primary-button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  background:
+    linear-gradient(
+      180deg,
+      #56784c 0%,
+      #45663f 100%
+    );
+
+  box-shadow:
+    0 9px 20px
+    rgba(48, 74, 50, 0.19),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.14);
+}
+
+
+.enter-button:active:not(:disabled),
+.sprig-gallery-primary-button:active:not(:disabled),
+.sprig-trial-primary-button:active:not(:disabled) {
+  transform:
+    translateY(0);
+}
+
+
+.enter-button:disabled,
+.primary-button:disabled,
+.sprig-gallery-primary-button:disabled,
+.sprig-trial-primary-button:disabled {
+  opacity:
+    0.48;
+
+  cursor:
+    not-allowed;
+
+  box-shadow:
+    none;
+}
+
+
+/* =======================================
+   SECONDARY ACTIONS
+
+   Cream rather than grey.
+======================================= */
+
+.secondary-button,
+.garden-return-button,
+.garden-page-navigation-button,
+.sprig-gallery-secondary-button,
+.sprig-trial-secondary-button {
+  appearance:
+    none;
+
+  -webkit-appearance:
+    none;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    6px;
+
+  min-height:
+    40px;
+
+  padding:
+    9px
+    15px;
+
+  border:
+    1px solid
+    var(--gom-control-border);
+
+  border-radius:
+    var(--gom-pill-radius);
+
+  background:
+    rgba(255, 253, 247, 0.86);
+
+  color:
+    #4b6247;
+
+  font:
+    inherit;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.2;
+
+  text-align:
+    center;
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    var(--gom-control-shadow);
+
+  transition:
+    transform 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+
+.secondary-button:hover:not(:disabled),
+.garden-return-button:hover:not(:disabled),
+.garden-page-navigation-button:hover:not(:disabled),
+.sprig-gallery-secondary-button:hover:not(:disabled),
+.sprig-trial-secondary-button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    var(--gom-control-border-hover);
+
+  background:
+    #fffdf7;
+
+  box-shadow:
+    var(--gom-control-shadow-hover);
+}
+
+
+/* =======================================
+   SEGMENTED / CHIP CHOICES
+
+   Existing pages use several class names
+   for the same interaction. Give them
+   one family resemblance.
+======================================= */
+
+.plant-story-view-tab,
+.plant-filter-chip,
+.growing-filter-chip,
+.sprig-calendar-filter-button {
+  appearance:
+    none;
+
+  -webkit-appearance:
+    none;
+
+  min-height:
+    38px;
+
+  margin:
+    0;
+
+  padding:
+    8px
+    14px;
+
+  border:
+    1px solid
+    var(--gom-control-border);
+
+  border-radius:
+    var(--gom-pill-radius);
+
+  background:
+    rgba(255, 253, 247, 0.82);
+
+  color:
+    var(--gom-control-text);
+
+  font:
+    inherit;
+
+  font-size:
+    0.82rem;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.2;
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    0 3px 9px
+    rgba(48, 74, 50, 0.045);
+
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+
+.plant-story-view-tab:hover,
+.plant-filter-chip:hover,
+.growing-filter-chip:hover,
+.sprig-calendar-filter-button:hover {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    var(--gom-control-border-hover);
+
+  background:
+    #fffdf7;
+}
+
+
+.plant-story-view-tab--active,
+.plant-filter-chip--selected,
+.growing-filter-chip--selected,
+.sprig-calendar-filter-button--selected {
+  border-color:
+    var(--gom-control-border-selected);
+
+  background:
+    var(--gom-control-bg-selected);
+
+  color:
+    #355337;
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(82, 112, 71, 0.05),
+    0 4px 10px
+    rgba(48, 74, 50, 0.06);
+}
+
+
+/* =======================================
+   GENERIC BUTTON FOCUS
+
+   Warm green/gold focus rather than
+   browser blue.
+======================================= */
+
+button:focus-visible {
+  outline:
+    2px solid
+    rgba(82, 112, 71, 0.48);
+
+  outline-offset:
+    3px;
+}
+
+
+/* =======================================
+   LABEL RHYTHM
+======================================= */
+
+form label {
+  color:
+    var(--gom-control-text);
+}
+
+
+form
+label
+> input:not([type='checkbox']):not([type='radio']):not([type='file']),
+form
+label
+> select,
+form
+label
+> textarea {
+  margin-top:
+    5px;
+}
+
+
+/* =======================================
+   MOBILE
+
+   Maintain useful tap targets without
+   turning controls into chunky boxes.
+======================================= */
+
+@media (max-width: 640px) {
+
+  form
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+  form
+  select,
+  .sprig-paper-panel
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='color']),
+  .sprig-paper-panel
+  select {
+    min-height:
+      44px;
+
+    padding-top:
+      9px;
+
+    padding-bottom:
+      9px;
+
+    font-size:
+      16px;
+  }
+
+
+  form
+  textarea,
+  .sprig-paper-panel
+  textarea {
+    font-size:
+      16px;
+  }
+
+
+  .enter-button,
+  .primary-button,
+  .secondary-button {
+    min-height:
+      44px;
+  }
+
+
+  .plant-story-view-tab,
+  .plant-filter-chip,
+  .growing-filter-chip {
+    min-height:
+      36px;
+
+    padding:
+      7px
+      12px;
+  }
+}
+/* =========================================================
+ PLANTS CONTROL LABORATORY
+ Experimental only.
+ If approved, promote these patterns into shared controls.
+========================================================= */
+
+
+/* ---------------------------------------------------------
+ GROWING NOW / COMPLETED
+
+ Label and live count are deliberately separate.
+--------------------------------------------------------- */
+
+.plant-story-view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  margin: 14px 0 16px;
+}
+
+
+.plant-story-view-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 38px;
+
+  padding: 8px 13px;
+
+  border: 1px solid rgba(71, 92, 69, 0.18);
+  border-radius: 999px;
+
+  background: rgba(255, 253, 247, 0.9);
+  color: #405644;
+
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 3px 9px rgba(48, 74, 50, 0.045);
+
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+
+.plant-story-view-tab:hover {
+  transform: translateY(-1px);
+
+  border-color: rgba(82, 112, 71, 0.32);
+
+  background: #fffef9;
+}
+
+
+.plant-story-view-tab > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 24px;
+  min-height: 24px;
+
+  padding: 3px 7px;
+
+  border-radius: 999px;
+
+  background: rgba(82, 112, 71, 0.09);
+  color: #52634f;
+
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+
+.plant-story-view-tab--active {
+  border-color: #527047;
+
+  background:
+    linear-gradient(
+      180deg,
+      #608154 0%,
+      #4f7048 100%
+    );
+
+  color: #fffdf7;
+
+  box-shadow:
+    0 5px 12px rgba(48, 74, 50, 0.14);
+}
+
+
+.plant-story-view-tab--active > span {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fffdf7;
+}
+
+
+/* ---------------------------------------------------------
+   SEARCH + SORT
+
+   Give actual data-entry controls room to breathe.
+--------------------------------------------------------- */
+
+.plant-browser-controls {
+  display: grid;
+  gap: 16px;
+
+  margin: 0 0 20px;
+}
+
+
+.plant-browser-search-row {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(140px, 0.8fr);
+
+  gap: 10px;
+  align-items: end;
+}
+
+
+.plant-browser-search,
+.plant-browser-sort {
+  display: grid;
+  gap: 5px;
+
+  min-width: 0;
+}
+
+
+.plant-browser-search input,
+.plant-browser-sort select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+
+  margin: 0;
+
+  padding: 9px 12px;
+
+  border: 1px solid rgba(71, 92, 69, 0.2);
+  border-radius: 13px;
+
+  background: rgba(255, 253, 247, 0.94);
+  color: #344c39;
+
+  font: inherit;
+  font-size: 0.86rem;
+  line-height: 1.2;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    0 3px 9px rgba(48, 74, 50, 0.04);
+}
+
+
+.plant-browser-search input:focus,
+.plant-browser-sort select:focus {
+  outline: none;
+
+  border-color: rgba(82, 112, 71, 0.62);
+
+  box-shadow:
+    0 0 0 3px rgba(82, 112, 71, 0.12);
+}
+
+
+/* ---------------------------------------------------------
+   FILTER GROUPS
+--------------------------------------------------------- */
+
+.plant-browser-age-unit,
+.plant-filter-group {
+  display: grid;
+  gap: 7px;
+
+  min-width: 0;
+}
+
+
+.plant-browser-age-buttons,
+.plant-filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  min-width: 0;
+}
+
+
+/* ---------------------------------------------------------
+   SHARED PLANTS FILTER CHIP
+
+   Used by:
+   - Days / Weeks / Months
+   - Started As
+   - Growing Place
+   - Growing Recipe
+--------------------------------------------------------- */
+
+.plant-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 0;
+  min-height: 36px;
+
+  margin: 0;
+
+  padding: 7px 13px;
+
+  border: 1px solid rgba(71, 92, 69, 0.18);
+  border-radius: 999px;
+
+  background: rgba(255, 253, 247, 0.9);
+  color: #405644;
+
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.15;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 3px 8px rgba(48, 74, 50, 0.04);
+
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+
+.plant-filter-chip:hover {
+  transform: translateY(-1px);
+
+  border-color: rgba(82, 112, 71, 0.32);
+
+  background: #fffef9;
+}
+
+
+.plant-filter-chip--selected {
+  border-color: #527047;
+
+  background:
+    linear-gradient(
+      180deg,
+      #608154 0%,
+      #4f7048 100%
+    );
+
+  color: #fffdf7;
+
+  box-shadow:
+    0 4px 10px rgba(48, 74, 50, 0.13);
+}
+
+
+/* Days / Weeks / Months can remain compact */
+
+.plant-browser-age-buttons .plant-filter-chip {
+  min-width: 68px;
+}
+
+
+/* Larger data-driven filters get breathing room */
+
+.plant-filter-options .plant-filter-chip {
+  flex:
+    1 1
+    calc(50% - 7px);
+
+  max-width:
+    calc(50% - 3.5px);
+
+  white-space: normal;
+}
+
+
+/* ---------------------------------------------------------
+   LABEL RHYTHM
+
+   Prevent labels from colliding visually with controls.
+--------------------------------------------------------- */
+
+.plant-browser-controls .section-label {
+  display: block;
+
+  margin: 0;
+
+  color: #6a765f;
+
+  font-size: 0.69rem;
+  font-weight: 700;
+  line-height: 1.2;
+
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+
+/* ---------------------------------------------------------
+   PHONE
+--------------------------------------------------------- */
+
+@media (max-width: 560px) {
+
+  .plant-browser-search-row {
+    grid-template-columns: 1fr;
+  }
+
+
+  .plant-story-view-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+
+  .plant-story-view-tab {
+    width: 100%;
+  }
+
+
+  .plant-filter-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+
+  .plant-filter-options .plant-filter-chip {
+    width: 100%;
+    max-width: none;
+
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+}
+
+
+
+/* =======================================
+ FEATURE FIELD ALIASES
+
+ These editors are not always wrapped in
+ a native form element. Their appearance
+ still belongs to this shared owner.
+======================================= */
+
+.sprig-gallery-field input:hover,
+.sprig-gallery-field select:hover,
+.sprig-gallery-field textarea:hover,
+.sprig-knowledge-field input:hover,
+.sprig-knowledge-field select:hover,
+.sprig-knowledge-field textarea:hover,
+.sprig-knowledge-linker input:hover,
+.sprig-knowledge-linker select:hover,
+.sprig-knowledge-almanac-search input:hover,
+.sprig-knowledge-placement-action input:hover {
+border-color: var(--gom-control-border-hover);
+background: var(--gom-control-bg-hover);
+}
+
+.sprig-gallery-field input:focus,
+.sprig-gallery-field select:focus,
+.sprig-gallery-field textarea:focus,
+.sprig-knowledge-field input:focus,
+.sprig-knowledge-field select:focus,
+.sprig-knowledge-field textarea:focus,
+.sprig-knowledge-linker input:focus,
+.sprig-knowledge-linker select:focus,
+.sprig-knowledge-almanac-search input:focus,
+.sprig-knowledge-placement-action input:focus {
+border-color: rgba(63, 93, 57, 0.48);
+background: #fffef9;
+box-shadow: var(--gom-focus-ring);
+}
+
+/* iOS focus guard: keep text-entry controls at 16px on compact screens. */
+@media (max-width: 700px) {
+  input:not([type="checkbox"]):not([type="radio"]), textarea, select { font-size: 16px; }
+}

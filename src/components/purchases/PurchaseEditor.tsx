@@ -4,7 +4,8 @@ import {
   useState,
 } from 'react'
 
-import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
+import FormTemplate from '../templates/FormTemplate'
+
 
 import type {
   GardenPlan,
@@ -683,28 +684,7 @@ export default function PurchaseEditor({
       className="form-backdrop"
       role="presentation"
     >
-      <section
-        className="add-plant-panel chronicle-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="purchase-editor-title"
-      >
-        <img
-          className="chronicle-page-image"
-          src={
-            notebookEntryBackground
-          }
-          alt=""
-          aria-hidden="true"
-        />
-
-
-        <div
-          ref={
-            formRef
-          }
-          className="chronicle-content"
-        >
+      <FormTemplate ariaLabelledBy="purchase-editor-title" contentRef={formRef}>
           <div className="form-heading">
             <div>
               <p className="section-label">
@@ -859,8 +839,7 @@ export default function PurchaseEditor({
             </div>
 
           </div>
-        </div>
-      </section>
+      </FormTemplate>
     </div>
   )
 }

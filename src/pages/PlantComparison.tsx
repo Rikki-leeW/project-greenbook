@@ -4,9 +4,9 @@ import {
   } from 'react'
   
   import ExcelJS from 'exceljs'
-  
-  import GardenLayout from '../components/layout/GardenLayout'
-  import SprigPhotoGallery from '../components/photos/SprigPhotoGallery'
+import { downloadBlob } from '../utils/exportUtils'
+import DetailPageTemplate from '../components/templates/DetailPageTemplate'
+import SprigPhotoGallery from '../components/photos/SprigPhotoGallery'
   
   import {
     buildPlantComparisonAgeCheckpoints,
@@ -4001,36 +4001,7 @@ async function handleExportGardenReport() {
       )
 
 
-    const url =
-      URL.createObjectURL(
-        blob,
-      )
-
-
-    const link =
-      document.createElement(
-        'a',
-      )
-
-    link.href =
-      url
-
-    link.download =
-      'sprig-plant-comparison.xlsx'
-
-
-    document.body.appendChild(
-      link,
-    )
-
-    link.click()
-
-    link.remove()
-
-
-    URL.revokeObjectURL(
-      url,
-    )
+    downloadBlob('sprig-plant-comparison.xlsx', blob)
   }
 
 
@@ -4039,55 +4010,25 @@ async function handleExportGardenReport() {
   ======================================= */
 
   return (
-    <GardenLayout
+    <DetailPageTemplate
       activePage="comparison"
-      onNavigate={
-        onNavigate
-      }
+      onNavigate={onNavigate}
+      className="journal-page sprig-comparison-report"
+      as="main"
+      eyebrow="Growing Stories"
+      title="Plant Comparison"
+      intro="Look at what happened, when it happened, and what it looked like."
+      headerClassName="journal-header"
+      journeyBackLabel={backLabel}
+      onJourneyBack={onBack}
+      navigationAriaLabel="Plant Comparison navigation"
     >
-      <main className="journal-page sprig-comparison-report">
-
-        {/* =======================================
-            HEADER
-        ======================================= */}
-
-        <header className="journal-header">
-          <div>
-            <p className="section-label">
-              Growing Stories
-            </p>
-
-
-            <h1>
-              Plant Comparison
-            </h1>
-
-
-            <p className="journal-intro">
-              Look at what happened,
-              when it happened, and
-              what it looked like.
-            </p>
-          </div>
-        </header>
-
 
         {/* =======================================
             COMPARISON ACTIONS
         ======================================= */}
 
         <section className="plant-record-actions">
-
-        <button
-  type="button"
-  className="secondary-button"
-  onClick={
-    onBack
-  }
->
-  ← {backLabel}
-</button>
-
 
           <button
             type="button"
@@ -5876,7 +5817,7 @@ async function handleExportGardenReport() {
           </section>
         )}
 
-      </main>
-    </GardenLayout>
+      </DetailPageTemplate>
   )
 }
+

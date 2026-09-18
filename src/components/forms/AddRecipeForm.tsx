@@ -5,7 +5,8 @@ import {
   type FormEvent,
 } from 'react'
 
-import notebookEntryBackground from '../../images/notebook/notebook-entry-background.png'
+import FormTemplate from '../templates/FormTemplate'
+
 
 import SprigPicker from '../sprig/SprigPicker'
 import PurchaseDetailsSection from '../purchases/PurchaseDetailsSection'
@@ -1594,22 +1595,7 @@ export default function AddRecipeForm({
       className="form-backdrop"
       role="presentation"
     >
-      <section
-        className="add-plant-panel chronicle-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="add-recipe-title"
-      >
-        <img
-          className="chronicle-page-image"
-          src={
-            notebookEntryBackground
-          }
-          alt=""
-          aria-hidden="true"
-        />
-
-        <div className="chronicle-content">
+      <FormTemplate ariaLabelledBy="add-recipe-title">
           <div className="form-heading">
             <h2 id="add-recipe-title">
               {isEditing
@@ -2018,8 +2004,8 @@ export default function AddRecipeForm({
               </button>
             </div>
           </form>
-        </div>
-      </section>
+      </FormTemplate>
     </div>
   )
 }
+
