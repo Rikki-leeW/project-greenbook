@@ -10,7 +10,8 @@ import {
   } from 'react'
   
   import GardenTimingCalculator from '../components/GardenTimingCalculator'
-  import FunctionPageTemplate from '../components/templates/FunctionPageTemplate'
+import FunctionPageTemplate from '../components/templates/FunctionPageTemplate'
+import { useModalDialog } from '../hooks/useModalDialog'
   
   import '../css/calendar.css'
   
@@ -1776,6 +1777,11 @@ import {
         null,
       )
     }
+
+    const planDialogRef = useModalDialog<HTMLElement>(
+      closePlanComposer,
+      isPlanComposerOpen,
+    )
   
   
     function choosePlanKind(
@@ -4643,6 +4649,7 @@ import {
             }
           >
             <section
+              ref={planDialogRef}
               className="sprig-calendar-plan-sheet"
 
               role="dialog"
@@ -4678,6 +4685,7 @@ import {
 
 
                 <button
+                    data-dialog-initial-focus
                     type="button"
 
                     className="sprig-calendar-plan-close"
@@ -5998,4 +6006,3 @@ import {
 
 
 export default Calendar
-

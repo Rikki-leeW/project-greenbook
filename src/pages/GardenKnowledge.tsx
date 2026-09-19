@@ -8,7 +8,7 @@ import MultiPageTemplate from '../components/templates/MultiPageTemplate';
 import GardenReference from '../components/knowledge/GardenReference';
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery';
 import SprigPhotoPicker from '../components/photos/SprigPhotoPicker';
-import { escapeRtfParagraph as escapeRtf, downloadBlob } from '../utils/exportUtils';
+import { escapeRtfParagraph as escapeRtf, downloadBlob, readingPrintStyles } from '../utils/exportUtils';
 
 import type {
     AppPage,
@@ -1651,6 +1651,7 @@ article { max-width:820px; margin:0 auto 34px; padding-bottom:24px; border-botto
 .meta { color:#626c60; }
 h1 { margin:.25rem 0 .7rem; }
 h2 { margin:1.3rem 0 .35rem; font-size:14pt; }
+${readingPrintStyles}
 </style>
 </head>
 <body>${body}</body>

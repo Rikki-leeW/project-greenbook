@@ -130,3 +130,17 @@ export function downloadJson(
 export function printDocument(): void {
     window.print();
 }
+
+/** The standalone Knowledge print windows do not load application CSS.
+ * Embed these shared reading/page-break rules in each generated document. */
+export const readingPrintStyles = `
+@media print {
+  body { margin: 0; }
+  h1, h2, h3 { break-inside: avoid; break-after: avoid; }
+  p, .knowledge, section > div { orphans: 3; widows: 3; }
+  li, figure { break-inside: avoid; }
+  img { max-width: 100%; height: auto; }
+  article { break-inside: auto; }
+  article:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+}
+`;

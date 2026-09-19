@@ -942,7 +942,7 @@ export default function GrowingPlaceDetail({
           <div className="section-heading">
             <div>
               <p className="section-label">
-                Chronicle
+                Garden Record
               </p>
 
 

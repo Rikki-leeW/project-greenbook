@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
   type ReactNode,
 } from 'react'
@@ -43,6 +44,19 @@ export default function GardenLayout({
   ] =
     useState(false)
 
+  useEffect(() => {
+    const heading = document.querySelector<HTMLElement>(
+      '.garden-layout-content h1',
+    )
+
+    if (!heading) {
+      return
+    }
+
+    heading.tabIndex = -1
+    heading.focus({ preventScroll: true })
+  }, [activePage])
+
 
   function handleNavigate(
     page: AppPage,
@@ -61,6 +75,10 @@ export default function GardenLayout({
 
   return (
     <>
+
+      <a className="garden-skip-link" href="#garden-main-content">
+        Skip to page content
+      </a>
 
       {/* =======================================
           TOP SATCHEL BUTTON
@@ -84,7 +102,11 @@ export default function GardenLayout({
           PAGE
       ======================================= */}
 
-      <div className="garden-layout-content">
+      <div
+        id="garden-main-content"
+        className="garden-layout-content"
+        tabIndex={-1}
+      >
         {children}
       </div>
 

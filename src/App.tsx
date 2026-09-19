@@ -43,6 +43,7 @@ import GlobalSearch from './pages/GlobalSearch';
 import GardenKnowledge from './pages/GardenKnowledge';
 import GardenTrials from './pages/GardenTrials';
 import GardenGallery from './pages/GardenGallery';
+import AskSprig from './pages/AskSprig';
 import SprigSmart from './pages/SprigSmart';
 
 import type {
@@ -682,7 +683,10 @@ function App() {
       case 'garden-trials':
         return 'Garden Trials';
 
-        case 'sprig-smart':
+      case 'ask-sprig':
+        return 'Ask Sprig';
+
+      case 'sprig-smart':
         return 'Sprig Smart';
 
       case 'garden-gallery':
@@ -7801,7 +7805,33 @@ if (
   }
 
 
-    /* =======================================
+  /* =======================================
+     ASK SPRIG
+  ======================================= */
+
+  if (
+    activePage ===
+    'ask-sprig'
+  ) {
+    return (
+      <AskSprig
+        gardenData={gardenData}
+        onNavigate={handleNavigate}
+        onBack={() => handleJourneyBack('plants')}
+        onOpenPlant={handleOpenPlantRecord}
+        onComparePlants={plantIds => {
+          rememberCurrentJourneyState();
+          setComparisonPlantIds(plantIds);
+          setActiveSavedComparisonId(null);
+          setActivePage('comparison');
+        }}
+        onOpenTrial={handleOpenGardenTrialRecord}
+      />
+    );
+  }
+
+
+  /* =======================================
      SPRIG SMART
   ======================================= */
 

@@ -2650,7 +2650,7 @@ return (
       onJourneyBack
       }
       navigationAriaLabel="Growing navigation"
-      eyebrow="My Garden"
+      eyebrow="Garden of Mine"
       title="Growing"
       intro={
       <>

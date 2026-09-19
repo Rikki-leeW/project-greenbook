@@ -220,10 +220,10 @@
     5px;
 
   color:
-    #7a896f;
+    #566451;
 
   font-size:
-    0.75rem;
+    0.78rem;
 
   font-weight:
     800;
@@ -416,4 +416,42 @@
 }
 @media (max-width: 760px) {
   .garden-detail-page .garden-header { padding-bottom: 20px; }
+}
+.garden-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 10000;
+  padding: 0.7rem 1rem;
+  border: 2px solid #304a32;
+  border-radius: 999px;
+  background: #fffdf7;
+  color: #243d28;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(31, 49, 32, 0.2);
+  transform: translateY(-180%);
+  transition: transform 120ms ease;
+}
+
+.garden-skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-skip-link {
+    transition: none;
+  }
+
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

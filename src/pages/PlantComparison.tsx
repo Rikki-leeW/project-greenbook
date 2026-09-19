@@ -4,6 +4,7 @@ import {
   } from 'react'
   
   import ExcelJS from 'exceljs'
+import { prepareComparisonPrintTables } from '../utils/comparisonPrint'
 import { downloadBlob } from '../utils/exportUtils'
 import DetailPageTemplate from '../components/templates/DetailPageTemplate'
 import SprigPhotoGallery from '../components/photos/SprigPhotoGallery'
@@ -2644,7 +2645,13 @@ async function handleExportGardenReport() {
     }
   
   
-    window.print()
+    const report = document.querySelector<HTMLElement>('.sprig-comparison-report')
+    const restoreTables = report ? prepareComparisonPrintTables(report) : () => {}
+    try {
+      window.print()
+    } finally {
+      restoreTables()
+    }
   
   
     /*

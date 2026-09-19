@@ -13,7 +13,7 @@ import type {
     SprigPhotoMetadata,
 } from '../../types';
 
-import { escapeRtfParagraph as escapeRtf, downloadBlob } from '../../utils/exportUtils';
+import { escapeRtfParagraph as escapeRtf, downloadBlob, readingPrintStyles } from '../../utils/exportUtils';
 
 interface GardenReferenceProps {
     gardenData: GardenData;
@@ -812,6 +812,7 @@ article { max-width:820px; margin:0 auto 28px; padding-bottom:22px; border-botto
 h1 { margin:8px 0; font-size:24pt; }
 .meta,.date { color:#596358; }
 .knowledge { white-space:normal; margin-top:18px; }
+${readingPrintStyles}
 </style>
 </head>
 <body>${body}</body>

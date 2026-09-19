@@ -461,7 +461,7 @@ export default function Harvest({
       }
       pageId="harvest-top"
       className="journal-page"
-      journeyBackLabel="Chronicle"
+      journeyBackLabel="Garden Record"
       onJourneyBack={() =>
       onNavigate(
       'calendar',

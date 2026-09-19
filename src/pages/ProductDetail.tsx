@@ -400,7 +400,7 @@ export default function ProductDetail({
         </section>
 
         <section className="library-grid">
-          <article className="library-book">
+          <article className="library-book product-experience">
             <p className="section-label">
               Your experience
             </p>
@@ -590,7 +590,7 @@ export default function ProductDetail({
             />
           </article>
 
-          <article className="library-book">
+          <article className="library-book product-purchase-history">
             <p className="section-label">
               Purchase history
             </p>
@@ -725,7 +725,7 @@ export default function ProductDetail({
             )}
           </article>
 
-          <article className="library-book">
+          <article className="library-book product-shelf">
             <p className="section-label">
               Product shelf
             </p>
@@ -793,4 +793,3 @@ export default function ProductDetail({
       </DetailPageTemplate>
   );
 }
-

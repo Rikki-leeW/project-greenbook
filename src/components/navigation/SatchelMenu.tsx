@@ -5,6 +5,7 @@ import type {
 import {
   sprigNavigation,
 } from './appNavigation'
+import { useModalDialog } from '../../hooks/useModalDialog'
 
 
 type LibraryDestination =
@@ -31,6 +32,8 @@ export default function SatchelMenu({
   onClose,
   onNavigate,
 }: SatchelMenuProps) {
+  const dialogRef = useModalDialog<HTMLElement>(onClose, isOpen)
+
   if (!isOpen) {
     return null
   }
@@ -51,6 +54,11 @@ export default function SatchelMenu({
       libraryView,
     )
   }
+
+  const searchItem =
+    sprigNavigation
+      .find(section => section.id === 'search')
+      ?.items[0]
 
 
   return (
@@ -88,6 +96,9 @@ export default function SatchelMenu({
       }}
     >
       <section
+        ref={dialogRef}
+        role="document"
+        tabIndex={-1}
         onClick={(
           event,
         ) =>
@@ -223,6 +234,35 @@ export default function SatchelMenu({
           </button>
         </div>
 
+        {searchItem?.page && (
+          <button
+            data-dialog-initial-focus
+            type="button"
+            onClick={() => handleNavigate(searchItem.page!)}
+            aria-label="Search Garden of Mine"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              width: '100%',
+              minHeight: '46px',
+              margin: '0 0 18px',
+              padding: '10px 13px',
+              color: '#40553c',
+              font: 'inherit',
+              fontWeight: 700,
+              textAlign: 'left',
+              background: 'rgba(246, 245, 235, 0.88)',
+              border: '1px solid rgba(60, 80, 55, 0.18)',
+              borderRadius: '10px',
+              cursor: 'pointer',
+            }}
+          >
+            <span aria-hidden="true">🔎</span>
+            <span>Search Garden of Mine…</span>
+          </button>
+        )}
+
 
         {/* =======================================
             DYNAMIC APP MAP
@@ -237,7 +277,9 @@ export default function SatchelMenu({
               '22px',
           }}
         >
-          {sprigNavigation.map(
+          {sprigNavigation
+            .filter(section => section.id !== 'search')
+            .map(
             (
               section,
             ) => (

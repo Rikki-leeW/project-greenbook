@@ -2493,13 +2493,13 @@ export default function Plants({
       onNavigate
       }
       pageId="plants-page-top"
-      journeyBackLabel="My Garden"
+      journeyBackLabel="Garden of Mine"
       onJourneyBack={() =>
       onNavigate(
       'gate',
       )
       }
-      eyebrow="My Garden"
+      eyebrow="Garden of Mine"
       title="Growing stories"
       intro={
       storyView ===

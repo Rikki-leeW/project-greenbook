@@ -1241,7 +1241,7 @@ export default function AddHarvestForm({
 
   return (
     <div className="form-backdrop">
-      <FormTemplate ariaLabelledBy="add-harvest-title">
+      <FormTemplate ariaLabelledBy="add-harvest-title" onClose={onClose}>
           <h2
             id="add-harvest-title"
             className="notebook-page-title"

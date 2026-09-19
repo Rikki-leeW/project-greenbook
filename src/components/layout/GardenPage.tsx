@@ -297,6 +297,7 @@ export function BackToTop({
       if (
         target
       ) {
+        target.tabIndex = -1
         target.scrollIntoView({
           behavior:
             prefersReducedMotion
@@ -305,6 +306,10 @@ export function BackToTop({
 
           block:
             'start',
+        })
+
+        target.focus({
+          preventScroll: true,
         })
 
         return
@@ -319,6 +324,17 @@ export function BackToTop({
           ? 'auto'
           : 'smooth',
     })
+
+    const pageHeading = document.querySelector<HTMLElement>(
+      '.garden-layout-content h1',
+    )
+
+    if (pageHeading) {
+      pageHeading.tabIndex = -1
+      pageHeading.focus({
+        preventScroll: true,
+      })
+    }
   }
 
   return (

@@ -1595,7 +1595,7 @@ export default function AddRecipeForm({
       className="form-backdrop"
       role="presentation"
     >
-      <FormTemplate ariaLabelledBy="add-recipe-title">
+      <FormTemplate ariaLabelledBy="add-recipe-title" onClose={onClose}>
           <div className="form-heading">
             <h2 id="add-recipe-title">
               {isEditing

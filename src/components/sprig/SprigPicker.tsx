@@ -487,9 +487,9 @@ export default function SprigPicker<
 
   return (
     <section className="sprig-picker">
-      <h5 className="sprig-picker-label">
+      <h4 className="sprig-picker-label">
         {title}
-      </h5>
+      </h4>
 
 
       {/* =======================================
@@ -566,11 +566,11 @@ export default function SprigPicker<
                     }
                     className="sprig-picker-group"
                   >
-                    <h6 className="sprig-picker-group-title">
+                    <h5 className="sprig-picker-group-title">
                       {
                         groupName
                       }
-                    </h6>
+                    </h5>
 
 
                     <div className="sprig-picker-options">

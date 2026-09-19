@@ -684,7 +684,7 @@ export default function PurchaseEditor({
       className="form-backdrop"
       role="presentation"
     >
-      <FormTemplate ariaLabelledBy="purchase-editor-title" contentRef={formRef}>
+      <FormTemplate ariaLabelledBy="purchase-editor-title" contentRef={formRef} onClose={onClose}>
           <div className="form-heading">
             <div>
               <p className="section-label">

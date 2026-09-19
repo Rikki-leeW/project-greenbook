@@ -88,21 +88,25 @@ Sprig's code sees: one elegant Recipe engine.
 Sprig Satchel
 Everything in your garden, tucked in here.
 
-TODAY
-🌿 Today in the Garden
+SEARCH
+🔎 Search Garden of Mine (compact doorway above the sections)
 
-MY GARDEN
+GARDEN OF MINE
 🌱 Plants
-🪴 Growing Places
-🧺 Growing Recipes
-🌾 Ingredients
-🧴 Products
+🪴 Growing
+📊 Comparisons
+📚 Garden Library
 
-CHRONICLE
+SPRIG
+🌿 Ask Sprig
+🌱 What Sprig Has Noticed
+
+GARDEN RECORD
 📖 Garden Journal
 🧺 Harvests
 🧪 Garden Trials
-📅 Garden Calendar / Planning
+📅 Calendar & Planning
+🧮 Sowing & Harvest Calculator
 
 GARDEN KNOWLEDGE
 📚 Garden Notes / Almanac
@@ -122,7 +126,10 @@ HISTORY
 🍂 Completed Plant Stories
 🗄️ Archives
 
-SPRIG
+SETTINGS AND SAFETY
+💾 Backup & Restore
 ⚙️ Settings
-💾 Backup / Export
 ❔ Help
+
+TODAY
+🌿 Today in the Garden

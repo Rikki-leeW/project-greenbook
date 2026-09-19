@@ -241,7 +241,7 @@ export default function Journal({
       }
       pageId="journal-top"
       className="journal-page"
-      journeyBackLabel="Chronicle"
+      journeyBackLabel="Garden Record"
       onJourneyBack={() =>
       onNavigate(
       'calendar',

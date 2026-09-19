@@ -213,6 +213,13 @@
   margin: 0 0 0.85rem !important;
 }
 
+/* Product purchase actions finish the purchase-history section. Give the
+   following shelf controls a clear new-section break on screen. */
+.journal-page .product-shelf {
+  margin-top: 1.5rem;
+  padding-top: 0.35rem;
+}
+
 
 /* =======================================
    JOURNAL · PHONE
@@ -530,4 +537,3 @@
         .harvest-detail-page .harvest-story-actions,
         .harvest-detail-page .harvest-detail-actions { display: none; }
     }
-

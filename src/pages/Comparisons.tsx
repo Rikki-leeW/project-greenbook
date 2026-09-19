@@ -192,7 +192,7 @@ export default function Comparisons({
       )
       }
       navigationAriaLabel="Comparisons navigation"
-      eyebrow="My Garden"
+      eyebrow="Garden of Mine"
       title="Comparisons"
       intro={
       <>

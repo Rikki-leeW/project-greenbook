@@ -18,7 +18,7 @@ A normal change flows from a page callback to App (or AppLibrary), through the r
 - `MultiPageTemplate`: grouped destinations, currently Growing and Knowledge. Pass grouped navigation through `subNavigation`.
 - `FunctionPageTemplate`: Today, Calendar, Search, Backup & Restore and Sprig. Function-specific content remains in the page.
 - `DetailPageTemplate`: saved record reading, including Plant Stories, Journal entries, Harvests, Growing Places, Growing Recipes, Ingredients, Products, Trials and Plant Comparison reports. Pass the page header and journey navigation as props. Keep record-specific sections and actions in children.
-- `FormTemplate`: notebook dialog presentation used by the record editors and PurchaseEditor. The caller owns its overlay, actual form, validation, save/cancel logic and focus/scroll lifecycle.
+- `FormTemplate`: notebook dialog presentation used by the record editors and PurchaseEditor. The caller owns its overlay, actual form, validation, save/cancel logic and scroll lifecycle. Pass `onClose`; the template uses `useModalDialog` for opening focus, Escape, contained Tab movement, background isolation and focus return.
 
 Templates are in `src/components/templates/`. They compose `GardenLayout` with the shared parts in `src/components/layout/GardenPage.tsx`: `GardenPage`, `GardenPageNavigation`, `GardenPageHeader` and `BackToTop`.
 
@@ -58,6 +58,12 @@ App's `rememberCurrentJourneyState()` saves destination selections and the curre
 
 AppLibrary's internal view setter requests top for local transitions. Its initial-destination synchronisation uses the underlying state setter, allowing App's Journey Back position to remain authoritative. Library-local origin navigation is distinct from App's journey history; it currently does not store a reading position of its own.
 
+The Satchel's canonical destinations and order live in `src/components/navigation/appNavigation.ts`. `SatchelMenu` renders Search as a compact doorway above the ordered sections. Garden of Mine begins with Plants, then Growing, Comparisons and Garden Library. Sprig contains Ask Sprig and What Sprig Has Noticed. The time-based records section is named Garden Record. Settings and Safety is near the bottom, followed by Today.
+
+Accessibility rules and the audit checklist live in `docs/development/accessibility.md`. Use native controls first, preserve one main landmark and one h1 per destination, and use `useModalDialog` for every custom modal surface.
+
+`src/pages/AskSprig.tsx` is a private question layer over `src/utils/sprigInsights.ts`. It does not call an external AI service. Questions select derived observations by intent, record wording and stable Plant Story IDs. The answer preserves each insight's evidence strength, reasoning, evidence links and supported actions. An unmatched question must return the no-evidence response rather than unrelated high-priority observations. Garden records remain the source of truth.
+
 Do not add an unconditional mount-time scroll reset to a detail page: it would compete with Journey Back. Editors and photo viewers own their temporary scroll locks; they must release only locks they acquired.
 
 ## Records, photos and exports
@@ -66,7 +72,7 @@ Keep garden records in IndexedDB. Do not replace them with localStorage. The sto
 
 Use the shared photo picker, gallery and photo utilities. Stable photo identifiers and metadata connect the photographic history across records. Do not derive identity solely from a current array index.
 
-Use `src/utils/exportUtils.ts` for shared download and escaping helpers, including Unicode-safe RTF. Preserve each feature's output contract: JSON packages include photo data; Comparison ExcelJS exports include actual photographs; Knowledge HTML/PDF retains rich content while RTF is text. Comparison PDF temporarily shows all report sections and then restores the chosen lens.
+Use `src/utils/exportUtils.ts` for shared download and escaping helpers, including Unicode-safe RTF. Preserve each feature's output contract: JSON packages include photo data; Comparison ExcelJS exports include actual photographs; Knowledge HTML/PDF retains rich content while RTF is text. Comparison PDF temporarily shows all report sections and then restores the chosen lens. `src/utils/comparisonPrint.ts` builds disposable native tables from those rendered grids for Export PDF, preserving row content and photos, enabling repeated column headings and removing fixed scroll-cell heights. Its cleanup removes the temporary tables after the print dialog returns. Comparison print styling stays in `components/comparison.css`.
 
 Printing is a separate presentation. Screen controls must stay out of reports; long records, page breaks and photo captions need an actual print-preview/PDF check. A successful build alone does not verify printed pagination.
 
@@ -82,4 +88,8 @@ For edits to record operations, exercise the appropriate save/cancel path with d
 
 The template pass migrated the remaining page headers and Plant Story navigation, corrected the shared frame landmarks and moved static detail CSS to page stylesheets and consolidated detail Back to top controls. It preserved specialist report and action content.
 
-Actual PDF pagination with photographs and long Trial/Comparison reports remains outstanding. The in-app browser has no print-preview/PDF capture capability, and its sample garden has no populated Growing or Trial records. Those states require separate visual verification; do not treat source inspection as runtime coverage.
+Actual PDF pagination with photographs and long Trial/Comparison reports remains outstanding. The in-app browser has no print-preview/PDF capture capability, so actual print pagination still needs exported PDFs. Populated Growing Recipe (active/favourite/archived), Growing Place and completed Trial pages were checked with temporary in-memory fixtures, long text and test images. The fixtures never write to IndexedDB. This verifies those display states; it does not replace checking real exported PDFs.
+
+The supplied 10-page Comparison PDF was visually inspected on 18 September 2026. It revealed clipped rightmost photo-column captions and scrolling photo cells that omitted images. Export PDF now prepares native tables; browser checks verified equal row/column counts, preservation of every source image and cleanup. A fresh exported PDF is still required to confirm the revised pagination.
+
+The shared print follow-up removes screen shell minimum heights/padding for record exports. Trials now print in normal flow, omit screen siblings and permit long sections/observations to continue while keeping headings and photo figures together. Standalone Knowledge/Reference documents embed `readingPrintStyles` from exportUtils for common page-break rules. These source-level fixes still require representative exported PDFs for final visual validation.

@@ -604,7 +604,7 @@ export default function AddGrowingPlaceForm({
       className="form-backdrop"
       role="presentation"
     >
-      <FormTemplate ariaLabelledBy="add-growing-place-title">
+      <FormTemplate ariaLabelledBy="add-growing-place-title" onClose={onClose}>
 
           <div className="form-heading">
             <div>

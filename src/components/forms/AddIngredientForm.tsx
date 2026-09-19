@@ -966,7 +966,7 @@ export default function AddIngredientForm({
       className="form-backdrop"
       role="presentation"
     >
-      <FormTemplate ariaLabelledBy="add-ingredient-title">
+      <FormTemplate ariaLabelledBy="add-ingredient-title" onClose={onClose}>
           <div className="form-heading">
             <h2 id="add-ingredient-title">
               {isEditing

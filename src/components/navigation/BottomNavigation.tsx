@@ -27,15 +27,6 @@ const bottomItems:
   BottomNavItem[] = [
     {
       page:
-        'gate',
-      label:
-        'Today',
-      icon:
-        '🌿',
-    },
-
-    {
-      page:
         'plants',
       label:
         'Plants',
@@ -50,6 +41,15 @@ const bottomItems:
         'Journal',
       icon:
         '📖',
+    },
+
+    {
+      page:
+        'gate',
+      label:
+        'Today',
+      icon:
+        '🌿',
     },
   ]
 

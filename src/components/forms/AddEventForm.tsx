@@ -2711,7 +2711,7 @@ export default function AddEventForm({
           className="form-backdrop"
           role="presentation"
       >
-          <FormTemplate ariaLabelledBy="add-event-title">
+          <FormTemplate ariaLabelledBy="add-event-title" onClose={onClose}>
                   <h2
                       id="add-event-title"
                       className="notebook-page-title"
@@ -2890,11 +2890,11 @@ export default function AddEventForm({
                       ) ? (
                           <section className="journal-connection-section">
                               <div className="journal-section-heading">
-                                  <h5>
+                                  <h3>
                                       {isTransplanted
                                           ? 'What changed when it was transplanted?'
                                           : 'Where was it moved?'}
-                                  </h5>
+                                  </h3>
                               </div>
 
                               {isTransplanted && (
@@ -3301,9 +3301,9 @@ export default function AddEventForm({
                       ) : (
                           <section className="journal-connection-section">
                               <div className="journal-section-heading">
-                                  <h5>
+                                  <h3>
                                       Where did this happen?
-                                  </h5>
+                                  </h3>
                               </div>
 
                               <p className="form-whisper">
@@ -3446,9 +3446,9 @@ export default function AddEventForm({
                         ) && (
                             <section className="journal-connection-section">
                                 <div className="journal-section-heading">
-                                    <h5>
+                                    <h3>
                                         Which Plant Stories were involved?
-                                    </h5>
+                                    </h3>
                                 </div>
 
                                 <p className="form-whisper">
@@ -3858,9 +3858,9 @@ export default function AddEventForm({
                             !isRecordingPlan && (
                                 <section className="journal-connection-section">
                                     <div className="journal-section-heading">
-                                        <h5>
+                                        <h3>
                                             Plant Story
-                                        </h5>
+                                        </h3>
                                     </div>
 
                                     <p className="form-whisper">
@@ -3914,9 +3914,9 @@ export default function AddEventForm({
                         {shouldShowProducts && (
                             <section className="journal-connection-section">
                                 <div className="journal-section-heading">
-                                    <h5>
+                                    <h3>
                                         Products used
-                                    </h5>
+                                    </h3>
                                 </div>
 
                                 <p className="form-whisper">

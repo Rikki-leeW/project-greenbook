@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useModalDialog } from '../../hooks/useModalDialog'
 
 
 interface SprigQuickPeekProps {
@@ -23,6 +24,7 @@ export default function SprigQuickPeek({
   onOpenFull,
   openFullLabel = 'Open full record →',
 }: SprigQuickPeekProps) {
+  const dialogRef = useModalDialog<HTMLElement>(onClose, isOpen)
 
   if (!isOpen) {
     return null
@@ -35,15 +37,18 @@ export default function SprigQuickPeek({
       onClick={onClose}
     >
       <section
+        ref={dialogRef}
         className="sprig-quick-peek-card"
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        tabIndex={-1}
         onClick={(event) => {
           event.stopPropagation()
         }}
       >
         <button
+          data-dialog-initial-focus
           type="button"
           className="sprig-quick-peek-close"
           onClick={onClose}

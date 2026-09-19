@@ -133,9 +133,9 @@
 .plant-card-age {
   flex: 0 0 auto;
 
-  color: #74806f;
+  color: #536250;
 
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 600;
   line-height: 1.2;
 
@@ -156,9 +156,9 @@
 
   margin-top: 6px;
 
-  color: #657062;
+  color: #536250;
 
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   line-height: 1.34;
 }
 
@@ -193,7 +193,7 @@
 
 
 .plant-card-latest-date {
-  color: #7b8477;
+  color: #596756;
 
   white-space: nowrap;
 }
@@ -202,7 +202,7 @@
 /* Latest activity is useful, but quieter than identity */
 
 .plant-card-latest-activity {
-  color: #737c70;
+  color: #536250;
 }
 
 
@@ -236,9 +236,9 @@
 
   min-width: 0;
 
-  color: #687367;
+  color: #536250;
 
-  font-size: 0.74rem;
+  font-size: 0.8rem;
   line-height: 1.3;
 }
 
@@ -253,7 +253,7 @@
 .plant-card-rich-value {
   min-width: 0;
 
-  color: #737c70;
+  color: #536250;
 
   overflow-wrap: anywhere;
 }
@@ -391,7 +391,7 @@
 
 
   .plant-card-age {
-    font-size: 0.72rem;
+    font-size: 0.78rem;
   }
 
 

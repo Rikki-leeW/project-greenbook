@@ -2058,3 +2058,60 @@
         none;
     }
   }
+/* Disposable native tables are shown only for Export PDF. */
+.sprig-comparison-print-table { display: none; }
+@media print {
+  .sprig-comparison-shell--print-ready {
+    display: block; overflow: visible; border-radius: 0; border: 0;
+  }
+  .sprig-comparison-shell--print-ready > :not(.sprig-comparison-print-table) {
+    display: none !important;
+  }
+  .sprig-comparison-print-table {
+    display: table; width: 100%; table-layout: fixed; border-collapse: collapse;
+    font-size: 9pt; line-height: 1.35;
+  }
+  .sprig-comparison-print-table thead { display: table-header-group; }
+  .sprig-comparison-print-table th,
+  .sprig-comparison-print-table td {
+    padding: 3mm 2mm; border: 1px solid #dfe5df; vertical-align: top;
+    text-align: left; overflow-wrap: anywhere; min-width: 0;
+  }
+  .sprig-comparison-print-table th:first-child { width: 11%; }
+  .sprig-comparison-print-table th strong,
+  .sprig-comparison-print-table th span { display: block; }
+  .sprig-comparison-print-table th span { font-weight: normal; font-style: italic; }
+  .sprig-comparison-print-table tr { break-inside: avoid; }
+  .sprig-comparison-print-table td { break-inside: auto; }
+  .sprig-comparison-print-table .sprig-photo-gallery-grid { display: block; }
+  .sprig-comparison-print-table .sprig-photo-gallery-item {
+    display: block; max-width: 100%; margin: 2mm 0;
+  }
+  .sprig-comparison-print-table img { max-width: 100%; height: auto; }
+  .sprig-comparison-print-table .sprig-comparison-photo-group {
+    break-inside: avoid; margin-bottom: 4mm;
+  }
+  .sprig-comparison-print-table .sprig-photo-gallery-title { display: none; }
+}
+
+/* Print the report in normal document flow: hidden app geometry must not
+   leave an additional sheet after the final table. */
+@media print {
+  .sprig-comparison-report {
+    position: static; min-height: 0; height: auto; margin: 0; padding: 0;
+  }
+  .sprig-comparison-report .sprig-comparison-section:last-child {
+    margin-bottom: 0;
+  }
+  .sprig-comparison-section > .section-label,
+  .sprig-comparison-section > h2,
+  .sprig-comparison-section > .journal-intro,
+  .sprig-comparison-report .garden-subtitle {
+    break-inside: avoid; page-break-inside: avoid;
+    break-after: avoid; page-break-after: avoid;
+    orphans: 3; widows: 3;
+  }
+  .sprig-comparison-print-table thead {
+    break-inside: avoid; break-after: avoid;
+  }
+}

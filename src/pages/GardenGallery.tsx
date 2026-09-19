@@ -25,6 +25,7 @@ import type {
 } from '../types'
 
 import '../css/garden-gallery.css'
+import { useModalDialog } from '../hooks/useModalDialog'
 
 
 type GalleryCategory =
@@ -2151,6 +2152,7 @@ export default function GardenGallery({
               key,
           ),
       )
+
       .filter(
         (
           item,
@@ -2159,6 +2161,12 @@ export default function GardenGallery({
             item,
           ),
       )
+
+
+  const viewerDialogRef = useModalDialog<HTMLDivElement>(
+    () => setViewerKey(null),
+    Boolean(viewerItem),
+  )
 
 
   const editorOpen =
@@ -3379,6 +3387,7 @@ export default function GardenGallery({
 
         {viewerItem && (
           <div
+            ref={viewerDialogRef}
             className="sprig-gallery-viewer-backdrop"
             role="dialog"
             aria-modal="true"
@@ -3402,6 +3411,7 @@ export default function GardenGallery({
                 </span>
 
                 <button
+                  data-dialog-initial-focus
                   type="button"
                   className="sprig-gallery-viewer-close"
                   aria-label="Close photograph"
@@ -3545,4 +3555,3 @@ export default function GardenGallery({
     </MainPageTemplate>
   )
 }
-

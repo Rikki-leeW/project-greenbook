@@ -2713,7 +2713,7 @@ const formRef =
 
   return (
     <div className="form-backdrop">
-      <FormTemplate ariaLabelledBy="add-plant-title">
+      <FormTemplate ariaLabelledBy="add-plant-title" onClose={onClose}>
           <h2
             id="add-plant-title"
             className="notebook-page-title"

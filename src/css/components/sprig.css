@@ -2159,6 +2159,95 @@ image.png
    Sprig Smart presents derived observations.
 ===================================================== */
 
+/* =====================================================
+   ASK SPRIG
+===================================================== */
+
+.ask-sprig-panel {
+  margin: 0 0 34px;
+  padding: 20px;
+  border: 1px solid rgba(77, 101, 69, 0.16);
+  border-radius: 16px;
+  background: rgba(249, 248, 238, 0.76);
+}
+
+.ask-sprig-form label {
+  display: block;
+  margin-bottom: 9px;
+  color: #3f543f;
+  font-weight: 750;
+}
+
+.ask-sprig-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.ask-sprig-entry input {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 13px;
+  color: var(--ink, #394333);
+  font: inherit;
+  background: rgba(255, 253, 245, 0.96);
+  border: 1px solid rgba(83, 112, 71, 0.3);
+  border-radius: 10px;
+}
+
+.ask-sprig-entry input:focus-visible {
+  outline: 3px solid rgba(83, 112, 71, 0.22);
+  outline-offset: 2px;
+}
+
+.ask-sprig-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.ask-sprig-suggestions button {
+  min-height: 38px;
+  white-space: normal;
+  text-align: left;
+}
+
+.ask-sprig-answer-heading,
+.ask-sprig-welcome,
+.ask-sprig-no-answer {
+  max-width: 760px;
+  margin-bottom: 18px;
+}
+
+.ask-sprig-answer-heading h2,
+.ask-sprig-welcome h2 {
+  margin: 4px 0 8px;
+  color: #344d35;
+}
+
+.ask-sprig-answer-heading > p:last-child,
+.ask-sprig-welcome > p,
+.ask-sprig-no-answer p {
+  color: #667061;
+  line-height: 1.55;
+}
+
+.ask-sprig-welcome .text-button {
+  width: auto;
+  margin-top: 8px;
+  padding: 0;
+}
+
+@media (max-width: 560px) {
+  .ask-sprig-panel { padding: 15px; }
+  .ask-sprig-entry { grid-template-columns: 1fr; }
+  .ask-sprig-entry button { width: 100%; }
+  .ask-sprig-suggestions { display: grid; }
+  .ask-sprig-suggestions button { width: 100%; }
+}
+
 
 .sprig-smart-page {
   width: min(100%, 1120px);

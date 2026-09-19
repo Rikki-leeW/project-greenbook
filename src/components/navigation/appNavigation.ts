@@ -101,106 +101,26 @@ export interface SprigNavigationSection {
 export const sprigNavigation:
   SprigNavigationSection[] = [
 
-    /* ========================================
-       TODAY
-    ======================================== */
-
     {
-      id:
-        'today',
-
-      title:
-        'Today',
-
-      items: [
-        {
-          id:
-            'today-in-the-garden',
-
-          label:
-            'Today in the Garden',
-
-          icon:
-            '🌿',
-
-          status:
-            'live',
-
-          page:
-            'gate',
-
-          note:
-            'Home, garden overview and future reminders',
-        },
-
-        {
-          id:
-            'search-sprig',
-
-          label:
-            'Search Garden of Mine',
-
-          icon:
-            '🔎',
-
-          status:
-            'live',
-
-          page:
-            'search',
-
-          note:
-            'Find anything Sprig remembers across your garden stories, records and plans',
-        },
-      ],
+      id: 'search',
+      title: 'Search',
+      items: [{
+        id: 'search-sprig',
+        label: 'Search Garden of Mine',
+        icon: '🔎',
+        status: 'live',
+        page: 'search',
+        note: 'Find anything Sprig remembers across your garden stories, records and plans',
+      }],
     },
 
 
-    /* ========================================
-       SPRIG SMART
-    ======================================== */
-
     {
       id:
-        'sprig-smart',
+        'garden-of-mine',
 
       title:
-        'Sprig Smart',
-
-      items: [
-        {
-          id:
-            'sprig-smart',
-
-          label:
-            'What Sprig Has Noticed',
-
-          icon:
-            '🌱',
-
-          status:
-            'live',
-
-          page:
-            'sprig-smart',
-
-          note:
-            'Patterns, comparisons and useful things Sprig is beginning to notice from your own garden records',
-        },
-      ],
-    },
-
-
-    /* ========================================
-       MY GARDEN
-    ======================================== */
-
-    {
-      id:
-        'my-garden',
-
-      title:
-        'My Garden',
+        'Garden of Mine',
 
       items: [
         {
@@ -222,26 +142,6 @@ export const sprigNavigation:
 
         {
           id:
-            'comparisons',
-
-          label:
-            'Comparisons',
-
-          icon:
-            '📊',
-
-          status:
-            'live',
-
-          page:
-            'comparisons',
-
-          note:
-            'Saved side-by-side views of your garden stories',
-        },
-
-        {
-          id:
             'growing',
 
           label:
@@ -258,6 +158,26 @@ export const sprigNavigation:
 
           note:
             'Where the garden grows and what it grows in',
+        },
+
+        {
+          id:
+            'comparisons',
+
+          label:
+            'Comparisons',
+
+          icon:
+            '📊',
+
+          status:
+            'live',
+
+          page:
+            'comparisons',
+
+          note:
+            'Saved side-by-side views of your garden stories',
         },
 
         {
@@ -286,16 +206,36 @@ export const sprigNavigation:
     },
 
 
-    /* ========================================
-       CHRONICLE
-    ======================================== */
+    {
+      id: 'sprig',
+      title: 'Sprig',
+      items: [
+        {
+          id: 'ask-sprig',
+          label: 'Ask Sprig',
+          icon: '🌿',
+          status: 'live',
+          page: 'ask-sprig',
+          note: 'Ask what your own garden records have been showing you',
+        },
+        {
+          id: 'sprig-smart',
+          label: 'What Sprig Has Noticed',
+          icon: '🌱',
+          status: 'live',
+          page: 'sprig-smart',
+          note: 'Patterns, comparisons and useful things Sprig is beginning to notice from your own garden records',
+        },
+      ],
+    },
+
 
     {
       id:
-        'chronicle',
+        'garden-record',
 
       title:
-        'Chronicle',
+        'Garden Record',
 
       items: [
         {
@@ -398,10 +338,6 @@ export const sprigNavigation:
     },
 
 
-    /* ========================================
-       GARDEN KNOWLEDGE
-    ======================================== */
-
     {
       id:
         'garden-knowledge',
@@ -493,10 +429,6 @@ export const sprigNavigation:
     },
 
 
-    /* ========================================
-       PHOTOGRAPHS
-    ======================================== */
-
     {
       id:
         'photographs',
@@ -527,10 +459,6 @@ export const sprigNavigation:
       ],
     },
 
-
-    /* ========================================
-       GARDEN STORES
-    ======================================== */
 
     {
       id:
@@ -602,10 +530,6 @@ export const sprigNavigation:
     },
 
 
-    /* ========================================
-       HISTORY
-    ======================================== */
-
     {
       id:
         'history',
@@ -648,65 +572,27 @@ export const sprigNavigation:
     },
 
 
-    /* ========================================
-       SPRIG
-    ======================================== */
-
     {
-      id:
-        'sprig',
-
-      title:
-        'Sprig',
-
+      id: 'settings-safety',
+      title: 'Settings and Safety',
       items: [
-        {
-          id:
-            'settings',
-
-          label:
-            'Settings',
-
-          icon:
-            '⚙️',
-
-          status:
-            'coming-later',
-        },
-
-        {
-          id:
-            'backup-restore',
-
-          label:
-            'Backup & Restore',
-
-          icon:
-            '💾',
-
-          status:
-            'live',
-
-          page:
-            'backup',
-
-          note:
-            'Keep a safe portable copy of your whole Sprig garden',
-        },
-
-        {
-          id:
-            'help',
-
-          label:
-            'Help',
-
-          icon:
-            '❔',
-
-          status:
-            'coming-later',
-        },
+        { id: 'backup-restore', label: 'Backup & Restore', icon: '💾', status: 'live', page: 'backup', note: 'Keep a safe portable copy of your whole Sprig garden' },
+        { id: 'settings', label: 'Settings', icon: '⚙️', status: 'coming-later' },
+        { id: 'help', label: 'Help', icon: '❔', status: 'coming-later' },
       ],
     },
+
+
+    {
+      id: 'today',
+      title: 'Today',
+      items: [{
+        id: 'today-in-the-garden',
+        label: 'Today in the Garden',
+        icon: '🌿',
+        status: 'live',
+        page: 'gate',
+        note: 'Home and garden overview',
+      }],
+    }
   ]

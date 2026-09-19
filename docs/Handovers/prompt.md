@@ -1,0 +1,1 @@
+Can you create a handover for yourself for me to copy and paste into a new chate window of the information you need about Garden of Mine architecture, philosphy, how we work, our roadmaps, to do lists. Whatever information to make a clean handover please.

@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useModalDialog } from '../../hooks/useModalDialog'
 
 
 /* =======================================
@@ -224,6 +225,11 @@ export default function SprigPhotoGallery({
       null,
     )
   }
+
+  const viewerDialogRef = useModalDialog<HTMLDivElement>(
+    closePhotoViewer,
+    Boolean(activePhoto),
+  )
 
 
   /* =======================================
@@ -522,6 +528,7 @@ export default function SprigPhotoGallery({
           }
         >
           <div
+            ref={viewerDialogRef}
             className="sprig-photo-viewer-inner"
             role="dialog"
             aria-modal="true"
@@ -536,6 +543,7 @@ export default function SprigPhotoGallery({
             ======================================= */}
 
             <button
+              data-dialog-initial-focus
               type="button"
               className="sprig-photo-viewer-close"
               onClick={

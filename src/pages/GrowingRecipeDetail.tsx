@@ -824,7 +824,7 @@ export default function GrowingRecipeDetail({
                                   )
                                 }
                               >
-                                ðŸŒ¿ {item.ingredient.name}
+                                🌿 {item.ingredient.name}
 
                                 {measurement && (
                                   <>
@@ -864,7 +864,7 @@ export default function GrowingRecipeDetail({
                                 )
                               }
                             >
-                              ðŸ§º {item.product.name}
+                              🧺 {item.product.name}
 
                               {item.product.brand && (
                                 <>
@@ -1017,7 +1017,7 @@ export default function GrowingRecipeDetail({
                           )
                         }
                       >
-                        ðŸŒ¿ {linkedSetup.name}
+                        🌿 {linkedSetup.name}
                       </button>
                     </li>
                   ),

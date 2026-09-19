@@ -56,7 +56,7 @@ export default function Library({
       }
       pageId="library-top"
       className="library-page"
-      journeyBackLabel="My Garden"
+      journeyBackLabel="Garden of Mine"
       onJourneyBack={() =>
       onNavigate(
       'plants',

@@ -152,8 +152,8 @@
   .sprig-trial-print-report {
     page: sprig-trial;
     display: block !important;
-    position: absolute;
-    inset: 0;
+    position: static;
+    min-height: 0;
     width: 100%;
     box-sizing: border-box;
     background: #fff;
@@ -199,7 +199,7 @@
   }
 
   .sprig-trial-print-section {
-    break-inside: avoid;
+    break-inside: auto;
     margin: 0 0 13pt;
   }
 
@@ -257,12 +257,12 @@
   }
 
   .sprig-trial-print-observations {
-    display: grid;
-    gap: 10pt;
+    display: block;
   }
 
   .sprig-trial-print-observations > article {
-    break-inside: avoid;
+    break-inside: auto;
+    margin-bottom: 10pt;
     border-top: 1px solid #deded8;
     padding-top: 7pt;
   }
@@ -274,4 +274,87 @@
     font-size: 8.5pt;
     color: #596159;
   }
+}
+
+/* Comparison exports own the document height. Visibility alone hides ink,
+   but retains the app frame's minimum height and bottom-navigation padding. */
+@media print {
+  html:has(.sprig-comparison-report),
+  body:has(.sprig-comparison-report),
+  body:has(.sprig-comparison-report) #root,
+  body:has(.sprig-comparison-report) .garden-layout-content {
+    min-height: 0; height: auto; padding: 0; overflow: visible;
+  }
+  body:has(.sprig-comparison-report) #root > :not(.garden-layout-content),
+  body:has(.sprig-comparison-report) .garden-layout-content > :not(.sprig-comparison-report) {
+    display: none !important;
+  }
+}
+
+/* Product exports retain the saved assessment and purchase facts while
+   excluding controls for changing those records in the live app. */
+@media print {
+  .product-experience > .record-action-button,
+  .product-experience > .sprig-rating-picker,
+  .product-purchase-history button,
+  .product-shelf {
+    display: none !important;
+  }
+}
+
+/* A saved Plant Story is a reading document. Keep its headings with their
+   content and remove controls that only make sense in the live app. */
+@media print {
+  .plant-story-page .section-heading > .text-button,
+  .plant-story-page .timeline-delete-button,
+  .plant-story-page .plant-detail-harvest-action {
+    display: none !important;
+  }
+
+  .plant-story-page .story-section > .section-heading,
+  .plant-story-page .sprig-photo-gallery-title {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .plant-story-page .sprig-photo-gallery-entry,
+  .plant-story-page .timeline-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+@media print {
+  /* Common record shells must not print screen-sized padding or minimum heights. */
+  html:has(.garden-detail-page), body:has(.garden-detail-page),
+  body:has(.garden-detail-page) #root,
+  body:has(.garden-detail-page) .garden-layout-content,
+  .garden-detail-page {
+    min-height: 0; height: auto; padding: 0; margin: 0;
+    width: 100%; overflow: visible;
+  }
+  .garden-detail-page::before { display: none; }
+  .garden-detail-page h1, .garden-detail-page h2, .garden-detail-page h3 {
+    break-inside: avoid; break-after: avoid;
+  }
+  .garden-detail-page p { orphans: 3; widows: 3; }
+  .harvest-export-actions, .journal-age-control, .harvest-age-control,
+  .growing-place-detail-actions, .growing-place-export-actions,
+  .plant-detail-age-control { display: none !important; }
+
+  /* Trial print content sits inside its detail shell. Remove its screen siblings
+     from layout instead of hiding their ink and retaining their page footprint. */
+  body:has(.sprig-trial-print-report) #root > :not(.garden-layout-content),
+  body:has(.sprig-trial-print-report) .garden-layout-content > :not(.sprig-trials-page),
+  .sprig-trials-page:has(.sprig-trial-print-report) > :not(.sprig-trial-print-report) {
+    display: none !important;
+  }
+  .sprig-trials-page:has(.sprig-trial-print-report) { display: block; }
+  .sprig-trial-print-section h2, .sprig-trial-print-section h3,
+  .sprig-trial-print-header { break-inside: avoid; break-after: avoid; }
+  .sprig-trial-print-section p { orphans: 3; widows: 3; }
+  .sprig-trial-print-section:last-child,
+  .sprig-trial-print-observations > article:last-child { margin-bottom: 0; }
 }

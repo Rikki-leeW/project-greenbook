@@ -1162,7 +1162,7 @@ export default function AddProductForm({
       className="form-backdrop"
       role="presentation"
     >
-      <FormTemplate ariaLabelledBy="add-product-title">
+      <FormTemplate ariaLabelledBy="add-product-title" onClose={onClose}>
           <div className="form-heading">
             <h2 id="add-product-title">
               {getHeading()}
