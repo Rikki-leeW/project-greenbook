@@ -1,5 +1,7 @@
 # Sprig character standard
 
+For the complete recreation guide, prompt template and approval checklist, see [`sprig-design-portfolio.md`](sprig-design-portfolio.md).
+
 **Status:** Approved and locked 19 September 2026  
 **Role:** Sprig, The Garden Keeper  
 **Product:** Garden of Mine
@@ -37,6 +39,7 @@ The portrait is authoritative when a generated view differs subtly in the face. 
 - Worn brown garden boots.
 - Weathered leather satchel.
 - Brown garden notebook.
+- A small handmade cream name badge pinned to the upper chest of the moss-green vest. It reads **Sprig** prominently, with **Garden Keeper** in smaller lettering beneath. The badge is part of Sprig's standard clothing and must appear whenever his upper body is visible and there is sufficient image scale for it to remain legible.
 - Small botanical details may be integrated naturally into clothing and accessories.
 
 Clothing can acquire believable garden wear, seasonal layers or task-specific additions, but the core silhouette, materials and palette must remain recognizable.
@@ -64,6 +67,7 @@ Artwork should support atmosphere, orientation, emotional punctuation and empty 
 - Frightening, uncanny or hyper-real rendering.
 - Glossy 3D styling.
 - Unapproved costume or facial redesigns.
+- Floating page labels or detached badges used to identify Sprig; his name belongs on the badge attached to his clothing.
 - Generating future Sprig artwork without the canonical source images.
 
 ## Production rule
