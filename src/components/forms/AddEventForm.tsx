@@ -14,6 +14,11 @@ import SprigPhotoPicker from '../photos/SprigPhotoPicker';
 import AddGrowingPlaceForm from './AddGrowingPlaceForm';
 import AddProductForm from './AddProductForm';
 
+import {
+  buildCropCategoryOptions,
+  getCanonicalCropKey,
+} from '../../utils/cropNames';
+
 
 import type {
   EventType,
@@ -1071,7 +1076,7 @@ export default function AddEventForm({
           PlantStatus |
           'all'
       >(
-          'growing',
+          'all',
       );
 
   const [
@@ -1717,26 +1722,11 @@ export default function AddEventForm({
   const cropOptions =
       useMemo(
           () =>
-              Array.from(
-                  new Set(
-                      plants
-                          .map(
-                              plant =>
-                                  plant.plantName
-                                      .trim(),
-                          )
-                          .filter(
-                              Boolean,
-                          ),
+              buildCropCategoryOptions(
+                  plants.map(
+                      plant =>
+                          plant.plantName,
                   ),
-              ).sort(
-                  (
-                      first,
-                      second,
-                  ) =>
-                      first.localeCompare(
-                          second,
-                      ),
               ),
           [
               plants,
@@ -1806,7 +1796,9 @@ export default function AddEventForm({
                           if (
                               cropFilter !==
                                   'all' &&
-                              plant.plantName !==
+                              getCanonicalCropKey(
+                                  plant.plantName,
+                              ) !==
                                   cropFilter
                           ) {
                               return false;
@@ -3555,13 +3547,13 @@ export default function AddEventForm({
                                                             crop => (
                                                                 <option
                                                                     key={
-                                                                        crop
+                                                                        crop.value
                                                                     }
                                                                     value={
-                                                                        crop
+                                                                        crop.value
                                                                     }
                                                                 >
-                                                                    {crop}
+                                                                    {crop.label}
                                                                 </option>
                                                             ),
                                                         )}
@@ -4254,4 +4246,3 @@ export default function AddEventForm({
         </div>
     );
 }
-

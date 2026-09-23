@@ -807,3 +807,33 @@
         }
     }
 
+/* Keep the Plant Story action tray inside the page at every phone width. */
+.plant-story-page .plant-record-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(10rem, 100%), 1fr));
+    gap: 0.65rem;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 0 2rem;
+}
+
+.plant-story-page .plant-record-actions > .secondary-button {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+    .plant-story-page .plant-record-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.55rem;
+    }
+
+    .plant-story-page .plant-record-actions > .secondary-button {
+        padding-inline: 0.65rem;
+    }
+}

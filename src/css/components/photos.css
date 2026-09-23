@@ -279,12 +279,18 @@
 .sprig-photo-viewer {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  /* Keep the viewer, including its close control, above the fixed Satchel. */
+  z-index: 5000;
   display: grid;
   place-items: center;
   padding: 18px;
   overflow-y: auto;
   background: rgba(28, 34, 27, 0.78);
+}
+
+body:has(.sprig-photo-viewer) .garden-satchel-toggle {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .sprig-photo-viewer-inner {

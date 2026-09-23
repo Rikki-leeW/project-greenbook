@@ -1,4 +1,5 @@
 
+import { useState } from 'react'
 import MainPageTemplate from '../components/templates/MainPageTemplate'
 import type {
   GardenEvent,
@@ -216,6 +217,10 @@ export default function Journal({
   onDeleteEvent,
   onNavigate,
 }: JournalProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [eventTypeFilter, setEventTypeFilter] = useState('all')
+  const [sourceFilter, setSourceFilter] = useState('all')
+
   const sortedEvents =
     [
       ...events,
@@ -231,6 +236,28 @@ export default function Journal({
           first.date,
         ).getTime(),
     )
+
+  const eventTypeOptions = Array.from(
+    new Set(events.map(event => event.type)),
+  ).sort()
+
+  const normalisedQuery = searchQuery.trim().toLocaleLowerCase()
+  const visibleEvents = sortedEvents.filter(event => {
+    const plantNames = getPlantNames(event, plants)
+    const matchesSearch =
+      normalisedQuery.length === 0 ||
+      [event.title, event.notes, event.productUsed, plantNames]
+        .filter(Boolean)
+        .some(value => value!.toLocaleLowerCase().includes(normalisedQuery))
+    const matchesType = eventTypeFilter === 'all' || event.type === eventTypeFilter
+    const isGardenEntry = event.plantStoryIds.length === 0
+    const matchesSource =
+      sourceFilter === 'all' ||
+      (sourceFilter === 'garden' && isGardenEntry) ||
+      (sourceFilter === 'plants' && !isGardenEntry)
+
+    return matchesSearch && matchesType && matchesSource
+  })
 
 
   return (
@@ -270,15 +297,50 @@ export default function Journal({
       }
     >
 
+        <section className="journal-tools" aria-label="Search and filter journal entries">
+          <label className="journal-search-field">
+            <span>Search the journal</span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={event => setSearchQuery(event.target.value)}
+              placeholder="Search titles, notes, products or Plant Stories…"
+            />
+          </label>
+
+          <div className="journal-filter-row">
+            <label>
+              <span>Kind of entry</span>
+              <select value={eventTypeFilter} onChange={event => setEventTypeFilter(event.target.value)}>
+                <option value="all">All entries</option>
+                {eventTypeOptions.map(type => (
+                  <option key={type} value={type}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span>Recorded for</span>
+              <select value={sourceFilter} onChange={event => setSourceFilter(event.target.value)}>
+                <option value="all">Whole journal</option>
+                <option value="plants">Plant Stories</option>
+                <option value="garden">Wider garden</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
 
         {/* =======================================
             JOURNAL ENTRIES
         ======================================= */}
 
         <section className="journal-list">
-          {sortedEvents.length >
+          {visibleEvents.length >
           0 ? (
-            sortedEvents.map(
+            visibleEvents.map(
               event => {
                 const isGardenEntry =
                   event.plantStoryIds.length ===
@@ -409,6 +471,22 @@ export default function Journal({
                           }
                         </p>
                       )}
+
+                      {event.photoUrls && event.photoUrls.length > 0 && (
+                        <div className="journal-entry-thumbnails" aria-label={`${event.photoUrls.length} attached photograph${event.photoUrls.length === 1 ? '' : 's'}`}>
+                          {event.photoUrls.slice(0, 3).map((photoUrl, photoIndex) => (
+                            <img
+                              key={`${event.id}-photo-${photoIndex}`}
+                              src={photoUrl}
+                              alt=""
+                              loading="lazy"
+                            />
+                          ))}
+                          {event.photoUrls.length > 3 && (
+                            <span>+{event.photoUrls.length - 3}</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </article>
                 )
@@ -420,12 +498,12 @@ export default function Journal({
                 📖
               </span>
 
-              <h2>
-                The pages are still quiet
-              </h2>
+              <h2>{events.length === 0 ? 'The pages are still quiet' : 'No pages match those filters'}</h2>
 
               <p>
-                Sprig has not recorded anything yet.
+                {events.length === 0
+                  ? 'Sprig has not recorded anything yet.'
+                  : 'Try a different search or show the whole journal.'}
               </p>
 
               <button

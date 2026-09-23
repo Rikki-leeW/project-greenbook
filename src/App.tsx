@@ -5003,7 +5003,9 @@ function App() {
      */
     if (
       harvest.plantOutcome !==
-      'finished'
+        'finished' &&
+      harvest.harvestType !==
+        'final'
     ) {
       return plantStories
     }

@@ -19,6 +19,11 @@ import {
   getPlantStoryCardContext,
 } from '../../utils/plantStoryContext'
 
+import {
+  buildCropCategoryOptions,
+  getCanonicalCropKey,
+} from '../../utils/cropNames'
+
 import type {
   GardenEvent,
   GardenPlan,
@@ -534,7 +539,7 @@ export default function AddHarvestForm({
     setPlantStatusFilter,
   ] =
     useState(
-      'growing',
+      'all',
     )
 
 
@@ -740,27 +745,11 @@ export default function AddHarvestForm({
   ======================================= */
 
   const cropOptions =
-    Array.from(
-      new Set(
-        plants
-          .map(
-            plant =>
-              plant
-                .plantName
-                .trim(),
-          )
-          .filter(
-            Boolean,
-          ),
+    buildCropCategoryOptions(
+      plants.map(
+        plant =>
+          plant.plantName,
       ),
-    ).sort(
-      (
-        first,
-        second,
-      ) =>
-        first.localeCompare(
-          second,
-        ),
     )
 
   const sortedPlants =
@@ -852,7 +841,9 @@ export default function AddHarvestForm({
         const matchesCrop =
           plantCropFilter ===
             'all' ||
-          plant.plantName ===
+          getCanonicalCropKey(
+            plant.plantName,
+          ) ===
             plantCropFilter
 
         const matchesPlace =
@@ -1554,13 +1545,13 @@ export default function AddHarvestForm({
                             crop => (
                               <option
                                 key={
-                                  crop
+                                  crop.value
                                 }
                                 value={
-                                  crop
+                                  crop.value
                                 }
                               >
-                                {crop}
+                                {crop.label}
                               </option>
                             ),
                           )}
@@ -2235,4 +2226,3 @@ export default function AddHarvestForm({
     </div>
   )
 }
-
