@@ -283,6 +283,54 @@
 }
 
 
+/* ---------- PLAIN CONTROL VARIANT ----------
+
+   Reusable choice-card appearance for compact form decisions.
+   Forms and pages own only the grid and placement around it.
+------------------------------------------------ */
+
+.sprig-choice-card--control {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 52px;
+  padding: 11px 13px;
+  border: 1px solid rgba(82, 94, 67, 0.2);
+  border-radius: 13px;
+  background: rgba(255, 253, 246, 0.92);
+  color: #405540;
+  box-shadow: 0 3px 9px rgba(56, 65, 45, 0.055);
+}
+
+.sprig-choice-card--control:hover:not(:disabled) {
+  border-color: rgba(109, 85, 47, 0.34);
+  background: #fbf4df;
+}
+
+.sprig-choice-card--control.is-selected {
+  border-color: rgba(126, 91, 43, 0.52);
+  background: #f2dfb8;
+  color: #493f2d;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 252, 232, 0.58),
+    0 4px 10px rgba(82, 62, 31, 0.09);
+}
+
+.sprig-choice-card--control .sprig-choice-card-icon {
+  flex: 0 0 auto;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.sprig-choice-card--control .sprig-choice-card-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.83rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+
 /* ---------- CHOICE CARDS: SMALL PHONES ---------- */
 
 @media (max-width: 420px) {

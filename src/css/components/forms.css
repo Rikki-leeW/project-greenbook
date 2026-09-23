@@ -700,51 +700,9 @@ h3 {
   min-width: 0;
 }
 
-/* Journal relationship scope: clear controls, not image-backed mini banners. */
+/* Journal owns placement; shared SelectionCard appearance lives in sprig.css. */
 .journal-entry-form .plant-scope-grid {
   gap: 10px;
-}
-
-.journal-entry-form .plant-scope-grid .sprig-choice-card {
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  min-height: 52px;
-  padding: 11px 13px;
-  border: 1px solid rgba(82, 94, 67, 0.2);
-  border-radius: 13px;
-  background-color: rgba(255, 253, 246, 0.92);
-  background-image: none !important;
-  color: #405540;
-  box-shadow: 0 3px 9px rgba(56, 65, 45, 0.055);
-}
-
-.journal-entry-form .plant-scope-grid .sprig-choice-card:hover:not(:disabled) {
-  border-color: rgba(109, 85, 47, 0.34);
-  background-color: #fbf4df;
-}
-
-.journal-entry-form .plant-scope-grid .sprig-choice-card.is-selected {
-  border-color: rgba(126, 91, 43, 0.52);
-  background-color: #f2dfb8;
-  color: #493f2d;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 252, 232, 0.58),
-    0 4px 10px rgba(82, 62, 31, 0.09);
-}
-
-.journal-entry-form .plant-scope-grid .sprig-choice-card-icon {
-  flex: 0 0 auto;
-  font-size: 1.05rem;
-  line-height: 1;
-}
-
-.journal-entry-form .plant-scope-grid .sprig-choice-card-title {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.83rem;
-  font-weight: 700;
-  line-height: 1.2;
 }
 
 .journal-plant-card-grid {

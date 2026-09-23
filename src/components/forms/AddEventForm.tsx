@@ -3341,6 +3341,7 @@ export default function AddEventForm({
                                     <SelectionCard
                                         title="One Plant"
                                         icon="🌱"
+                                        appearance="control"
                                         isSelected={
                                             plantScope ===
                                             'single'
@@ -3355,6 +3356,7 @@ export default function AddEventForm({
                                     <SelectionCard
                                         title="Several Plants"
                                         icon="🌿"
+                                        appearance="control"
                                         isSelected={
                                             plantScope ===
                                             'multiple'
@@ -3369,6 +3371,7 @@ export default function AddEventForm({
                                     <SelectionCard
                                         title="All Plants"
                                         icon="🌳"
+                                        appearance="control"
                                         isSelected={
                                             plantScope ===
                                             'all-plants'
