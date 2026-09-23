@@ -588,3 +588,72 @@
   outline: 3px solid rgba(82, 112, 71, 0.2);
   outline-offset: 2px;
 }
+
+
+/* =======================================
+   COLLECTION FILTER DISCLOSURE
+
+   Phone-only control used to reveal longer
+   filter sets inside shared search panels.
+======================================= */
+
+.collection-filter-toggle {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(71, 92, 69, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 253, 247, 0.9);
+  color: #405644;
+  font: inherit;
+  font-size: 0.81rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(48, 74, 50, 0.035);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.collection-filter-toggle:hover {
+  border-color: rgba(82, 112, 71, 0.3);
+  background: #fffef9;
+}
+
+.collection-filter-toggle:focus-visible {
+  outline: 3px solid rgba(82, 112, 71, 0.2);
+  outline-offset: 2px;
+}
+
+.collection-filter-toggle-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
+}
+
+.collection-filter-toggle-meta strong {
+  color: #687267;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.collection-filter-toggle-meta > span:last-child {
+  min-width: 1em;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .collection-filter-toggle {
+    display: flex;
+  }
+}

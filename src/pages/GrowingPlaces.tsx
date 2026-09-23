@@ -865,6 +865,11 @@ export default function GrowingPlaces({
       'name-az',
     );
 
+  const [
+    mobileFiltersOpen,
+    setMobileFiltersOpen,
+  ] = useState(false);
+
 
   /* =======================================
      PLACE FILTERS
@@ -1901,6 +1906,22 @@ const activeFilterCount =
         : selectedProductCategories.length +
           selectedProductBrands.length;
 
+const hasAvailableFilters =
+  section === 'places'
+    ? placeKindOptions.length > 0
+    : section === 'setups'
+      ? setupKindOptions.length +
+          setupIngredientOptions.length +
+          setupProductOptions.length >
+        0
+      : section === 'ingredients'
+        ? ingredientCategoryOptions.length +
+            ingredientManufacturerOptions.length >
+          0
+        : productCategoryOptions.length +
+            productBrandOptions.length >
+          0;
+
 
 /* =======================================
    RESULT COUNT
@@ -2056,16 +2077,16 @@ function renderFilterGroup(
 
 
   return (
-    <fieldset className="growing-filter-group">
+    <fieldset className="collection-filter-group growing-filter-group">
       <legend>
         {title}
       </legend>
 
-      <div className="growing-filter-options">
+      <div className="collection-filter-options growing-filter-options">
         {options.map(
           option => (
             <label
-              className="growing-filter-option"
+              className="collection-filter-option growing-filter-option"
               key={
                 `${title}-${option}`
               }
@@ -2744,8 +2765,8 @@ return (
       =================================== */}
 
       <div className="growing-browser-layout">
-        <aside className="growing-browser-tools">
-          <div className="growing-browser-tools-heading">
+        <aside className="collection-search-panel growing-browser-tools">
+          <div className="collection-search-heading growing-browser-tools-heading">
             <div>
               <p className="section-label">
                 Find
@@ -2782,8 +2803,8 @@ return (
           </div>
 
 
-          <label className="growing-search-field">
-            <span className="growing-tool-label">
+          <label className="collection-search-field growing-search-field">
+            <span className="collection-search-label growing-tool-label">
               Search
             </span>
 
@@ -2814,8 +2835,8 @@ return (
           </label>
 
 
-          <label className="growing-sort-field">
-            <span className="growing-tool-label">
+          <label className="collection-sort-field growing-sort-field">
+            <span className="collection-search-label growing-tool-label">
               Order by
             </span>
 
@@ -2854,7 +2875,44 @@ return (
           </label>
 
 
-          <div className="growing-filter-area">
+          {hasAvailableFilters && (
+            <button
+              type="button"
+              className="collection-filter-toggle"
+              aria-expanded={mobileFiltersOpen}
+              aria-controls="growing-more-filters"
+              onClick={() =>
+                setMobileFiltersOpen(
+                  isOpen => !isOpen,
+                )
+              }
+            >
+              <span>More filters</span>
+
+              <span className="collection-filter-toggle-meta">
+                {activeFilterCount > 0 && (
+                  <strong>
+                    {activeFilterCount}{' '}
+                    selected
+                  </strong>
+                )}
+
+                <span aria-hidden="true">
+                  {mobileFiltersOpen ? '−' : '+'}
+                </span>
+              </span>
+            </button>
+          )}
+
+
+          <div
+            id="growing-more-filters"
+            className={`collection-filter-content growing-filter-area${
+              mobileFiltersOpen
+                ? ' collection-filter-content--open'
+                : ''
+            }`}
+          >
             {renderActiveFilters()}
           </div>
         </aside>
