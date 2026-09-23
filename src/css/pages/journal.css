@@ -57,24 +57,11 @@
   box-shadow: 0 7px 20px rgba(52, 70, 48, 0.07);
 }
 
-.journal-tools label {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-
-.journal-tools label > span {
+.journal-tools .collection-search-label {
   color: var(--moss);
   font-size: 0.72rem;
-  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.journal-tools input,
-.journal-tools select {
-  width: 100%;
-  min-width: 0;
 }
 
 .journal-filter-row {

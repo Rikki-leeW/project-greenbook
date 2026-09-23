@@ -2672,7 +2672,7 @@ export default function GardenReference({
                     </div>
                 </div>
 
-                <section className="sprig-knowledge-paper">
+                <section className="collection-search-panel sprig-knowledge-paper">
                     <p className="section-label">
                         Garden Reference ·{' '}
                         {getSubjectTypeLabel(
@@ -2762,8 +2762,8 @@ export default function GardenReference({
 
                     {renderTopicFilter()}
 
-                    <label className="sprig-knowledge-field">
-                        <span>
+                    <label className="collection-sort-field sprig-knowledge-field">
+                        <span className="collection-search-label">
                             Search this subject
                         </span>
 
@@ -3025,8 +3025,8 @@ export default function GardenReference({
 
                 {editSubjectType ===
                     'pest-problem' && (
-                    <label className="sprig-knowledge-field">
-                        <span>
+                    <label className="collection-search-field sprig-knowledge-field">
+                        <span className="collection-search-label">
                             Pest, disease or problem
                         </span>
 

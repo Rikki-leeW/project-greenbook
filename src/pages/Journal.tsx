@@ -297,9 +297,9 @@ export default function Journal({
       }
     >
 
-        <section className="journal-tools" aria-label="Search and filter journal entries">
-          <label className="journal-search-field">
-            <span>Search the journal</span>
+        <section className="collection-search-panel journal-tools" aria-label="Search and filter journal entries">
+          <label className="collection-search-field journal-search-field">
+            <span className="collection-search-label">Search the journal</span>
             <input
               type="search"
               value={searchQuery}
@@ -309,8 +309,8 @@ export default function Journal({
           </label>
 
           <div className="journal-filter-row">
-            <label>
-              <span>Kind of entry</span>
+            <label className="collection-sort-field">
+              <span className="collection-search-label">Kind of entry</span>
               <select value={eventTypeFilter} onChange={event => setEventTypeFilter(event.target.value)}>
                 <option value="all">All entries</option>
                 {eventTypeOptions.map(type => (
@@ -321,8 +321,8 @@ export default function Journal({
               </select>
             </label>
 
-            <label>
-              <span>Recorded for</span>
+            <label className="collection-sort-field">
+              <span className="collection-search-label">Recorded for</span>
               <select value={sourceFilter} onChange={event => setSourceFilter(event.target.value)}>
                 <option value="all">Whole journal</option>
                 <option value="plants">Plant Stories</option>
