@@ -373,7 +373,7 @@ export default function Products({
       onNavigate
       }
       pageId="products-top"
-      className="journal-page"
+      className="garden-category-page journal-page"
       journeyBackLabel="Growing"
       onJourneyBack={() =>
       onNavigate(

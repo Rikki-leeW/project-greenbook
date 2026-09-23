@@ -55,7 +55,7 @@ export default function Library({
       onNavigate
       }
       pageId="library-top"
-      className="library-page"
+      className="garden-category-page library-page"
       journeyBackLabel="Garden of Mine"
       onJourneyBack={() =>
       onNavigate(

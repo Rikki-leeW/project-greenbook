@@ -11,6 +11,7 @@
 @import './pages/gate.css';
 @import './pages/plant-detail.css';
 @import './pages/welcome.css';
+@import './components/category-pages.css';
 
 /*
  * Final shared field and form-control layer.

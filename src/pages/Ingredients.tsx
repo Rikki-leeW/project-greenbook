@@ -409,7 +409,7 @@ export default function Ingredients({
       activePage="library"
       onNavigate={onNavigate}
       pageId="ingredients-top"
-      className="journal-page"
+      className="garden-category-page journal-page"
       journeyBackLabel={showArchivedStatus ? undefined : "Growing"}
       onJourneyBack={showArchivedStatus ? undefined : () => onNavigate('growing-places')}
       homeLabel={showArchivedStatus ? undefined : "Growing Home"}
@@ -684,4 +684,3 @@ export default function Ingredients({
       </MainPageTemplate>
   )
 }
-

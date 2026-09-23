@@ -267,7 +267,7 @@ export default function Journal({
       onNavigate
       }
       pageId="journal-top"
-      className="journal-page"
+      className="garden-category-page journal-page"
       journeyBackLabel="Garden Record"
       onJourneyBack={() =>
       onNavigate(

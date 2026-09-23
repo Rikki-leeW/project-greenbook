@@ -181,6 +181,7 @@ export default function Comparisons({
       onNavigate
       }
       pageId="comparisons-top"
+      className="garden-category-page"
       journeyBackLabel="Growing Stories"
       onJourneyBack={
       onBack

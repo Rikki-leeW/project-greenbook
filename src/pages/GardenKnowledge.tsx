@@ -6815,7 +6815,7 @@ export default function GardenKnowledge({
             onNavigate={onNavigate}
             pageId="garden-knowledge-top"
             pageAs="div"
-            className="sprig-knowledge-page"
+            className="garden-category-page sprig-knowledge-page"
             headerClassName="sprig-knowledge-header"
             journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : null}
             onJourneyBack={onJourneyBack}

@@ -460,7 +460,7 @@ export default function Harvest({
       onNavigate
       }
       pageId="harvest-top"
-      className="journal-page"
+      className="garden-category-page journal-page"
       journeyBackLabel="Garden Record"
       onJourneyBack={() =>
       onNavigate(

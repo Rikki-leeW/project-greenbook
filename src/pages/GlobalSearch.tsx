@@ -630,7 +630,7 @@ export default function GlobalSearch({
       handleNavigateAway
       }
       pageId="global-search-top"
-      className="sprig-global-search-page"
+      className="garden-category-page sprig-global-search-page"
       journeyBackLabel="Today"
       onJourneyBack={() =>
       handleNavigateAway(

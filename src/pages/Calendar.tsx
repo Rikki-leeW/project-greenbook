@@ -3863,7 +3863,7 @@ import { useModalDialog } from '../hooks/useModalDialog'
       activePage="calendar"
       onNavigate={onNavigate}
       pageId="sprig-calendar-top"
-      className="journal-page sprig-calendar-page"
+      className="garden-category-page journal-page sprig-calendar-page"
       journeyBackLabel="Today"
       onJourneyBack={() =>
         onNavigate(

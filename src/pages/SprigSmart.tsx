@@ -977,7 +977,7 @@ export default function SprigSmart(
       activePage="sprig-smart"
       onNavigate={handleNavigate}
       pageId="sprig-smart-top"
-      className="sprig-smart-page"
+      className="garden-category-page sprig-smart-page"
       journeyBackLabel="Back"
       onJourneyBack={onBack}
       homeLabel="Today"

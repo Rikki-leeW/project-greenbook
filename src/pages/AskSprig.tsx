@@ -159,7 +159,7 @@ export default function AskSprig(props: AskSprigProps) {
       activePage="ask-sprig"
       onNavigate={props.onNavigate}
       pageId="ask-sprig-top"
-      className="sprig-smart-page ask-sprig-page"
+      className="garden-category-page sprig-smart-page ask-sprig-page"
       journeyBackLabel="Back"
       onJourneyBack={props.onBack}
       homeLabel="Today"

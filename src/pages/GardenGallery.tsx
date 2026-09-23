@@ -2606,7 +2606,7 @@ export default function GardenGallery({
       activePage="garden-gallery"
       onNavigate={onNavigate}
       pageId="garden-gallery-top"
-      className="sprig-gallery-page"
+      className="garden-category-page sprig-gallery-page"
       journeyBackLabel="Back"
       onJourneyBack={onBack}
       navigationAriaLabel="Garden Gallery navigation"

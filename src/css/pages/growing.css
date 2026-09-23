@@ -601,117 +601,13 @@
   }
 
 /* =======================================
-   GROWING · APPROVED MOBILE JOURNAL
+   GROWING · MOBILE CONTENT
 
-   Mirrors the established Plants visual language while
-   preserving Growing's own navigation and content structure.
-   Tablet and desktop composition remains unchanged.
+   Shared category canvas and header live in category-pages.css.
+   This section owns only Growing's navigation, browser and rows.
 ======================================= */
 
 @media (max-width: 700px) {
-  #growing-page-top {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    min-height: 100vh;
-    padding-top: 20px;
-    background:
-      linear-gradient(rgba(247, 228, 184, 0.22), rgba(249, 234, 199, 0.3)),
-      url('../../images/backgrounds/base-paper-texture.jpg') center top / 620px auto repeat;
-    box-shadow:
-      inset 12px 0 24px rgba(120, 91, 43, 0.035),
-      inset -12px 0 24px rgba(120, 91, 43, 0.035);
-  }
-
-  #growing-page-top::before {
-    position: absolute;
-    z-index: -1;
-    inset: 0 0 auto;
-    width: 100%;
-    height: 640px;
-    background:
-      url('../../images/decorations/plants-journal-header-mobile-test.png')
-      center top / 100% auto no-repeat;
-    content: '';
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom, #000 0 91%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 0 91%, transparent 100%);
-  }
-
-  #growing-page-top .garden-page-navigation {
-    position: relative;
-    z-index: 2;
-    margin-bottom: 14px;
-  }
-
-  #growing-page-top .garden-page-navigation-button {
-    border-color: rgba(72, 94, 57, 0.16);
-    background: rgba(255, 253, 245, 0.9);
-    box-shadow: 0 7px 18px rgba(70, 79, 49, 0.1);
-    backdrop-filter: blur(5px);
-  }
-
-  #growing-page-top .garden-header {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: stretch;
-    width: 100%;
-    gap: 9px;
-    margin-bottom: 15px;
-    padding: 0 4px;
-    text-align: center;
-  }
-
-  #growing-page-top .garden-header-copy,
-  #growing-page-top .garden-page-header-actions {
-    grid-column: 1 / -1;
-    justify-self: stretch;
-    width: 100%;
-    min-width: 0;
-  }
-
-  #growing-page-top .garden-header-copy {
-    display: grid;
-    justify-items: center;
-    text-align: center;
-  }
-
-  #growing-page-top .app-name {
-    letter-spacing: 0.23em;
-  }
-
-  #growing-page-top .garden-title {
-    max-width: 310px;
-    margin: 3px auto 0;
-    font-size: clamp(2rem, 9.4vw, 2.55rem);
-    line-height: 1.02;
-    text-wrap: balance;
-  }
-
-  #growing-page-top .garden-subtitle {
-    max-width: 330px;
-    margin: 8px auto 0;
-    font-size: 1rem;
-    line-height: 1.5;
-    text-wrap: balance;
-  }
-
-  #growing-page-top .garden-page-header-actions {
-    display: flex;
-    justify-content: center;
-    margin-top: 0;
-    padding: 0;
-  }
-
-  #growing-page-top .garden-page-header-actions .journal-add-button {
-    width: auto;
-    min-width: 165px;
-    border-radius: 999px;
-    box-shadow: 0 8px 19px rgba(48, 78, 46, 0.15);
-  }
-
   #growing-page-top .growing-section-navigation {
     position: relative;
     z-index: 1;
@@ -791,15 +687,6 @@
   }
 }
 
-@media print {
-  #growing-page-top {
-    background: none;
-  }
-
-  #growing-page-top::before {
-    display: none;
-  }
-}
 /* GrowingPlaceDetail content details; common shell and controls have shared owners. */
 
   .growing-place-detail-page .growing-place-detail-row {

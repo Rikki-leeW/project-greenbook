@@ -5092,7 +5092,7 @@ export default function GardenTrials({
             activePage="garden-trials"
             onNavigate={onNavigate}
             pageId="garden-trials-top"
-            className="journal-page sprig-trials-page"
+            className="garden-category-page journal-page sprig-trials-page"
             journeyBackLabel={journeyBackLabel}
             onJourneyBack={onJourneyBack}
             navigationAriaLabel="Garden Trials navigation"
@@ -5262,4 +5262,3 @@ export default function GardenTrials({
         </MainPageTemplate>
     );
 }
-

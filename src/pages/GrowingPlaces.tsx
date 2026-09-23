@@ -2662,7 +2662,7 @@ return (
       onNavigate
       }
       pageId="growing-page-top"
-      className="growing-page"
+      className="garden-category-page growing-page"
       pageAs="div"
       journeyBackLabel={
       journeyBackLabel
