@@ -514,60 +514,7 @@
 }
 
 
-/* =======================================
-   PLANTS · CARD PHOTOGRAPH
-======================================= */
-
-.plant-card-content {
-  min-width: 0;
-}
-
-.plant-card-with-thumbnail {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 54px;
-  align-items: start;
-  gap: 13px;
-}
-
-.plant-card-thumbnail {
-  display: block;
-  overflow: hidden;
-  width: 54px;
-  height: 54px;
-  border: 1px solid rgba(82, 112, 71, 0.13);
-  border-radius: 13px 10px 14px 11px;
-  background: rgba(243, 240, 227, 0.72);
-  box-shadow:
-    0 4px 11px rgba(55, 77, 48, 0.07);
-}
-
-.plant-card-thumbnail img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.plant-card-with-thumbnail .plant-card-compact-heading {
-  gap: 9px;
-}
-
-.plant-card-with-thumbnail .plant-card-compact-meta {
-  margin-top: 10px;
-}
-
 @media (max-width: 620px) {
-  .plant-card-with-thumbnail {
-    grid-template-columns: minmax(0, 1fr) 50px;
-    gap: 11px;
-  }
-
-  .plant-card-thumbnail {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px 9px 13px 10px;
-  }
-
   .plant-browser-age-control button {
     padding: 7px 5px;
     font-size: 0.7rem;
@@ -716,24 +663,6 @@
 }
 
 
-/* =======================================
-   COMPACT PLANT CARD
-======================================= */
-
-.plant-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(66, 91, 57, 0.13);
-  border-radius: 17px;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 253, 247, 0.97),
-      rgba(249, 245, 234, 0.91)
-    );
-  box-shadow: var(--shadow-soft);
-}
-
 #plants-page-top .plant-browser-controls {
   position: relative;
   overflow: hidden;
@@ -771,135 +700,6 @@
   content: '';
 }
 
-#plants-page-top .plant-card {
-  border-color: rgba(94, 111, 65, 0.17);
-  background:
-    radial-gradient(circle at 100% 0, rgba(132, 154, 102, 0.07), transparent 31%),
-    linear-gradient(145deg, rgba(255, 253, 246, 0.98), rgba(249, 245, 232, 0.93));
-}
-
-.plant-card::after {
-  display: none;
-}
-
-.plant-card-compact {
-  min-height: 0;
-  padding: 15px 16px 14px;
-}
-
-.plant-card-button {
-  width: 100%;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    border-color 150ms ease,
-    background 150ms ease;
-}
-
-.plant-card-button:hover {
-  transform: translateY(-2px);
-  border-color: rgba(66, 91, 57, 0.25);
-  box-shadow: 0 13px 27px rgba(55, 77, 48, 0.1);
-}
-
-.plant-card-button:focus-visible {
-  outline: 4px solid rgba(111, 138, 99, 0.22);
-  outline-offset: 3px;
-}
-
-.plant-card-compact-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.plant-card-compact-title {
-  min-width: 0;
-}
-
-.plant-card-compact h3 {
-  margin: 0;
-  color: var(--ink);
-  font-size: 1.03rem;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-.plant-card-identity {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px;
-  margin: 5px 0 0;
-  color: #6f796b;
-  font-size: 0.79rem;
-  line-height: 1.3;
-}
-
-.plant-card-separator {
-  color: #adb2a7;
-}
-
-.status-pill {
-  flex: 0 0 auto;
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: #e2ecda;
-  color: #456148;
-  font-size: 0.66rem;
-  font-weight: 800;
-  line-height: 1;
-  text-transform: capitalize;
-  white-space: nowrap;
-}
-
-.status-pill.watch {
-  background: #f2e4c6;
-  color: #775f2d;
-}
-
-.status-pill.plant-status-finished {
-  background: rgba(225, 222, 208, 0.72);
-  color: #716d60;
-}
-
-.plant-card-compact-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(66, 91, 57, 0.09);
-  color: #737c70;
-  font-size: 0.77rem;
-}
-
-.plant-card-compact-meta strong {
-  color: #456047;
-  font-weight: 750;
-}
-
-.plant-card-latest-activity {
-  margin: 5px 0 0;
-  color: #7f877b;
-  font-size: 0.72rem;
-}
-
-.open-story {
-  display: block;
-  margin-top: 9px;
-  color: var(--moss);
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-
 /* =======================================
    COMPARE GUIDANCE
 ======================================= */
@@ -920,38 +720,6 @@
 .plant-compare-guidance .form-whisper {
   margin-top: 5px;
   text-align: left;
-}
-
-
-/* =======================================
-   CARDS WHILE CHOOSING
-======================================= */
-
-.plant-card-compare-mode {
-  cursor: pointer;
-}
-
-.plant-card-compare-mode:hover {
-  transform: translateY(-2px);
-  border-color: rgba(82, 112, 71, 0.3);
-}
-
-.plant-card-compare-selected {
-  border-color: rgba(82, 112, 71, 0.52);
-  background:
-    linear-gradient(
-      145deg,
-      rgba(248, 252, 240, 0.98),
-      rgba(235, 242, 222, 0.96)
-    );
-  box-shadow:
-    0 16px 32px rgba(55, 77, 48, 0.12),
-    inset 0 0 0 2px rgba(82, 112, 71, 0.07);
-}
-
-.plant-card-compare-selected .status-pill {
-  background: #dbe9d3;
-  color: #3f613f;
 }
 
 
@@ -1164,23 +932,6 @@
     gap: 9px;
   }
 
-  .plant-card-compact {
-    padding: 13px 14px 12px;
-  }
-
-  .plant-card-compact h3 {
-    font-size: 1rem;
-  }
-
-  .plant-card-identity {
-    font-size: 0.77rem;
-  }
-
-  .plant-card-compact-meta {
-    margin-top: 9px;
-    padding-top: 8px;
-  }
-
   .plant-story-view-navigation {
     margin-bottom: 18px;
   }
@@ -1289,15 +1040,6 @@
   .plant-sort-field select {
     padding: 9px 10px;
     font-size: 0.84rem;
-  }
-
-  .plant-card-compact-heading {
-    gap: 9px;
-  }
-
-  .status-pill {
-    padding: 5px 7px;
-    font-size: 0.62rem;
   }
 
   .plant-compare-tray {
@@ -2317,4 +2059,208 @@
     padding: 6px 9px;
     font-size: 0.68rem;
   }
+}
+/* =======================================
+   PLANTS · APPROVED MOBILE JOURNAL
+
+   Page composition and page-specific paper treatment.
+   Cards live in cards/plantcard.css; controls in buttons.css.
+======================================= */
+
+@media (max-width: 620px) {
+  #plants-page-top {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 100vh;
+    padding-top: 20px;
+    background:
+      linear-gradient(rgba(247, 228, 184, 0.22), rgba(249, 234, 199, 0.3)),
+      url('../../images/backgrounds/base-paper-texture.jpg') center top / 620px auto repeat;
+    box-shadow: inset 12px 0 24px rgba(120, 91, 43, 0.035), inset -12px 0 24px rgba(120, 91, 43, 0.035);
+  }
+
+  #plants-page-top::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    width: 100%;
+    height: 640px;
+    background: url('../../images/decorations/plants-journal-header-mobile-test.png') center top / 100% auto no-repeat;
+    content: '';
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0 91%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0 91%, transparent 100%);
+  }
+
+  #plants-page-top::after { display: none; }
+
+  #plants-page-top .garden-page-navigation {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 16px;
+  }
+
+  #plants-page-top .garden-page-navigation-button {
+    border-color: rgba(72, 94, 57, 0.16);
+    background: rgba(255, 253, 245, 0.9);
+    box-shadow: 0 7px 18px rgba(70, 79, 49, 0.1);
+    backdrop-filter: blur(5px);
+  }
+
+  #plants-page-top .garden-header {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+    width: 100%;
+    gap: 9px;
+    margin-bottom: 16px;
+    padding: 0 4px;
+    text-align: center;
+  }
+
+  #plants-page-top .garden-header-copy,
+  #plants-page-top .garden-page-header-actions {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #plants-page-top .garden-header-copy {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  #plants-page-top .app-name { letter-spacing: 0.23em; }
+
+  #plants-page-top .garden-title {
+    max-width: 310px;
+    margin: 3px auto 0;
+    font-size: clamp(2rem, 9.4vw, 2.55rem);
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+
+  #plants-page-top .garden-subtitle {
+    max-width: 330px;
+    margin: 8px auto 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+
+  #plants-page-top .garden-page-header-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 0;
+    padding: 0;
+  }
+
+  #plants-page-top .garden-page-header-actions .journal-add-button {
+    min-width: 145px;
+    border-radius: 999px;
+    box-shadow: 0 8px 19px rgba(48, 78, 46, 0.15);
+  }
+
+  #plants-page-top .plant-story-view-tabs {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 16px;
+  }
+
+  #plants-page-top .plant-browser-controls {
+    position: relative;
+    overflow: hidden;
+    padding: 18px 16px 19px;
+    border: 1px solid rgba(106, 70, 27, 0.42);
+    border-radius: 17px;
+    background: linear-gradient(rgba(255, 239, 176, 0.12), rgba(255, 239, 176, 0.12)), url('../../images/backgrounds/comparison-card-paper-mobile-test.png') center / 520px auto;
+    box-shadow: inset 0 0 0 1px rgba(88, 60, 28, 0.07), inset 0 0 15px rgba(83, 55, 24, 0.11), 0 5px 13px rgba(70, 45, 19, 0.075);
+  }
+
+  #plants-page-top .plant-browser-controls > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  #plants-page-top .plant-browser-controls::after { opacity: 0.45; }
+
+  #plants-page-top .plant-smart-comparisons {
+    border-color: rgba(90, 68, 38, 0.24);
+    background: rgba(255, 255, 255, 0.28);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24), 0 4px 12px rgba(64, 48, 27, 0.065);
+    backdrop-filter: none;
+  }
+
+  #plants-page-top .plant-smart-comparisons[open] .plant-smart-comparison-summary,
+  #plants-page-top .plant-smart-comparison-summary:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  #plants-page-top .plant-smart-comparison {
+    border: 1px solid rgba(91, 65, 34, 0.42);
+    background: linear-gradient(rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.32)), linear-gradient(rgba(255, 230, 150, 0.2), rgba(255, 230, 150, 0.2)), url('../../images/backgrounds/comparison-card-paper-mobile-test.png') center / 460px auto;
+    box-shadow: inset 0 0 0 1px rgba(88, 60, 28, 0.08), inset 0 0 14px rgba(83, 55, 24, 0.14), 0 3px 8px rgba(69, 49, 25, 0.06);
+  }
+
+  #plants-page-top .plant-smart-comparison-crop {
+    width: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #745a31;
+    box-shadow: none;
+  }
+
+  #plants-page-top .plant-smart-comparison-summary-mark img {
+    width: 124%;
+    height: 124%;
+    max-width: none;
+    transform: translate(-10%, -8%);
+  }
+
+  #plants-page-top .plant-more-filters { border-top: 1px solid rgba(83, 55, 24, 0.12); }
+
+  #plants-page-top .plant-more-filters > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    color: #53634b;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  #plants-page-top .plant-more-filters > summary::-webkit-details-marker { display: none; }
+  #plants-page-top .plant-more-filters > summary::after { content: '+'; font-size: 1.15rem; }
+  #plants-page-top .plant-more-filters[open] > summary::after { content: '−'; }
+
+  #plants-page-top .plant-more-filters > summary strong {
+    margin-left: auto;
+    color: #745a31;
+    font-size: 0.72rem;
+  }
+
+  #plants-page-top .plant-more-filters-content {
+    display: grid;
+    gap: 2px;
+    padding-bottom: 4px;
+  }
+
+  #plants-page-top .dashboard-section > .section-heading::after { display: none; }
+}
+
+@media print {
+  #plants-page-top { background: none; }
+  #plants-page-top::before,
+  #plants-page-top::after { display: none; }
 }

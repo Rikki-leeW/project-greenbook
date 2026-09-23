@@ -36,6 +36,18 @@ Use `BackToTop` from GardenPage for detail footers. Collection, grouped and func
 
 ## CSS ownership
 
+### Quick ownership rule
+
+One visual thing has one obvious CSS owner:
+
+- `components/buttons.css` owns shared button, tab and selectable-chip appearance, including hover, focus, active, selected and disabled states.
+- `components/uniform-controls.css` owns shared fields and form-control foundations. It may arrange control groups, but it does not restyle buttons owned by `buttons.css`.
+- `cards/plantcard.css` owns the complete intrinsic Plant Card: surface, typography, metadata, photograph, actions and selection states.
+- A page stylesheet owns page composition and placement. It may position a shared component, but must not duplicate that component's appearance.
+- Experimental stylesheets must be removed after an approved treatment is promoted to its permanent owner.
+
+When a visual rule changes, edit its owner rather than adding a later override.
+
 - `src/css/base/index.css` and `base/variables.css`: baseline document styles and base tokens.
 - `src/css/App.css`: stylesheet composition and shared application foundations. It loads the common controls after legacy/page styles.
 - `src/css/components/layout.css`: page width, spacing, shared header, journey navigation, uniform detail-header presentation and Back to top geometry. It also reserves the fixed Satchel corner on small phones.

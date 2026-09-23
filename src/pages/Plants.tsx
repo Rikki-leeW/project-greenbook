@@ -6,7 +6,6 @@ import {
 
 import PlantCard from '../components/cards/PlantCard'
 import MainPageTemplate from '../components/templates/MainPageTemplate'
-import '../css/pages/plants-journal-test.css'
 import sprigPortrait from '../images/sprig/sprig-character-portrait-approved.png'
 import {
   getPlantStoryCardContext,
@@ -2556,7 +2555,6 @@ export default function Plants({
       onNavigate
       }
       pageId="plants-page-top"
-      className="plants-journal-mobile-test"
       journeyBackLabel="Garden of Mine"
       onJourneyBack={() =>
       onNavigate(

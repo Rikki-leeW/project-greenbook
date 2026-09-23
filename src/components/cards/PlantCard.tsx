@@ -85,6 +85,32 @@ function formatShortDate(
 }
 
 
+function splitActivitySummary(
+  summary: string,
+): {
+  label: string
+  detail?: string
+} {
+  const [
+    label,
+    ...detailParts
+  ] = summary.split(
+    /\s+·\s+/,
+  )
+
+  const detail =
+    detailParts.join(
+      ' · ',
+    )
+
+  return {
+    label,
+    detail:
+      detail || undefined,
+  }
+}
+
+
 /* =======================================
    AGE
 ======================================= */
@@ -237,6 +263,13 @@ export default function PlantCard({
             plant.plantedDate
         ),
     )
+
+  const latestActivityParts =
+    latestActivitySummary
+      ? splitActivitySummary(
+          latestActivitySummary,
+        )
+      : undefined
 
   /*
    * Rich Plants-index context is reading
@@ -409,14 +442,16 @@ export default function PlantCard({
 
             {hasLatestActivity && (
               <span className="plant-card-latest-activity">
-                <strong>
-                  Latest:
-                </strong>{' '}
+                {latestActivityParts && (
+                  <>
+                    <strong>
+                      {latestActivityParts.label}:
+                    </strong>
 
-                {latestActivitySummary && (
-                  <span>
-                    {latestActivitySummary}
-                  </span>
+                    {latestActivityParts.detail && (
+                      <>{' '}{latestActivityParts.detail}</>
+                    )}
+                  </>
                 )}
 
                 {latestActivitySummary &&
@@ -425,7 +460,7 @@ export default function PlantCard({
                       className="plant-card-separator"
                       aria-hidden="true"
                     >
-                      ·
+                      —
                     </span>
                   )}
 

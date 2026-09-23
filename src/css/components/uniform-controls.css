@@ -456,226 +456,6 @@ input[type='checkbox']:focus-visible {
 
 
 /* =======================================
-   PRIMARY ACTIONS
-
-   Rounded botanical buttons.
-======================================= */
-
-.enter-button,
-.primary-button,
-.sprig-gallery-primary-button,
-.sprig-trial-primary-button {
-  appearance:
-    none;
-
-  -webkit-appearance:
-    none;
-
-  display:
-    inline-flex;
-
-  align-items:
-    center;
-
-  justify-content:
-    center;
-
-  gap:
-    7px;
-
-  min-height:
-    44px;
-
-  padding:
-    11px
-    18px;
-
-  border:
-    1px solid
-    rgba(52, 80, 48, 0.22);
-
-  border-radius:
-    var(--gom-pill-radius);
-
-  background:
-    linear-gradient(
-      180deg,
-      #5f8053 0%,
-      #4d7046 100%
-    );
-
-  color:
-    #fffdf7;
-
-  font:
-    inherit;
-
-  font-weight:
-    700;
-
-  line-height:
-    1.2;
-
-  text-align:
-    center;
-
-  cursor:
-    pointer;
-
-  box-shadow:
-    0 7px 17px
-    rgba(48, 74, 50, 0.16),
-    inset 0 1px 0
-    rgba(255, 255, 255, 0.14);
-
-  transition:
-    transform 150ms ease,
-    background 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease;
-}
-
-
-.enter-button:hover:not(:disabled),
-.primary-button:hover:not(:disabled),
-.sprig-gallery-primary-button:hover:not(:disabled),
-.sprig-trial-primary-button:hover:not(:disabled) {
-  transform:
-    translateY(-1px);
-
-  background:
-    linear-gradient(
-      180deg,
-      #56784c 0%,
-      #45663f 100%
-    );
-
-  box-shadow:
-    0 9px 20px
-    rgba(48, 74, 50, 0.19),
-    inset 0 1px 0
-    rgba(255, 255, 255, 0.14);
-}
-
-
-.enter-button:active:not(:disabled),
-.sprig-gallery-primary-button:active:not(:disabled),
-.sprig-trial-primary-button:active:not(:disabled) {
-  transform:
-    translateY(0);
-}
-
-
-.enter-button:disabled,
-.primary-button:disabled,
-.sprig-gallery-primary-button:disabled,
-.sprig-trial-primary-button:disabled {
-  opacity:
-    0.48;
-
-  cursor:
-    not-allowed;
-
-  box-shadow:
-    none;
-}
-
-
-/* =======================================
-   SECONDARY ACTIONS
-
-   Cream rather than grey.
-======================================= */
-
-.secondary-button,
-.garden-return-button,
-.garden-page-navigation-button,
-.sprig-gallery-secondary-button,
-.sprig-trial-secondary-button {
-  appearance:
-    none;
-
-  -webkit-appearance:
-    none;
-
-  display:
-    inline-flex;
-
-  align-items:
-    center;
-
-  justify-content:
-    center;
-
-  gap:
-    6px;
-
-  min-height:
-    40px;
-
-  padding:
-    9px
-    15px;
-
-  border:
-    1px solid
-    var(--gom-control-border);
-
-  border-radius:
-    var(--gom-pill-radius);
-
-  background:
-    rgba(255, 253, 247, 0.86);
-
-  color:
-    #4b6247;
-
-  font:
-    inherit;
-
-  font-weight:
-    700;
-
-  line-height:
-    1.2;
-
-  text-align:
-    center;
-
-  cursor:
-    pointer;
-
-  box-shadow:
-    var(--gom-control-shadow);
-
-  transition:
-    transform 150ms ease,
-    background 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease;
-}
-
-
-.secondary-button:hover:not(:disabled),
-.garden-return-button:hover:not(:disabled),
-.garden-page-navigation-button:hover:not(:disabled),
-.sprig-gallery-secondary-button:hover:not(:disabled),
-.sprig-trial-secondary-button:hover:not(:disabled) {
-  transform:
-    translateY(-1px);
-
-  border-color:
-    var(--gom-control-border-hover);
-
-  background:
-    #fffdf7;
-
-  box-shadow:
-    var(--gom-control-shadow-hover);
-}
-
-
-/* =======================================
    SEGMENTED / CHIP CHOICES
 
    Existing pages use several class names
@@ -683,8 +463,6 @@ input[type='checkbox']:focus-visible {
    one family resemblance.
 ======================================= */
 
-.plant-story-view-tab,
-.plant-filter-chip,
 .growing-filter-chip,
 .sprig-calendar-filter-button {
   appearance:
@@ -743,8 +521,6 @@ input[type='checkbox']:focus-visible {
 }
 
 
-.plant-story-view-tab:hover,
-.plant-filter-chip:hover,
 .growing-filter-chip:hover,
 .sprig-calendar-filter-button:hover {
   transform:
@@ -758,8 +534,6 @@ input[type='checkbox']:focus-visible {
 }
 
 
-.plant-story-view-tab--active,
-.plant-filter-chip--selected,
 .growing-filter-chip--selected,
 .sprig-calendar-filter-button--selected {
   border-color:
@@ -868,8 +642,6 @@ label
   }
 
 
-  .plant-story-view-tab,
-  .plant-filter-chip,
   .growing-filter-chip {
     min-height:
       36px;
@@ -880,9 +652,9 @@ label
   }
 }
 /* =========================================================
- PLANTS CONTROL LABORATORY
- Experimental only.
- If approved, promote these patterns into shared controls.
+ PLANTS CONTROL LAYOUT
+ Page-specific button appearance belongs to buttons.css.
+ This section retains only control-group and field geometry.
 ========================================================= */
 
 
@@ -899,94 +671,6 @@ label
   gap: 8px;
 
   margin: 14px 0 16px;
-}
-
-
-.plant-story-view-tab {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-
-  min-height: 38px;
-
-  padding: 8px 13px;
-
-  border: 1px solid rgba(71, 92, 69, 0.18);
-  border-radius: 999px;
-
-  background: rgba(255, 253, 247, 0.9);
-  color: #405644;
-
-  font: inherit;
-  font-size: 0.84rem;
-  font-weight: 700;
-  line-height: 1;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 3px 9px rgba(48, 74, 50, 0.045);
-
-  transition:
-    background 140ms ease,
-    border-color 140ms ease,
-    color 140ms ease,
-    box-shadow 140ms ease,
-    transform 140ms ease;
-}
-
-
-.plant-story-view-tab:hover {
-  transform: translateY(-1px);
-
-  border-color: rgba(82, 112, 71, 0.32);
-
-  background: #fffef9;
-}
-
-
-.plant-story-view-tab > span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 24px;
-  min-height: 24px;
-
-  padding: 3px 7px;
-
-  border-radius: 999px;
-
-  background: rgba(82, 112, 71, 0.09);
-  color: #52634f;
-
-  font-size: 0.76rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-
-.plant-story-view-tab--active {
-  border-color: #527047;
-
-  background:
-    linear-gradient(
-      180deg,
-      #608154 0%,
-      #4f7048 100%
-    );
-
-  color: #fffdf7;
-
-  box-shadow:
-    0 5px 12px rgba(48, 74, 50, 0.14);
-}
-
-
-.plant-story-view-tab--active > span {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fffdf7;
 }
 
 
@@ -1093,71 +777,6 @@ label
    - Growing Place
    - Growing Recipe
 --------------------------------------------------------- */
-
-.plant-filter-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 0;
-  min-height: 36px;
-
-  margin: 0;
-
-  padding: 7px 13px;
-
-  border: 1px solid rgba(71, 92, 69, 0.18);
-  border-radius: 999px;
-
-  background: rgba(255, 253, 247, 0.9);
-  color: #405644;
-
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 700;
-  line-height: 1.15;
-
-  text-align: center;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 3px 8px rgba(48, 74, 50, 0.04);
-
-  transition:
-    background 140ms ease,
-    border-color 140ms ease,
-    color 140ms ease,
-    box-shadow 140ms ease,
-    transform 140ms ease;
-}
-
-
-.plant-filter-chip:hover {
-  transform: translateY(-1px);
-
-  border-color: rgba(82, 112, 71, 0.32);
-
-  background: #fffef9;
-}
-
-
-.plant-filter-chip--selected {
-  border-color: #527047;
-
-  background:
-    linear-gradient(
-      180deg,
-      #608154 0%,
-      #4f7048 100%
-    );
-
-  color: #fffdf7;
-
-  box-shadow:
-    0 4px 10px rgba(48, 74, 50, 0.13);
-}
-
 
 /* Days / Weeks / Months can remain compact */
 

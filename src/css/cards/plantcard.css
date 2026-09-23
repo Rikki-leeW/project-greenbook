@@ -1,9 +1,9 @@
 /* =========================================================
    PLANT STORY CARD
-   VISUAL REFINEMENT LABORATORY
+   PERMANENT COMPONENT OWNER
 
-   Plant-specific styling stays in plantcard.css.
-   Delete this whole block if the treatment is rejected.
+   This file owns the Plant Card surface, typography,
+   metadata, photograph, actions and interactive states.
 ========================================================= */
 
 
@@ -450,4 +450,107 @@
     height: 72px;
   }
 
+}
+
+
+.plant-card-compare-mode {
+  cursor: pointer;
+}
+
+
+.plant-card-compare-mode:hover {
+  transform: translateY(-2px);
+  border-color: rgba(82, 112, 71, 0.3);
+}
+
+
+.plant-card-compare-selected .status-pill {
+  background: #dbe9d3;
+  color: #3f613f;
+}
+/* =======================================
+   APPROVED MOBILE JOURNAL CARD
+======================================= */
+
+@media (max-width: 620px) {
+  #plants-page-top .plant-card,
+  #plants-page-top .plant-card-button,
+  #plants-page-top .plant-card-button:hover {
+    border-color: rgba(91, 65, 34, 0.38);
+    background: linear-gradient(rgba(255, 239, 176, 0.06), rgba(255, 239, 176, 0.06)), url('../../images/backgrounds/comparison-card-paper-mobile-test.png') center / 500px auto;
+    box-shadow: inset 0 0 0 1px rgba(88, 60, 28, 0.075), inset 0 0 13px rgba(83, 55, 24, 0.11), inset 0 1px 0 rgba(255, 253, 238, 0.42), 0 4px 10px rgba(69, 49, 25, 0.07);
+  }
+
+  #plants-page-top .plant-card {
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 13px 16px 14px 12px;
+  }
+
+  #plants-page-top .plant-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  #plants-page-top .plant-card .status-pill {
+    border: 1px solid rgba(130, 91, 42, 0.2);
+    background: rgba(235, 211, 160, 0.62);
+    color: #6e542c;
+    box-shadow: inset 0 1px 3px rgba(112, 76, 32, 0.1);
+  }
+
+  #plants-page-top .plant-card-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1.18;
+  }
+
+  #plants-page-top .plant-card-with-thumbnail {
+    grid-template-columns: minmax(0, 1fr) 86px;
+    gap: 12px;
+  }
+
+  #plants-page-top .plant-card-thumbnail {
+    width: 86px;
+    height: 86px;
+    flex-basis: 86px;
+    border-radius: 13px 10px 14px 11px;
+  }
+
+  #plants-page-top .plant-card-age {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  #plants-page-top .plant-card-planted-line,
+  #plants-page-top .plant-card-latest-activity,
+  #plants-page-top .plant-card-rich-detail {
+    color: #3f5742;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.88rem;
+    line-height: 1.48;
+  }
+
+  #plants-page-top .plant-card-planted-line strong,
+  #plants-page-top .plant-card-latest-activity strong,
+  #plants-page-top .plant-card-rich-label {
+    font-size: 0.8rem;
+  }
+
+  #plants-page-top .plant-card-latest-date,
+  #plants-page-top .plant-card-rich-value {
+    color: #3f5742;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.88rem;
+  }
+
+  #plants-page-top .plant-card-actions {
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+
+  #plants-page-top .plant-card-rich-details { border-top: 0; }
 }

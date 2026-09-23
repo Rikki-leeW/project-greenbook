@@ -12,10 +12,9 @@
 @import './pages/welcome.css';
 
 /*
- * Garden of Mine's final shared presentation
- * layer deliberately comes after legacy and
- * page CSS so generic controls look the same
- * throughout the application.
+ * Final shared field and form-control layer.
+ * Shared button appearance and states remain
+ * owned by components/buttons.css.
  */
 @import url('./components/uniform-controls.css');
 
