@@ -579,6 +579,32 @@
    FILTERS
 ======================================= */
 
+.plant-more-filters {
+  min-width: 0;
+  border: 0;
+}
+
+.plant-more-filters > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  color: #52604e;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.plant-more-filters > summary strong {
+  color: #78806f;
+  font-size: 0.74rem;
+}
+
+.plant-more-filters-content {
+  display: grid;
+  gap: 2px;
+}
+
 .plant-filter-group {
   min-width: 0;
   margin: 0;

@@ -2755,6 +2755,18 @@ export default function Plants({
               </div>
   
   
+              {(startMethodOptions.length > 0 ||
+                growingPlaceOptions.length > 0 ||
+                growingSetupOptions.length > 0) && (
+                <details className="plant-more-filters">
+                  <summary>
+                    <span>More filters</span>
+                    {activeFilterCount > 0 && (
+                      <strong>{activeFilterCount} selected</strong>
+                    )}
+                  </summary>
+
+                  <div className="plant-more-filters-content">
               {startMethodOptions.length >
                 0 && (
                 <div className="plant-filter-group">
@@ -2872,6 +2884,9 @@ export default function Plants({
                     )}
                   </div>
                 </div>
+              )}
+                  </div>
+                </details>
               )}
   
   

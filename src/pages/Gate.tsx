@@ -1,7 +1,3 @@
-import {
-  useMemo,
-} from 'react'
-
 import FunctionPageTemplate from '../components/templates/FunctionPageTemplate'
 
 import sprigWave from '../images/sprig/sprig-wave.png'
@@ -554,39 +550,26 @@ export default function Gate({
 
   onNavigate,
 }: GateProps) {
+  /*
+   * Garden data can be updated deeply while retaining its outer object.
+   * Rebuild on each Today render so a newly saved Moment, Harvest or photo
+   * cannot leave the previous memoised conclusions on screen.
+   */
   const intelligence =
-    useMemo(
-      () =>
-        buildSprigInsights(
-          gardenData,
-        ),
-      [
-        gardenData,
-      ],
+    buildSprigInsights(
+      gardenData,
     )
 
 
   const todayInsights =
-    useMemo(
-      () =>
-        chooseTodayInsights(
-          intelligence,
-        ),
-      [
-        intelligence,
-      ],
+    chooseTodayInsights(
+      intelligence,
     )
 
 
   const upcomingPlans =
-    useMemo(
-      () =>
-        getUpcomingPlans(
-          gardenData,
-        ),
-      [
-        gardenData,
-      ],
+    getUpcomingPlans(
+      gardenData,
     )
 
 

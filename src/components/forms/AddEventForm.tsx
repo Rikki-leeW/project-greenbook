@@ -7,6 +7,7 @@ import {
 } from 'react';
 
 import FormTemplate from '../templates/FormTemplate'
+import PlantCard from '../cards/PlantCard';
 
 import SelectionCard from '../sprig/SelectionCard';
 import SprigPicker from '../sprig/SprigPicker';
@@ -112,139 +113,25 @@ function getTodayDate(): string {
   return `${year}-${month}-${day}`;
 }
 
-
-/* =======================================
- DATE DISPLAY
-======================================= */
-
-function formatPlantDate(
-  date?: string,
-): string | undefined {
-  if (
-      !date
-  ) {
-      return undefined;
-  }
-
-  const parsed =
-      new Date(
-          `${date}T00:00:00`,
-      );
-
-  if (
-      Number.isNaN(
-          parsed.getTime(),
-      )
-  ) {
-      return date;
-  }
-
-  return parsed.toLocaleDateString(
-      'en-AU',
-      {
-          day:
-              'numeric',
-
-          month:
-              'short',
-
-          year:
-              'numeric',
-      },
-  );
-}
-
-
-/* =======================================
- PLANT AGE
-======================================= */
-
 function getPlantAgeDays(
   plant: PlantStory,
   onDate: string,
 ): number | undefined {
-  if (
-      !plant.plantedDate ||
-      !onDate
-  ) {
+  if (!plant.plantedDate || !onDate) {
       return undefined;
   }
 
-  const started =
-      new Date(
-          `${plant.plantedDate}T00:00:00`,
-      );
+  const started = new Date(`${plant.plantedDate}T00:00:00`);
+  const ended = new Date(`${onDate}T00:00:00`);
 
-  const ended =
-      new Date(
-          `${onDate}T00:00:00`,
-      );
-
-  if (
-      Number.isNaN(
-          started.getTime(),
-      ) ||
-      Number.isNaN(
-          ended.getTime(),
-      )
-  ) {
+  if (Number.isNaN(started.getTime()) || Number.isNaN(ended.getTime())) {
       return undefined;
   }
 
   return Math.max(
       0,
-      Math.floor(
-          (
-              ended.getTime() -
-              started.getTime()
-          ) /
-          86400000,
-      ),
+      Math.floor((ended.getTime() - started.getTime()) / 86400000),
   );
-}
-
-
-function formatPlantAge(
-  plant: PlantStory,
-  onDate: string,
-): string | undefined {
-  const days =
-      getPlantAgeDays(
-          plant,
-          onDate,
-      );
-
-  if (
-      days ===
-      undefined
-  ) {
-      return undefined;
-  }
-
-  if (
-      days < 14
-  ) {
-      return `${days} ${
-          days === 1
-              ? 'day'
-              : 'days'
-      }`;
-  }
-
-  const weeks =
-      days / 7;
-
-  return `${
-      Number.isInteger(
-          weeks,
-      )
-          ? weeks.toFixed(
-              0,
-          )
-          : weeks.toFixed(
-              1,
-          )
-  } weeks`;
 }
 
 
@@ -1032,7 +919,7 @@ export default function AddEventForm({
       );
 
   const [
-      isPlantPickerOpen,
+      ,
       setIsPlantPickerOpen,
   ] =
       useState(
@@ -3713,122 +3600,57 @@ export default function AddEventForm({
                                             </p>
                                         </div>
 
-                                        <SprigPicker
-                                            title={
-                                                plantScope ===
-                                                'single'
-                                                    ? 'Choose Plant Story'
-                                                    : 'Choose Plant Stories'
-                                            }
-                                            variant="label"
-                                            emptySummary={
-                                                plantScope ===
-                                                'single'
-                                                    ? 'Choose a Plant Story'
-                                                    : 'Choose the Plant Stories this Moment affected'
-                                            }
-                                            options={
-                                                filteredPlants.map(
-                                                    plant => {
-                                                        const growingPlace =
-                                                            growingPlaces.find(
-                                                                place =>
-                                                                    place.id ===
-                                                                    plant
-                                                                        .currentGrowingPlaceId,
-                                                            );
+                                        <section className="journal-plant-story-picker" aria-label="Choose Plant Stories">
+                                            <div className="journal-section-heading">
+                                                <h3>
+                                                    {plantScope === 'single'
+                                                        ? 'Choose Plant Story'
+                                                        : 'Choose Plant Stories'}
+                                                </h3>
+                                                <p className="form-whisper">
+                                                    These are the same Plant Story cards used on the Plants page.
+                                                </p>
+                                            </div>
 
-                                                        const age =
-                                                            formatPlantAge(
-                                                                plant,
-                                                                date,
-                                                            );
-
-                                                        const planted =
-                                                            formatPlantDate(
-                                                                plant.plantedDate,
-                                                            );
-
-                                                        const subtitleParts =
-                                                            [
-                                                                age,
-                                                                growingPlace
-                                                                    ?.name,
-                                                            ].filter(
-                                                                Boolean,
-                                                            );
-
-                                                        return {
-                                                            value:
-                                                                plant.id,
-
-                                                            label:
-                                                                plant.displayName,
-
-                                                            subtitle:
-                                                                subtitleParts
-                                                                    .join(
-                                                                        ' · ',
-                                                                    ) ||
-                                                                undefined,
-
-                                                            meta:
-                                                                planted
-                                                                    ? `Planted ${planted}`
-                                                                    : undefined,
-                                                        };
-                                                    },
-                                                )
-                                            }
-                                            selectedValues={
-                                                plantStoryIds
-                                            }
-                                            isOpen={
-                                                isPlantPickerOpen
-                                            }
-                                            onToggleOpen={() =>
-                                                setIsPlantPickerOpen(
-                                                    current =>
-                                                        !current,
-                                                )
-                                            }
-                                            onToggleValue={
-                                                id => {
-                                                    if (
-                                                        plantScope ===
-                                                        'single'
-                                                    ) {
-                                                        setPlantStoryIds(
-                                                            [
-                                                                id,
-                                                            ],
+                                            {filteredPlants.length > 0 ? (
+                                                <div className="journal-plant-card-grid">
+                                                    {filteredPlants.map(plant => {
+                                                        const growingPlace = growingPlaces.find(
+                                                            place => place.id === plant.currentGrowingPlaceId,
                                                         );
 
-                                                        setIsPlantPickerOpen(
-                                                            false,
+                                                        return (
+                                                            <PlantCard
+                                                                key={plant.id}
+                                                                plant={plant}
+                                                                growingPlaceName={growingPlace?.name}
+                                                                thumbnailPhotoUrl={plant.photoUrls?.[0]}
+                                                                ageUnit="weeks"
+                                                                selectionMode
+                                                                selectionContextLabel="this Moment"
+                                                                isSelected={plantStoryIds.includes(plant.id)}
+                                                                onToggleSelection={id => {
+                                                                    if (plantScope === 'single') {
+                                                                        setPlantStoryIds([id]);
+                                                                        return;
+                                                                    }
+
+                                                                    setPlantStoryIds(current =>
+                                                                        current.includes(id)
+                                                                            ? current.filter(item => item !== id)
+                                                                            : [...current, id],
+                                                                    );
+                                                                }}
+                                                            />
                                                         );
-
-                                                        return;
-                                                    }
-
-                                                    setPlantStoryIds(
-                                                        current =>
-                                                            current.includes(
-                                                                id,
-                                                            )
-                                                                ? current.filter(
-                                                                    item =>
-                                                                        item !==
-                                                                        id,
-                                                                )
-                                                                : [
-                                                                    ...current,
-                                                                    id,
-                                                                ],
-                                                    );
-                                                }
-                                            }
-                                        />
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <p className="form-whisper">
+                                                    No Plant Stories match those filters.
+                                                </p>
+                                            )}
+                                        </section>
                                     </>
                                 )}
 

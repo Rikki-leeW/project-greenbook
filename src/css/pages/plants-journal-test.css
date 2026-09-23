@@ -238,14 +238,9 @@
    * Printed prompts remain in the book typeface. Saved garden details use a
    * legible handwriting face, as though the gardener filled in the journal.
    */
-  .plants-journal-mobile-test .plant-card-title,
-  .plants-journal-mobile-test .plant-card-age,
-  .plants-journal-mobile-test .plant-card-planted-line,
-  .plants-journal-mobile-test .plant-card-latest-activity,
-  .plants-journal-mobile-test .plant-card-latest-date,
-  .plants-journal-mobile-test .plant-card-rich-value {
+  .plants-journal-mobile-test .plant-card-title {
     font-family: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
-    font-weight: 400;
+    font-weight: 600;
   }
 
   .plants-journal-mobile-test .plant-card-title {
@@ -255,16 +250,19 @@
   }
 
   .plants-journal-mobile-test .plant-card-age {
-    font-size: 0.98rem;
-    line-height: 1.15;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.25;
   }
 
   .plants-journal-mobile-test .plant-card-planted-line,
   .plants-journal-mobile-test .plant-card-latest-activity,
   .plants-journal-mobile-test .plant-card-rich-detail {
-    font-size: 0.92rem;
-    line-height: 1.35;
-    color: #456047;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.88rem;
+    line-height: 1.48;
+    color: #3f5742;
   }
 
   .plants-journal-mobile-test .plant-card-planted-line strong,
@@ -275,8 +273,9 @@
 
   .plants-journal-mobile-test .plant-card-latest-date,
   .plants-journal-mobile-test .plant-card-rich-value {
-    font-size: 0.96rem;
-    color: #456047;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.88rem;
+    color: #3f5742;
   }
 
   .plants-journal-mobile-test .plant-card-planted-line strong,
@@ -284,6 +283,49 @@
   .plants-journal-mobile-test .plant-card-rich-label,
   .plants-journal-mobile-test .plant-card-actions {
     font-family: Georgia, 'Times New Roman', serif;
+  }
+
+  .plants-journal-mobile-test .plant-more-filters {
+    border-top: 1px solid rgba(83, 55, 24, 0.12);
+  }
+
+  .plants-journal-mobile-test .plant-more-filters > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    color: #53634b;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .plants-journal-mobile-test .plant-more-filters > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .plants-journal-mobile-test .plant-more-filters > summary::after {
+    content: '+';
+    font-size: 1.15rem;
+  }
+
+  .plants-journal-mobile-test .plant-more-filters[open] > summary::after {
+    content: '−';
+  }
+
+  .plants-journal-mobile-test .plant-more-filters > summary strong {
+    margin-left: auto;
+    color: #745a31;
+    font-size: 0.72rem;
+  }
+
+  .plants-journal-mobile-test .plant-more-filters-content {
+    display: grid;
+    gap: 2px;
+    padding-bottom: 4px;
   }
 
   .plants-journal-mobile-test .plant-browser-controls::after {

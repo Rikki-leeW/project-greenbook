@@ -5168,6 +5168,14 @@ export function getSprigTodayInsights(
   const candidates =
     result.insights.filter(
       isStrongTodayCandidate,
+    ).sort(
+      (
+        left,
+        right,
+      ) =>
+        right.priority - left.priority ||
+        getStrengthRank(right.strength) - getStrengthRank(left.strength) ||
+        right.evidence.length - left.evidence.length,
     )
 
   for (

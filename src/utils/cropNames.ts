@@ -1,6 +1,7 @@
 const CROP_ALIASES: Record<string, { key: string; label: string }> = {
   potato: { key: 'potato', label: 'Potatoes' },
   potatoes: { key: 'potato', label: 'Potatoes' },
+  potatos: { key: 'potato', label: 'Potatoes' },
   tomato: { key: 'tomato', label: 'Tomatoes' },
   tomatoes: { key: 'tomato', label: 'Tomatoes' },
   cucumber: { key: 'cucumber', label: 'Cucumbers' },
@@ -30,14 +31,41 @@ function cleanCropName(value: string): string {
   return value.trim().replace(/\s+/g, ' ');
 }
 
+function findCropAlias(value: string): { key: string; label: string } | undefined {
+  const cleaned = cleanCropName(value).toLocaleLowerCase();
+  const exact = CROP_ALIASES[cleaned];
+
+  if (exact) {
+    return exact;
+  }
+
+  /*
+   * Older test records sometimes stored a descriptive story label in the
+   * crop field (for example "My testing potato variations"). Recognise a
+   * known crop as a complete word so those records still group correctly,
+   * without guessing at unrelated labels such as "DATABASES".
+   */
+  const words = cleaned.match(/[a-z]+/g) ?? [];
+
+  for (const word of words) {
+    const alias = CROP_ALIASES[word];
+
+    if (alias) {
+      return alias;
+    }
+  }
+
+  return undefined;
+}
+
 export function getCanonicalCropKey(value: string): string {
   const cleaned = cleanCropName(value).toLocaleLowerCase();
-  return CROP_ALIASES[cleaned]?.key ?? cleaned;
+  return findCropAlias(cleaned)?.key ?? cleaned;
 }
 
 export function getCropCategoryLabel(value: string): string {
   const cleaned = cleanCropName(value);
-  const alias = CROP_ALIASES[cleaned.toLocaleLowerCase()];
+  const alias = findCropAlias(cleaned);
 
   if (alias) {
     return alias.label;

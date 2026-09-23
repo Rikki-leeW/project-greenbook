@@ -52,6 +52,7 @@ interface PlantCardProps {
   onToggleSelection?: (
     plantId: string,
   ) => void
+  selectionContextLabel?: string
 
   /**
    * Existing Plants comparison behaviour is
@@ -195,6 +196,7 @@ export default function PlantCard({
   selectionMode = false,
   isSelected = false,
   onToggleSelection,
+  selectionContextLabel = 'this harvest',
   compareMode = false,
   isSelectedForComparison = false,
   onToggleComparison,
@@ -490,8 +492,8 @@ export default function PlantCard({
             <span className="open-story">
               {selectionMode
                 ? isSelected
-                  ? 'Included in this harvest'
-                  : 'Add to this harvest'
+                  ? `Included in ${selectionContextLabel}`
+                  : `Add to ${selectionContextLabel}`
                 : compareMode
                   ? isSelectedForComparison
                     ? 'Selected for comparison'
