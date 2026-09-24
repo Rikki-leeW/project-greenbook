@@ -413,7 +413,7 @@ export default function Comparisons({
                       <div className="saved-comparison-actions">
                         <button
                           type="button"
-                          className="text-button"
+                          className="open-detail-control"
                           onClick={(
                             event,
                           ) => {
@@ -457,7 +457,7 @@ export default function Comparisons({
                             )
                           }}
                         >
-                          Open comparison →
+                          Open
                         </button>
 
 

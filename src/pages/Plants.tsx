@@ -51,6 +51,10 @@ interface PlantsProps {
     page: AppPage,
   ) => void
 
+  journeyBackLabel?: string | null
+
+  onJourneyBack?: () => void
+
   onComparePlants: (
     plantIds: string[],
   ) => void
@@ -1716,6 +1720,8 @@ export default function Plants({
   onOpenPlant,
   onAddPlant,
   onNavigate,
+  journeyBackLabel,
+  onJourneyBack,
   onComparePlants,
   initialComparePlantIds = [],
 }: PlantsProps) {
@@ -2555,12 +2561,8 @@ export default function Plants({
       onNavigate
       }
       pageId="plants-page-top"
-      journeyBackLabel="Garden of Mine"
-      onJourneyBack={() =>
-      onNavigate(
-      'gate',
-      )
-      }
+      journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : null}
+      onJourneyBack={onJourneyBack}
       eyebrow="Garden of Mine"
       title="Growing stories"
       intro={

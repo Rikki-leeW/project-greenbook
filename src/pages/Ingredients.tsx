@@ -409,7 +409,7 @@ export default function Ingredients({
       activePage="library"
       onNavigate={onNavigate}
       pageId="ingredients-top"
-      className="garden-category-page journal-page"
+      className="garden-category-page ingredients-page"
       journeyBackLabel={showArchivedStatus ? undefined : "Growing"}
       onJourneyBack={showArchivedStatus ? undefined : () => onNavigate('growing-places')}
       homeLabel={showArchivedStatus ? undefined : "Growing Home"}
@@ -667,14 +667,14 @@ export default function Ingredients({
 
                   <button
                     type="button"
-                    className="journal-add-button"
+                    className="open-detail-control"
                     onClick={() =>
                       onOpenIngredient(
                         ingredient.id,
                       )
                     }
                   >
-                    Open Ingredient
+                    Open
                   </button>
                 </article>
               )

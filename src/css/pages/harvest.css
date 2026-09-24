@@ -1,0 +1,114 @@
+/* =======================================
+   HARVEST
+
+   Owns Harvest collection/detail content.
+   Shared page chrome, controls and buttons
+   remain in their component stylesheets.
+======================================= */
+
+.harvest-ledger-entry-has-thumbnail {
+  grid-template-columns: minmax(0, 1fr) 72px;
+}
+
+.harvest-entry-thumbnails {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  width: 72px;
+}
+
+.harvest-entry-thumbnails img {
+  width: 72px;
+  height: 72px;
+  border: 1px solid rgba(86, 76, 56, 0.2);
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 3px 9px rgba(52, 48, 38, 0.1);
+}
+
+.harvest-detail-page .harvest-age-control {
+  margin: 0.7rem 0 1rem;
+}
+
+.harvest-detail-page .harvest-age-control-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #62705f;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.harvest-detail-page .harvest-age-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.harvest-detail-page .harvest-detail-list {
+  margin: 0.7rem 0;
+}
+
+.harvest-detail-page .harvest-detail-list > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.6fr);
+  gap: 0.2rem 0.8rem;
+  margin-top: 0.6rem;
+  line-height: 1.5;
+}
+
+.harvest-detail-page .harvest-detail-list dt {
+  color: #62705f;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.harvest-detail-page .harvest-detail-list dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.harvest-detail-page .harvest-dated-ages {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.harvest-detail-page .harvest-plant-age {
+  color: #52634b;
+}
+
+.harvest-detail-page .harvest-multiple-ages {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.harvest-detail-page .harvest-multiple-ages .text-button {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  white-space: normal;
+}
+
+.harvest-detail-page .harvest-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+@media (max-width: 560px) {
+  .harvest-detail-page .harvest-detail-list > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.1rem;
+  }
+}
+
+@media print {
+  .harvest-detail-page .harvest-age-control,
+  .harvest-detail-page .harvest-story-actions,
+  .harvest-detail-page .harvest-detail-actions {
+    display: none;
+  }
+}

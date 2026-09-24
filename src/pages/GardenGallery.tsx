@@ -3261,6 +3261,19 @@ export default function GardenGallery({
                       <div className="sprig-gallery-card-actions">
                         <button
                           type="button"
+                          className="open-detail-control"
+                          onClick={() =>
+                            setViewerKey(
+                              item.key,
+                            )
+                          }
+                          aria-label={`Open ${item.title}`}
+                        >
+                          Open
+                        </button>
+
+                        <button
+                          type="button"
                           className={
                             selectedForCompare
                               ? 'sprig-gallery-compare-button sprig-gallery-compare-button--selected'

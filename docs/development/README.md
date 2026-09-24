@@ -41,6 +41,7 @@ Use `BackToTop` from GardenPage for detail footers. Collection, grouped and func
 One visual thing has one obvious CSS owner:
 
 - `components/buttons.css` owns shared button, tab and selectable-chip appearance, including hover, focus, active, selected and disabled states.
+- `components/buttons.css` also owns `.open-detail-control`, the persistent compact “Open” pill used by cards and rows that lead to a detail page. Feature stylesheets may position it but must not restyle it.
 - `components/uniform-controls.css` owns shared fields and form-control foundations. It may arrange control groups, but it does not restyle buttons owned by `buttons.css`.
 - `cards/plantcard.css` owns the complete intrinsic Plant Card: surface, typography, metadata, photograph, actions and selection states.
 - A page stylesheet owns page composition and placement. It may position a shared component, but must not duplicate that component's appearance.
@@ -49,18 +50,25 @@ One visual thing has one obvious CSS owner:
 When a visual rule changes, edit its owner rather than adding a later override.
 
 - `src/css/base/index.css` and `base/variables.css`: baseline document styles and base tokens.
-- `src/css/App.css`: stylesheet composition and shared application foundations. It loads the common controls after legacy/page styles.
+- `src/css/App.css`: stylesheet composition and shared application foundations. It loads the common controls after legacy/page styles. Do not place feature-specific rules here when an existing feature owner can hold them.
 - `src/css/components/layout.css`: page width, spacing, shared header, journey navigation, uniform detail-header presentation and Back to top geometry. It also reserves the fixed Satchel corner on small phones.
 - `src/css/components/navigation.css`: shared app navigation, including the fixed Satchel button.
-- `src/css/components/uniform-controls.css`: common field and button appearance, selected/focus/hover states and phone text-entry sizing. Page-level fields are covered as well as native forms. Preserve specialist controls such as photo/file, checkbox and range inputs.
+- `src/css/components/category-pages.css`: the shared mobile parchment canvas, botanical header artwork and header alignment for opted-in category-level pages. Pages opt in with `garden-category-page`; the stylesheet does not own their feature content.
+- `src/css/components/search-controls.css`: shared search/filter panel, field, label, disclosure and responsive search-control presentation. A page stylesheet may place the panel but must not recreate its appearance.
+- `src/css/components/uniform-controls.css`: common field and form-control foundations, selected/focus/hover states and phone text-entry sizing. Page-level fields are covered as well as native forms. Preserve specialist controls such as photo/file, checkbox and range inputs. Button appearance remains in `buttons.css`.
 - `src/css/components/forms.css`: notebook form presentation.
 - `src/css/components/photos.css`: shared photo presentation.
 - `src/css/pages/plant-detail.css`: Plant Story content, facts, timeline and age-picker details. Its rules are no longer injected by PlantDetail.tsx.
-- `src/css/pages/journal.css`: Journal and Harvest content details, including age controls. `src/css/pages/growing.css`: Growing content and Growing Place detail rules. These static rules are no longer injected from detail pages.
+- `src/css/pages/journal.css`: Journal collection and Journal-entry detail content only.
+- `src/css/pages/harvest.css`: Harvest collection and Harvest-detail content only.
+- `src/css/pages/library-records.css`: page-level spacing shared by Growing Recipe, Ingredient and Product records; their feature-specific content remains with the corresponding feature owner.
+- `src/css/pages/growing.css`: Growing content and Growing Place detail rules. These static rules are no longer injected from detail pages.
 - Other `src/css/pages/` files and feature stylesheets such as `garden-gallery.css`, `garden-knowledge.css` and `garden-trials.css`: feature-specific content and composition.
 - `src/css/sprig-print.css`: shared print reset, screen-control hiding, photo foundations and Trial report isolation. `components/comparison.css` owns the Comparison report's landscape layout and tables; Trial feature CSS owns its report composition.
 
 Change a shared appearance in its shared owner. Add page CSS only for a feature's content. Do not copy the whole page shell, header or a general input rule into a new stylesheet. Keep asset URLs relative to their stylesheet; the woodland asset is in `src/images/backgrounds/`.
+
+Page class names must describe the page that actually owns the content. Do not borrow another feature's class as a styling shortcut (for example, do not add `journal-page` to Harvest, Calendar or library records). Compose shared treatments with the shared opt-in classes instead.
 
 ## Navigation and scroll
 

@@ -524,7 +524,7 @@ export default function PlantCard({
                   : plant.status}
             </span>
 
-            <span className="open-story">
+            <span className="open-story open-detail-control">
               {selectionMode
                 ? isSelected
                   ? `Included in ${selectionContextLabel}`
@@ -533,7 +533,7 @@ export default function PlantCard({
                   ? isSelectedForComparison
                     ? 'Selected for comparison'
                     : 'Add to comparison'
-                  : 'Open story →'}
+                  : 'Open'}
             </span>
           </span>
         </span>

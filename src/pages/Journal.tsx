@@ -29,115 +29,10 @@ interface JournalProps {
   onNavigate: (
     page: AppPage,
   ) => void
-}
 
+  journeyBackLabel?: string | null
 
-/* =======================================
-   EVENT EMOJI
-======================================= */
-
-function getEventEmoji(
-  type: GardenEvent['type'],
-): string {
-  if (
-    type ===
-    'planted'
-  ) {
-    return '🌱'
-  }
-
-  if (
-    type ===
-    'sprouted'
-  ) {
-    return '🌿'
-  }
-
-  if (
-    type ===
-    'watered'
-  ) {
-    return '💧'
-  }
-
-  if (
-    type ===
-    'fed'
-  ) {
-    return '🧪'
-  }
-
-  if (
-    type ===
-    'moved'
-  ) {
-    return '🪴'
-  }
-
-  if (
-    type ===
-    'transplanted'
-  ) {
-    return '🌱'
-  }
-
-  if (
-    type ===
-    'hilled'
-  ) {
-    return '🥔'
-  }
-
-  if (
-    type ===
-    'pruned'
-  ) {
-    return '✂️'
-  }
-
-  if (
-    type ===
-    'treated'
-  ) {
-    return '🩹'
-  }
-
-  if (
-    type ===
-    'weather'
-  ) {
-    return '🌦️'
-  }
-
-  if (
-    type ===
-    'photo'
-  ) {
-    return '📷'
-  }
-
-  if (
-    type ===
-    'harvest'
-  ) {
-    return '🧺'
-  }
-
-  if (
-    type ===
-    'observation'
-  ) {
-    return '👀'
-  }
-
-  if (
-    type ===
-    'note'
-  ) {
-    return '📖'
-  }
-
-  return '📝'
+  onJourneyBack?: () => void
 }
 
 
@@ -216,6 +111,8 @@ export default function Journal({
   onOpenEntry,
   onDeleteEvent,
   onNavigate,
+  journeyBackLabel,
+  onJourneyBack,
 }: JournalProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [eventTypeFilter, setEventTypeFilter] = useState('all')
@@ -268,12 +165,8 @@ export default function Journal({
       }
       pageId="journal-top"
       className="garden-category-page journal-page"
-      journeyBackLabel="Garden Record"
-      onJourneyBack={() =>
-      onNavigate(
-      'calendar',
-      )
-      }
+      journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : null}
+      onJourneyBack={onJourneyBack}
       navigationAriaLabel="Journal navigation"
       eyebrow="Sprig's notebook"
       title="Garden Journal"
@@ -352,7 +245,11 @@ export default function Journal({
                     key={
                       event.id
                     }
-                    className="journal-entry journal-entry-clickable"
+                    className={`journal-entry journal-entry-clickable${
+                      event.photoUrls && event.photoUrls.length > 0
+                        ? ' journal-entry-has-thumbnail'
+                        : ''
+                    }`}
                     role="button"
                     tabIndex={
                       0
@@ -379,13 +276,6 @@ export default function Journal({
                       }
                     }}
                   >
-                    <div className="journal-entry-marker">
-                      {getEventEmoji(
-                        event.type,
-                      )}
-                    </div>
-
-
                     <div className="journal-entry-content">
                       <div className="journal-entry-top">
                         <div>
@@ -397,8 +287,8 @@ export default function Journal({
                             }
                           >
                             {isGardenEntry
-                              ? '🌍 From the wider garden'
-                              : `🌱 From ${getPlantNames(
+                              ? 'From the wider garden'
+                              : `From ${getPlantNames(
                                   event,
                                   plants,
                                 )}`}
@@ -472,22 +362,29 @@ export default function Journal({
                         </p>
                       )}
 
-                      {event.photoUrls && event.photoUrls.length > 0 && (
-                        <div className="journal-entry-thumbnails" aria-label={`${event.photoUrls.length} attached photograph${event.photoUrls.length === 1 ? '' : 's'}`}>
-                          {event.photoUrls.slice(0, 3).map((photoUrl, photoIndex) => (
-                            <img
-                              key={`${event.id}-photo-${photoIndex}`}
-                              src={photoUrl}
-                              alt=""
-                              loading="lazy"
-                            />
-                          ))}
-                          {event.photoUrls.length > 3 && (
-                            <span>+{event.photoUrls.length - 3}</span>
-                          )}
-                        </div>
-                      )}
+                      <span
+                        aria-hidden="true"
+                        className="open-detail-control journal-entry-open"
+                      >
+                        Open
+                      </span>
                     </div>
+
+                    {event.photoUrls && event.photoUrls.length > 0 && (
+                      <div className="journal-entry-thumbnails" aria-label={`${event.photoUrls.length} attached photograph${event.photoUrls.length === 1 ? '' : 's'}`}>
+                        {event.photoUrls.slice(0, 3).map((photoUrl, photoIndex) => (
+                          <img
+                            key={`${event.id}-photo-${photoIndex}`}
+                            src={photoUrl}
+                            alt=""
+                            loading="lazy"
+                          />
+                        ))}
+                        {event.photoUrls.length > 3 && (
+                          <span>+{event.photoUrls.length - 3}</span>
+                        )}
+                      </div>
+                    )}
                   </article>
                 )
               },

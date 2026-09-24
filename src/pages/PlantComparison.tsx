@@ -4020,7 +4020,7 @@ async function handleExportGardenReport() {
     <DetailPageTemplate
       activePage="comparison"
       onNavigate={onNavigate}
-      className="journal-page sprig-comparison-report"
+      className="sprig-comparison-report"
       as="main"
       eyebrow="Growing Stories"
       title="Plant Comparison"
@@ -5827,4 +5827,3 @@ async function handleExportGardenReport() {
       </DetailPageTemplate>
   )
 }
-

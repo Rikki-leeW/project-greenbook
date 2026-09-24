@@ -454,7 +454,7 @@ export default function GrowingRecipeDetail({
     <DetailPageTemplate
       activePage="library"
       onNavigate={onNavigate}
-      className="journal-page"
+      className="growing-recipe-detail-page"
       as="div"
       pageId="growing-recipe-detail-top"
       journeyBackLabel={

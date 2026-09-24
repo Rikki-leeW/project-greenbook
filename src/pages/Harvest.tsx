@@ -25,6 +25,10 @@ interface HarvestProps {
   onNavigate: (
     page: AppPage,
   ) => void
+
+  journeyBackLabel?: string | null
+
+  onJourneyBack?: () => void
 }
 
 
@@ -446,6 +450,8 @@ export default function Harvest({
   onRecordHarvest,
   onOpenHarvest,
   onNavigate,
+  journeyBackLabel,
+  onJourneyBack,
 }: HarvestProps) {
   const harvestStories =
     buildHarvestStories(
@@ -460,13 +466,9 @@ export default function Harvest({
       onNavigate
       }
       pageId="harvest-top"
-      className="garden-category-page journal-page"
-      journeyBackLabel="Garden Record"
-      onJourneyBack={() =>
-      onNavigate(
-      'calendar',
-      )
-      }
+      className="garden-category-page harvest-page"
+      journeyBackLabel={journeyBackLabel ? `Back to ${journeyBackLabel}` : null}
+      onJourneyBack={onJourneyBack}
       navigationAriaLabel="Harvest navigation"
       eyebrow="Sprig's harvest ledger"
       title="Harvest"
@@ -512,24 +514,30 @@ export default function Harvest({
                 const harvestCount =
                   story.harvests.length
 
+                const thumbnailUrls =
+                  story.harvests
+                    .flatMap(
+                      harvest =>
+                        harvest.photoUrls ?? [],
+                    )
+                    .slice(0, 3)
+
 
                 return (
                   <article
                     key={
                       story.key
                     }
-                    className="journal-entry harvest-ledger-entry"
+                    className={`journal-entry harvest-ledger-entry${
+                      thumbnailUrls.length > 0
+                        ? ' harvest-ledger-entry-has-thumbnail'
+                        : ''
+                    }`}
                   >
-                    <div className="journal-entry-marker">
-                      🧺
-                    </div>
-
-
                     <div className="journal-entry-content">
                       <div className="journal-entry-top">
                         <div>
                           <p className="journal-entry-source plant-source">
-                            🌱{' '}
                             {getPlantNames(
                               story.representativeHarvest,
                               plants,
@@ -599,7 +607,7 @@ export default function Harvest({
 
                       <button
                         type="button"
-                        className="secondary-button"
+                        className="open-detail-control"
                         onClick={() =>
                           onOpenHarvest(
                             story.representativeHarvest
@@ -607,9 +615,25 @@ export default function Harvest({
                           )
                         }
                       >
-                        Open Harvest
+                        Open
                       </button>
                     </div>
+
+                    {thumbnailUrls.length > 0 && (
+                      <div
+                        className="harvest-entry-thumbnails"
+                        aria-label={`${thumbnailUrls.length} harvest photograph${thumbnailUrls.length === 1 ? '' : 's'}`}
+                      >
+                        {thumbnailUrls.map((photoUrl, photoIndex) => (
+                          <img
+                            key={`${story.key}-photo-${photoIndex}`}
+                            src={photoUrl}
+                            alt=""
+                            loading="lazy"
+                          />
+                        ))}
+                      </div>
+                    )}
                   </article>
                 )
               },

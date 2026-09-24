@@ -1168,7 +1168,7 @@ export default function HarvestDetail({
 
 
     return (
-        <DetailPageTemplate activePage="harvest" onNavigate={onNavigate} className="journal-page harvest-detail-page" as="main" pageId="harvest-detail-top"
+        <DetailPageTemplate activePage="harvest" onNavigate={onNavigate} className="harvest-detail-page" as="main" pageId="harvest-detail-top"
       eyebrow={<>Harvest story</>}
       title={<>{matchingPlants.length === 1 ? (
                 <button type="button" className="text-button"
@@ -1605,4 +1605,3 @@ export default function HarvestDetail({
             </DetailPageTemplate>
     );
 }
-

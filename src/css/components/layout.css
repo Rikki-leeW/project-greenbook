@@ -17,7 +17,6 @@
 ======================================= */
 
 .garden-page,
-.journal-page,
 .plant-story-page {
   width:
     min(
@@ -328,7 +327,6 @@
 @media (max-width: 760px) {
 
   .garden-page,
-  .journal-page,
   .plant-story-page {
     padding:
       28px

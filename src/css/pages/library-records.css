@@ -1,0 +1,104 @@
+/* =======================================
+   GROWING LIBRARY RECORDS
+
+   Owns page-level spacing shared by saved
+   recipes, ingredients and products.
+======================================= */
+
+.product-detail-page .product-shelf {
+  margin-top: 1.5rem;
+  padding-top: 0.35rem;
+}
+
+/* =======================================
+   GARDEN LIBRARY SHELVES
+======================================= */
+
+.library-page .library-section {
+  margin-top: 1.5rem;
+}
+
+.library-page .library-section + .library-section {
+  margin-top: 2rem;
+}
+
+.library-page .library-grid,
+.backup-restore-page .library-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.library-page .library-book,
+.backup-restore-page .library-book {
+  min-width: 0;
+  padding: 1.15rem;
+  border: 1px solid var(--paper-edge);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 252, 243, 0.96),
+      rgba(248, 240, 220, 0.92)
+    );
+  box-shadow: 0 7px 18px rgba(52, 70, 48, 0.08);
+}
+
+.library-page .library-book-icon {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.library-page .library-book > .section-label,
+.backup-restore-page .library-book > .section-label {
+  margin: 0 0 0.45rem;
+}
+
+.library-page .library-book > h2,
+.backup-restore-page .library-book > h2 {
+  margin: 0 0 0.6rem;
+}
+
+.library-page .library-book > p,
+.backup-restore-page .library-book > p {
+  line-height: 1.55;
+}
+
+.library-page .library-coming-soon {
+  display: inline-flex;
+  margin-top: 0.65rem;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  font-style: italic;
+}
+
+.backup-restore-page .library-grid {
+  align-items: start;
+}
+
+.backup-restore-page .sprig-backup-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(82, 112, 71, 0.16);
+  border-radius: 14px;
+  background: rgba(239, 244, 228, 0.68);
+}
+
+@media (max-width: 700px) {
+  .library-page .library-grid,
+  .backup-restore-page .library-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+  }
+
+  .library-page .library-section,
+  .backup-restore-page .library-grid {
+    margin-top: 1rem;
+  }
+
+  .library-page .library-book,
+  .backup-restore-page .library-book {
+    padding: 1rem;
+  }
+}

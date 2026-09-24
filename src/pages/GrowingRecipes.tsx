@@ -544,7 +544,7 @@ export default function GrowingRecipes({
       activePage="library"
       onNavigate={onNavigate}
       pageId="growing-recipes-top"
-      className="garden-category-page journal-page"
+      className="garden-category-page growing-recipes-page"
       journeyBackLabel={
         showArchivedStatus
           ? undefined

@@ -4019,7 +4019,7 @@ export default function GardenTrials({
                 }
                 as="main"
                 pageId="garden-trial-detail-top"
-                className="journal-page sprig-trials-page"
+                className="sprig-trials-page sprig-trial-detail-page"
                 journeyBackLabel={
                     journeyBackLabel
                         ? `Back to ${journeyBackLabel}`
@@ -5092,7 +5092,7 @@ export default function GardenTrials({
             activePage="garden-trials"
             onNavigate={onNavigate}
             pageId="garden-trials-top"
-            className="garden-category-page journal-page sprig-trials-page"
+            className="garden-category-page sprig-trials-page"
             journeyBackLabel={journeyBackLabel}
             onJourneyBack={onJourneyBack}
             navigationAriaLabel="Garden Trials navigation"
@@ -5253,6 +5253,13 @@ export default function GardenTrials({
                                                     </span>
                                                 )}
                                             </div>
+
+                                            <span
+                                                aria-hidden="true"
+                                                className="open-detail-control"
+                                            >
+                                                Open
+                                            </span>
                                         </button>
                                     ),
                                 )}

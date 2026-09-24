@@ -71,15 +71,15 @@
 }
 
 .journal-entry-thumbnails {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  width: 72px;
 }
 
 .journal-entry-thumbnails img {
-  width: 58px;
-  height: 58px;
+  width: 72px;
+  height: 72px;
   border: 1px solid rgba(86, 76, 56, 0.2);
   border-radius: 10px;
   object-fit: cover;
@@ -87,9 +87,14 @@
 }
 
 .journal-entry-thumbnails span {
+  justify-self: center;
   color: #706650;
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.journal-entry-open {
+  margin-top: 14px;
 }
 
 @media (max-width: 560px) {
@@ -105,7 +110,7 @@
 .journal-entry {
   position: relative;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   padding: 22px 24px 22px 20px;
   border: 1px solid var(--paper-edge);
@@ -119,6 +124,10 @@
   box-shadow:
     0 8px 22px rgba(52, 70, 48, 0.08);
   overflow: hidden;
+}
+
+.journal-entry-has-thumbnail {
+  grid-template-columns: minmax(0, 1fr) 72px;
 }
 
 .journal-entry:nth-child(even) {
@@ -141,18 +150,6 @@
 .journal-entry-clickable:focus-visible {
   outline: 2px solid rgba(82, 112, 71, 0.48);
   outline-offset: 3px;
-}
-
-.journal-entry-marker {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 1px solid rgba(82, 112, 71, 0.14);
-  border-radius: 50%;
-  background: #e8efdf;
-  box-shadow: 0 5px 14px rgba(52, 70, 48, 0.07);
-  font-size: 1.15rem;
 }
 
 .journal-entry-content {
@@ -247,36 +244,30 @@
    JOURNAL DETAIL · SECTION RHYTHM
 ======================================= */
 
-.journal-page.journal-entry-detail-page
+.journal-entry-detail-page
 .library-grid > .library-book {
   min-width: 0;
   margin: 0 0 1rem !important;
   padding-top: 0.35rem;
 }
 
-.journal-page.journal-entry-detail-page
+.journal-entry-detail-page
 .library-grid > .library-book:last-child {
   margin-bottom: 0 !important;
 }
 
-.journal-page.journal-entry-detail-page
+.journal-entry-detail-page
 .library-grid > .library-book > .section-label {
   margin: 0 0 0.55rem !important;
 }
 
-.journal-page.journal-entry-detail-page
+.journal-entry-detail-page
 .library-grid > .library-book > h2 {
   margin: 0 0 0.85rem !important;
 }
 
 /* Product purchase actions finish the purchase-history section. Give the
    following shelf controls a clear new-section break on screen. */
-.journal-page .product-shelf {
-  margin-top: 1.5rem;
-  padding-top: 0.35rem;
-}
-
-
 /* =======================================
    JOURNAL · PHONE
 ======================================= */
@@ -297,20 +288,18 @@
   }
 
   .journal-entry {
-    grid-template-columns: 38px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 11px;
     padding: 18px 16px 18px 14px;
     border-radius: 18px 15px 21px 16px;
   }
 
-  .journal-entry:nth-child(even) {
-    border-radius: 15px 20px 16px 22px;
+  .journal-entry-has-thumbnail {
+    grid-template-columns: minmax(0, 1fr) 72px;
   }
 
-  .journal-entry-marker {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+  .journal-entry:nth-child(even) {
+    border-radius: 15px 20px 16px 22px;
   }
 
   .journal-entry-top {
@@ -349,27 +338,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
-    }
-
-    .journal-entry-detail-page .journal-age-picker button {
-        width: auto;
-        min-height: 40px;
-        margin: 0;
-        padding: 0.4rem 0.7rem;
-        border: 1px solid rgba(82, 112, 71, 0.16);
-        border-radius: 999px;
-        background: rgba(255, 254, 249, 0.85);
-        color: #62705f;
-        font: inherit;
-        font-size: 0.76rem;
-        cursor: pointer;
-    }
-
-    .journal-entry-detail-page .journal-age-picker button[aria-pressed="true"] {
-        background: #e2eed4;
-        border-color: rgba(82, 112, 71, 0.33);
-        color: #405e42;
-        font-weight: 700;
     }
 
     .journal-entry-detail-page .journal-linked-plant-list,
@@ -483,113 +451,4 @@
     @media print {
         .journal-entry-detail-page .journal-age-control,
         .journal-entry-detail-page .plant-record-actions { display: none; }
-    }
-
-
-/* HarvestDetail content details; common shell and controls have shared owners. */
-
-    .harvest-detail-page .harvest-age-control {
-        margin: 0.7rem 0 1rem;
-    }
-
-    .harvest-detail-page .harvest-age-control-label {
-        display: block;
-        margin-bottom: 0.35rem;
-        color: #62705f;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
-
-    .harvest-detail-page .harvest-age-picker {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-    }
-
-    .harvest-detail-page .harvest-age-picker button {
-        width: auto;
-        min-height: 40px;
-        margin: 0;
-        padding: 0.4rem 0.7rem;
-        border: 1px solid rgba(82, 112, 71, 0.16);
-        border-radius: 999px;
-        background: rgba(255, 254, 249, 0.85);
-        color: #62705f;
-        font: inherit;
-        font-size: 0.76rem;
-        cursor: pointer;
-    }
-
-    .harvest-detail-page .harvest-age-picker button[aria-pressed="true"] {
-        background: #e2eed4;
-        border-color: rgba(82, 112, 71, 0.33);
-        color: #405e42;
-        font-weight: 700;
-    }
-
-    .harvest-detail-page .harvest-detail-list {
-        margin: 0.7rem 0;
-    }
-
-    .harvest-detail-page .harvest-detail-list > div {
-        display: grid;
-        grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.6fr);
-        gap: 0.2rem 0.8rem;
-        margin-top: 0.6rem;
-        line-height: 1.5;
-    }
-
-    .harvest-detail-page .harvest-detail-list dt {
-        color: #62705f;
-        font-size: 0.78rem;
-        font-weight: 700;
-    }
-
-    .harvest-detail-page .harvest-detail-list dd {
-        margin: 0;
-        min-width: 0;
-        overflow-wrap: anywhere;
-    }
-
-    .harvest-detail-page .harvest-dated-ages {
-        font-size: 0.85rem;
-        line-height: 1.5;
-    }
-
-    .harvest-detail-page .harvest-dated-ages .harvest-plant-age {
-        color: #52634b;
-    }
-
-    .harvest-detail-page .harvest-multiple-ages {
-        display: grid;
-        gap: 0.3rem;
-        margin-top: 0.3rem;
-    }
-
-    .harvest-detail-page .harvest-multiple-ages .text-button {
-        width: auto;
-        margin: 0;
-        padding: 0;
-        font: inherit;
-        text-align: left;
-        white-space: normal;
-    }
-
-    .harvest-detail-page .harvest-export-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.65rem;
-    }
-
-    @media (max-width: 560px) {
-        .harvest-detail-page .harvest-detail-list > div {
-            grid-template-columns: minmax(0, 1fr);
-            gap: 0.1rem;
-        }
-    }
-
-    @media print {
-        .harvest-detail-page .harvest-age-control,
-        .harvest-detail-page .harvest-story-actions,
-        .harvest-detail-page .harvest-detail-actions { display: none; }
     }

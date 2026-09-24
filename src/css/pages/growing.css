@@ -368,21 +368,8 @@
     overflow-wrap: anywhere;
   }
   
-  .growing-index-row-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  
+  .growing-index-row .open-detail-control {
     flex: 0 0 auto;
-  
-    width: 28px;
-    height: 28px;
-  
-    color: #5f7040;
-  
-    font-size: 1rem;
-    font-weight: 800;
-    line-height: 1;
   }
   
   
@@ -552,10 +539,6 @@
       font-size: 0.75rem;
     }
   
-    .growing-index-row-arrow {
-      width: 24px;
-      height: 24px;
-    }
   }
   
   

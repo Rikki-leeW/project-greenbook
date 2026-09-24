@@ -373,7 +373,7 @@ export default function Products({
       onNavigate
       }
       pageId="products-top"
-      className="garden-category-page journal-page"
+      className="garden-category-page products-page"
       journeyBackLabel="Growing"
       onJourneyBack={() =>
       onNavigate(
@@ -496,7 +496,7 @@ export default function Products({
                 0 && (
                 <button
                   type="button"
-                  className="journal-add-button"
+                  className="open-detail-control"
                   onClick={
                     onAddProduct
                   }
@@ -601,7 +601,7 @@ export default function Products({
                     )
                   }
                 >
-                  Open Product
+                  Open
                 </button>
               </article>
             ),

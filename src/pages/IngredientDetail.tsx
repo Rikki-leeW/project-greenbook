@@ -402,7 +402,7 @@ export default function IngredientDetail({
     <DetailPageTemplate
       activePage="library"
       onNavigate={onNavigate}
-      className="journal-page"
+      className="ingredient-detail-page"
       as="div"
       pageId="ingredient-detail-top"
       journeyBackLabel={
@@ -781,4 +781,3 @@ export default function IngredientDetail({
       </DetailPageTemplate>
   );
 }
-

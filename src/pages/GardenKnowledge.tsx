@@ -5110,6 +5110,13 @@ export default function GardenKnowledge({
                                                         note.createdAt,
                                                 )}
                                             </span>
+
+                                            <span
+                                                aria-hidden="true"
+                                                className="open-detail-control"
+                                            >
+                                                Open
+                                            </span>
                                         </div>
                                     </button>
                                 ),
@@ -6020,6 +6027,13 @@ export default function GardenKnowledge({
                                                     source.savedDate ??
                                                         source.createdAt,
                                                 )}
+                                            </span>
+
+                                            <span
+                                                aria-hidden="true"
+                                                className="open-detail-control"
+                                            >
+                                                Open
                                             </span>
                                         </div>
                                     </button>

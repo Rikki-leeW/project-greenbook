@@ -6501,6 +6501,12 @@ if (
           onNavigate={
             handleNavigate
           }
+
+          journeyBackLabel={journeyBackLabel}
+
+          onJourneyBack={() =>
+            handleJourneyBack('gate')
+          }
         />
 
 
@@ -6694,6 +6700,12 @@ if (
 
           onNavigate={
             handleNavigate
+          }
+
+          journeyBackLabel={journeyBackLabel}
+
+          onJourneyBack={() =>
+            handleJourneyBack('gate')
           }
         />
 
@@ -7078,6 +7090,12 @@ if (
 
           onNavigate={
             handleNavigate
+          }
+
+          journeyBackLabel={journeyBackLabel}
+
+          onJourneyBack={() =>
+            handleJourneyBack('gate')
           }
         />
 

@@ -2197,14 +2197,14 @@ export default function GardenReference({
 
                     <button
                         type="button"
-                        className="sprig-knowledge-text-button"
+                        className="open-detail-control"
                         onClick={() =>
                             selectReference(
                                 reference.id,
                             )
                         }
                     >
-                        Open reference ›
+                        Open
                     </button>
                 </div>
             </article>
@@ -4429,14 +4429,14 @@ export default function GardenReference({
                                                             <div className="sprig-knowledge-detail-actions">
                                                                 <button
                                                                     type="button"
-                                                                    className="sprig-knowledge-text-button"
+                                                                    className="open-detail-control"
                                                                     onClick={() =>
                                                                         selectReference(
                                                                             onlyReference.id,
                                                                         )
                                                                     }
                                                                 >
-                                                                    Open reference ›
+                                                                    Open
                                                                 </button>
                                                             </div>
                                                         </article>

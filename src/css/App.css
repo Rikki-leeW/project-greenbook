@@ -1,6 +1,5 @@
 @import './components/layout.css';
 @import './components/navigation.css';
-@import './components/buttons.css';
 @import './components/forms.css';
 @import './components/search-controls.css';
 @import './components/photos.css';
@@ -8,10 +7,15 @@
 @import './pages/plants.css';
 @import './pages/growing.css';
 @import './pages/journal.css';
+@import './pages/harvest.css';
+@import './pages/library-records.css';
 @import './pages/gate.css';
 @import './pages/plant-detail.css';
 @import './pages/welcome.css';
 @import './components/category-pages.css';
+/* Shared interactive appearances load after feature layout so page CSS cannot
+   accidentally erase a global button variant such as the Open detail pill. */
+@import './components/buttons.css';
 
 /*
  * Final shared field and form-control layer.

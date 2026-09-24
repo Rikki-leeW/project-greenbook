@@ -238,7 +238,7 @@ export default function ProductDetail({
   }
 
   return (
-    <DetailPageTemplate activePage="library" onNavigate={onNavigate} className="journal-page" as="div" pageId="product-detail-top"
+    <DetailPageTemplate activePage="library" onNavigate={onNavigate} className="product-detail-page" as="div" pageId="product-detail-top"
       eyebrow={<>Garden Product</>}
       title={<>{product.name}</>}
       intro={<>{

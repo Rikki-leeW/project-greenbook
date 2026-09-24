@@ -2368,9 +2368,9 @@ function renderResults() {
 
               <span
                 aria-hidden="true"
-                className="growing-index-row-arrow"
+                className="growing-index-row-arrow open-detail-control"
               >
-                →
+                Open
               </span>
             </button>
           ),
@@ -2468,9 +2468,9 @@ function renderResults() {
 
                 <span
                   aria-hidden="true"
-                  className="growing-index-row-arrow"
+                  className="growing-index-row-arrow open-detail-control"
                 >
-                  →
+                  Open
                 </span>
               </button>
             );
@@ -2559,9 +2559,9 @@ function renderResults() {
 
                 <span
                   aria-hidden="true"
-                  className="growing-index-row-arrow"
+                  className="growing-index-row-arrow open-detail-control"
                 >
-                  →
+                  Open
                 </span>
               </button>
             );
@@ -2642,9 +2642,9 @@ function renderResults() {
 
               <span
                 aria-hidden="true"
-                className="growing-index-row-arrow"
+                className="growing-index-row-arrow open-detail-control"
               >
-                →
+                Open
               </span>
             </button>
           );
