@@ -251,7 +251,7 @@ export default function BackupRestore({
       onNavigate
       }
       pageId="backup-restore-top"
-      className="journal-page"
+      className="garden-category-page journal-page"
       journeyBackLabel="Today"
       onJourneyBack={() =>
       onNavigate(
